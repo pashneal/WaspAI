@@ -367,8 +367,8 @@ void Test::BitboardTest::testShiftDirection(){
 
 			Test::pass(expectedResults[i][boardIndex] == testBitboardContainer.internalBoards[boardIndex],
 					"Expected result incorrect for shiftDirection() ");
-			cout << "\t\t Expected board:" <<  expectedResults[i][boardIndex] << endl;
-			cout << "\t\t Given board:" << testBitboardContainer.internalBoards[boardIndex] << endl;
+			//cout << "\t\t Expected board:" <<  expectedResults[i][boardIndex] << endl;
+			//cout << "\t\t Given board:" << testBitboardContainer.internalBoards[boardIndex] << endl;
 		}
 	}
 

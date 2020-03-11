@@ -28,6 +28,7 @@ class BitboardContainer {
 	void shiftDirection(Direction);
 	void findBoundingBoxes();
 	void findBoundingBoxes(int);
+	int findConnnectedCompBFS(vector<int> , vector<int>);
 };
 
 

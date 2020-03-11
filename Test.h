@@ -28,10 +28,11 @@ class Test {
 		class BitboardTest {
 			public:
 				static void testMovePiece();
-				static void testShiftDirection();
+				static void testShiftDirection();//done
 				static void testWarpPiece();
 				static void testRecenterBoard();
 				static void testFloodFillAlongPath();
+				static void testFindConnectedCompBFS();
 				static void testFindPinned();
 				static void testFindRings();
 				static void testFindGates();

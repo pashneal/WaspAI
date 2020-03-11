@@ -65,6 +65,7 @@ void BitboardContainer::findBoundingBoxes(int boardIndex){
 }
 
 void BitboardContainer::shiftDirection(Direction dir){
+	
 	vector <int> activeBoards;
 	for (int i : internalBoardCache){
 		activeBoards.push_back(i);
@@ -85,13 +86,9 @@ void BitboardContainer::shiftDirection(Direction dir){
 
 		if (dir == Direction::E) {
 			eastColumnSelector &= internalBoards[activeBoards[i]];
-			if (eastColumnSelector != 0){
+			if (eastColumnSelector != 0 && !(activeBoards[i] > BITBOARD_CONTAINER_SIZE - 2 ||
+					((activeBoards[i] % BITBOARD_CONTAINER_ROWS) == 3))){
 
-				if (activeBoards[i] > BITBOARD_CONTAINER_SIZE - 2 ||
-					((activeBoards[i] % BITBOARD_CONTAINER_ROWS) == 3)){
-					cout << "error 10" << endl;
-					throw 10;
-				}
 				//magic number fix later TODO
 				//delete the overflow
 				internalBoards[activeBoards[i]] ^= eastColumnSelector;
@@ -103,13 +100,11 @@ void BitboardContainer::shiftDirection(Direction dir){
 			internalBoards[activeBoards[i]] <<= COLUMN_SHIFT;
 
 		} else if ( dir == Direction::W) {
+
 			westColumnSelector &= internalBoards[activeBoards[i]];
-			if (westColumnSelector != 0){
-				if (activeBoards[i] < 1 || 
-					((activeBoards[i] % BITBOARD_CONTAINER_ROWS) == 0)){
-					cout << "error 11" << endl;
-					throw 11;
-				}
+
+			if (westColumnSelector != 0 && !(activeBoards[i] < 1 || 
+				((activeBoards[i] % BITBOARD_CONTAINER_ROWS) == 0))){
 
 				//delete the overflow
 				internalBoards[activeBoards[i]] ^= westColumnSelector;
@@ -124,11 +119,8 @@ void BitboardContainer::shiftDirection(Direction dir){
 
 		} else if ( dir == Direction::S) {
 			southRowSelector &= internalBoards[activeBoards[i]];
-			if (southRowSelector != 0){
-				if (activeBoards[i] >= (BITBOARD_CONTAINER_SIZE - BITBOARD_CONTAINER_ROWS - 1)){
-					cout << "error 12" << endl;
-					throw 12;
-				}
+			if (southRowSelector != 0 && 
+				!(activeBoards[i] >= (BITBOARD_CONTAINER_SIZE - BITBOARD_CONTAINER_ROWS - 1))){
 				//magic number fix later TODO
 				//delete the overflow
 				internalBoards[activeBoards[i]] ^= southRowSelector;
@@ -142,11 +134,7 @@ void BitboardContainer::shiftDirection(Direction dir){
 
 		} else if ( dir == Direction::N) {
 			northRowSelector &= internalBoards[activeBoards[i]];
-			if (northRowSelector != 0){
-				if (activeBoards[i] < BITBOARD_CONTAINER_ROWS){
-					cout << "error 13" << endl;
-					throw 13;
-				}
+			if (northRowSelector != 0 && (activeBoards[i] > BITBOARD_CONTAINER_ROWS)){
 				//magic number fix later TODO
 				//delete the overflow
 				internalBoards[activeBoards[i]] ^= northRowSelector;
@@ -179,4 +167,5 @@ void BitboardContainer::shiftDirection(Direction dir){
 		}
 	}
 }
+
 
