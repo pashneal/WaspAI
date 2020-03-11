@@ -1,2 +1,5 @@
 # WaspAI
-An artificial intelligence engine for the game hive
+An artificial intelligence engine for the game Hive. See more information about hive at this address https://www.boardspace.net/english/about_hive.html 
+
+Create an account and play online here
+https://boardgamearena.com/gamepanel?game=hive
