@@ -195,8 +195,7 @@ void BitboardContainer::shiftDirection(Direction dir){
 }
 
 //This is also slow but far less messy!
-void floodFillStep(unordered_map <int, unsigned long long> start, 
-				   unordered_map <int, unsigned long long> visited){
+void BitboardContainer::floodFillStep(BitboardContainer frontier,  BitboardContainer visited){
 
 	vector<Direction> traversalList = {
 										 Direction::SE,
@@ -208,9 +207,37 @@ void floodFillStep(unordered_map <int, unsigned long long> start,
 										 Direction::N
 										};
 
-	BitboardContainer test(start);
+	for (Direction dir : traversalList) {
+		frontier.shiftDirection(dir);
+		visited.unionWith(frontier);
+		visited.andWith(*this);
+	}
+	frontier.shiftDirection(Direction::SE);
+	frontier.pruneCache();
 }
 
-int findConnectedCompBFS(int frontierBitboard, int boardIndex) {
+int BitboardContainer::findConnectedCompBFS(int frontierBitboard, int boardIndex) {
 	
+}
+
+void BitboardContainer::pruneCache(){
+	for (int i: internalBoardCache){
+		if (internalBoards[i] == 0){
+			internalBoardCache.erase(i);
+		}
+	}
+}
+
+void BitboardContainer::unionWith( BitboardContainer other){
+	for (int i = 0; i < BITBOARD_CONTAINER_SIZE; ++i){
+		internalBoardCache.insert(i);
+		internalBoards[i] |= other.internalBoards[i];
+	}
+}
+
+void BitboardContainer::andWith( BitboardContainer other) {
+	for (int i = 0; i < BITBOARD_CONTAINER_SIZE; ++i){
+		internalBoardCache.insert(i);
+		internalBoards[i] &= other.internalBoards[i];
+	}
 }

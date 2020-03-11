@@ -23,12 +23,14 @@ class BitboardContainer {
 	BitboardContainer();
 	BitboardContainer(unordered_map<int, unsigned long long int>);
 
-
-
 	void shiftDirection(Direction);
 	void findBoundingBoxes();
 	void findBoundingBoxes(int);
-	int findConnnectedCompBFS(int, int);
+	int findConnectedCompBFS(int, int);
+	void floodFillStep(BitboardContainer, BitboardContainer);
+	void pruneCache();
+	void unionWith(BitboardContainer);
+	void andWith(BitboardContainer);
 };
 
 

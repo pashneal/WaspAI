@@ -46,6 +46,7 @@ class Test {
 				static void testWin();
 				static void testOneHiveRuleWithFloodFill();	
 		};
+
 		static void pass(bool, string);
 };
 
