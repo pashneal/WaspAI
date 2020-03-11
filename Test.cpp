@@ -221,7 +221,6 @@ void Test::HiveTest::parseCommandTest(){
 }
 
 void Test::BitboardTest::testBitboardBoundings(){
-
 	cout << "===========Test::Bitboard::testBoundingBoxes()==========" << endl;
 	unordered_map<int, unsigned long long int> 
 		BitboardContainerMap
@@ -258,7 +257,6 @@ void Test::BitboardTest::testBitboardBoundings(){
 					"expected bounding coordinate is incorrect");
 		}
 	}
-
 }
 
 void Test::BitboardTest::testShiftDirection(){
@@ -292,16 +290,16 @@ void Test::BitboardTest::testShiftDirection(){
 		},
 
 		{
-			{5, 9544151300301102650u}
+			{5, 2258440288213000u}
 		},
 
 		{
-			{5, 16592972700788225024u},
-			{6, 281474976776192u},
-			{2, 1},
-			{1, 8}
+			{5, 579849679608481792u}
 		},
-		
+
+		{
+			{5,2258444583180296}
+		}
 
 	};
 
@@ -312,6 +310,7 @@ void Test::BitboardTest::testShiftDirection(){
 		Direction::N,
 		Direction::E,
 		Direction::NE,
+		Direction::SW,
 		Direction::SW
 	};
 
@@ -342,14 +341,15 @@ void Test::BitboardTest::testShiftDirection(){
 		},
 
 		{ 
-			{5, 16592972700788225024u},
-			{6, 281474976776192u},
-			{2, 1},
-			{1, 8}
+			{5, 579849679608481792u}
 		},
 
 		{
-			{5, 9544151300301102650u}
+			{5, 2258440288213000u}
+		},
+
+		{
+			{5, 4423901974552},{9,288230376151711744},{4, 2147483648}
 		}
 
 
@@ -367,19 +367,73 @@ void Test::BitboardTest::testShiftDirection(){
 
 			Test::pass(expectedResults[i][boardIndex] == testBitboardContainer.internalBoards[boardIndex],
 					"Expected result incorrect for shiftDirection() ");
-			//cout << "\t\t Expected board:" <<  expectedResults[i][boardIndex] << endl;
-			//cout << "\t\t Given board:" << testBitboardContainer.internalBoards[boardIndex] << endl;
+			cout << "\t\t Expected board:" <<  expectedResults[i][boardIndex] << endl;
+			cout << "\t\t Given board:" << testBitboardContainer.internalBoards[boardIndex] << endl;
 		}
 	}
 
+	unordered_map <int, unsigned long long> test;
+	test[5] = 1;
+	testBitboardContainer = BitboardContainer(test);
+	testBitboardContainer.shiftDirection(Direction::NE);
+	testBitboardContainer.shiftDirection(Direction::W);
+	testBitboardContainer.shiftDirection(Direction::SW);
+	testBitboardContainer.shiftDirection(Direction::SE);
+	testBitboardContainer.shiftDirection(Direction::E);
+	testBitboardContainer.shiftDirection(Direction::NW);
+	cout << "Test" << shiftDirections.size() << ": ";
+	Test::pass(testBitboardContainer.internalBoards[5] == 1, "result incorrect");
 
 }
 
+/*void Test::BitboardTest::testShiftDirection(){
+	cout << "==========Test::Bitboard::shiftDirection()=======" << endl;
+	
+	BitboardContainer testBitboardContainer( { 
+											  {0,},
+											  {1,},
+											  {2,},
+											  {3,},
+											  {4,},
+											  {5,},
+											  {6,},
+											  {7,},
+											  {8,},
+											  {9,}
+											  });
+	//thanks to http://cinnamonchess.altervista.org/bitboard_calculator/Calc.html for allowing me to create these tests more easily
+	unordered_map <unsigned long long, int> bitboardList =
+	{
+		{,1}
+	};
+
+
+
+	unordered_map <unsigned long long, int> expectedResults = 
+	{
+		{}
+	};
+
+	for (auto test: bitboardList) {
+		auto testFrontierBitboard = test.first;
+		auto testBoardIndex= test.second;
+		
+		cout << "Test " << i << endl;
+		
+			cout << "\tboard " << boardIndex << " ";
+
+			Test::pass(expResults[testFrontierBitboard] == 
+					   testBitboardContainer.findConnectedCompBFS(testFrontierBitboard, boardIndex),
+					"Expected result incorrect for findConnectedCompBFS(int, int)");
+	}
+}
+*/
 int main() {
 	Test::HiveTest::insertPieceTest();
 	Test::HiveTest::movePieceTest();
 	Test::HiveTest::parseCommandTest();
 	Test::BitboardTest::testBitboardBoundings();
 	Test::BitboardTest::testShiftDirection();
+	//Test::BitboardTest::testFindConnectedCompBFS();
 	return 0;
 }
