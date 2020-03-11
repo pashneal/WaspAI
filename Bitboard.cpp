@@ -128,10 +128,6 @@ void BitboardContainer::shiftDirection(Direction dir){
 		unsigned long long southRowSelector =   0xff;
 		unsigned long long northRowSelector =   0xff00000000000000u;
 
-		if (internalBoards[activeBoards[i]] == 0) {
-			internalBoardCache.erase(activeBoards[i]);
-			continue;
-		}
 
 		if (dir == Direction::E) {
 			eastColumnSelector &= internalBoards[activeBoards[i]];
