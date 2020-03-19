@@ -386,48 +386,7 @@ void Test::BitboardTest::testShiftDirection(){
 
 }
 
-/*void Test::BitboardTest::testShiftDirection(){
-	cout << "==========Test::Bitboard::shiftDirection()=======" << endl;
-	
-	BitboardContainer testBitboardContainer( { 
-											  {0,},
-											  {1,},
-											  {2,},
-											  {3,},
-											  {4,},
-											  {5,},
-											  {6,},
-											  {7,},
-											  {8,},
-											  {9,}
-											  });
-	//thanks to http://cinnamonchess.altervista.org/bitboard_calculator/Calc.html for allowing me to create these tests more easily
-	unordered_map <unsigned long long, int> bitboardList =
-	{
-		{,1}
-	};
 
-
-
-	unordered_map <unsigned long long, int> expectedResults = 
-	{
-		{}
-	};
-
-	for (auto test: bitboardList) {
-		auto testFrontierBitboard = test.first;
-		auto testBoardIndex= test.second;
-		
-		cout << "Test " << i << endl;
-		
-			cout << "\tboard " << boardIndex << " ";
-
-			Test::pass(expResults[testFrontierBitboard] == 
-					   testBitboardContainer.findConnectedCompBFS(testFrontierBitboard, boardIndex),
-					"Expected result incorrect for findConnectedCompBFS(int, int)");
-	}
-}
-*/
 int main() {
 	Test::HiveTest::insertPieceTest();
 	Test::HiveTest::movePieceTest();

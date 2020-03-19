@@ -166,8 +166,6 @@ Piece * Hive::getPiece(char color, string shorthandName){
  * @return true if the game move was parsed correctly
  */
 bool Hive::parseCommand(vector<string> command){
-
-
 	string shorthandName = command[0].substr(1,command[0].size() );
 	char color = command[0][0];
 
@@ -240,7 +238,6 @@ bool Hive::parseCommand(vector<string> command){
 
 	turnCounter += 1;	
 	return true;
-
 }
 
 
