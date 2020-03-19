@@ -13,18 +13,13 @@ unordered_map <Direction, vector<int>> overflowLocation =
 	{Direction::N, {0,1,2,3,0,1,2,3,4,5,6,7,8,9,10,11}}
 };
 
-BitboardContainer::BitboardContainer(){
-	unordered_map <int , unsigned long long > empty;
-	initialize(empty);
-}
 
 
-BitboardContainer::BitboardContainer(unordered_map<int, unsigned long long int> predefinedBoards){
+BitboardContainer::BitboardContainer(unordered_map<int, unsigned long long > predefinedBoards){
 	initialize(predefinedBoards);
 }
 
 void BitboardContainer::initialize(unordered_map < int, unsigned long long> predefinedBoards) {
-	int internalBoards[16] = {0};
 	//iterate through the map and update board internals
 	for (auto keyValueList : predefinedBoards) {
 		internalBoardCache.insert(keyValueList.first);
@@ -83,7 +78,6 @@ void BitboardContainer::findBoundingBoxes(int boardIndex){
 
 //This is a messy, buggy, slow function; not meant to be used in the search tree!
 void BitboardContainer::shiftDirection(Direction dir){
-
 	unsigned long long tempMask = 0xff00ff00ff00ff;
 	unordered_map <int, unsigned long long> tempActiveBoards;
 
@@ -234,9 +228,7 @@ void BitboardContainer::floodFill(BitboardContainer frontier){
 		frontier.initializeTo(visited);
 		floodFillStep(frontier, visited);
 	} while (!frontier.equals(visited));
-
 }
-
 
 
 bool BitboardContainer::equals(BitboardContainer other){
@@ -265,5 +257,24 @@ void BitboardContainer::andWith( BitboardContainer other) {
 	for (int i = 0; i < BITBOARD_CONTAINER_SIZE; ++i){
 		internalBoardCache.insert(i);
 		internalBoards[i] &= other.internalBoards[i];
+	}
+}
+
+//TODO optimize
+//TODO test
+unordered_map<int , unsigned long long> BitboardContainer::duplicateBoard(vector <Direction> dirs) {
+	BitboardContainer other;
+	unordered_map <int , unsigned long long> returnMap;
+	other.initializeTo(*this);
+	for (int i : other.internalBoardCache){
+		returnMap[i] = other.internalBoards[i];
+	}
+	for (Direction dir: dirs) { 
+		other.shiftDirection(dir);
+		for (int i: other.internalBoardCache) {
+			if (returnMap.find(i) == returnMap.end()) returnMap[i] == 0;
+			returnMap[i] |= other.internalBoards[i];
+		}
+		other.initializeTo(*this); // reset is slow but it prolly works 
 	}
 }

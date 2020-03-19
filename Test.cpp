@@ -4,9 +4,9 @@
 #include <unordered_map>
 #include <iostream>
 #include "constants.h"
+#include "Bitboard.h"
 #include "Piece.h"
 #include "Hive.h"
-#include "Bitboard.h"
 #include "Test.h"
 
 using namespace std;

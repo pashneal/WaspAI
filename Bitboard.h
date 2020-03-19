@@ -18,9 +18,9 @@ class BitboardContainer {
 	int BITBOARD_CONTAINER_COLS = 4;
 
 	int  boundingBoxes[16][4];
-	unsigned long long int internalBoards[16];
+	unsigned long long int internalBoards[16] = {0};
 
-	BitboardContainer();
+	BitboardContainer() {};
 	BitboardContainer(unordered_map<int, unsigned long long>);
 
 	void initialize(unordered_map <int, unsigned long long>);
@@ -35,6 +35,7 @@ class BitboardContainer {
 	void unionWith(BitboardContainer);
 	void andWith(BitboardContainer);
 	bool equals(BitboardContainer);
+	unordered_map <int ,unsigned long long> duplicateBoard( vector<Direction>);
 };
 
 

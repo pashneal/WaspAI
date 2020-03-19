@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include "constants.h"
 #include "Piece.h"
+#include "Bitboard.h"
 #include "Hive.h"
 
 using namespace std;
@@ -14,12 +15,18 @@ using namespace std;
 
 
 Hive::Hive() { 
-	for (int i = 0; i < 9; ++i){
-		hive[i] = 0;
-	}
+
+	BitboardContainer allGameBoards[] = { 
+										  allPieces, whitePieces, blackPieces, ants, beetles, 
+										  spiders, ladybugs, queens, mosquitoes, pillbugs, 
+										  grasshoppers, gates, doors, rings, firstPieces,
+										  secondPieces, thirdPieces
+										};
+
 	for (int i = 0; i < 28; ++i){
 		pieceLookupTable[i] = false;
 	}
+	
 }
 
 
@@ -33,7 +40,6 @@ void Hive::insertPiece(Piece piece){
 	pieceLookupTable[pieceLookupNumber]  = true;
 	pieceArray[pieceLookupNumber] = piece;
 	pieceLookupSet.insert(pieceLookupNumber);
-	
 }
 
 void Hive::insertPiece(char pieceColor, string shorthandName,
@@ -50,7 +56,6 @@ void Hive::insertPiece(char pieceColor, string shorthandName,
 	pieceLookupTable[pieceLookupNumber] = true;
 	pieceArray[pieceLookupNumber] = piece;
 	pieceLookupSet.insert(pieceLookupNumber);
-
 }
 
 
@@ -60,7 +65,6 @@ void Hive::print() {
 
 
 void Hive::printDebug() {
-	
 	printf("turncounter %d \n", turnCounter);
 	for (int i = 0; i < 28; ++i){
 		cout << i << ":" <<  pieceLookupTable[i] << " ";

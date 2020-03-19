@@ -2,21 +2,45 @@
 #include <vector>
 #include <string>
 
-
 using namespace std;
 
 class Hive {
-	long long int hive[9];
+	static const int CENTER_X = 23;
+	static const int CENTER_Y = 11;
+	//TODO make tests and center_xy not dependent on coords
+
+
 	bool pieceLookupTable[28];
 	set<int> pieceLookupSet;
 	Piece pieceArray[28];
-	static const int CENTER_X = 23;
-	static const int CENTER_Y = 11;
+
+	int BitBoardShiftY = 0;
+	int BitBoardShiftX = 0;
+
+	BitboardContainer allPieces;
+	BitboardContainer whitePieces;
+	BitboardContainer blackPieces;
+	BitboardContainer ants;
+	BitboardContainer beetles;
+	BitboardContainer spiders;
+	BitboardContainer ladybugs;
+	BitboardContainer queens;
+	BitboardContainer mosquitoes;
+	BitboardContainer pillbugs;
+	BitboardContainer grasshoppers;
+	BitboardContainer gates;
+	BitboardContainer doors;
+	BitboardContainer rings;
+	BitboardContainer firstPieces;
+	BitboardContainer secondPieces;
+	BitboardContainer thirdPieces;
+	
   public:
 
 	int turnCounter = 0;
 
 	Hive();
+
 	void insertPiece(char, string, int , int );
 	void insertPiece(Piece);
 	void print();
