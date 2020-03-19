@@ -2,6 +2,17 @@
 #include <vector>
 
 using namespace std;
+enum PieceName{
+	GRASSHOPPER,
+	QUEEN,
+	LADYBUG,
+	PILLBUG,
+	MOSQUITO,
+	BEETLE,
+	ANT,
+	SPIDER
+};
+
 enum Direction{
 	NE = 0,
 	E = 1,

@@ -12,10 +12,7 @@
 
 using namespace std;
 
-
-
 Hive::Hive() { 
-
 	BitboardContainer allGameBoards[] = { 
 										  allPieces, whitePieces, blackPieces, ants, beetles, 
 										  spiders, ladybugs, queens, mosquitoes, pillbugs, 
@@ -26,7 +23,6 @@ Hive::Hive() {
 	for (int i = 0; i < 28; ++i){
 		pieceLookupTable[i] = false;
 	}
-	
 }
 
 
@@ -126,7 +122,6 @@ void Hive::movePiece(char color, string shorthandName,
 }
 
 void Hive::movePiece(int piece1Int, Direction dir ,int piece2Int){
-
 	if (!pieceInHive(piece1Int) || !pieceInHive(piece2Int)){
 		cout << "error 5" << endl;
 		throw 5;
@@ -166,7 +161,6 @@ Piece * Hive::getPiece(char color, string shorthandName){
  * takes input from stdin and converts it to an in game move
  * 
  * @param command A list of strings corresponding to space separated input
- * 
  * @return true if the game move was parsed correctly
  */
 bool Hive::parseCommand(vector<string> command){
@@ -244,7 +238,9 @@ bool Hive::parseCommand(vector<string> command){
 	return true;
 }
 
-
+/**
+ * @param color piece color
+ * @returns 
 int Hive::pieceNumber(char color, string shorthandName) {
 	return pieceNum[shorthandName] + 14*(color == 'b');
 }
