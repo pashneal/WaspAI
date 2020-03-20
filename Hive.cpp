@@ -274,19 +274,24 @@ void Hive::depthFirstSearch(){
 
 	articulationNodes.erase();
 
-	auto iter = pieceNodes.begin();
-	getArticulationNodes(*iter);
+	auto root = pieceNodes.begin();
+	getArticulationNodes(*root);
+	int numChildren = 0;
+	for (auto neighbor: (*root).neighbors) {
+		if ((*neighbor).parent.pieceNumber == (*root).pieceNumber)
+			numChildren++;
+	}
+
+	if (numChildren > 1) articulationNodes.push_back(root);
 }
 
 
 void Hive::getArticulationNodes(PieceNode &n) {
-
 	n.visited = true;
 	n.visitedNum = counter++;	
 	n.lowLink = n.visitedNum;
 	for(auto neighbor: n.neighbors){
 		if (!(*neighbor).visited){
-			//need to check for root
 			(*neighbor).parent = *n;
 			getArticulationNodes(*neighbor, articulationNodes);
 			if ( (*neighbor).lowLink >=  n.visitedNum) articulationNodes.push_back(n);
@@ -300,4 +305,5 @@ void Hive::getArticulationNodes(PieceNode &n) {
 
 
 void Hive::updateArticulationFramework(vector <PieceNode*> &affectedNodes){
+	// can be turned to an O(k) algo;
 }
