@@ -204,6 +204,11 @@ void BitboardContainer::shiftDirection(Direction dir){
 	}
 }
 
+void BitboardContainer::shiftDirection(Direction dir, int numTimes){
+	for (int i = 0; i < numTimes; i++) {
+		shiftDirection(dir);
+	}
+}
 //This is also slow but far less messy!
 void BitboardContainer::floodFillStep(BitboardContainer &frontier,  BitboardContainer &visited){
 	vector<Direction> traversalList = {
@@ -328,6 +333,7 @@ void BitboardContainer::findAllGates(BitboardContainer &result ){
 void BitboardContainer::findGatesContainingPiece(BitboardContainer &result,
 												 unsigned long long piece,
 												 int internalBoardIndex){	
+
 }
 
 
