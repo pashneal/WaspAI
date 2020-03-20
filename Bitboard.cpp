@@ -1,3 +1,4 @@
+#include <list>
 #include <set>
 #include <algorithm>
 #include "constants.h"
@@ -199,7 +200,7 @@ void BitboardContainer::shiftDirection(Direction dir){
 }
 
 //This is also slow but far less messy!
-void BitboardContainer::floodFillStep(BitboardContainer frontier,  BitboardContainer visited){
+void BitboardContainer::floodFillStep(BitboardContainer &frontier,  BitboardContainer &visited){
 	vector<Direction> traversalList = {
 										 Direction::SE,
 										 Direction::N,
@@ -240,21 +241,26 @@ bool BitboardContainer::equals(BitboardContainer other){
 }
 
 void BitboardContainer::pruneCache(){
+	list <int> = emptyBoards;
 	for (int i: internalBoardCache){
 		if (internalBoards[i] == 0){
-			internalBoardCache.erase(i);
+			internalBoardCache.push_front(i);
 		}
+	}
+
+	for (int i: emptyBoards) {
+		internalBoardCache.erase(i);
 	}
 }
 
-void BitboardContainer::unionWith( BitboardContainer other){
+void BitboardContainer::unionWith( BitboardContainer &other){
 	for (auto i: other.internalBoardCache){
 		internalBoardCache.insert(i);
 		internalBoards[i] |= other.internalBoards[i];
 	}
 }
 
-void BitboardContainer::intersectionWith( BitboardContainer other) {
+void BitboardContainer::intersectionWith( BitboardContainer &other) {
 	for (auto i: internalBoardCache){
 		if (other.internalBoardCache.find(i) != other.internalBoardCache.end())
 			internalBoards[i] &= other.internalBoards[i];
@@ -265,13 +271,19 @@ void BitboardContainer::intersectionWith( BitboardContainer other) {
 
 }
 
-void BitboardContainer::xorWith( BitboardContainer other) {
+void BitboardContainer::xorWith( BitboardContainer &other) {
 	for (auto i: other.internalBoardCache) {
 		internalBoards[i] ^= other.internalBoards[i];
 		internalBoardCache.insert(i);
 	}
 }
 
+void BitboardContainer::clear() {
+	for (int i : internalBoardCache) {
+		internalBoards[i] = 0;
+	}
+	pruneCache();
+}
 //TODO optimize
 //TODO test
 unordered_map<int, unsigned long long> BitboardContainer::duplicateBoard(vector <Direction> dirs){
@@ -291,11 +303,19 @@ unordered_map<int, unsigned long long> BitboardContainer::duplicateBoard(vector 
 	}
 }
 
-void BitboardContainer::findAllGates(){
+//Find gate structures from *this board and store is in result
+void BitboardContainer::findAllGates(BitboardContainer &result ){
 	vector <Direction> dirs = {Direction::NW,Direction::SW,Direction::E,
 							   Direction::W,Direction::SE,Direction::NE};
 
 	BitboardContainer hivePerimeter(duplicateBoard(dirs));
 
 	hivePerimeter.xorWith(*this);
+}
+
+//find gate structures from *this board and store it in result, 
+//only search around given areas
+//
+void BitboardContainer::findGatesContainingPiece(BitboardContainer &result) {
+
 }

@@ -29,13 +29,15 @@ class BitboardContainer {
 	void findBoundingBoxes();
 	void findBoundingBoxes(int);
 	int findConnectedCompBFS(int, int);
-	void floodFillStep(BitboardContainer, BitboardContainer);
+	void floodFillStep(BitboardContainer&, BitboardContainer&);
 	void floodFill(BitboardContainer);
 	void pruneCache();
-	void unionWith(BitboardContainer);
-	void intersectionWith(BitboardContainer);
-	bool equals(BitboardContainer);
-	unordered_map <int ,unsigned long long> duplicateBoard( vector<Direction>);
+	void unionWith(BitboardContainer&);
+	void intersectionWith(BitboardContainer&);
+	bool equals(BitboardContainer&);
+	unordered_map <int ,unsigned long long> duplicateBoard(vector<Direction>);
+	void findAllGates(BitboardContianer&)
+	void findGatesContianingPiece(BitboardContainer&);
 	void findAllGates();
 };
 
