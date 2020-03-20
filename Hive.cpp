@@ -269,16 +269,23 @@ vector <PieceNode*> Hive::getArticulationNodes() {
 }
 
 void Hive::depthFirstSearch(){
-	
+	PieceNode empty;
+	for (auto n: pieceNodes) {
+		(*n).parent = &empty;
+		(*n).visited = false;
+	}
+
+	auto iter = pieceNodes.begin();
+	traverseNodes(iter.first, 0);
 }
 
 void Hive::traverseNodes(PieceNode &n, int &counter) {
 	n.visited = true;
 	n.visitedNum = counter++;
 	for (auto neighbor: n.neighbors) {
-		if (!neighbor.visited) {
-			neighbor.parent = n.visited;
-			traverseNodes(neighbor, counter);	
+		if (!(*neighbor).visited) {
+			neighbor.parent = *n;
+			traverseNodes(&neighbor, counter);	
 		}
 	}
 }

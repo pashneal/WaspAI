@@ -1,10 +1,15 @@
 #include <list>
-#include "contants.h"
+#include "constants.h"
 #include "Bitboard.h"
 #include "PieceNode.h"
 
-PieceNode::PieceNode(int pieceNum) { 
+PieceNode::PieceNode() {
+	isEmpty = true; 
+}
+PieceNode::PieceNode(int pieceNum, BitboardContainer b) { 
 	pieceNumber = pieceNum;
+	bitboard = b;
+	isEmpty = false;
 }
 
 void PieceNode::shiftDirection(Direction dir) {

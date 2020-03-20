@@ -12,9 +12,11 @@ class PieceNode {
 		bool visited = false;
 		int visitedNum;
 		int lowLink;
+		bool isEmpty;
 		PieceNode * parent;
 
 		PieceNode();
+		PieceNode(int, BitboardContainer);
 		void shiftDirection(Direction, int);
 		void shiftDirection(Direction);
 		void reposition(list<PieceNode*>&, BitboardContainer&);
