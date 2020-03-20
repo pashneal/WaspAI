@@ -272,13 +272,15 @@ void Hive::depthFirstSearch(){
 		(*n).visited = false;
 	}
 
-	articulationNodes.erase();
+	articulationNodes.clear();
 
-	auto root = pieceNodes.begin();
-	getArticulationNodes(*root);
+	auto rootPointer = pieceNodes.begin();
+	PieceNode * root = *rootPointer;
+	int counter = 0;
+	getArticulationNodes(*root, counter);
 	int numChildren = 0;
 	for (auto neighbor: (*root).neighbors) {
-		if ((*neighbor).parent.pieceNumber == (*root).pieceNumber)
+		if ((*neighbor).parent -> pieceNumber == root->pieceNumber)
 			numChildren++;
 	}
 
@@ -286,18 +288,18 @@ void Hive::depthFirstSearch(){
 }
 
 
-void Hive::getArticulationNodes(PieceNode &n) {
+void Hive::getArticulationNodes(PieceNode &n, int &counter) {
 	n.visited = true;
 	n.visitedNum = counter++;	
 	n.lowLink = n.visitedNum;
 	for(auto neighbor: n.neighbors){
 		if (!(*neighbor).visited){
-			(*neighbor).parent = *n;
-			getArticulationNodes(*neighbor, articulationNodes);
-			if ( (*neighbor).lowLink >=  n.visitedNum) articulationNodes.push_back(n);
+			(*neighbor).parent = &n;
+			getArticulationNodes(*neighbor, counter);
+			if ( (*neighbor).lowLink >=  n.visitedNum) articulationNodes.push_back(&n);
 			n.lowLink = (n.lowLink < (*neighbor).lowLink) ? n.lowLink : (*neighbor).lowLink;
 		}
-		else if ((*neighbor).parent != *n) {
+		else if ((*neighbor).parent -> pieceNumber  != n.pieceNumber) {
 			n.lowLink = (n.lowLink < (*neighbor).visitedNum) ? n.lowLink : (*neighbor).visitedNum;
 		}
 	}

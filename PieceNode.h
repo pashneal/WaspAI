@@ -4,18 +4,19 @@
 using namespace std;
 
 class PieceNode {
-		int pieceNumber;
 		BitboardContainer bitboard;
 	public:	
 		list <PieceNode*> neighbors;	
 
 		bool visited = false;
+		bool isEmpty = true;
 		int visitedNum;
 		int lowLink;
-		bool isEmpty;
 		PieceNode * parent;
+		
+		int pieceNumber;
 
-		PieceNode();
+		PieceNode() {};
 		PieceNode(int, BitboardContainer);
 		void shiftDirection(Direction, int);
 		void shiftDirection(Direction);

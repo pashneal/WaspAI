@@ -61,9 +61,8 @@ class Hive {
 	set<int> getPieceLookupSet();
 	Piece * getPieceArray();
 	bool * getPieceLookupTable();
-	vector <PieceNode*> getArticulationNodes();
+	void getArticulationNodes(PieceNode &, int&);
 	void depthFirstSearch();
-	void traverseNodes(PieceNode&, int&);
 	void updateArticulationFramework(vector <PieceNode*>&);
 	void assignLowLink();
 	void updateLowLink();

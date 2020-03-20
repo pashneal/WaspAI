@@ -3,9 +3,6 @@
 #include "Bitboard.h"
 #include "PieceNode.h"
 
-PieceNode::PieceNode() {
-	isEmpty = true; 
-}
 PieceNode::PieceNode(int pieceNum, BitboardContainer b) { 
 	pieceNumber = pieceNum;
 	bitboard = b;
