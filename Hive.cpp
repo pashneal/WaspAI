@@ -239,8 +239,11 @@ bool Hive::parseCommand(vector<string> command){
 }
 
 /**
- * @param color piece color
- * @returns 
+ * @param color: piece color
+ * @param shortHandName: a letter and number assigned to a given piece; numbers appear 
+ *					     for non-unique pieces
+ * @returns pieceNumber from a range [0,27] corresponding to piece type and color
+ */
 int Hive::pieceNumber(char color, string shorthandName) {
 	return pieceNum[shorthandName] + 14*(color == 'b');
 }
@@ -260,3 +263,16 @@ bool * Hive::getPieceLookupTable(){
 	return pieceLookupTable;
 }
 
+vector <*PieceNode> getArticulationNodes() {
+	vector <*PieceNode> ariticulationNodes;
+
+}
+
+void assignLowLink() {
+}
+
+void updateLowLink(){
+}
+
+void updateArticulationFramework(vector <*PieceNode> &affectedNodes){
+}

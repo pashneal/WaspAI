@@ -34,6 +34,8 @@ class Hive {
 	BitboardContainer firstPieces;
 	BitboardContainer secondPieces;
 	BitboardContainer thirdPieces;
+
+	list <*PieceNode> pieceNodes; 
 	
   public:
 
@@ -58,5 +60,9 @@ class Hive {
 	set<int> getPieceLookupSet();
 	Piece * getPieceArray();
 	bool * getPieceLookupTable();
+	vector <*PieceNode> getArticulationNodes();
+	void updateArticulationFramework(vector <*PieceNode>&);
+	void assignLowLink();
+	void updateLowLink();
 };
 

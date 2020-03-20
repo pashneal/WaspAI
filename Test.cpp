@@ -6,6 +6,7 @@
 #include "constants.h"
 #include "Bitboard.h"
 #include "Piece.h"
+#include "PieceNode.h"
 #include "Hive.h"
 #include "Test.h"
 
