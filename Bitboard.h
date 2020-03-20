@@ -1,4 +1,3 @@
-#include <set>
 #include <vector>
 #include <unordered_map>
 #include <iostream>
@@ -7,6 +6,7 @@ using namespace std;
 class BitboardContainer {
 
   public:
+	//TODO: figure out shift direction O(n) sort so you can get rid of log(n) ordered set
 	set<int> internalBoardCache;
 
 	int ROW_SHIFT = 8;
@@ -33,9 +33,10 @@ class BitboardContainer {
 	void floodFill(BitboardContainer);
 	void pruneCache();
 	void unionWith(BitboardContainer);
-	void andWith(BitboardContainer);
+	void intersectionWith(BitboardContainer);
 	bool equals(BitboardContainer);
 	unordered_map <int ,unsigned long long> duplicateBoard( vector<Direction>);
+	void findAllGates();
 };
 
 

@@ -1,3 +1,4 @@
+#include <set>
 #include <algorithm>
 #include "constants.h"
 #include "Bitboard.h"
@@ -212,7 +213,7 @@ void BitboardContainer::floodFillStep(BitboardContainer frontier,  BitboardConta
 	for (Direction dir : traversalList) {
 		frontier.shiftDirection(dir);
 		visited.unionWith(frontier);
-		visited.andWith(*this);
+		visited.intersectionWith(*this);
 	}
 	frontier.shiftDirection(Direction::SE);
 	frontier.pruneCache();
@@ -247,22 +248,33 @@ void BitboardContainer::pruneCache(){
 }
 
 void BitboardContainer::unionWith( BitboardContainer other){
-	for (int i = 0; i < BITBOARD_CONTAINER_SIZE; ++i){
+	for (auto i: other.internalBoardCache){
 		internalBoardCache.insert(i);
 		internalBoards[i] |= other.internalBoards[i];
 	}
 }
 
-void BitboardContainer::andWith( BitboardContainer other) {
-	for (int i = 0; i < BITBOARD_CONTAINER_SIZE; ++i){
+void BitboardContainer::intersectionWith( BitboardContainer other) {
+	for (auto i: internalBoardCache){
+		if (other.internalBoardCache.find(i) != other.internalBoardCache.end())
+			internalBoards[i] &= other.internalBoards[i];
+		else {
+			internalBoards[i] = 0;
+		}
+	}
+
+}
+
+void BitboardContainer::xorWith( BitboardContainer other) {
+	for (auto i: other.internalBoardCache) {
+		internalBoards[i] ^= other.internalBoards[i];
 		internalBoardCache.insert(i);
-		internalBoards[i] &= other.internalBoards[i];
 	}
 }
 
 //TODO optimize
 //TODO test
-unordered_map<int , unsigned long long> BitboardContainer::duplicateBoard(vector <Direction> dirs) {
+unordered_map<int, unsigned long long> BitboardContainer::duplicateBoard(vector <Direction> dirs){
 	BitboardContainer other;
 	unordered_map <int , unsigned long long> returnMap;
 	other.initializeTo(*this);
@@ -277,4 +289,13 @@ unordered_map<int , unsigned long long> BitboardContainer::duplicateBoard(vector
 		}
 		other.initializeTo(*this); // reset is slow but it prolly works 
 	}
+}
+
+void BitboardContainer::findAllGates(){
+	vector <Direction> dirs = {Direction::NW,Direction::SW,Direction::E,
+							   Direction::W,Direction::SE,Direction::NE};
+
+	BitboardContainer hivePerimeter(duplicateBoard(dirs));
+
+	hivePerimeter.xorWith(*this);
 }
