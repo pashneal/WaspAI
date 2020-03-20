@@ -266,9 +266,22 @@ bool * Hive::getPieceLookupTable(){
 
 vector <PieceNode*> Hive::getArticulationNodes() {
 	vector <PieceNode*> ariticulationNodes;
-
 }
 
+void Hive::depthFirstSearch(){
+	
+}
+
+void Hive::traverseNodes(PieceNode &n, int &counter) {
+	n.visited = true;
+	n.visitedNum = counter++;
+	for (auto neighbor: n.neighbors) {
+		if (!neighbor.visited) {
+			neighbor.parent = n.visited;
+			traverseNodes(neighbor, counter);	
+		}
+	}
+}
 void Hive::assignLowLink() {
 }
 

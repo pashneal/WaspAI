@@ -12,6 +12,7 @@ class PieceNode {
 		bool visited = false;
 		int visitedNum;
 		int lowLink;
+		PieceNode * parent;
 
 		PieceNode();
 		void shiftDirection(Direction, int);
