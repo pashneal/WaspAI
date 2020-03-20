@@ -8,6 +8,7 @@
 #include "constants.h"
 #include "Piece.h"
 #include "Bitboard.h"
+#include "PieceNode.h"
 #include "Hive.h"
 
 using namespace std;
@@ -263,16 +264,16 @@ bool * Hive::getPieceLookupTable(){
 	return pieceLookupTable;
 }
 
-vector <*PieceNode> getArticulationNodes() {
-	vector <*PieceNode> ariticulationNodes;
+vector <PieceNode*> Hive::getArticulationNodes() {
+	vector <PieceNode*> ariticulationNodes;
 
 }
 
-void assignLowLink() {
+void Hive::assignLowLink() {
 }
 
-void updateLowLink(){
+void Hive::updateLowLink(){
 }
 
-void updateArticulationFramework(vector <*PieceNode> &affectedNodes){
+void Hive::updateArticulationFramework(vector <PieceNode*> &affectedNodes){
 }
