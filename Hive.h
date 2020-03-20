@@ -35,6 +35,7 @@ class Hive {
 	BitboardContainer secondPieces;
 	BitboardContainer thirdPieces;
 
+	vector <PieceNode*> articulationNodes;
 	list <PieceNode*> pieceNodes; 
 	
   public:

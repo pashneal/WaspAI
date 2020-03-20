@@ -264,9 +264,6 @@ bool * Hive::getPieceLookupTable(){
 	return pieceLookupTable;
 }
 
-vector <PieceNode*> Hive::getArticulationNodes() {
-	vector <PieceNode*> ariticulationNodes;
-}
 
 void Hive::depthFirstSearch(){
 	PieceNode empty;
@@ -275,25 +272,32 @@ void Hive::depthFirstSearch(){
 		(*n).visited = false;
 	}
 
+	articulationNodes.erase();
+
 	auto iter = pieceNodes.begin();
-	traverseNodes(iter.first, 0);
+	getArticulationNodes(*iter);
 }
 
-void Hive::traverseNodes(PieceNode &n, int &counter) {
+
+void Hive::getArticulationNodes(PieceNode &n) {
+
 	n.visited = true;
-	n.visitedNum = counter++;
-	for (auto neighbor: n.neighbors) {
-		if (!(*neighbor).visited) {
-			neighbor.parent = *n;
-			traverseNodes(&neighbor, counter);	
+	n.visitedNum = counter++;	
+	n.lowLink = n.visitedNum;
+	for(auto neighbor: n.neighbors){
+		if (!(*neighbor).visited){
+			//need to check for root
+			(*neighbor).parent = *n;
+			getArticulationNodes(*neighbor, articulationNodes);
+			if ( (*neighbor).lowLink >=  n.visitedNum) articulationNodes.push_back(n);
+			n.lowLink = (n.lowLink < (*neighbor).lowLink) ? n.lowLink : (*neighbor).lowLink;
+		}
+		else if ((*neighbor).parent != *n) {
+			n.lowLink = (n.lowLink < (*neighbor).visitedNum) ? n.lowLink : (*neighbor).visitedNum;
 		}
 	}
 }
-void Hive::assignLowLink() {
-}
 
-void Hive::updateLowLink(){
-}
 
 void Hive::updateArticulationFramework(vector <PieceNode*> &affectedNodes){
 }
