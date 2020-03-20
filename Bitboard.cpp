@@ -6,6 +6,11 @@
 
 using namespace std;
 
+int XYposition[64][2];
+for (int i = 0; i < 64; i++) {
+	XYposition[i][0] = i%8;
+	XYposition[i][1] = i/8;
+}
 
 unordered_map <Direction, vector<int>> overflowLocation =
 {
@@ -233,7 +238,8 @@ void BitboardContainer::floodFill(BitboardContainer frontier){
 }
 
 
-bool BitboardContainer::equals(BitboardContainer other){
+bool BitboardContainer::equals(BitboardContainer& other){
+
 	for (int i = 0; i < BITBOARD_CONTAINER_SIZE; i++){
 		if (internalBoards[i] != other.internalBoards[i]) return false;
 	}
@@ -242,6 +248,7 @@ bool BitboardContainer::equals(BitboardContainer other){
 
 void BitboardContainer::pruneCache(){
 	list <int> = emptyBoards;
+
 	for (int i: internalBoardCache){
 		if (internalBoards[i] == 0){
 			internalBoardCache.push_front(i);
@@ -290,32 +297,54 @@ unordered_map<int, unsigned long long> BitboardContainer::duplicateBoard(vector 
 	BitboardContainer other;
 	unordered_map <int , unsigned long long> returnMap;
 	other.initializeTo(*this);
+
 	for (int i : other.internalBoardCache){
 		returnMap[i] = other.internalBoards[i];
 	}
+
 	for (Direction dir: dirs) { 
 		other.shiftDirection(dir);
+
 		for (int i: other.internalBoardCache) {
 			if (returnMap.find(i) == returnMap.end()) returnMap[i] == 0;
 			returnMap[i] |= other.internalBoards[i];
 		}
+
 		other.initializeTo(*this); // reset is slow but it prolly works 
 	}
 }
 
-//Find gate structures from *this board and store is in result
+//Find gate structures from *this board and store it in result
 void BitboardContainer::findAllGates(BitboardContainer &result ){
-	vector <Direction> dirs = {Direction::NW,Direction::SW,Direction::E,
-							   Direction::W,Direction::SE,Direction::NE};
+	
 
-	BitboardContainer hivePerimeter(duplicateBoard(dirs));
-
-	hivePerimeter.xorWith(*this);
+	for (auto pieceMap: this -> split()){ 
+		findGatesContainingPiece(result, pieceMap.second, pieceMap.first);
+	}
 }
 
 //find gate structures from *this board and store it in result, 
-//only search around given areas
-//
-void BitboardContainer::findGatesContainingPiece(BitboardContainer &result) {
+//only search around given BitboardContainer pieces
+void BitboardContainer::findGatesContainingPiece(BitboardContainer &result,
+												 unsigned long long piece,
+												 int internalBoardIndex){	
+}
 
+
+/*
+ * returns a map of all the bits that were set indexed by the location of the bit
+ */
+
+unordered_map< int, vector < unsigned long long >> BitboardContainer::split(){
+
+	unordered_map< int, vector <unsigned long long >> returnMap;
+
+	for (int i: internalBoardCache){
+		board = internalBoards[i];
+		do {
+			leastSignificantBit = board & -board;
+			returnMap[i].push_back(leastSignificantBit);
+			board ^= leastSignificantBit; // remove least significant bit
+		} while	(board);
+	}
 }

@@ -25,20 +25,31 @@ class BitboardContainer {
 
 	void initialize(unordered_map <int, unsigned long long>);
 	void initializeTo(BitboardContainer&);
+
 	void shiftDirection(Direction);
+
 	void findBoundingBoxes();
 	void findBoundingBoxes(int);
 	int findConnectedCompBFS(int, int);
+
 	void floodFillStep(BitboardContainer&, BitboardContainer&);
 	void floodFill(BitboardContainer);
+
 	void pruneCache();
+
 	void unionWith(BitboardContainer&);
 	void intersectionWith(BitboardContainer&);
+	void xorWith(BitboardContainer&);
+
 	bool equals(BitboardContainer&);
+
 	unordered_map <int ,unsigned long long> duplicateBoard(vector<Direction>);
+
 	void findAllGates(BitboardContianer&)
-	void findGatesContianingPiece(BitboardContainer&);
+	void findGatesContianingPiece(BitboardContainer&, int, int);
 	void findAllGates();
+
+	unordered_map <int , vector <unsigned long long> > split();
 };
 
 
