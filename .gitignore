@@ -1,3 +1,6 @@
+# Vim autosave files
+*.swp
+
 # Prerequisites
 *.d
 
