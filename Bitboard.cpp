@@ -275,6 +275,7 @@ void BitboardContainer::pruneCache(){
 
 void BitboardContainer::unionWith( BitboardContainer &other){
 	for (auto i: other.internalBoardCache){
+		if (internalBoardCache.find(i) == internalBoardCache.end()) internalBoards[i] = 0;
 		internalBoardCache.insert(i);
 		internalBoards[i] |= other.internalBoards[i];
 	}
@@ -292,6 +293,7 @@ void BitboardContainer::intersectionWith( BitboardContainer &other) {
 
 void BitboardContainer::xorWith( BitboardContainer &other) {
 	for (auto i: other.internalBoardCache) {
+		if (internalBoardCache.find(i) == internalBoardCache.end()) internalBoards[i] = 0;
 		internalBoards[i] ^= other.internalBoards[i];
 		internalBoardCache.insert(i);
 	}
