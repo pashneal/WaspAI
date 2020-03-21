@@ -376,17 +376,35 @@ void BitboardContainer::findGatesContainingPiece(BitboardContainer &result,
 
 	for( int i = 0; i < numDirections; i++){
 
-		testGate = gates[i];
+		BitboardContainer testGate;
+		
+		//create and shift into place
+		testGate.initializeTo(gates[i]);
+		testGate.shiftDirection(Direction::N, yShift);
+		testGate.shiftDirection(Direction::E, xShift);
+		testGate.pruneCache();
+		
 		gate.initializeTo(testGate);
+		
+		//see if all the bits in gateBitboard are set
 		gate.intersectionWith(*this);
 
 		if (gate.equals(testGate)){
 
-			antiGate.initializeTo(antiGates[i]);
+			BitboardContainer testAntiGate;
+			
+			//create and shift into place
+			testAntiGate.initializeTo(antiGates[i]);
+			testAntiGate.shiftDirection(Direction::N, yShift);
+			testAntiGate.shiftDirection(Direction::E, xShift);
+			test.pruneCache();
+
+			antiGate.initializeTo(testAntiGate);
+			
 
 			//antiGate only forms where piece does not exist
-			antiGate.xorWith(BitboardContainer);
-			antiGate.intersectionWith(antiGates[i]);
+			antiGate.xorWith(*this);
+			antiGate.intersectionWith(testAntiGate);
 
 			result.unionWith(antiGate);
 
