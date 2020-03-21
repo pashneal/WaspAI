@@ -246,7 +246,14 @@ void BitboardContainer::floodFill(BitboardContainer &frontier){
 
 bool BitboardContainer::equals(BitboardContainer& other){
 
-	for (int i = 0; i < BITBOARD_CONTAINER_SIZE; i++){
+	set<int> combined;
+	for (auto a : other.internalBoards){
+		combined.insert(a);
+	}
+	for (auto a : internalBoards){
+		combined.insert(a);
+	}
+	for (auto i: combined){
 		if (internalBoards[i] != other.internalBoards[i]) return false;
 	}
 	return true;

@@ -95,7 +95,5 @@ BitboardContainer MoveGenerator::getInaccessibleNodes() {
 			}
 		}
 	}
-
-
 }
 
