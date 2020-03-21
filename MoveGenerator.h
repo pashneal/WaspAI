@@ -45,5 +45,5 @@ class MoveGenerator {
 		void setAllGates(vector <BitboardContainer> *);
 		void setGeneratingPieceBoard(BitboardContainer *);
 
-		BitboardContainer getInaccessibleSquares();
+		BitboardContainer getInaccessibleNodes();
 };

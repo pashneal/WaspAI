@@ -64,7 +64,7 @@ void MoveGenerator::generateAntMoves(){
 }     
 void MoveGenerator::generateSpiderMoves(){}  
 
-BitboardContainer MoveGenerator::getInaccessibleSquares() {
+BitboardContainer MoveGenerator::getInaccessibleNodes() {
 	for (auto gate: *allGates) {
 		vector <BitboardContainer> frontiers;
 		for (auto frontierMap : gate.split()) {
@@ -76,22 +76,22 @@ BitboardContainer MoveGenerator::getInaccessibleSquares() {
 
 		while (1) {
 			BitboardContainer visited;
-			for (auto frontier: frontiers) {
+			for (auto frontier = frontiers.begin(); frontier != frontiers.end(); frontier++) {
 
-				visited.initializeTo(frontier);
+				visited.initializeTo(*frontier);
 
 				//conduct a search and store prev nodes in visited	
-				perimeter.floodFillStep(frontier, visited);
+				perimeter.floodFillStep(*frontier, visited);
 
 				//TODO: replace with andNot()
 				//delete gate nodes from the frontier
-				frontier.unionWith(gate);
-				frontier.xorWith(gate);
+				frontier -> unionWith(gate);
+				frontier -> xorWith(gate);
 
 				//remove empty boards
-				frontier.pruneCache();
+				frontier -> pruneCache();
 
-				if (frontier.internalBoardCache.size() == 0) break;
+				if (frontier -> internalBoardCache.size() == 0) break;
 			}
 		}
 	}
