@@ -6,11 +6,44 @@
 
 using namespace std;
 
-int XYposition[64][2];
+int gateXYposition[64][2];
 for (int i = 0; i < 64; i++) {
-	XYposition[i][0] = i%8;
-	XYposition[i][1] = i/8;
+	gateXYPosition[i][0] = i%8 - 2;
+	gateXYPosition[i][1] = i/8 - 2;
 }
+
+const int numDirections = 6;
+BitboardContainer gates[numDirections];
+
+BitboardContainer gateE({12, 134481920u});
+BitboardContainer gateW({12, 17039616u});
+BitboardContainer gateNW({12, 17196908544u});
+BitboardContainer gateNE({12, 17314349056u});
+BitboardContainer gateSW({12, 264196u});
+BitboardContainer gateSE({12, 262404u});
+
+gates[Direction::E] =  gateE;
+gates[Direction::NE] = gateNE;
+gates[Direction::W] =  gateW;
+gates[Direction::SE] = gateSE;
+gates[Direction::NW] = gateNW;
+gates[Direction::SW] = gateSW;
+
+BitboardContainer antiGates[numDirections];
+
+BitboardContainer antigateNE({12,34460925952u});
+BitboardContainer antigateE({12,68682752u});
+BitboardContainer antigateSE({12,525832u});
+BitboardContainer antigateSW({12,132610u});
+BitboardContainer antigateW({12,33751552u});
+BitboardContainer antigateNW({12,8690728960u});
+
+antigates[Direction::E] =  antigateE;
+antigates[Direction::NE] = antigateNE;
+antigates[Direction::W] =  antigateW;
+antigates[Direction::SE] = antigateSE;
+antigates[Direction::NW] = antigateNW;
+antigates[Direction::SW] = antigateSW;
 
 unordered_map <Direction, vector<int>> overflowLocation =
 {
@@ -321,8 +354,6 @@ unordered_map<int, unsigned long long> BitboardContainer::duplicateBoard(vector 
 
 //Find gate structures from *this board and store it in result
 void BitboardContainer::findAllGates(BitboardContainer &result ){
-	
-
 	for (auto pieceMap: this -> split()){ 
 		findGatesContainingPiece(result, pieceMap.second, pieceMap.first);
 	}
@@ -333,6 +364,41 @@ void BitboardContainer::findAllGates(BitboardContainer &result ){
 void BitboardContainer::findGatesContainingPiece(BitboardContainer &result,
 												 unsigned long long piece,
 												 int internalBoardIndex){	
+	int leadingZeroesCount = __builtin_clzll(piece);
+	int xShift = gateXYPosition[piece][0];
+	int yShift = gateXYPosition[piece][1];
+
+	xShift += (BITBOARD_WIDTH * (internalBoardIndex % BITBOARD_CONTAINER_COLS));
+	yShift += BITBOARD_HEIGHT * (BITBOARD_CONTAINER_HEIGHT - 1 - (internalBoardIndex / BITBOARD_CONTAINER_ROWS));	
+
+	BitboardContainer gate;
+	BitboardContianer antiGate;
+
+	for( int i = 0; i < numDirections; i++){
+
+		testGate = gates[i];
+		gate.initializeTo(testGate);
+		gate.intersectionWith(*this);
+
+		if (gate.equals(testGate)){
+
+			antiGate.initializeTo(antiGates[i]);
+
+			//antiGate only forms where piece does not exist
+			antiGate.xorWith(BitboardContainer);
+			antiGate.intersectionWith(antiGates[i]);
+
+			result.unionWith(antiGate);
+
+			//If a gate is formed here, it is impossible to 
+			//form one in the next clockwise direction
+			//skip it
+			i++;
+
+		}
+			
+	}
+	
 
 }
 

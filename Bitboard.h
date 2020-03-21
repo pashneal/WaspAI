@@ -47,7 +47,7 @@ class BitboardContainer {
 	unordered_map <int ,unsigned long long> duplicateBoard(vector<Direction>);
 
 	void findAllGates(BitboardContainer&)
-	void findGatesContianingPiece(BitboardContainer&, int, int);
+	void findGatesContainingPiece(BitboardContainer&, int, int);
 	void findAllGates();
 
 	unordered_map <int , vector <unsigned long long> > split();
