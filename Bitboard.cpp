@@ -288,7 +288,6 @@ void BitboardContainer::intersectionWith( BitboardContainer &other) {
 			internalBoards[i] = 0;
 		}
 	}
-
 }
 
 void BitboardContainer::xorWith( BitboardContainer &other) {
@@ -307,7 +306,7 @@ void BitboardContainer::clear() {
 //TODO optimize
 //TODO test
 unordered_map<int, unsigned long long> BitboardContainer::duplicateBoard(vector <Direction> dirs){
-	BitboardContainer other;
+	BitboardContainer other
 	unordered_map <int , unsigned long long> returnMap;
 	other.initializeTo(*this);
 

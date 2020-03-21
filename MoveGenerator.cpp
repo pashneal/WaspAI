@@ -64,20 +64,40 @@ void MoveGenerator::generateAntMoves(){
 }     
 void MoveGenerator::generateSpiderMoves(){}  
 
+//TODO: Optimize so you don't have to iterate through every gate separately 
+//Note: the spider cannot reach more than 3 squares away as an optimization
 BitboardContainer MoveGenerator::getInaccessibleNodes() {
+	BitboardContainer inaccessible;
 	for (auto gate: *allGates) {
 		vector <BitboardContainer> frontiers;
+		vector <BitboardContainer> initialFrontiers;
 		for (auto frontierMap : gate.split()) {
 			for (auto board: frontierMap.second) {
 				frontiers.push_back(BitboardContainer({{frontierMap.first, board}}));
 			}
 		}
 
+		for (auto frontier: frontiers) {
+			initialFrontiers.push_back(frontier);
+		}
 
-		while (1) {
+		bool searchResolved[frontiers.size()];
+		unsigned long searchResolvedCount;
+		int index;
+
+		for (unsigned long i = 0; i < frontiers.size() ; i++) searchResolved[i] = 0;
+
+		while (searchResolvedCount < frontiers.size() - 1) {
 			BitboardContainer visited;
 			for (auto frontier = frontiers.begin(); frontier != frontiers.end(); frontier++) {
 
+				if (frontier -> internalBoardCache.size() == 0) {
+					index = frontier - frontiers.begin();
+					if (searchResolved[index])
+						continue;
+					searchResolved[index] = true;
+					searchResolvedCount++;
+				}
 				visited.initializeTo(*frontier);
 
 				//conduct a search and store prev nodes in visited	
@@ -88,12 +108,24 @@ BitboardContainer MoveGenerator::getInaccessibleNodes() {
 				frontier -> unionWith(gate);
 				frontier -> xorWith(gate);
 
-				//remove empty boards
+				//remove empty board
 				frontier -> pruneCache();
+			}
+		}		
 
-				if (frontier -> internalBoardCache.size() == 0) break;
+		for (unsigned long i = 0; i < frontiers.size(); i++) {
+			frontiers[i].intersectionWith(*generatingPieceBoard);
+			frontiers[i].pruneCache();
+			if (!frontiers[i].equals(*generatingPieceBoard)){
+				//TODO: change clear to be a simple xor call
+
+				//if the search concluded before reaching target node
+				//the node is in accessible
+				inaccessible.unionWith(initialFrontiers[i]);
 			}
 		}
 	}
+
+	return inaccessible;
 }
 
