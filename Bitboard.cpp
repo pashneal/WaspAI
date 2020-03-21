@@ -224,28 +224,16 @@ void BitboardContainer::shiftDirection(Direction dir, int numTimes){
 }
 //This is also slow but far less messy!
 void BitboardContainer::floodFillStep(BitboardContainer &frontier,  BitboardContainer &visited){
-	vector<Direction> traversalList = {
-										 Direction::SE,
-										 Direction::N,
-										 Direction::N,
-										 Direction::SW,
-										 Direction::SW,
-										 Direction::N,
-										 Direction::N
-										};
 
-	for (Direction dir : traversalList) {
-		frontier.shiftDirection(dir);
-		visited.unionWith(frontier);
-		visited.intersectionWith(*this);
-	}
-	frontier.shiftDirection(Direction::SE);
+	BitboardContainer search = frontier.getPerimeter();
+	visited.unionWith(search);
+	visited.intersectionWith(*this);
 	frontier.pruneCache();
 }
 
 //TODO test
 //TODO optimize because this is so slow it hurts
-void BitboardContainer::floodFill(BitboardContainer frontier){
+void BitboardContainer::floodFill(BitboardContainer &frontier){
 	BitboardContainer visited;
 	visited.initializeTo(frontier);	
 
@@ -429,4 +417,39 @@ unordered_map< int, vector < unsigned long long >> BitboardContainer::split(){
 		} while	(board);
 	}
 	return returnMap;
+}
+
+
+vector <BitboardContainer> BitboardContainer::splitIntoConnectedComponents(){
+
+	vector <BitboardContainer> components;
+
+	BitboardContainer boards;
+	boards.initializeTo(*this);
+
+	while (boards.internalBoardCache.size() != 0) {
+		int boardIndex = *(boards.internalBoardCache.begin());
+		unsigned long long * currentBoard = &boards.internalBoards[boardIndex];
+
+		do {
+
+			//pick some starting node
+			unsigned long long leastSignificantBit = *currentBoard & -*currentBoard;
+			BitboardContainer returnBitboard({{boardIndex, leastSignificantBit}});
+
+			//BFS starting at that node
+			boards.floodFill(returnBitboard);
+
+			components.push_back(returnBitboard);
+
+			//Remove found nodes
+			boards.xorWith(returnBitboard);
+
+		} while (*currentBoard); //repeat if there are more points on this board
+
+		//delete now empty board
+		boards.internalBoardCache.erase(boardIndex);
+	}
+
+	return components;
 }

@@ -16,7 +16,7 @@ class MoveSet {
 		BitboardContainer allGates;
 		BitboardContainer moves;
 		BitboardContainer perimeter;
-
+		BitboardContainer allGateComponents;
 		MoveSet() {};
 		MoveSet(PieceName, BitboardContainer, BitboardContainer);
 

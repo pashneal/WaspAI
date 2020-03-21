@@ -12,17 +12,18 @@ class BitboardContainer {
 	//TODO: figure out shift direction O(n) sort so you can get rid of log(n) ordered set
 	set<int> internalBoardCache;
 
-	int ROW_SHIFT = 8;
-	int COLUMN_SHIFT = 1;
-	int BITBOARD_HEIGHT = 8;
-	int BITBOARD_WIDTH = 8;
-	int BITBOARD_CONTAINER_SIZE  = 16;
-	int BITBOARD_CONTAINER_ROWS = 4;
-	int BITBOARD_CONTAINER_COLS = 4;
+	const int ROW_SHIFT = 8;
+	const int COLUMN_SHIFT = 1;
+	const int BITBOARD_HEIGHT = 8;
+	const int BITBOARD_WIDTH = 8;
+	const int BITBOARD_CONTAINER_SIZE  = 16;
+	const int BITBOARD_CONTAINER_ROWS = 4;
+	const int BITBOARD_CONTAINER_COLS = 4;
 
 	int  boundingBoxes[16][4];
 	unsigned long long int internalBoards[16] = {0};
 
+	//TODO: make internalBoardCache safe so we don't have to initialize
 	BitboardContainer() {};
 	BitboardContainer(unordered_map<int, unsigned long long>);
 
@@ -37,7 +38,7 @@ class BitboardContainer {
 	int findConnectedCompBFS(int, int);
 
 	void floodFillStep(BitboardContainer&, BitboardContainer&);
-	void floodFill(BitboardContainer);
+	void floodFill(BitboardContainer&);
 
 	void pruneCache();
 	void clear();
@@ -56,7 +57,10 @@ class BitboardContainer {
 
 	BitboardContainer getPerimeter();
 
+
+	//TODO: refactor to splitIndividualComponents();
 	unordered_map <int , vector <unsigned long long> > split();
+	vector <BitboardContainer> splitIntoConnectedComponents();
 };
 
 
