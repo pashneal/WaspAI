@@ -11,12 +11,6 @@
 
 using namespace std;
 
-
-       
-
-
-
-
 int main() {
 	//TODO: be able to accept commands for moving and placing pieces
 	//bitboard implementation of such commands

@@ -1,6 +1,7 @@
 #include <vector>
 #include <unordered_map>
 #include <iostream>
+#include <set>
 
 using namespace std;
 class BitboardContainer {
@@ -37,6 +38,7 @@ class BitboardContainer {
 	void floodFill(BitboardContainer);
 
 	void pruneCache();
+	void clear();
 
 	void unionWith(BitboardContainer&);
 	void intersectionWith(BitboardContainer&);
@@ -46,8 +48,8 @@ class BitboardContainer {
 
 	unordered_map <int ,unsigned long long> duplicateBoard(vector<Direction>);
 
-	void findAllGates(BitboardContainer&)
-	void findGatesContainingPiece(BitboardContainer&, int, int);
+	void findAllGates(BitboardContainer&);
+	void findGatesContainingPiece(BitboardContainer&, unsigned long long, int);
 	void findAllGates();
 
 	unordered_map <int , vector <unsigned long long> > split();

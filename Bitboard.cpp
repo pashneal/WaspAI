@@ -6,44 +6,26 @@
 
 using namespace std;
 
-int gateXYposition[64][2];
-for (int i = 0; i < 64; i++) {
-	gateXYPosition[i][0] = i%8 - 2;
-	gateXYPosition[i][1] = i/8 - 2;
-}
+int numDirections = 6;
+BitboardContainer gates[] = {
+	BitboardContainer({{12, 134479872u}}),
+	BitboardContainer({{12, 264192u}}),
+	BitboardContainer({{12, 262148u}}),
+	BitboardContainer({{12, 262400u}}),
+	BitboardContainer({{12, 17039360u}}),
+	BitboardContainer({{12, 17180131328u}})
+};
 
-const int numDirections = 6;
-BitboardContainer gates[numDirections];
 
-BitboardContainer gateE({12, 134481920u});
-BitboardContainer gateW({12, 17039616u});
-BitboardContainer gateNW({12, 17196908544u});
-BitboardContainer gateNE({12, 17314349056u});
-BitboardContainer gateSW({12, 264196u});
-BitboardContainer gateSE({12, 262404u});
+BitboardContainer antiGates[] = {
+	BitboardContainer({{12,67633152u}}),
+	BitboardContainer({{12,525312u}}),
+	BitboardContainer({{12,1536u}}),
+	BitboardContainer({{12,131584u}}),
+	BitboardContainer({{12,33685504u}}),
+	BitboardContainer({{12,100663296u}})
+};
 
-gates[Direction::E] =  gateE;
-gates[Direction::NE] = gateNE;
-gates[Direction::W] =  gateW;
-gates[Direction::SE] = gateSE;
-gates[Direction::NW] = gateNW;
-gates[Direction::SW] = gateSW;
-
-BitboardContainer antiGates[numDirections];
-
-BitboardContainer antigateNE({12,34460925952u});
-BitboardContainer antigateE({12,68682752u});
-BitboardContainer antigateSE({12,525832u});
-BitboardContainer antigateSW({12,132610u});
-BitboardContainer antigateW({12,33751552u});
-BitboardContainer antigateNW({12,8690728960u});
-
-antigates[Direction::E] =  antigateE;
-antigates[Direction::NE] = antigateNE;
-antigates[Direction::W] =  antigateW;
-antigates[Direction::SE] = antigateSE;
-antigates[Direction::NW] = antigateNW;
-antigates[Direction::SW] = antigateSW;
 
 unordered_map <Direction, vector<int>> overflowLocation =
 {
@@ -52,8 +34,6 @@ unordered_map <Direction, vector<int>> overflowLocation =
 	{Direction::S, {4,5,6,7,8,9,10,11,12,13,14,15,12,13,14,15}},
 	{Direction::N, {0,1,2,3,0,1,2,3,4,5,6,7,8,9,10,11}}
 };
-
-
 
 BitboardContainer::BitboardContainer(unordered_map<int, unsigned long long > predefinedBoards){
 	initialize(predefinedBoards);
@@ -164,7 +144,7 @@ void BitboardContainer::shiftDirection(Direction dir){
 	if (dir == Direction::E || dir == Direction::S) reverse(activeBoards.begin(), activeBoards.end());
 
 
-	for (int i = 0; i< activeBoards.size(); ++i){
+	for (unsigned long long i = 0; i< activeBoards.size(); ++i){
 
 		unsigned long long westColumnSelector = 0x101010101010101u;
 		unsigned long long eastColumnSelector = 0x8080808080808080u;
@@ -285,11 +265,11 @@ bool BitboardContainer::equals(BitboardContainer& other){
 }
 
 void BitboardContainer::pruneCache(){
-	list <int> = emptyBoards;
+	list <int> emptyBoards;
 
 	for (int i: internalBoardCache){
 		if (internalBoards[i] == 0){
-			internalBoardCache.push_front(i);
+			emptyBoards.push_front(i);
 		}
 	}
 
@@ -344,35 +324,42 @@ unordered_map<int, unsigned long long> BitboardContainer::duplicateBoard(vector 
 		other.shiftDirection(dir);
 
 		for (int i: other.internalBoardCache) {
-			if (returnMap.find(i) == returnMap.end()) returnMap[i] == 0;
+			if (returnMap.find(i) == returnMap.end()) returnMap[i] = 0;
 			returnMap[i] |= other.internalBoards[i];
 		}
 
 		other.initializeTo(*this); // reset is slow but it prolly works 
 	}
+	return returnMap;
 }
 
 //Find gate structures from *this board and store it in result
 void BitboardContainer::findAllGates(BitboardContainer &result ){
+	
 	for (auto pieceMap: this -> split()){ 
-		findGatesContainingPiece(result, pieceMap.second, pieceMap.first);
+		for (auto piece: pieceMap.second) {
+			findGatesContainingPiece(result, piece, pieceMap.first);
+		}
 	}
 }
 
 //find gate structures from *this board and store it in result, 
 //only search around given BitboardContainer pieces
+
 void BitboardContainer::findGatesContainingPiece(BitboardContainer &result,
 												 unsigned long long piece,
 												 int internalBoardIndex){	
+
 	int leadingZeroesCount = __builtin_clzll(piece);
-	int xShift = gateXYPosition[piece][0];
-	int yShift = gateXYPosition[piece][1];
+
+	int xShift = leadingZeroesCount % 8 - 2;
+	int yShift = leadingZeroesCount / 8 - 2;
 
 	xShift += (BITBOARD_WIDTH * (internalBoardIndex % BITBOARD_CONTAINER_COLS));
-	yShift += BITBOARD_HEIGHT * (BITBOARD_CONTAINER_HEIGHT - 1 - (internalBoardIndex / BITBOARD_CONTAINER_ROWS));	
+	yShift += BITBOARD_HEIGHT * (BITBOARD_CONTAINER_ROWS - 1 - (internalBoardIndex / BITBOARD_CONTAINER_ROWS));	
 
 	BitboardContainer gate;
-	BitboardContianer antiGate;
+	BitboardContainer antiGate;
 
 	for( int i = 0; i < numDirections; i++){
 
@@ -397,7 +384,7 @@ void BitboardContainer::findGatesContainingPiece(BitboardContainer &result,
 			testAntiGate.initializeTo(antiGates[i]);
 			testAntiGate.shiftDirection(Direction::N, yShift);
 			testAntiGate.shiftDirection(Direction::E, xShift);
-			test.pruneCache();
+			testGate.pruneCache();
 
 			antiGate.initializeTo(testAntiGate);
 			
@@ -414,27 +401,24 @@ void BitboardContainer::findGatesContainingPiece(BitboardContainer &result,
 			i++;
 
 		}
-			
 	}
-	
-
 }
 
 
 /*
- * returns a map of all the bits that were set indexed by the location of the bit
+ * returns a map of all the bits that were set and which board it was set on
  */
-
 unordered_map< int, vector < unsigned long long >> BitboardContainer::split(){
 
 	unordered_map< int, vector <unsigned long long >> returnMap;
 
 	for (int i: internalBoardCache){
-		board = internalBoards[i];
+		unsigned long long board = internalBoards[i];
 		do {
-			leastSignificantBit = board & -board;
+			unsigned long long leastSignificantBit = board & -board;
 			returnMap[i].push_back(leastSignificantBit);
 			board ^= leastSignificantBit; // remove least significant bit
 		} while	(board);
 	}
+	return returnMap;
 }
