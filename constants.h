@@ -1,9 +1,11 @@
+#pragma once
 #include <unordered_map>
 #include <vector>
 
 using namespace std;
+
 enum PieceName{
-	GRASSHOPPER,
+	GRASSHOPPER=0,
 	QUEEN,
 	LADYBUG,
 	PILLBUG,

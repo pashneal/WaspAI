@@ -1,7 +1,9 @@
+#pragma once
 #include <vector>
 #include <unordered_map>
 #include <iostream>
 #include <set>
+#include "constants.h"
 
 using namespace std;
 class BitboardContainer {
@@ -51,6 +53,8 @@ class BitboardContainer {
 	void findAllGates(BitboardContainer&);
 	void findGatesContainingPiece(BitboardContainer&, unsigned long long, int);
 	void findAllGates();
+
+	BitboardContainer getPerimeter();
 
 	unordered_map <int , vector <unsigned long long> > split();
 };

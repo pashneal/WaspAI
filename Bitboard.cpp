@@ -404,6 +404,14 @@ void BitboardContainer::findGatesContainingPiece(BitboardContainer &result,
 	}
 }
 
+BitboardContainer  BitboardContainer::getPerimeter() {
+	BitboardContainer perimeter;
+	
+	vector <Direction> allDirections = {Direction::E,Direction::SE,Direction::NE,
+										Direction::NW,Direction::SW,Direction::W};
+	perimeter.duplicateBoard( allDirections);	
+	return perimeter;
+}
 
 /*
  * returns a map of all the bits that were set and which board it was set on
