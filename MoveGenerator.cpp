@@ -46,31 +46,108 @@ void MoveGenerator::generateMoves() {
 			throw 11;
 			break;
 	}
+	
+	//the initial location does not count as a move
+	//so delete
+	moves.unionWith(*generatingPieceBoard);
+	moves.xorWith(*generatingPieceBoard);
 }
 
-void MoveGenerator::setAllGates( vector <BitboardContainer> * p){
-	allGates = p;
+void MoveGenerator::setGatesSplit( vector <BitboardContainer> * p){
+	gatesSplit = p;
 }
 
 void MoveGenerator::generateGrasshopperMoves(){
 	
 }
-void MoveGenerator::generateQueenMoves(){}   
-void MoveGenerator::generateLadybugMoves(){} 
-void MoveGenerator::generatePillbugMoves(){} 
+void MoveGenerator::generateQueenMoves(){ 
+	BitboardContainer frontier, visited;
+	frontier.initializeTo(*generatingPieceBoard);
+
+	//Find a valid move (if any) in the perimeter
+	perimeter.floodFillStep(frontier, visited);
+
+	//Get edges that lie along gates
+	BitboardContainer inaccessibleFrontier;
+	visited.initializeTo(*generatingPieceBoard);
+	gatesCombined -> floodFillStep(inaccessibleFrontier, visited);
+
+	//remove inaccessible nodes and initial location
+	frontier.xorWith(inaccessibleFrontier);
+	frontier.unionWith(*generatingPieceBoard);
+	frontier.xorWith(*generatingPieceBoard);
+
+	moves.unionWith(frontier);
+}
+
+void MoveGenerator::generateLadybugMoves(){
+} 
+
+void MoveGenerator::generatePillbugMoves(){
+	//the Pillbug moves just as a Queen does
+	generateQueenMoves();
+} 
+
 void MoveGenerator::generateMosquitoMoves(){}
 void MoveGenerator::generateBeetleMoves(){}  
 void MoveGenerator::generateAntMoves(){
+	BitboardContainer inaccessibleNodes = getInaccessibleNodes(gatesSplit);
+
+	//since inaccessible nodes are a subset of perimeter
+	//xor them out after adding perimeter
+	moves.unionWith(perimeter);
+	moves.xorWith(inaccessibleNodes);
 }     
-void MoveGenerator::generateSpiderMoves(){}  
+void MoveGenerator::generateSpiderMoves(){
+
+	BitboardContainer frontier, visited, emptyVisited, inaccessible;
+	frontier.initializeTo(*generatingPieceBoard);
+
+	for (int i = 0; i < NUM_SPIDER_MOVES; i++){
+
+		emptyVisited.clear();
+		
+		//get every edge that is disallowed from current nodes
+		inaccessible.initializeTo(frontier);
+		BitboardContainer inaccessiblePerimeter = inaccessible.getPerimeter();
+		inaccessiblePerimeter.intersectionWith(*gatesCombined);
+
+		//reinitialize to nodes that are illegal if reached from current node
+		inaccessible.initializeTo(inaccessiblePerimeter);
+		inaccessible.pruneCache();
+
+		if (!inaccessible.internalBoardCache.size()){
+			//remove all nodes that touch illegal edges
+			frontier.unionWith(*gatesCombined);
+			frontier.xorWith(*gatesCombined);
+
+			//if there exists some other way to access a gate
+			//set inaccessible to it
+			frontier.floodFillStep(inaccessible, emptyVisited);
+
+			frontier.xorWith(inaccessible);
+			frontier.pruneCache();
+		}
+		//expand search along board perimeter
+		perimeter.floodFillStep(frontier, visited);
+
+		//only keep the newest nodes
+		frontier.xorWith(visited);
+
+	}
+
+	moves.unionWith(frontier);
+}  
 
 //TODO: Optimize so you don't have to iterate through every gate separately 
-//Note: the spider cannot reach more than 3 squares away as an optimization
-BitboardContainer MoveGenerator::getInaccessibleNodes() {
+BitboardContainer MoveGenerator::getInaccessibleNodes(vector <BitboardContainer> * gates) {
+
 	BitboardContainer inaccessible;
-	for (auto gate: *allGates) {
+
+	for (auto gate: *gates) {
 		vector <BitboardContainer> frontiers;
 		vector <BitboardContainer> initialFrontiers;
+
 		for (auto frontierMap : gate.split()) {
 			for (auto board: frontierMap.second) {
 				frontiers.push_back(BitboardContainer({{frontierMap.first, board}}));
@@ -88,6 +165,7 @@ BitboardContainer MoveGenerator::getInaccessibleNodes() {
 		for (unsigned long i = 0; i < frontiers.size() ; i++) searchResolved[i] = 0;
 
 		while (searchResolvedCount < frontiers.size() - 1) {
+
 			BitboardContainer visited;
 			for (auto frontier = frontiers.begin(); frontier != frontiers.end(); frontier++) {
 
@@ -114,8 +192,10 @@ BitboardContainer MoveGenerator::getInaccessibleNodes() {
 		}		
 
 		for (unsigned long i = 0; i < frontiers.size(); i++) {
+		
 			frontiers[i].intersectionWith(*generatingPieceBoard);
 			frontiers[i].pruneCache();
+
 			if (!frontiers[i].equals(*generatingPieceBoard)){
 				//TODO: change clear to be a simple xor call
 
@@ -129,3 +209,8 @@ BitboardContainer MoveGenerator::getInaccessibleNodes() {
 	return inaccessible;
 }
 
+//Optimize TODO
+BitboardContainer MoveGenerator::getInaccessibleNodes(BitboardContainer gates) {
+	vector <BitboardContainer> gatesVector = {gates};
+	return getInaccessibleNodes(&gatesVector);
+}

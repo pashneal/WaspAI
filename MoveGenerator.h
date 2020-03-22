@@ -13,13 +13,19 @@ class MoveGenerator {
 	
 		PieceName * generatingPieceName;
 
+		//TODO: Optimize by checking inaccesible points only after it has been
+		//decided on by game engine
 		//TODO: make these read-only pointers
 		BitboardContainer * allPieces;
-		vector <BitboardContainer> * allGates;
+		vector <BitboardContainer> * gatesSplit;
 		BitboardContainer * generatingPieceBoard;
+		BitboardContainer * gatesCombined;
+
 
 		BitboardContainer moves;
 		BitboardContainer perimeter;
+
+		void generateMoves();
 
 		void generateGrasshopperMoves();
 		void generateQueenMoves();   
@@ -33,17 +39,19 @@ class MoveGenerator {
 	public:
 
 		
+		const int NUM_SPIDER_MOVES = 3;
 
 		MoveGenerator() {};
 
 		unordered_map <int , vector < unsigned long long>> getMoves();
 
-		void generateMoves();
 
 		void setGeneratingName(PieceName *);
 		void setAllPiecesBoard(BitboardContainer *);		
-		void setAllGates(vector <BitboardContainer> *);
+		void setGatesSplit(vector <BitboardContainer> *);
 		void setGeneratingPieceBoard(BitboardContainer *);
+		void setGatesCombined(BitboardContainer);
 
-		BitboardContainer getInaccessibleNodes();
+		BitboardContainer getInaccessibleNodes(BitboardContainer);
+		BitboardContainer getInaccessibleNodes(vector <BitboardContainer> *);
 };
