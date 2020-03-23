@@ -36,8 +36,7 @@ class MoveGenerator {
 		void generateMosquitoMoves();
 		void generateBeetleMoves();  
 		void generateAntMoves();     
-		void generateSpiderMoves();  
-			
+		void generateSpiderMoves();  	
 	public:
 
 		vector <Direction> gameDirections = { Direction::NE,
@@ -58,6 +57,8 @@ class MoveGenerator {
 		void setGatesSplit(vector <BitboardContainer> *);
 		void setGeneratingPieceBoard(BitboardContainer *, bool);
 		void setGatesCombined(BitboardContainer);
+		
+		BitboardContainer generatePillbugSwap();
 
 		BitboardContainer getInaccessibleNodes(BitboardContainer);
 		BitboardContainer getInaccessibleNodes(vector <BitboardContainer> *);

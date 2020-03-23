@@ -284,8 +284,22 @@ BitboardContainer MoveGenerator::getInaccessibleNodes(vector <BitboardContainer>
 	return inaccessible;
 }
 
+BitboardContainer MoveGenerator::generatePillbugSwap() {
+	BitboardContainer pillbugPerimeter = generatingPieceBoard -> getPerimeter();
+	
+	//remove other piece locations from the 
+	//Pillbug swap also uses lazy evaluation
+	//just as beetleMove does
+
+	pillbugPerimeter.unionWith(*allPieces);
+	pillbugPerimeter.xorWith(*allPieces);
+
+}
+
 //Optimize TODO
 BitboardContainer MoveGenerator::getInaccessibleNodes(BitboardContainer gates) {
+
 	vector <BitboardContainer> gatesVector = {gates};
 	return getInaccessibleNodes(&gatesVector);
+
 }
