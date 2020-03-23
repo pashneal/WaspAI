@@ -46,6 +46,7 @@ class BitboardContainer {
 	void unionWith(BitboardContainer&);
 	void intersectionWith(BitboardContainer&);
 	void xorWith(BitboardContainer&);
+	bool containsAny(BitboardContainer&);
 
 	bool equals(BitboardContainer&);
 

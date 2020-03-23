@@ -7,11 +7,16 @@
 
 using namespace std;
 
-unordered_map< int, vector <unsigned long long>> MoveGenerator::getMoves() {	
-	BitboardContainer p = allPieces->getPerimeter();
+BitboardContainer MoveGenerator::getMoves() {	
+	BitboardContainer piecesExceptCurrent = *allPieces;
+
+	//remove generatingPiece
+	piecesExceptCurrent.xorWith(*generatingPieceBoard);
+
+	BitboardContainer p = piecesExceptCurrent.getPerimeter();
 	perimeter.initializeTo(p);
 	generateMoves();
-	return moves.split();
+	return moves;
 }
 
 void MoveGenerator::generateMoves() {
@@ -57,9 +62,38 @@ void MoveGenerator::setGatesSplit( vector <BitboardContainer> * p){
 	gatesSplit = p;
 }
 
+//TODO:optimize it is so slow
 void MoveGenerator::generateGrasshopperMoves(){
-	
+
+	for (Direction dir: gameDirections){
+		BitboardContainer testBitboard, nextPiece;
+
+		nextPiece.initializeTo(testBitboard);
+
+		nextPiece.shiftDirection(dir);
+		
+		//check if there is a piece to jump over
+		nextPiece.intersectionWith(*allPieces);
+		if (nextPiece.internalBoardCache.size() == 0) {
+			//cannot move in this Direction
+			//if no piece to jump over
+			continue;
+		}
+
+		bool pieceExists;
+		do{
+			//see if there is a piece to jump over
+			nextPiece.shiftDirection(dir);
+			pieceExists = allPieces -> containsAny(nextPiece);
+
+		// end only there is no more piece
+		} while (pieceExists);
+
+		moves.unionWith(nextPiece);
+	}
+
 }
+
 void MoveGenerator::generateQueenMoves(){ 
 	BitboardContainer frontier, visited;
 	frontier.initializeTo(*generatingPieceBoard);
@@ -81,6 +115,25 @@ void MoveGenerator::generateQueenMoves(){
 }
 
 void MoveGenerator::generateLadybugMoves(){
+	
+	BitboardContainer frontier, visited;
+	frontier.initializeTo(*generatingPieceBoard);
+
+	//must first make two moves on top of the hive
+	allPieces -> floodFillStep(frontier, visited);
+	//remove nodes from an earlier depth
+	frontier.unionWith(visited);
+	frontier.xorWith(visited);
+	allPieces -> floodFillStep(frontier, visited);
+	frontier.unionWith(visited);
+	frontier.xorWith(visited);
+
+	//must make a move along the perimiter
+	perimeter.floodFillStep(frontier, visited);
+
+	//remove nodes from an earlier depth
+	frontier.xorWith(visited);
+
 } 
 
 void MoveGenerator::generatePillbugMoves(){
@@ -88,8 +141,27 @@ void MoveGenerator::generatePillbugMoves(){
 	generateQueenMoves();
 } 
 
-void MoveGenerator::generateMosquitoMoves(){}
-void MoveGenerator::generateBeetleMoves(){}  
+void MoveGenerator::generateMosquitoMoves(){
+	//no such thing as MosquitoMoves as it takes the moves from its neighbors
+	//and is a bettle on top of the hive (nothing more)
+	//takes no moves from adjacent mosquitoes
+}
+void MoveGenerator::generateBeetleMoves(){
+	//Beetle generation is lazy
+	//Further analysis is necessary in order to see
+	//If moves atop the hive are legal
+	BitboardContainer traversable;
+
+	traversable.initializeTo(perimeter);
+	traversable.unionWith(*allPieces);
+	BitboardContainer * temp = allPieces;
+
+	allPieces = &traversable;
+
+	generateQueenMoves();
+
+	allPieces = temp;
+}  
 void MoveGenerator::generateAntMoves(){
 	BitboardContainer inaccessibleNodes = getInaccessibleNodes(gatesSplit);
 
@@ -97,6 +169,10 @@ void MoveGenerator::generateAntMoves(){
 	//xor them out after adding perimeter
 	moves.unionWith(perimeter);
 	moves.xorWith(inaccessibleNodes);
+
+	//remove initial location
+	moves.unionWith(*generatingPieceBoard);
+	moves.xorWith(*generatingPieceBoard);
 }     
 void MoveGenerator::generateSpiderMoves(){
 
@@ -132,10 +208,9 @@ void MoveGenerator::generateSpiderMoves(){
 		perimeter.floodFillStep(frontier, visited);
 
 		//only keep the newest nodes
+		frontier.unionWith(visited);
 		frontier.xorWith(visited);
-
 	}
-
 	moves.unionWith(frontier);
 }  
 

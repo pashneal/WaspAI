@@ -299,6 +299,14 @@ void BitboardContainer::xorWith( BitboardContainer &other) {
 	}
 }
 
+bool BitboardContainer::containsAny(BitboardContainer& other) {
+	bool any = 0;	
+	for (int i: other.internalBoardCache) { 
+		any |= (internalBoards[i] && other.internalBoards[i]);
+	}
+	return any;
+}
+
 void BitboardContainer::clear() {
 	for (int i : internalBoardCache) {
 		internalBoards[i] = 0;
@@ -308,7 +316,8 @@ void BitboardContainer::clear() {
 //TODO optimize
 //TODO test
 unordered_map<int, unsigned long long> BitboardContainer::duplicateBoard(vector <Direction> dirs){
-	BitboardContainer other
+
+	BitboardContainer other;
 	unordered_map <int , unsigned long long> returnMap;
 	other.initializeTo(*this);
 

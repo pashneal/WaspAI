@@ -24,6 +24,8 @@ class MoveGenerator {
 
 		BitboardContainer moves;
 		BitboardContainer perimeter;
+	
+		bool pieceIsAtopHive;
 
 		void generateMoves();
 
@@ -38,18 +40,23 @@ class MoveGenerator {
 			
 	public:
 
-		
+		vector <Direction> gameDirections = { Direction::NE,
+										      Direction::E,
+											  Direction::SE,
+											  Direction::SW,
+											  Direction::N,
+											  Direction::S };
 		const int NUM_SPIDER_MOVES = 3;
 
 		MoveGenerator() {};
 
-		unordered_map <int , vector < unsigned long long>> getMoves();
+		BitboardContainer getMoves();
 
 
 		void setGeneratingName(PieceName *);
 		void setAllPiecesBoard(BitboardContainer *);		
 		void setGatesSplit(vector <BitboardContainer> *);
-		void setGeneratingPieceBoard(BitboardContainer *);
+		void setGeneratingPieceBoard(BitboardContainer *, bool);
 		void setGatesCombined(BitboardContainer);
 
 		BitboardContainer getInaccessibleNodes(BitboardContainer);
