@@ -1,5 +1,7 @@
 #pragma once
 #include <list>
+#include "Bitboard.h"
+#include "constants.h"
 #include <unordered_map>
 
 using namespace std;

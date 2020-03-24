@@ -37,6 +37,7 @@ class MoveGenerator {
 		void generateBeetleMoves();  
 		void generateAntMoves();     
 		void generateSpiderMoves();  	
+
 	public:
 
 		vector <Direction> gameDirections = { Direction::NE,

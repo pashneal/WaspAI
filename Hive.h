@@ -1,4 +1,8 @@
 #pragma once
+#include "constants.h"
+#include "Piece.h"
+#include "Bitboard.h"
+#include "PieceNode.h"
 #include <set>
 #include <vector>
 #include <string>

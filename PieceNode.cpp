@@ -5,7 +5,7 @@
 
 PieceNode::PieceNode(int pieceNum, BitboardContainer b) { 
 	pieceNumber = pieceNum;
-	bitboard = b;
+	bitboard.initializeTo(b);
 	isEmpty = false;
 }
 
@@ -19,20 +19,15 @@ void PieceNode::shiftDirection(Direction dir, int numTimes) {
 	}
 }
 
-void PieceNode::reposition(list <PieceNode> &newNeighbors, BitboardContainer &newBitboard){
+void PieceNode::reposition(list <PieceNode*> &newNeighbors, BitboardContainer &newBitboard){
 	for (auto otherNode: neighbors) {
-		for (auto currentNode: (*otherNode).neighbors) {
-			if (pieceNumber == (*currentNode).pieceNumber) {
-				(*otherNode).neighbors.erase(currentNode);
-				break;
-			}
-		}
+		otherNode -> neighbors.remove(this);
 	}
 	neighbors.clear();
 	insert(newNeighbors, newBitboard);
 }
 
-void PieceNode::insert( list <PieceNode> &newNeighbors, BitboardContainer &newBitboard) {
+void PieceNode::insert( list <PieceNode*> &newNeighbors, BitboardContainer &newBitboard) {
 	for (auto otherNode: newNeighbors) {
 		(*otherNode).neighbors.push_front(this);	
 		neighbors.push_front(otherNode);

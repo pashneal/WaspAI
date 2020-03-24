@@ -356,11 +356,11 @@ void Test::BitboardTest::testShiftDirection(){
 
 	};
 
-	for (int i = 0; i < shiftDirections.size(); ++i){
+	for (unsigned long long i = 0; i < shiftDirections.size(); ++i){
 		cout << "Test " << i <<
 			" direction: " << shiftDirections[i] << endl ;
 
-		testBitboardContainer = BitboardContainer(bitboardList[i]);
+		testBitboardContainer.initialize(bitboardList[i]);
 		testBitboardContainer.shiftDirection(shiftDirections[i]);
 		for (auto iter: expectedResults[i]){
 			int boardIndex = iter.first;
@@ -375,7 +375,7 @@ void Test::BitboardTest::testShiftDirection(){
 
 	unordered_map <int, unsigned long long> test;
 	test[5] = 1;
-	testBitboardContainer = BitboardContainer(test);
+	testBitboardContainer.initialize(test);
 	testBitboardContainer.shiftDirection(Direction::NE);
 	testBitboardContainer.shiftDirection(Direction::W);
 	testBitboardContainer.shiftDirection(Direction::SW);
