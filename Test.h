@@ -31,8 +31,10 @@ class Test {
 			public:
 				static void testMovePiece();
 				static void testBitboardBoundings();
-				static void testShiftDirection();//done
-				static void testIntitializeTo();
+				static void testShiftDirection();
+				static void testXorWith();
+				static void testIntersectionWith();
+				static void testUnionWith();
 		};
 
 		static void pass(bool, string);

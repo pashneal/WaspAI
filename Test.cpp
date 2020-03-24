@@ -368,8 +368,8 @@ void Test::BitboardTest::testShiftDirection(){
 
 			Test::pass(expectedResults[i][boardIndex] == testBitboardContainer.internalBoards[boardIndex],
 					"Expected result incorrect for shiftDirection() ");
-			cout << "\t\t Expected board:" <<  expectedResults[i][boardIndex] << endl;
-			cout << "\t\t Given board:" << testBitboardContainer.internalBoards[boardIndex] << endl;
+			//cout << "\t\t Expected board:" <<  expectedResults[i][boardIndex] << endl;
+			//cout << "\t\t Given board:" << testBitboardContainer.internalBoards[boardIndex] << endl;
 		}
 	}
 
@@ -384,7 +384,124 @@ void Test::BitboardTest::testShiftDirection(){
 	testBitboardContainer.shiftDirection(Direction::NW);
 	cout << "Test" << shiftDirections.size() << ": ";
 	Test::pass(testBitboardContainer.internalBoards[5] == 1, "result incorrect");
+	
+}
 
+void Test::BitboardTest::testXorWith() {
+	cout << "===================TestXORWith===================" << endl;
+	vector <unordered_map <int, unsigned long long>> bitboardInitialList =
+	{
+		{{0,262519634108789134u}},
+		{{1,0x70b46ca6fc5b5u},
+		 {2,0x9120002a48u}}
+	};
+
+	vector <unordered_map <int, unsigned long long >> bitboardCompList = {
+		{{0,2026862587613u}},
+		{{3,2026862587613u},
+		 {2,202686u}}
+	};
+
+	vector <unordered_map <int, unsigned long long>> expectedResults  =
+	{
+		{{0, 262521460180000595u}},
+		{{1,0x70b46ca6fc5b5u},
+		{2,623307341302u},
+		{3,2026862587613u}}
+	};
+
+	BitboardContainer test, compare;
+	for (unsigned long long i = 0; i < expectedResults.size(); ++i){
+		cout << "Test " << i << endl;
+		
+		test.initialize(bitboardInitialList[i]);
+		compare.initialize(bitboardCompList[i]);
+		test.xorWith(compare);
+		for (auto j : expectedResults[i]){
+				cout << "\t Board: " << j.first << " ";
+
+				Test::pass(test.internalBoards[j.first] == j.second, 
+						"failed to get correct result for xorWith()");
+		}
+	}
+}
+
+void Test::BitboardTest::testIntersectionWith() {
+	cout << "===================TestANDWith===================" << endl;
+	vector <unordered_map <int, unsigned long long>> bitboardInitialList =
+	{
+		{{0,262519634108789134u}},
+		{{1,0x70b46ca6fc5b5u},
+		 {2,0x9120002a48u}}
+	};
+
+	vector <unordered_map <int, unsigned long long >> bitboardCompList = {
+		{{0,2026862587613u}},
+		{{3,2026862587613u},
+		 {2,202686u}}
+	};
+
+	vector <unordered_map <int, unsigned long long>> expectedResults  =
+	{
+		{{0, 100395688076u}},
+		{{2,520u}, {1,0}, {3,0}}
+	};
+
+
+	BitboardContainer test, compare;
+	for (unsigned long long i = 0; i < expectedResults.size(); ++i){
+		cout << "Test " << i << endl;
+		
+		test.initialize(bitboardInitialList[i]);
+		compare.initialize(bitboardCompList[i]);
+		test.intersectionWith(compare);
+		for (auto j : expectedResults[i]){
+				cout << "\t Board: " << j.first << " ";
+
+				Test::pass(test.internalBoards[j.first] == j.second, 
+						"failed to get correct result for intersectionWith()");
+		}
+
+	}
+}
+
+void Test::BitboardTest::testUnionWith() {
+	cout << "===================TestORWith===================" << endl;
+	vector <unordered_map <int, unsigned long long>> bitboardInitialList =
+	{
+		{{0,262519634108789134u}},
+		{{1,0x70b46ca6fc5b5u},
+		 {2,0x9120002a48u}}
+	};
+
+	vector <unordered_map <int, unsigned long long >> bitboardCompList = {
+		{{0,2026862587613u}},
+		{{3,2026862587613u},
+		 {2,202686u}}
+	};
+
+	vector <unordered_map <int, unsigned long long>> expectedResults  =
+	{
+		{{0, 262521560575688671u}},
+		{{2,623307341822u}, {1,0x70b46ca6fc5b5u}, {3,2026862587613u}}
+	};
+
+
+	BitboardContainer test, compare;
+	for (unsigned long long i = 0; i < expectedResults.size(); ++i){
+		cout << "Test " << i << endl;
+		
+		test.initialize(bitboardInitialList[i]);
+		compare.initialize(bitboardCompList[i]);
+		test.unionWith(compare);
+		for (auto j : expectedResults[i]){
+				cout << "\t Board: " << j.first << " ";
+
+				Test::pass(test.internalBoards[j.first] == j.second, 
+						"failed to get correct result for UnionWith()");
+		}
+
+	}
 }
 
 
@@ -394,6 +511,8 @@ int main() {
 	Test::HiveTest::parseCommandTest();
 	Test::BitboardTest::testBitboardBoundings();
 	Test::BitboardTest::testShiftDirection();
-	//Test::BitboardTest::testFindConnectedCompBFS();
+	Test::BitboardTest::testXorWith();
+	Test::BitboardTest::testIntersectionWith();
+	Test::BitboardTest::testUnionWith();
 	return 0;
 }
