@@ -26,7 +26,20 @@ BitboardContainer antiGates[] = {
 	BitboardContainer({{12,100663296u}})
 };
 
+unordered_map <Direction, vector<int>> parameters  = {
+	{Direction::E, {1, 1, 1}},
+	{Direction::W, {0, 1, -1}},
+	{Direction::S, {1, 8, 4}},
+	{Direction::N, {0, 8, -4}}
+};
 
+unordered_map <Direction, unsigned long long> overflowBitmask =
+{
+	{Direction::W, 0xfefefefefefefefeu},
+	{Direction::S, 0xffffffffffffff00u},
+	{Direction::N, 0xffffffffffffffu},
+	{Direction::E, 0x7f7f7f7f7f7f7f7fu}
+};
 unordered_map <Direction, vector<int>> overflowLocation =
 {
 	{Direction::E, {1,2,3,3,5,6,7,7,9,10,11,11,13,14,15,15}},
@@ -40,6 +53,7 @@ BitboardContainer::BitboardContainer(unordered_map<int, unsigned long long > pre
 }
 
 void BitboardContainer::initialize(unordered_map < int, unsigned long long> predefinedBoards) {
+	clear();
 	//iterate through the map and update board internals
 	for (auto keyValueList : predefinedBoards) {
 		internalBoardCache.insert(keyValueList.first);
@@ -51,10 +65,18 @@ void BitboardContainer::initialize(unordered_map < int, unsigned long long> pred
 void BitboardContainer::initializeTo(BitboardContainer &other) {
 
 	unordered_map <int , unsigned long long > otherMap;
+	clear();
 	for (int i: other.internalBoardCache){
 		otherMap[i] = other.internalBoards[i];
 	}
+
 	initialize(otherMap);
+}
+
+//TODO: make internalBoards private so you have to use this
+void BitboardContainer::setBoard(int boardIndex, unsigned long long board) {
+	internalBoards[boardIndex] = board;
+	internalBoardCache.insert(boardIndex);
 }
 void BitboardContainer::findBoundingBoxes(){
 	for (auto boardIndex: internalBoardCache) { 
@@ -65,10 +87,6 @@ void BitboardContainer::findBoundingBoxes(int boardIndex){
 	if (internalBoardCache.find(boardIndex) == internalBoardCache.end()){
 		cout << "error 8" << endl;
 		throw 8;
-	}
-	if (internalBoards[boardIndex] == 0){ 
-		//delete board from boardCache
-		internalBoardCache.erase(boardIndex);
 	}
 
 	int minX = 8;
@@ -95,134 +113,191 @@ void BitboardContainer::findBoundingBoxes(int boardIndex){
 	boundingBoxes[boardIndex][2] = maxX;
 	boundingBoxes[boardIndex][3] = maxY;
 }
+ 
+void BitboardContainer::convertToHexRepresentation (
+		Direction lastMovedDir , int lastMovedTimes) {
 
-//This is a messy, buggy, slow function; not meant to be used in the search tree!
-void BitboardContainer::shiftDirection(Direction dir){
-	unsigned long long tempMask = 0xff00ff00ff00ff;
-	unordered_map <int, unsigned long long> tempActiveBoards;
+	unsigned long long changedBoards;
 
-	if (dir == Direction::SE || dir == Direction::SW ||
-			dir == Direction::NE || dir == Direction::NW) {
+	if (lastMovedTimes % 2){
+		//only have to adjust things if the move was even
+		
+		//if moving east, adjust the odd rows
+		//else adjust the even rows
+		if (lastMovedDir == Direction::NE || lastMovedDir == Direction::SE)
+			changedBoards = ~ODD_ROWS_BITMASK;
+		else
+			changedBoards = ODD_ROWS_BITMASK;
 
-		if ( dir == Direction::SE || dir == Direction::SW) {
-			shiftDirection(Direction::S);
-			if	(dir == Direction::SE) tempMask = ~tempMask;
+		BitboardContainer changedBitboardContainer;
+		BitboardContainer unchangedBitboardContainer;
+
+		for (int i : internalBoardCache) {
+
+			changedBitboardContainer.setBoard(i, changedBoards &  internalBoards[i]);
+			unchangedBitboardContainer.setBoard(i, ~changedBoards &  internalBoards[i]);
+			
+		}
+
+
+		if (changedBoards == ~ODD_ROWS_BITMASK) {
+			changedBitboardContainer.shiftDirection(Direction::E);
+			changedBitboardContainer.unionWith(unchangedBitboardContainer);
 		} else {
-			shiftDirection(Direction::N);
-			if (dir == Direction::NE) tempMask = ~tempMask;
+			changedBitboardContainer.shiftDirection(Direction::W);
+			changedBitboardContainer.unionWith(unchangedBitboardContainer);
 		}
 
-		for (int i: internalBoardCache) {
-			//preserve certain rows and then delete them from internal Boards
-			tempActiveBoards[i] = internalBoards[i] & tempMask;
-			internalBoards[i] &= ~tempMask;
-		}
-
-		if (dir == Direction::NE|| dir == Direction::SE)
-			shiftDirection(Direction::E);
-		else {
-			shiftDirection(Direction::W);
-		}
-
-		for (auto iter : tempActiveBoards){
-			//put the preserved rows back in 
-			internalBoards[iter.first] |= iter.second;
-		}
-		return;
+		initializeTo(changedBitboardContainer);
 	}
-	
+}
+
+void BitboardContainer::shiftOrthogonalDirection(Direction dir, int numTimes){
+	//assumes that dir is orthogonal
+	//TODO: separate orthogonal and hexagonal directions
+
+
+	int overflowAmount = numTimes % 8;
+	int newHighBoardIndex, newLowBoardIndex;
+	unsigned long long int overflowLow, overflowHigh, overflowLowMask, overflowHighMask;
+
+	bool isAscendingDirection = parameters[dir][0];
+	int boardIndexDiff = parameters[dir][2];
 
 	vector <int> activeBoards;
-	for (int i : internalBoardCache){
+	for (int i: internalBoardCache) {
 		activeBoards.push_back(i);
 	}
 
-	//Sort the activeBoards in descending order if updating the boards in the west/north
-	//directions
-
-
-	if (dir == Direction::E || dir == Direction::S) reverse(activeBoards.begin(), activeBoards.end());
-
-
-	for (unsigned long long i = 0; i< activeBoards.size(); ++i){
-
-		unsigned long long westColumnSelector = 0x101010101010101u;
-		unsigned long long eastColumnSelector = 0x8080808080808080u;
-		unsigned long long southRowSelector =   0xff;
-		unsigned long long northRowSelector =   0xff00000000000000u;
-
-
-		if (dir == Direction::E) {
-			eastColumnSelector &= internalBoards[activeBoards[i]];
-			if (eastColumnSelector != 0 && !(activeBoards[i] > BITBOARD_CONTAINER_SIZE - 2 ||
-						((activeBoards[i] % BITBOARD_CONTAINER_ROWS) == 3))){
-
-				//magic number fix later TODO
-				//delete the overflow
-				internalBoards[activeBoards[i]] ^= eastColumnSelector;
-				eastColumnSelector >>= COLUMN_SHIFT*(BITBOARD_WIDTH - 1);
-
-				internalBoards[activeBoards[i]+ 1] |= eastColumnSelector;
-				internalBoardCache.insert(activeBoards[i] + 1);
-			}
-			internalBoards[activeBoards[i]] <<= COLUMN_SHIFT;
-
-		} else if ( dir == Direction::W) {
-
-			westColumnSelector &= internalBoards[activeBoards[i]];
-
-			if (westColumnSelector != 0 && !(activeBoards[i] < 1 || 
-						((activeBoards[i] % BITBOARD_CONTAINER_ROWS) == 0))){
-
-				//delete the overflow
-				internalBoards[activeBoards[i]] ^= westColumnSelector;
-
-				westColumnSelector <<= COLUMN_SHIFT*(BITBOARD_WIDTH - 1);
-
-				internalBoards[activeBoards[i] - 1] |= westColumnSelector;
-
-				internalBoardCache.insert(activeBoards[i] - 1);
-			}
-			internalBoards[activeBoards[i]] >>= COLUMN_SHIFT;
-
-		} else if ( dir == Direction::S) {
-			southRowSelector &= internalBoards[activeBoards[i]];
-			if (southRowSelector != 0 && 
-					!(activeBoards[i] >= (BITBOARD_CONTAINER_SIZE - BITBOARD_CONTAINER_ROWS))){
-				//magic number fix later TODO
-				//delete the overflow
-				internalBoards[activeBoards[i]] ^= southRowSelector;
-
-				southRowSelector <<= ROW_SHIFT*(BITBOARD_HEIGHT - 1);
-
-				internalBoards[activeBoards[i] + BITBOARD_CONTAINER_ROWS] |= southRowSelector;
-				internalBoardCache.insert(activeBoards[i] + BITBOARD_CONTAINER_ROWS);
-			}
-			internalBoards[activeBoards[i]] >>= ROW_SHIFT;
-
-		} else if ( dir == Direction::N) {
-			northRowSelector &= internalBoards[activeBoards[i]];
-			if (northRowSelector != 0 && (activeBoards[i] > BITBOARD_CONTAINER_ROWS)){
-				//magic number fix later TODO
-				//delete the overflow
-				internalBoards[activeBoards[i]] ^= northRowSelector;
-				northRowSelector >>= ROW_SHIFT*(BITBOARD_HEIGHT - 1);
-
-				internalBoards[activeBoards[i] - BITBOARD_CONTAINER_ROWS] |= northRowSelector;
-				internalBoardCache.insert(activeBoards[i] - BITBOARD_CONTAINER_ROWS);
-			}
-			internalBoards[activeBoards[i]] <<= ROW_SHIFT;
-
-		} 	
+	if (isAscendingDirection) {
+		std::reverse(activeBoards.begin(), activeBoards.end());
 	}
+
+	overflowLowMask = createLowOverflowMask(dir, overflowAmount);
+	overflowHighMask = ~overflowLowMask;
+	
+	int boardLengthDiff = (overflowAmount / BITBOARD_WIDTH);
+
+	for (int initialBoardIndex: activeBoards) {	
+
+
+		//TODO: name everything here better
+		//determine where all the bits will move to
+		newLowBoardIndex =  initialBoardIndex - boardIndexDiff * boardLengthDiff;
+		newHighBoardIndex = newLowBoardIndex + boardIndexDiff;
+
+		//if there is no overflow
+		//bits will not be spread out over two boards
+		if (overflowAmount == 0) {
+			newHighBoardIndex -= boardIndexDiff;
+		}
+		//TODO: shift direction may be able to overflow
+		if (numTimes >= BITBOARD_HEIGHT) {
+			internalBoardCache.erase(initialBoardIndex);
+		}
+
+		overflowHigh = overflowHighMask & internalBoards[initialBoardIndex];
+		overflowLow = overflowLowMask & internalBoards[initialBoardIndex];
+		overflowLow = adjustOverflowMask(dir, overflowAmount, true, overflowLow);
+		overflowHigh = adjustOverflowMask(dir, overflowAmount, false, overflowHigh);
+
+		if (newHighBoardIndex < 16 && newHighBoardIndex >= 0) {
+
+			if (internalBoardCache.find(newHighBoardIndex) == internalBoardCache.end()) 
+				internalBoards[newHighBoardIndex] = 0;
+
+			internalBoards[newHighBoardIndex] &= ~overflowHighMask;
+			internalBoards[newHighBoardIndex] |= overflowHigh;
+			internalBoardCache.insert(newHighBoardIndex);
+		}
+
+		if (newLowBoardIndex < 16 && newLowBoardIndex >= 0) {
+
+			internalBoards[newLowBoardIndex] = 0;
+			internalBoards[newLowBoardIndex] |= overflowLow;
+			internalBoardCache.insert(newLowBoardIndex);
+		}
+
+	}
+
 }
+
+
 
 void BitboardContainer::shiftDirection(Direction dir, int numTimes){
-	for (int i = 0; i < numTimes; i++) {
-		shiftDirection(dir);
+	if (dir == Direction::E|| dir == Direction::W||
+		dir == Direction::S|| dir == Direction::N) {
+		shiftOrthogonalDirection(dir, numTimes);
+		return;
 	}
+
+	if (numTimes/2) {
+		if (dir == Direction::NW || dir == Direction::SW) {
+			shiftOrthogonalDirection(Direction::W, numTimes/2);
+		} else {
+			//if direction == SE or NE
+			shiftOrthogonalDirection(Direction::E, numTimes/2);
+		}
+	}
+
+	if (dir == Direction::SE || dir == Direction::SW) {
+		shiftOrthogonalDirection(Direction::S, numTimes);
+	} else {
+		//if dir == NW or NE
+		shiftOrthogonalDirection(Direction::N, numTimes);
+	}
+
+	convertToHexRepresentation(dir, numTimes);
+	pruneCache();
 }
-//This is also slow but far less messy!
+
+void BitboardContainer::shiftDirection(Direction dir) {
+	shiftDirection(dir, 1);
+	//TODO: optimize by storing possible overflow mask configs
+}
+
+unsigned long long BitboardContainer::createLowOverflowMask(Direction dir, int overflowAmount) {
+
+	long long overflowLow;
+	//assumes orthogonal direction passed in
+
+	if (overflowAmount == 0) {
+		return -1;
+	} 
+
+	overflowLow = overflowBitmask[dir];
+	int shiftMultiplier = parameters[dir][1];
+
+	//TODO: just store the possible masks to prevent recalculation
+	for (int i = 0; i< overflowAmount - 1; i++) {
+		if (dir == Direction::W || dir == Direction::S){
+			overflowLow &= (overflowLow << shiftMultiplier);
+		} else {
+			overflowLow &= (overflowLow >> shiftMultiplier);
+		}
+	}
+
+	return overflowLow;	
+}
+
+unsigned long long BitboardContainer::adjustOverflowMask(
+		Direction dir, int overflowAmount, bool low, unsigned long long overflowMask) {
+
+	int shiftMultiplier = parameters[dir][1];
+	if (dir == Direction::E || dir == Direction::N){
+		if (low)
+			overflowMask <<= overflowAmount*shiftMultiplier;
+		else 
+			overflowMask >>= (BITBOARD_WIDTH - overflowAmount)*shiftMultiplier;
+	} else {
+		if (low)
+			overflowMask >>= overflowAmount*shiftMultiplier;
+		else 
+			overflowMask <<= (BITBOARD_WIDTH - overflowAmount)*shiftMultiplier;
+	}
+	
+	return overflowMask;
+}
 void BitboardContainer::floodFillStep(BitboardContainer &frontier,  BitboardContainer &visited){
 
 	BitboardContainer search = frontier.getPerimeter();
@@ -302,16 +377,13 @@ void BitboardContainer::xorWith( BitboardContainer &other) {
 bool BitboardContainer::containsAny(BitboardContainer& other) {
 	bool any = 0;	
 	for (int i: other.internalBoardCache) { 
-		any |= (internalBoards[i] && other.internalBoards[i]);
+		any |= (internalBoards[i] & other.internalBoards[i]);
 	}
 	return any;
 }
 
 void BitboardContainer::clear() {
-	for (int i : internalBoardCache) {
-		internalBoards[i] = 0;
-	}
-	pruneCache();
+	internalBoardCache.clear();
 }
 //TODO optimize
 //TODO test

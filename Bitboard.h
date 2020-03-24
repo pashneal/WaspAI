@@ -19,6 +19,7 @@ class BitboardContainer {
 	const int BITBOARD_CONTAINER_SIZE  = 16;
 	const int BITBOARD_CONTAINER_ROWS = 4;
 	const int BITBOARD_CONTAINER_COLS = 4;
+	const unsigned long long ODD_ROWS_BITMASK = 0xff00ff00ff00ff00u;
 
 	int  boundingBoxes[16][4];
 	unsigned long long int internalBoards[16] = {0};
@@ -29,13 +30,18 @@ class BitboardContainer {
 
 	void initialize(unordered_map <int, unsigned long long>);
 	void initializeTo(BitboardContainer&);
+	void setBoard(int , unsigned long long);
 
+	void convertToHexRepresentation(Direction, int);
+	void shiftOrthogonalDirection(Direction, int);
 	void shiftDirection(Direction);
 	void shiftDirection(Direction, int);
 
-	void findBoundingBoxes();
+	unsigned long long createLowOverflowMask(Direction, int);
+	unsigned long long adjustOverflowMask(Direction, int, bool, unsigned long long);
+
+	void findBoundingBoxes(); 
 	void findBoundingBoxes(int);
-	int findConnectedCompBFS(int, int);
 
 	void floodFillStep(BitboardContainer&, BitboardContainer&);
 	void floodFill(BitboardContainer&);
@@ -58,8 +64,6 @@ class BitboardContainer {
 
 	BitboardContainer getPerimeter();
 
-
-	//TODO: refactor to splitIndividualComponents();
 	unordered_map <int , vector <unsigned long long> > split();
 	vector <BitboardContainer> splitIntoConnectedComponents();
 };
