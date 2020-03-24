@@ -35,6 +35,7 @@ class Test {
 				static void testXorWith();
 				static void testIntersectionWith();
 				static void testUnionWith();
+				static void testContainsAny();
 		};
 
 		static void pass(bool, string);

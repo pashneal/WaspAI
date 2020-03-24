@@ -504,6 +504,39 @@ void Test::BitboardTest::testUnionWith() {
 	}
 }
 
+void Test::BitboardTest::testContainsAny() {
+	cout << "===================TestContainsAny===================" << endl;
+	vector <unordered_map <int, unsigned long long>> bitboardInitialList =
+	{
+		{{0,262519634108789134u}},
+		{{1,0x70b46ca6fc5b5u},
+		 {2,0x9120002a48u}}
+	};
+
+	vector <unordered_map <int, unsigned long long >> bitboardCompList = {
+		{{0,2026862587613u}},
+		{{5,2026862587613u},
+		 {3,202686u}}
+	};
+
+	vector <bool> expectedResults  =
+	{1,0};
+
+
+	BitboardContainer test, compare;
+	for (unsigned long long i = 0; i < expectedResults.size(); ++i){
+		cout << "Test " << i << endl;
+		
+		test.initialize(bitboardInitialList[i]);
+		compare.initialize(bitboardCompList[i]);
+		bool v = test.containsAny(compare);
+				cout << "\t Board: " << expectedResults[i] << " ";
+
+				Test::pass(v == expectedResults[i], 
+						"failed to get correct result for containsAny()");
+
+	}
+}
 
 int main() {
 	Test::HiveTest::insertPieceTest();
@@ -514,5 +547,6 @@ int main() {
 	Test::BitboardTest::testXorWith();
 	Test::BitboardTest::testIntersectionWith();
 	Test::BitboardTest::testUnionWith();
+	Test::BitboardTest::testContainsAny();
 	return 0;
 }
