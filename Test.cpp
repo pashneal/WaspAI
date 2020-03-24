@@ -60,7 +60,7 @@ using namespace std;
 bool Test::silent = false;
 
 void Test::pass(bool testPassed, string message){
-		if (!testPassed) cout << message << endl;
+		if (!testPassed) cout << "\033[1;31m" << message << "\033[0m" << endl;
 		if (!silent && testPassed) cout << "Test passed" << endl;
 }
 
