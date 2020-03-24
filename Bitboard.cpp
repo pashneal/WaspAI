@@ -198,18 +198,9 @@ void BitboardContainer::shiftOrthogonalDirection(Direction dir, int numTimes){
 
 		overflowHigh = overflowHighMask & internalBoards[initialBoardIndex];
 		overflowLow = overflowLowMask & internalBoards[initialBoardIndex];
+
 		overflowLow = adjustOverflowMask(dir, overflowAmount, true, overflowLow);
 		overflowHigh = adjustOverflowMask(dir, overflowAmount, false, overflowHigh);
-
-		if (newHighBoardIndex < 16 && newHighBoardIndex >= 0) {
-
-			if (internalBoardCache.find(newHighBoardIndex) == internalBoardCache.end()) 
-				internalBoards[newHighBoardIndex] = 0;
-
-			internalBoards[newHighBoardIndex] &= ~overflowHighMask;
-			internalBoards[newHighBoardIndex] |= overflowHigh;
-			internalBoardCache.insert(newHighBoardIndex);
-		}
 
 		if (newLowBoardIndex < 16 && newLowBoardIndex >= 0) {
 
@@ -217,6 +208,16 @@ void BitboardContainer::shiftOrthogonalDirection(Direction dir, int numTimes){
 			internalBoards[newLowBoardIndex] |= overflowLow;
 			internalBoardCache.insert(newLowBoardIndex);
 		}
+
+		if (newHighBoardIndex < 16 && newHighBoardIndex >= 0) {
+
+			if (internalBoardCache.find(newHighBoardIndex) == internalBoardCache.end()) 
+				internalBoards[newHighBoardIndex] = 0;
+
+			internalBoards[newHighBoardIndex] |= overflowHigh;
+			internalBoardCache.insert(newHighBoardIndex);
+		}
+
 
 	}
 
