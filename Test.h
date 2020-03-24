@@ -36,6 +36,8 @@ class Test {
 				static void testIntersectionWith();
 				static void testUnionWith();
 				static void testContainsAny();
+				static void testFloodFillStep();
+				static void testFloodFill();
 		};
 
 		static void pass(bool, string);

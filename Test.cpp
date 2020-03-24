@@ -538,6 +538,104 @@ void Test::BitboardTest::testContainsAny() {
 	}
 }
 
+void Test::BitboardTest::testFloodFillStep() {
+		
+	cout << "===================TestFloodFillStep===================" << endl;
+
+	vector <unordered_map <int, unsigned long long>> bitboardTraversableList = {
+		{{0,8831493474304u}},
+		{{0,49344u}, {1,1}, {4,13835058055282163712u}},
+		{{0,49344u}, {1,1}, {4,13835058055282163712u}}
+	};
+	vector <unordered_map <int, unsigned long long>> bitboardFrontierList =
+	{
+		{{0,134217728u}},
+		{{0,128}},
+		{{0,49216u}, {1,1}, {4,13835058055282163712u}}
+	};
+
+	vector <unordered_map <int, unsigned long long >> bitboardVisitedList = {
+		{{0,0}},
+		{{0,0}},
+		{{0,128}}
+	};
+
+
+	vector <unordered_map <int, unsigned long long >> expectedVisitedList = {
+		{{0,134217728u}},
+		{{0,128}},
+		{{0,49344u}, {1,1}, {4,13835058055282163712u}}
+	};
+
+	vector <unordered_map <int, unsigned long long >> expectedFrontierList = {
+		{{0,34695806976u}},
+		{{0,49216u}, {1,1}, {4,13835058055282163712u}},
+		{{}}
+	};
+	BitboardContainer traversable, frontier, visited;
+	for (unsigned long long i = 0; i < expectedFrontierList.size(); ++i){
+		cout << "Test " << i << endl;
+		
+		traversable.initialize(bitboardTraversableList[i]);
+		frontier.initialize(bitboardFrontierList[i]);
+		visited.initialize(bitboardVisitedList[i]);
+
+		traversable.floodFillStep(frontier, visited);
+
+		BitboardContainer compVisited(expectedVisitedList[i]);
+		BitboardContainer compFrontier(expectedFrontierList[i]);
+
+		visited.pruneCache();
+		frontier.pruneCache();
+		compVisited.pruneCache();
+		compFrontier.pruneCache();
+		
+		cout << "\t" ;
+		Test::pass(compVisited.equals(visited), 
+				"visited board is incorrect for floodFillStep");
+		cout << "\t" ;
+		Test::pass(compFrontier.equals(frontier), 
+				"frontier board is incorrect for floodFillStep");
+	}
+}
+
+void Test::BitboardTest::testFloodFill() {
+	cout << "===================TestFloodFill===================" << endl;
+
+	//I'm too lazy to add more tests but there is space if future me wants to
+
+	vector <unordered_map <int, unsigned long long>> bitboardTraversableList = {
+		{{0,144680354303193280u}, {1,396553u}, {4,4629806107761573888u}}
+	};
+	vector <unordered_map <int, unsigned long long>> bitboardFrontierList =
+	{
+		{{0,144115188075855872}}
+	};
+
+	vector <unordered_map <int, unsigned long long >> expectedFrontierList = {
+		{{0,144680354303193280u}, {1,396553u}, {4,4629806107761573888u}}
+	};
+
+	BitboardContainer traversable, frontier ;
+	for (unsigned long long i = 0; i < expectedFrontierList.size(); ++i){
+		cout << "Test " << i << endl;
+		
+		traversable.initialize(bitboardTraversableList[i]);
+		frontier.initialize(bitboardFrontierList[i]);
+
+		traversable.floodFill(frontier);
+
+		BitboardContainer compFrontier(expectedFrontierList[i]);
+
+		frontier.pruneCache();
+		compFrontier.pruneCache();
+		
+		cout << "\t" ;
+		Test::pass(compFrontier.equals(frontier), 
+				"frontier board is incorrect for floodFill");
+	}
+
+}
 int main() {
 	Test::HiveTest::insertPieceTest();
 	Test::HiveTest::movePieceTest();
@@ -548,5 +646,7 @@ int main() {
 	Test::BitboardTest::testIntersectionWith();
 	Test::BitboardTest::testUnionWith();
 	Test::BitboardTest::testContainsAny();
+	Test::BitboardTest::testFloodFillStep();
+	Test::BitboardTest::testFloodFill();
 	return 0;
 }

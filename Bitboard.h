@@ -56,16 +56,17 @@ class BitboardContainer {
 
 	bool equals(BitboardContainer&);
 
-	unordered_map <int ,unsigned long long> duplicateBoard(vector<Direction>);
+	void duplicateBoard(vector<Direction>);
 
+	//listed below
 	void findAllGates(BitboardContainer&);
 	void findGatesContainingPiece(BitboardContainer&, unsigned long long, int);
 	void findAllGates();
 
 	BitboardContainer getPerimeter();
 
-	unordered_map <int , vector <unsigned long long> > split();
-	vector <BitboardContainer> splitIntoConnectedComponents();
+	unordered_map <int , vector <unsigned long long> > split();//
+	vector <BitboardContainer> splitIntoConnectedComponents();//
 };
 
 

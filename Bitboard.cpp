@@ -300,35 +300,54 @@ unsigned long long BitboardContainer::adjustOverflowMask(
 	return overflowMask;
 }
 void BitboardContainer::floodFillStep(BitboardContainer &frontier,  BitboardContainer &visited){
+	//assumes that everything in frontier is a legal node
 
-	BitboardContainer search = frontier.getPerimeter();
-	visited.unionWith(search);
-	visited.intersectionWith(*this);
-	frontier.pruneCache();
+	//visited = legal nodes that have already been traversed
+	visited.unionWith(frontier);
+
+	//get connecting nodes
+	BitboardContainer perimeter = frontier.getPerimeter();
+
+	//keep only traversable nodes
+	perimeter.intersectionWith(*this);
+	frontier.initializeTo(perimeter);
+
+	//nodes in visited are not in frontier
+	frontier.unionWith(visited);
+	frontier.xorWith(visited);
+
+
 }
 
-//TODO test
-//TODO optimize because this is so slow it hurts
+
+
 void BitboardContainer::floodFill(BitboardContainer &frontier){
+
+	//assumes frontier is a legal node
+
 	BitboardContainer visited;
-	visited.initializeTo(frontier);	
-
-	do  {
-		frontier.initializeTo(visited);
+	while (frontier.internalBoardCache.size()) {
 		floodFillStep(frontier, visited);
-	} while (!frontier.equals(visited));
-}
+		frontier.pruneCache();
+	}
 
+	//replace frontier with all nodes found
+	frontier.initializeTo(visited);
+}
 
 bool BitboardContainer::equals(BitboardContainer& other){
 
 	set<int> combined;
-	for (auto a : other.internalBoards){
+	for (auto a : other.internalBoardCache){
 		combined.insert(a);
 	}
-	for (auto a : internalBoards){
+	for (auto a : internalBoardCache){
 		combined.insert(a);
 	}
+	if (combined.size() != other.internalBoardCache.size() ||
+		combined.size() != internalBoardCache.size())
+		return false;
+	
 	for (auto i: combined){
 		if (internalBoards[i] != other.internalBoards[i]) return false;
 	}
@@ -388,27 +407,23 @@ void BitboardContainer::clear() {
 }
 //TODO optimize
 //TODO test
-unordered_map<int, unsigned long long> BitboardContainer::duplicateBoard(vector <Direction> dirs){
+void BitboardContainer::duplicateBoard(vector <Direction> dirs){
 
-	BitboardContainer other;
-	unordered_map <int , unsigned long long> returnMap;
-	other.initializeTo(*this);
 
-	for (int i : other.internalBoardCache){
-		returnMap[i] = other.internalBoards[i];
-	}
+	BitboardContainer init;
+	BitboardContainer duplicated;
+	duplicated.initializeTo(*this);
+
 
 	for (Direction dir: dirs) { 
-		other.shiftDirection(dir);
+		
+		init.initializeTo(*this);
+		init.shiftDirection(dir);
+		duplicated.unionWith(init);
 
-		for (int i: other.internalBoardCache) {
-			if (returnMap.find(i) == returnMap.end()) returnMap[i] = 0;
-			returnMap[i] |= other.internalBoards[i];
-		}
-
-		other.initializeTo(*this); // reset is slow but it prolly works 
 	}
-	return returnMap;
+
+	initializeTo(duplicated);
 }
 
 //Find gate structures from *this board and store it in result
@@ -485,9 +500,13 @@ void BitboardContainer::findGatesContainingPiece(BitboardContainer &result,
 BitboardContainer  BitboardContainer::getPerimeter() {
 	BitboardContainer perimeter;
 	
-	vector <Direction> allDirections = {Direction::E,Direction::SE,Direction::NE,
+	vector <Direction> directions = {Direction::E,Direction::SE,Direction::NE,
 										Direction::NW,Direction::SW,Direction::W};
-	perimeter.duplicateBoard( allDirections);	
+
+	perimeter.initializeTo(*this);
+	perimeter.duplicateBoard( directions);	
+	perimeter.xorWith(*this);
+
 	return perimeter;
 }
 
