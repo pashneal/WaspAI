@@ -1,3 +1,5 @@
+#include <stdlib.h>
+#include <time.h>
 #include <string>
 #include <vector>
 #include <set>
@@ -619,20 +621,70 @@ void Test::BitboardTest::testFloodFill() {
 	BitboardContainer traversable, frontier ;
 	for (unsigned long long i = 0; i < expectedFrontierList.size(); ++i){
 		cout << "Test " << i << endl;
-		
 		traversable.initialize(bitboardTraversableList[i]);
 		frontier.initialize(bitboardFrontierList[i]);
-
 		traversable.floodFill(frontier);
-
 		BitboardContainer compFrontier(expectedFrontierList[i]);
-
 		frontier.pruneCache();
 		compFrontier.pruneCache();
-		
 		cout << "\t" ;
 		Test::pass(compFrontier.equals(frontier), 
 				"frontier board is incorrect for floodFill");
+	}
+}
+
+void Test::BitboardTest::testSplit() {
+	srand(time(NULL));
+	vector <unsigned long long> randomNums;
+
+	BitboardContainer testBitboard;
+	for (int i = 0; i < 16; i++) {
+		randomNums.push_back(rand() % (1 << 30));
+		testBitboard.setBoard(i, randomNums[i]);
+	}
+
+	cout << "====================TestSplit====================" << endl;
+
+	for (auto map: testBitboard.split()) {
+		unsigned long long test  = 0;
+		cout << map.first << " ";
+		for (unsigned long long i: map.second) {
+			test |= i;
+		}
+		Test::pass(test == randomNums[map.first], 
+				" did not get expected result for split()");
+	}
+}
+
+void Test::BitboardTest::testSplitIntoConnectedComponents() {
+	cout << "===================TestSplitIntoConnectedComponents===================" << endl;
+
+	//I'm too lazy to add more tests but there is space if future me wants to
+
+	unordered_map <int, unsigned long long> bitboardTraversable 
+		{{0,144680354236084224u}, {1,265481u},
+		 {4,4629806107769962496u}, {5, 216172782113849344u}};
+
+	vector <unordered_map <int, unsigned long long >> expectedComponentsList= {
+		{{0,144680354232401920u}},
+		{{0,3682304u}},
+		{{1,265224u}},
+		{{1,257}, {5,216172782113783808u}},
+		{{4,8388608u}, {5,65536u}},
+		{{4, 4629806107761573888u}}
+	};
+
+	BitboardContainer traversable(bitboardTraversable);
+	int oo = 0;
+
+	for (BitboardContainer result: traversable.splitIntoConnectedComponents()) {
+		cout << "Test " << oo << endl << "\t";
+		bool flag = 0;
+		for (BitboardContainer test: expectedComponentsList){ 
+			flag |= test.equals(result);
+		}
+		Test::pass(flag, "expectedComponentsList test failed");
+		oo++;
 	}
 
 }
@@ -648,5 +700,7 @@ int main() {
 	Test::BitboardTest::testContainsAny();
 	Test::BitboardTest::testFloodFillStep();
 	Test::BitboardTest::testFloodFill();
+	Test::BitboardTest::testSplit();
+	Test::BitboardTest::testSplitIntoConnectedComponents();
 	return 0;
 }

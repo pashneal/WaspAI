@@ -38,6 +38,8 @@ class Test {
 				static void testContainsAny();
 				static void testFloodFillStep();
 				static void testFloodFill();
+				static void testSplit();
+				static void testSplitIntoConnectedComponents();
 		};
 
 		static void pass(bool, string);

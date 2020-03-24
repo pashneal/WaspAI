@@ -540,7 +540,8 @@ vector <BitboardContainer> BitboardContainer::splitIntoConnectedComponents(){
 		int boardIndex = *(boards.internalBoardCache.begin());
 		unsigned long long * currentBoard = &boards.internalBoards[boardIndex];
 
-		do {
+		 while (*currentBoard) {
+		    //repeat if there are more points on this board
 
 			//pick some starting node
 			unsigned long long leastSignificantBit = *currentBoard & -*currentBoard;
@@ -554,8 +555,8 @@ vector <BitboardContainer> BitboardContainer::splitIntoConnectedComponents(){
 			//Remove found nodes
 			boards.xorWith(returnBitboard);
 
-		} while (*currentBoard); //repeat if there are more points on this board
-
+		}
+		
 		//delete now empty board
 		boards.internalBoardCache.erase(boardIndex);
 	}
