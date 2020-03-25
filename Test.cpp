@@ -264,7 +264,7 @@ void Test::BitboardTest::testBitboardBoundings(){
 
 void Test::BitboardTest::testShiftDirection(){
 	cout << "==========Test::Bitboard::shiftDirection()=======" << endl;
-	
+
 	BitboardContainer testBitboardContainer;
 	//thanks to http://cinnamonchess.altervista.org/bitboard_calculator/Calc.html for allowing me to create these tests more easily
 	vector <unordered_map <int, unsigned long long>> bitboardList =
@@ -273,7 +273,7 @@ void Test::BitboardTest::testShiftDirection(){
 			{0,2323928329449648128u},
 			{1,288795546670598144u}
 		},
-		
+
 		{
 			{3,609009639598005946u},
 			{4,826246961152u},
@@ -286,7 +286,7 @@ void Test::BitboardTest::testShiftDirection(){
 			{5,6291480u},
 			{7,13402712491054596096u}
 		},
-		
+
 		{
 			{0,1161964714480637952u},
 			{1,144397771187815424u}
@@ -384,8 +384,19 @@ void Test::BitboardTest::testShiftDirection(){
 	testBitboardContainer.shiftDirection(Direction::SE);
 	testBitboardContainer.shiftDirection(Direction::E);
 	testBitboardContainer.shiftDirection(Direction::NW);
-	cout << "Test" << shiftDirections.size() << ": ";
+	cout << "Test " << shiftDirections.size() << ": ";
 	Test::pass(testBitboardContainer.internalBoards[5] == 1, "result incorrect");
+
+
+	cout << "Test " << shiftDirections.size() + 1 << ": ";
+
+	BitboardContainer testProblemNodes;
+	testProblemNodes.initialize({{12, 524800u}});
+	testProblemNodes.shiftDirection(Direction::N, 15);
+	testProblemNodes.shiftDirection(Direction::E, 7);
+	testProblemNodes.convertToHexRepresentation(Direction::NE, 15);
+	BitboardContainer result({{5,1026u}});
+	Test::pass(result.equals(testProblemNodes), " result incorrect");
 	
 }
 
@@ -675,19 +686,51 @@ void Test::BitboardTest::testSplitIntoConnectedComponents() {
 	};
 
 	BitboardContainer traversable(bitboardTraversable);
-	int oo = 0;
+	int testNum = 0;
 
 	for (BitboardContainer result: traversable.splitIntoConnectedComponents()) {
-		cout << "Test " << oo << endl << "\t";
+		cout << "Test " << testNum << endl << "\t";
 		bool flag = 0;
 		for (BitboardContainer test: expectedComponentsList){ 
 			flag |= test.equals(result);
 		}
 		Test::pass(flag, "expectedComponentsList test failed");
-		oo++;
+		testNum++;
 	}
-
 }
+
+void Test::BitboardTest::testFindAllProblemNodes(){
+	cout << "===================FindAllProblemNodes===================" << endl;
+	vector <unordered_map <int, unsigned long long>> gatesTest = {
+		{{0,17632004u}},
+		{{2,4484114285830u}},
+		{{4,36099441180057792u}, {5, 846645512438272u}}
+	};
+
+	vector <unordered_map <int, unsigned long long >> expected= {
+		{{0,33686536u}},
+		{{2, 8830520132096u}},
+		{{4, 141287244169216u}, {5, 1108135248128u}}
+	};
+
+	for (unsigned int i = 0; i < gatesTest.size(); i++) {
+		cout << endl;
+		BitboardContainer gateTest(gatesTest[i]);
+		BitboardContainer expectedProblemNodes(expected[i]);
+		BitboardContainer resultProblemNodes;
+		
+		gateTest.findAllProblemNodes(resultProblemNodes);
+		Test::pass(resultProblemNodes.equals(expectedProblemNodes),
+					"incorrect board returned for problemNodes");
+		cout << "given Board: " ;
+		for (int i : resultProblemNodes.internalBoardCache) {
+			cout << "\n " << i << " " << resultProblemNodes.internalBoards[i];
+		}
+		cout << endl;
+	}
+}
+
+
 int main() {
 	Test::HiveTest::insertPieceTest();
 	Test::HiveTest::movePieceTest();
@@ -702,5 +745,6 @@ int main() {
 	Test::BitboardTest::testFloodFill();
 	Test::BitboardTest::testSplit();
 	Test::BitboardTest::testSplitIntoConnectedComponents();
+	Test::BitboardTest::testFindAllProblemNodes();
 	return 0;
 }

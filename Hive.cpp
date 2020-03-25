@@ -14,11 +14,11 @@
 using namespace std;
 
 Hive::Hive() { 
-	BitboardContainer allGameBoards[] = { 
-										  allPieces, whitePieces, blackPieces, ants, beetles, 
-										  spiders, ladybugs, queens, mosquitoes, pillbugs, 
-										  grasshoppers, gates, doors, rings, firstPieces,
-										  secondPieces, thirdPieces
+	BitboardContainer * allGameBoards[]= { 
+										  &allPieces, &whitePieces, &blackPieces, &ants,
+										  &beetles,&spiders, &ladybugs, &queens, &mosquitoes,
+										  &pillbugs, &grasshoppers, &problemNodes, &doors,
+										  &rings, &firstPieces, &secondPieces, &thirdPieces
 										};
 
 	for (int i = 0; i < 28; ++i){
@@ -264,43 +264,42 @@ bool * Hive::getPieceLookupTable(){
 	return pieceLookupTable;
 }
 
-
-void Hive::depthFirstSearch(){
-	PieceNode empty;
-	for (auto n: pieceNodes) {
-		(*n).parent = &empty;
-		(*n).visited = false;
-	}
-
-	articulationNodes.clear();
-
-	auto rootPointer = pieceNodes.begin();
-	PieceNode * root = *rootPointer;
-	int counter = 0;
-	getArticulationNodes(*root, counter);
-	int numChildren = 0;
-	for (auto neighbor: (*root).neighbors) {
-		if ((*neighbor).parent -> pieceNumber == root->pieceNumber)
-			numChildren++;
-	}
-
-	if (numChildren > 1) articulationNodes.push_back(root);
-}
-
-
 void Hive::getArticulationNodes(PieceNode &n, int &counter) {
+	//if arrived update node visited
 	n.visited = true;
+
+	//the vistedNumber represents that this is the nth
+	//node visited where counter = n
 	n.visitedNum = counter++;	
+
+	//initially assume that this node is the lowest link
 	n.lowLink = n.visitedNum;
+
 	for(auto neighbor: n.neighbors){
-		if (!(*neighbor).visited){
+		
+		if (! (neighbor -> visited) ){
+
 			(*neighbor).parent = &n;
+
+			//see if node has a path to lower node
 			getArticulationNodes(*neighbor, counter);
-			if ( (*neighbor).lowLink >=  n.visitedNum) articulationNodes.push_back(&n);
-			n.lowLink = (n.lowLink < (*neighbor).lowLink) ? n.lowLink : (*neighbor).lowLink;
+
+			//if neighbor points to a lower node
+			//update lowest Link
+			n.lowLink = (n.lowLink < neighbor -> lowLink) ? n.lowLink : (*neighbor).lowLink;
+
+			
+			//if neighbor cannot reach a lower node
+			//that means this node is not a leaf in a DFS tree
+			if ( neighbor -> lowLink >=  n.visitedNum) articulationNodes.insert(&n);
 		}
+
+		//if the node is a back edge
 		else if ((*neighbor).parent -> pieceNumber  != n.pieceNumber) {
-			n.lowLink = (n.lowLink < (*neighbor).visitedNum) ? n.lowLink : (*neighbor).visitedNum;
+
+			// set lowest link to min(lowlink, neighbor.num)
+			n.lowLink = (n.lowLink < (*neighbor).visitedNum) ?
+						n.lowLink : (*neighbor).visitedNum;
 		}
 	}
 }

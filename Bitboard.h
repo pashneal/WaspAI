@@ -58,15 +58,13 @@ class BitboardContainer {
 
 	void duplicateBoard(vector<Direction>);
 
-	//listed below
-	void findAllGates(BitboardContainer&);
-	void findGatesContainingPiece(BitboardContainer&, unsigned long long, int);
-	void findAllGates();
+	void findAllProblemNodes(BitboardContainer&);
+	void findProblemNodesContainingPiece(BitboardContainer&, unsigned long long, int);
 
 	BitboardContainer getPerimeter();
 
-	unordered_map <int , vector <unsigned long long> > split();//
-	vector <BitboardContainer> splitIntoConnectedComponents();//
+	unordered_map <int , vector <unsigned long long> > split();
+	vector <BitboardContainer> splitIntoConnectedComponents();
 };
 
 

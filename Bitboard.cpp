@@ -7,6 +7,20 @@
 using namespace std;
 
 int numDirections = 6;
+unordered_map<Direction, Direction> oppositeDirection = 
+{
+	{Direction::N, Direction::S},
+	{Direction::E, Direction::W},
+	{Direction::W, Direction::E},
+	{Direction::S, Direction::N},
+	{Direction::NW, Direction::SE},
+	{Direction::NE, Direction::SW},
+	{Direction::SW, Direction::NE},
+	{Direction::SE, Direction::NW}
+};
+
+//gates are structures that create problemNodes
+//they are centered around 2,2 at board index 12
 BitboardContainer gates[] = {
 	BitboardContainer({{12, 134479872u}}),
 	BitboardContainer({{12, 264192u}}),
@@ -17,7 +31,10 @@ BitboardContainer gates[] = {
 };
 
 
-BitboardContainer antiGates[] = {
+//problemNodes are places in the board that do
+//not have the freedom to move along all edges
+//they are centered around 2,2 at board index 12
+BitboardContainer potentialProblemNodes[] = {
 	BitboardContainer({{12,67633152u}}),
 	BitboardContainer({{12,525312u}}),
 	BitboardContainer({{12,1536u}}),
@@ -152,6 +169,7 @@ void BitboardContainer::convertToHexRepresentation (
 	}
 }
 
+//make this private
 void BitboardContainer::shiftOrthogonalDirection(Direction dir, int numTimes){
 	//assumes that dir is orthogonal
 	//TODO: separate orthogonal and hexagonal directions
@@ -176,14 +194,14 @@ void BitboardContainer::shiftOrthogonalDirection(Direction dir, int numTimes){
 	overflowLowMask = createLowOverflowMask(dir, overflowAmount);
 	overflowHighMask = ~overflowLowMask;
 	
-	int boardLengthDiff = (overflowAmount / BITBOARD_WIDTH);
+	int boardLengthDiff = (numTimes / BITBOARD_WIDTH);
 
 	for (int initialBoardIndex: activeBoards) {	
 
 
 		//TODO: name everything here better
 		//determine where all the bits will move to
-		newLowBoardIndex =  initialBoardIndex - boardIndexDiff * boardLengthDiff;
+		newLowBoardIndex =  initialBoardIndex + boardIndexDiff * boardLengthDiff;
 		newHighBoardIndex = newLowBoardIndex + boardIndexDiff;
 
 		//if there is no overflow
@@ -220,15 +238,18 @@ void BitboardContainer::shiftOrthogonalDirection(Direction dir, int numTimes){
 
 
 	}
-
 }
 
 
-
 void BitboardContainer::shiftDirection(Direction dir, int numTimes){
+	if (numTimes < 0) {
+		dir = oppositeDirection[dir];
+		numTimes = -numTimes;
+	}
 	if (dir == Direction::E|| dir == Direction::W||
 		dir == Direction::S|| dir == Direction::N) {
 		shiftOrthogonalDirection(dir, numTimes);
+		pruneCache();
 		return;
 	}
 
@@ -315,8 +336,6 @@ void BitboardContainer::floodFillStep(BitboardContainer &frontier,  BitboardCont
 	//nodes in visited are not in frontier
 	frontier.unionWith(visited);
 	frontier.xorWith(visited);
-
-
 }
 
 
@@ -337,6 +356,8 @@ void BitboardContainer::floodFill(BitboardContainer &frontier){
 
 bool BitboardContainer::equals(BitboardContainer& other){
 
+	pruneCache();
+	other.pruneCache();
 	set<int> combined;
 	for (auto a : other.internalBoardCache){
 		combined.insert(a);
@@ -426,33 +447,38 @@ void BitboardContainer::duplicateBoard(vector <Direction> dirs){
 	initializeTo(duplicated);
 }
 
+
 //Find gate structures from *this board and store it in result
-void BitboardContainer::findAllGates(BitboardContainer &result ){
-	
+void BitboardContainer::findAllProblemNodes(BitboardContainer &result ){
 	for (auto pieceMap: this -> split()){ 
 		for (auto piece: pieceMap.second) {
-			findGatesContainingPiece(result, piece, pieceMap.first);
+			findProblemNodesContainingPiece(result, piece, pieceMap.first);
 		}
 	}
 }
 
+
 //find gate structures from *this board and store it in result, 
 //only search around given BitboardContainer pieces
-
-void BitboardContainer::findGatesContainingPiece(BitboardContainer &result,
+void BitboardContainer::findProblemNodesContainingPiece(BitboardContainer &result,
 												 unsigned long long piece,
 												 int internalBoardIndex){	
 
 	int leadingZeroesCount = __builtin_clzll(piece);
 
-	int xShift = leadingZeroesCount % 8 - 2;
-	int yShift = leadingZeroesCount / 8 - 2;
+	int xShift = ((63) - leadingZeroesCount )% 8 - 2;
+	int yShift = ((63) - leadingZeroesCount )/ 8 - 2;
 
 	xShift += (BITBOARD_WIDTH * (internalBoardIndex % BITBOARD_CONTAINER_COLS));
 	yShift += BITBOARD_HEIGHT * (BITBOARD_CONTAINER_ROWS - 1 - (internalBoardIndex / BITBOARD_CONTAINER_ROWS));	
 
+
+
+	//gate is a set of nodes that result in problemNodes
 	BitboardContainer gate;
-	BitboardContainer antiGate;
+	
+	//problemNodes are two nodes that cannot share a traversable edge
+	BitboardContainer problemNodes;
 
 	for( int i = 0; i < numDirections; i++){
 
@@ -462,7 +488,7 @@ void BitboardContainer::findGatesContainingPiece(BitboardContainer &result,
 		testGate.initializeTo(gates[i]);
 		testGate.shiftDirection(Direction::N, yShift);
 		testGate.shiftDirection(Direction::E, xShift);
-		testGate.pruneCache();
+		testGate.convertToHexRepresentation(Direction::NE,yShift);
 		
 		gate.initializeTo(testGate);
 		
@@ -471,28 +497,23 @@ void BitboardContainer::findGatesContainingPiece(BitboardContainer &result,
 
 		if (gate.equals(testGate)){
 
-			BitboardContainer testAntiGate;
+			BitboardContainer testProblemNodes;
 			
 			//create and shift into place
-			testAntiGate.initializeTo(antiGates[i]);
-			testAntiGate.shiftDirection(Direction::N, yShift);
-			testAntiGate.shiftDirection(Direction::E, xShift);
-			testGate.pruneCache();
+			testProblemNodes.initializeTo(potentialProblemNodes[i]);
+			testProblemNodes.shiftDirection(Direction::N, yShift);
+			testProblemNodes.shiftDirection(Direction::E, xShift);
+			testProblemNodes.convertToHexRepresentation(Direction::NE,yShift);
 
-			antiGate.initializeTo(testAntiGate);
+			problemNodes.initializeTo(testProblemNodes);
 			
 
-			//antiGate only forms where piece does not exist
-			antiGate.xorWith(*this);
-			antiGate.intersectionWith(testAntiGate);
+			//problemNodes only forms where a piece does not occupy that square 
+			problemNodes.xorWith(*this);
+			problemNodes.intersectionWith(testProblemNodes);
 
-			result.unionWith(antiGate);
-
-			//If a gate is formed here, it is impossible to 
-			//form one in the next clockwise direction
-			//skip it
-			i++;
-
+			//add problemNodes to result only the edge is shared between unoccupied squares
+			if(problemNodes.equals(testProblemNodes)) result.unionWith(problemNodes);
 		}
 	}
 }

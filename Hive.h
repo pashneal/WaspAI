@@ -33,14 +33,14 @@ class Hive {
 	BitboardContainer mosquitoes;
 	BitboardContainer pillbugs;
 	BitboardContainer grasshoppers;
-	BitboardContainer gates;
+	BitboardContainer problemNodes;
 	BitboardContainer doors;
 	BitboardContainer rings;
 	BitboardContainer firstPieces;
 	BitboardContainer secondPieces;
 	BitboardContainer thirdPieces;
 
-	vector <PieceNode*> articulationNodes;
+	set <PieceNode*> articulationNodes;
 	list <PieceNode*> pieceNodes; 
 	
   public:
@@ -67,7 +67,6 @@ class Hive {
 	Piece * getPieceArray();
 	bool * getPieceLookupTable();
 	void getArticulationNodes(PieceNode &, int&);
-	void depthFirstSearch();
 	void updateArticulationFramework(vector <PieceNode*>&);
 	void assignLowLink();
 	void updateLowLink();
