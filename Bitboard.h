@@ -1,4 +1,5 @@
 #pragma once
+#include <list>
 #include <vector>
 #include <unordered_map>
 #include <iostream>
@@ -12,17 +13,9 @@ class BitboardContainer {
 	//TODO: figure out shift direction O(n) sort so you can get rid of log(n) ordered set
 	set<int> internalBoardCache;
 
-	const int ROW_SHIFT = 8;
-	const int COLUMN_SHIFT = 1;
-	const int BITBOARD_HEIGHT = 8;
-	const int BITBOARD_WIDTH = 8;
-	const int BITBOARD_CONTAINER_SIZE  = 16;
-	const int BITBOARD_CONTAINER_ROWS = 4;
-	const int BITBOARD_CONTAINER_COLS = 4;
-	const unsigned long long ODD_ROWS_BITMASK = 0xff00ff00ff00ff00u;
 
 	int  boundingBoxes[16][4];
-	unsigned long long int internalBoards[16] = {0};
+	unsigned long long int internalBoards[16];
 
 	//TODO: make internalBoardCache safe so we don't have to initialize
 	BitboardContainer() {};
@@ -58,13 +51,18 @@ class BitboardContainer {
 
 	void duplicateBoard(vector<Direction>);
 
-	void findAllProblemNodes(BitboardContainer&);
-	void findProblemNodesContainingPiece(BitboardContainer&, unsigned long long, int);
+	int count();
 
 	BitboardContainer getPerimeter();
 
 	unordered_map <int , vector <unsigned long long> > split();
+	list <BitboardContainer> splitIntoBitboardContainers();
+
 	vector <BitboardContainer> splitIntoConnectedComponents();
+
+	bool operator ==(BitboardContainer &other) {
+		return equals(other);
+	}
 };
 
 

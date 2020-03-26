@@ -40,6 +40,10 @@ class Test {
 				static void testFloodFill();
 				static void testSplit();
 				static void testSplitIntoConnectedComponents();
+		};
+
+		class ProblemNodeContainerTest {
+			public:
 				static void testFindAllProblemNodes();
 		};
 

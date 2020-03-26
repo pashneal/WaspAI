@@ -6,7 +6,6 @@
 
 using namespace std;
 
-int numDirections = 6;
 unordered_map<Direction, Direction> oppositeDirection = 
 {
 	{Direction::N, Direction::S},
@@ -19,29 +18,6 @@ unordered_map<Direction, Direction> oppositeDirection =
 	{Direction::SE, Direction::NW}
 };
 
-//gates are structures that create problemNodes
-//they are centered around 2,2 at board index 12
-BitboardContainer gates[] = {
-	BitboardContainer({{12, 134479872u}}),
-	BitboardContainer({{12, 264192u}}),
-	BitboardContainer({{12, 262148u}}),
-	BitboardContainer({{12, 262400u}}),
-	BitboardContainer({{12, 17039360u}}),
-	BitboardContainer({{12, 17180131328u}})
-};
-
-
-//problemNodes are places in the board that do
-//not have the freedom to move along all edges
-//they are centered around 2,2 at board index 12
-BitboardContainer potentialProblemNodes[] = {
-	BitboardContainer({{12,67633152u}}),
-	BitboardContainer({{12,525312u}}),
-	BitboardContainer({{12,1536u}}),
-	BitboardContainer({{12,131584u}}),
-	BitboardContainer({{12,33685504u}}),
-	BitboardContainer({{12,100663296u}})
-};
 
 unordered_map <Direction, vector<int>> parameters  = {
 	{Direction::E, {1, 1, 1}},
@@ -356,8 +332,9 @@ void BitboardContainer::floodFill(BitboardContainer &frontier){
 
 bool BitboardContainer::equals(BitboardContainer& other){
 
-	pruneCache();
+	//TODO: fix prunce cache leaks
 	other.pruneCache();
+	pruneCache();
 	set<int> combined;
 	for (auto a : other.internalBoardCache){
 		combined.insert(a);
@@ -374,6 +351,7 @@ bool BitboardContainer::equals(BitboardContainer& other){
 	}
 	return true;
 }
+
 
 void BitboardContainer::pruneCache(){
 	list <int> emptyBoards;
@@ -405,6 +383,7 @@ void BitboardContainer::intersectionWith( BitboardContainer &other) {
 			internalBoards[i] = 0;
 		}
 	}
+	pruneCache();
 }
 
 void BitboardContainer::xorWith( BitboardContainer &other) {
@@ -418,7 +397,8 @@ void BitboardContainer::xorWith( BitboardContainer &other) {
 bool BitboardContainer::containsAny(BitboardContainer& other) {
 	bool any = 0;	
 	for (int i: other.internalBoardCache) { 
-		any |= (internalBoards[i] & other.internalBoards[i]);
+		if (internalBoardCache.find(i) != internalBoardCache.end())
+			any |= (internalBoards[i] & other.internalBoards[i]);
 	}
 	return any;
 }
@@ -448,75 +428,14 @@ void BitboardContainer::duplicateBoard(vector <Direction> dirs){
 }
 
 
-//Find gate structures from *this board and store it in result
-void BitboardContainer::findAllProblemNodes(BitboardContainer &result ){
-	for (auto pieceMap: this -> split()){ 
-		for (auto piece: pieceMap.second) {
-			findProblemNodesContainingPiece(result, piece, pieceMap.first);
-		}
+int BitboardContainer::count(){
+	int total = 0;
+	for (int i: internalBoardCache) {
+		total += __builtin_popcount(internalBoards[i]);
 	}
+	return total;
 }
 
-
-//find gate structures from *this board and store it in result, 
-//only search around given BitboardContainer pieces
-void BitboardContainer::findProblemNodesContainingPiece(BitboardContainer &result,
-												 unsigned long long piece,
-												 int internalBoardIndex){	
-
-	int leadingZeroesCount = __builtin_clzll(piece);
-
-	int xShift = ((63) - leadingZeroesCount )% 8 - 2;
-	int yShift = ((63) - leadingZeroesCount )/ 8 - 2;
-
-	xShift += (BITBOARD_WIDTH * (internalBoardIndex % BITBOARD_CONTAINER_COLS));
-	yShift += BITBOARD_HEIGHT * (BITBOARD_CONTAINER_ROWS - 1 - (internalBoardIndex / BITBOARD_CONTAINER_ROWS));	
-
-
-
-	//gate is a set of nodes that result in problemNodes
-	BitboardContainer gate;
-	
-	//problemNodes are two nodes that cannot share a traversable edge
-	BitboardContainer problemNodes;
-
-	for( int i = 0; i < numDirections; i++){
-
-		BitboardContainer testGate;
-		
-		//create and shift into place
-		testGate.initializeTo(gates[i]);
-		testGate.shiftDirection(Direction::N, yShift);
-		testGate.shiftDirection(Direction::E, xShift);
-		testGate.convertToHexRepresentation(Direction::NE,yShift);
-		
-		gate.initializeTo(testGate);
-		
-		//see if all the bits in gateBitboard are set
-		gate.intersectionWith(*this);
-
-		if (gate.equals(testGate)){
-
-			BitboardContainer testProblemNodes;
-			
-			//create and shift into place
-			testProblemNodes.initializeTo(potentialProblemNodes[i]);
-			testProblemNodes.shiftDirection(Direction::N, yShift);
-			testProblemNodes.shiftDirection(Direction::E, xShift);
-			testProblemNodes.convertToHexRepresentation(Direction::NE,yShift);
-
-			problemNodes.initializeTo(testProblemNodes);
-			
-
-			//problemNodes only forms where a piece does not occupy that square 
-			problemNodes.xorWith(*this);
-			problemNodes.intersectionWith(testProblemNodes);
-
-			//add problemNodes to result only the edge is shared between unoccupied squares
-			if(problemNodes.equals(testProblemNodes)) result.unionWith(problemNodes);
-		}
-	}
-}
 
 BitboardContainer  BitboardContainer::getPerimeter() {
 	BitboardContainer perimeter;
@@ -549,6 +468,20 @@ unordered_map< int, vector < unsigned long long >> BitboardContainer::split(){
 	return returnMap;
 }
 
+list <BitboardContainer> BitboardContainer::splitIntoBitboardContainers() {
+	list <BitboardContainer> returnList;
+	for (int i: internalBoardCache){
+		unsigned long long board = internalBoards[i];
+		while(board) {
+			unsigned long long leastSignificantBit = board & -board;
+			board ^= leastSignificantBit; // remove least significant bit
+
+			BitboardContainer splitted({{i,leastSignificantBit}});
+			returnList.push_front(splitted);
+		}		
+	}
+	return returnList;
+}
 
 vector <BitboardContainer> BitboardContainer::splitIntoConnectedComponents(){
 

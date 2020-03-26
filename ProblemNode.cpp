@@ -3,43 +3,213 @@
 #include "Bitboard.h"
 #include "ProblemNode.h"
 
+int numDirections = 6;
+
+
+//gates are structures that create problemNodes
+//they are centered around 2,2 at board index 12
+BitboardContainer gates[] = {
+	BitboardContainer({{12, 134479872u}}),
+	BitboardContainer({{12, 264192u}}),
+	BitboardContainer({{12, 262148u}}),
+	BitboardContainer({{12, 262400u}}),
+	BitboardContainer({{12, 17039360u}}),
+	BitboardContainer({{12, 17180131328u}})
+};
+
+
+//problemNodes are places in the board that do
+//not have the freedom to move along all edges
+//they are centered around 2,2 at board index 12
+BitboardContainer potentialProblemNodes[] = {
+	BitboardContainer({{12,67633152u}}),
+	BitboardContainer({{12,525312u}}),
+	BitboardContainer({{12,1536u}}),
+	BitboardContainer({{12,131584u}}),
+	BitboardContainer({{12,33685504u}}),
+	BitboardContainer({{12,100663296u}})
+};
+
 using namespace std;
 
-void ProblemNodeContainer::insert(BitboardContainer problemNodes, BitboardContainer gate) {
+ProblemNodeContainer::ProblemNodeContainer(BitboardContainer * pieces) {
+	allPieces = pieces;
+}
+
+void ProblemNodeContainer::insert(BitboardContainer& problemNodes) {
+
+
+	int problemNodeHash = hash(problemNodes);
+	if (problemNodeHashes.find(problemNodeHash) != problemNodeHashes.end()) 
+			return;
+
+	problemNodeHashes.insert(problemNodeHash);
+
 	for (auto map: problemNodes.split()){
-
-		int hashInt = hash(map.second[0], map.second[1]);
-		
-
-		BitboardContainer hashedBitboard;
-		problemNodeMap[hashInt].push_front(gate);
-		problemNodeMap[hashInt].begin() -> initializeTo(problemNodes);
-
 		for (auto piece: map.second){
-			problemNodeHashTable[hash(piece, map.first)].push_front(
-					&(problemNodeMap[hashInt].front()) );
+			int hashInt = hash(map.first, piece);
+
+			//assigned the hash to a map for O(1) access
+			locationHashTable[hashInt].push_front(problemNodes);
 		}
-
-	}
-	
-	for (auto map: gate.split()){
-		//Todo here		
-	}
-
+	}	
 }
 
 void ProblemNodeContainer::clear() {
-	problemNodeMap.clear();
-	problemNodeHashTable.clear();
+	locationHashTable.clear();
+	problemNodeHashes.clear();
 }
 
-int hash(unsigned long long piece, int boardIndex) {
+int ProblemNodeContainer::hash(int boardIndex, unsigned long long piece) {
 	return boardIndex + (__builtin_clzll(piece) << 8); 
 	// 0x04d7651f <- might be faster to use this ;-)
 }
 
-int hash(unsigned long long piece1, unsigned long long piece2){
-	return (__builtin_clzll(piece1) << 16) + (__builtin_clzll(piece2) << 8);
-	//imperfect hash
+int ProblemNodeContainer::hash( BitboardContainer& bitboard){
+	int maxBoardIndex = -1;
+	list <unsigned long long> pieces ;
+	
+	auto iter = bitboard.split();
+
+	for (auto map: iter){
+		maxBoardIndex = (maxBoardIndex < map.first) ? map.first : maxBoardIndex;
+
+		for (auto piece: map.second){
+			if (pieces.size() == 0 || pieces.front() < piece) 
+				pieces.push_front(piece);
+			else 
+				pieces.push_back(piece);
+		}
+	}
+
+	if (pieces.size() == 1) return maxBoardIndex + (__builtin_clzll(pieces.front()) << 8);
+
+	return maxBoardIndex + (__builtin_clzll(pieces.front()) << 8)
+					     + (__builtin_clzll(pieces.back()) << 16);
 }
 
+void ProblemNodeContainer::removePiece( BitboardContainer & piece) {
+	if (piece.count() != 1) {
+		cout << "piece is not one bit in a BitboardContainer" << endl;
+		throw 14;
+	}
+
+	//TODO: make this unneccessary
+	piece.pruneCache();
+
+	int pieceHash = hash(piece);
+
+	BitboardContainer testUpdate;
+	for (auto board: locationHashTable[pieceHash]){
+		testUpdate.unionWith(board);
+	}
+	testUpdate.unionWith(piece);
+
+	//delete all problemNodes stored at that location
+	locationHashTable[pieceHash].clear();
+
+	//update to see if there are more problem nodes at those locations
+	updateVisible(testUpdate);
+}
+
+//call this only once! very slow and inefficient
+//TODO: programatically enforce above rule
+void ProblemNodeContainer::findAllProblemNodes() {
+	for (auto map: allPieces -> split() ) {
+		for (unsigned long long board: map.second) {
+			BitboardContainer testUpdate;
+			for (auto problemNodes: getProblemNodesAtLocation(map.first, board)){
+				insert(problemNodes);
+				testUpdate.unionWith(problemNodes);
+			}
+			updateVisible(testUpdate);
+		}
+	}
+}
+
+void ProblemNodeContainer::insertPiece(BitboardContainer & piece) {
+	int boardIndex = *(piece.internalBoardCache.begin());
+	unsigned long long board = piece.internalBoards[boardIndex];
+
+	BitboardContainer testUpdate;
+	for (auto problemNodes : getProblemNodesAtLocation(boardIndex, board)){
+		insert(problemNodes);
+		testUpdate.unionWith(problemNodes);
+	}
+	updateVisible(testUpdate);
+}
+
+void ProblemNodeContainer::updateVisible(BitboardContainer& locations) {
+	//finds out whether the location on the bit board should be
+	//set in problemNodes
+	visibleProblemNodes.unionWith(locations);
+	visibleProblemNodes.xorWith(locations);
+
+	for (auto location: locations.splitIntoBitboardContainers()){
+		int hashInt = hash(location);
+		for (BitboardContainer problemNodes: locationHashTable[hashInt]){
+			//delete pieces from problemNodes
+			problemNodes.unionWith(*allPieces);
+			problemNodes.xorWith(*allPieces);
+				
+			if (problemNodes.count() == 2) {
+				visibleProblemNodes.unionWith(problemNodes);
+				break;
+			}
+		}
+	}
+}
+
+
+
+list <BitboardContainer>
+ProblemNodeContainer::getProblemNodesAtLocation(int boardIndex, unsigned long long
+														   piece){	
+
+
+	list <BitboardContainer> retList;
+	int leadingZeroesCount = __builtin_clzll(piece);
+
+	int xShift = ((63) - leadingZeroesCount )% 8 - 2;
+	int yShift = ((63) - leadingZeroesCount )/ 8 - 2;
+
+	xShift += (BITBOARD_WIDTH * (boardIndex % BITBOARD_CONTAINER_COLS));
+	yShift += BITBOARD_HEIGHT * (BITBOARD_CONTAINER_ROWS - 1 - (boardIndex / BITBOARD_CONTAINER_ROWS));	
+
+	for( int i = 0; i < numDirections; i++){
+
+		BitboardContainer testGate;
+		
+		//create and shift into place
+		testGate.initializeTo(gates[i]);
+		testGate.shiftDirection(Direction::N, yShift);
+		testGate.shiftDirection(Direction::E, xShift);
+		testGate.convertToHexRepresentation(Direction::NE,yShift);
+		
+		//see if all the bits in gateBitboard are set
+		testGate.intersectionWith(*allPieces);
+
+		if (testGate.count() == 2){
+
+			BitboardContainer testProblemNodes;
+			
+			//create and shift into place
+			testProblemNodes.initializeTo(potentialProblemNodes[i]);
+			testProblemNodes.shiftDirection(Direction::N, yShift);
+			testProblemNodes.shiftDirection(Direction::E, xShift);
+			testProblemNodes.convertToHexRepresentation(Direction::NE,yShift);
+
+			//Add nodes to allProblemNodes (disregarding visibility);
+			if (testProblemNodes.count() == 2 ) retList.push_front(testProblemNodes);
+
+			//visibleProblemNodes only forms where a piece does not occupy that square 
+			//testProblemNodes.unionWith(*allPieces);
+			//testProblemNodes.xorWith(*allPieces);
+
+			//add problemNodes to visible only if edge is shared between two unoccupied squares
+			//if(testProblemNodes.count() == 2) 
+		    //		visibleProblemNodes.unionWith(testProblemNodes);
+		}
+	}
+	return retList;
+}

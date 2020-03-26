@@ -9,6 +9,7 @@
 #include "Bitboard.h"
 #include "Piece.h"
 #include "PieceNode.h"
+#include "ProblemNode.h"
 #include "Hive.h"
 #include "Test.h"
 
@@ -457,24 +458,21 @@ void Test::BitboardTest::testIntersectionWith() {
 	vector <unordered_map <int, unsigned long long>> expectedResults  =
 	{
 		{{0, 100395688076u}},
-		{{2,520u}, {1,0}, {3,0}}
+		{{2,520u}}
 	};
 
 
 	BitboardContainer test, compare;
 	for (unsigned long long i = 0; i < expectedResults.size(); ++i){
 		cout << "Test " << i << endl;
-		
+
 		test.initialize(bitboardInitialList[i]);
 		compare.initialize(bitboardCompList[i]);
 		test.intersectionWith(compare);
-		for (auto j : expectedResults[i]){
-				cout << "\t Board: " << j.first << " ";
+		BitboardContainer results(expectedResults[i]);
 
-				Test::pass(test.internalBoards[j.first] == j.second, 
-						"failed to get correct result for intersectionWith()");
-		}
-
+		Test::pass(test == results, 
+				"failed to get correct result for intersectionWith()");
 	}
 }
 
@@ -523,13 +521,13 @@ void Test::BitboardTest::testContainsAny() {
 	{
 		{{0,262519634108789134u}},
 		{{1,0x70b46ca6fc5b5u},
-		 {2,0x9120002a48u}}
+			{2,0x9120002a48u}}
 	};
 
 	vector <unordered_map <int, unsigned long long >> bitboardCompList = {
 		{{0,2026862587613u}},
 		{{5,2026862587613u},
-		 {3,202686u}}
+			{3,202686u}}
 	};
 
 	vector <bool> expectedResults  =
@@ -539,14 +537,14 @@ void Test::BitboardTest::testContainsAny() {
 	BitboardContainer test, compare;
 	for (unsigned long long i = 0; i < expectedResults.size(); ++i){
 		cout << "Test " << i << endl;
-		
+
 		test.initialize(bitboardInitialList[i]);
 		compare.initialize(bitboardCompList[i]);
 		bool v = test.containsAny(compare);
-				cout << "\t Board: " << expectedResults[i] << " ";
+		cout << "\t Board: " << expectedResults[i] << " ";
 
-				Test::pass(v == expectedResults[i], 
-						"failed to get correct result for containsAny()");
+		Test::pass(v == expectedResults[i], 
+				"failed to get correct result for containsAny()");
 
 	}
 }
@@ -699,16 +697,16 @@ void Test::BitboardTest::testSplitIntoConnectedComponents() {
 	}
 }
 
-void Test::BitboardTest::testFindAllProblemNodes(){
+void Test::ProblemNodeContainerTest::testFindAllProblemNodes(){
 	cout << "===================FindAllProblemNodes===================" << endl;
 	vector <unordered_map <int, unsigned long long>> gatesTest = {
-		{{0,17632004u}},
+		{{0,4513793024u}},
 		{{2,4484114285830u}},
 		{{4,36099441180057792u}, {5, 846645512438272u}}
 	};
 
 	vector <unordered_map <int, unsigned long long >> expected= {
-		{{0,33686536u}},
+		{{0,8623753216u}},
 		{{2, 8830520132096u}},
 		{{4, 141287244169216u}, {5, 1108135248128u}}
 	};
@@ -717,14 +715,14 @@ void Test::BitboardTest::testFindAllProblemNodes(){
 		cout << endl;
 		BitboardContainer gateTest(gatesTest[i]);
 		BitboardContainer expectedProblemNodes(expected[i]);
-		BitboardContainer resultProblemNodes;
+		ProblemNodeContainer test(&gateTest);
 	
-		gateTest.findAllProblemNodes(resultProblemNodes);
-		Test::pass(resultProblemNodes.equals(expectedProblemNodes),
+		test.findAllProblemNodes();
+		Test::pass(test.visibleProblemNodes == expectedProblemNodes,
 					"incorrect board returned for problemNodes");
 		cout << "given Board: " ;
-		for (int i : resultProblemNodes.internalBoardCache) {
-			cout << "\n " << i << " " << resultProblemNodes.internalBoards[i];
+		for (int i : test.visibleProblemNodes.internalBoardCache) {
+			cout << "\n " << i << " " << test.visibleProblemNodes.internalBoards[i];
 		}
 		cout << endl;
 	}
@@ -745,6 +743,5 @@ int main() {
 	Test::BitboardTest::testFloodFill();
 	Test::BitboardTest::testSplit();
 	Test::BitboardTest::testSplitIntoConnectedComponents();
-	Test::BitboardTest::testFindAllProblemNodes();
-	return 0;
+	Test::ProblemNodeContainerTest::testFindAllProblemNodes();
 }
