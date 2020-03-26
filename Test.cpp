@@ -718,7 +718,7 @@ void Test::BitboardTest::testFindAllProblemNodes(){
 		BitboardContainer gateTest(gatesTest[i]);
 		BitboardContainer expectedProblemNodes(expected[i]);
 		BitboardContainer resultProblemNodes;
-		
+	
 		gateTest.findAllProblemNodes(resultProblemNodes);
 		Test::pass(resultProblemNodes.equals(expectedProblemNodes),
 					"incorrect board returned for problemNodes");

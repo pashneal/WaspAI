@@ -1,5 +1,9 @@
+# Ctags file
+tags
+
 # Vim autosave files
 *.swp
+*.swo
 
 # Prerequisites
 *.d
