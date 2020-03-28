@@ -6,8 +6,6 @@
 
 using namespace std;
 
-//TODO: fix this class. it is over engineered
-//slightly better :}
 class ProblemNodeContainer {
 
 		BitboardContainer *allPieces;
@@ -28,6 +26,7 @@ class ProblemNodeContainer {
 		void updateVisible(BitboardContainer&);
 		void remove(BitboardContainer&);
 		void insert(BitboardContainer&);
+		bool problemNodeExists(BitboardContainer&);
 
 	public:
 

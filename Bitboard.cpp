@@ -112,6 +112,7 @@ void BitboardContainer::convertToHexRepresentation (
 
 	unsigned long long changedBoards;
 
+
 	if (lastMovedTimes % 2){
 		//only have to adjust things if the move was even
 		
@@ -392,6 +393,7 @@ void BitboardContainer::xorWith( BitboardContainer &other) {
 		internalBoards[i] ^= other.internalBoards[i];
 		internalBoardCache.insert(i);
 	}
+	pruneCache();
 }
 
 bool BitboardContainer::containsAny(BitboardContainer& other) {
@@ -431,7 +433,7 @@ void BitboardContainer::duplicateBoard(vector <Direction> dirs){
 int BitboardContainer::count(){
 	int total = 0;
 	for (int i: internalBoardCache) {
-		total += __builtin_popcount(internalBoards[i]);
+		total += __builtin_popcountll(internalBoards[i]);
 	}
 	return total;
 }
@@ -459,11 +461,11 @@ unordered_map< int, vector < unsigned long long >> BitboardContainer::split(){
 
 	for (int i: internalBoardCache){
 		unsigned long long board = internalBoards[i];
-		do {
+		while (board) {
 			unsigned long long leastSignificantBit = board & -board;
 			returnMap[i].push_back(leastSignificantBit);
 			board ^= leastSignificantBit; // remove least significant bit
-		} while	(board);
+		}
 	}
 	return returnMap;
 }

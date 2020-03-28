@@ -1,4 +1,5 @@
 #include <list>
+#include <iterator>
 #include <unordered_map>
 #include "Bitboard.h"
 #include "ProblemNode.h"
@@ -32,16 +33,15 @@ BitboardContainer potentialProblemNodes[] = {
 
 using namespace std;
 
+
 ProblemNodeContainer::ProblemNodeContainer(BitboardContainer * pieces) {
 	allPieces = pieces;
 }
 
 void ProblemNodeContainer::insert(BitboardContainer& problemNodes) {
-
-
 	int problemNodeHash = hash(problemNodes);
-	if (problemNodeHashes.find(problemNodeHash) != problemNodeHashes.end()) 
-			return;
+
+	if (problemNodeExists(problemNodes)) return;
 
 	problemNodeHashes.insert(problemNodeHash);
 
@@ -49,12 +49,18 @@ void ProblemNodeContainer::insert(BitboardContainer& problemNodes) {
 		for (auto piece: map.second){
 			int hashInt = hash(map.first, piece);
 
+			if (problemNodes.count() != 2) {
+				throw 19;
+			}
 			//assigned the hash to a map for O(1) access
 			locationHashTable[hashInt].push_front(problemNodes);
 		}
 	}	
 }
 
+bool ProblemNodeContainer::problemNodeExists(BitboardContainer& problemNode) {
+	return problemNodeHashes.find(hash(problemNode)) != problemNodeHashes.end();
+}
 void ProblemNodeContainer::clear() {
 	locationHashTable.clear();
 	problemNodeHashes.clear();
@@ -88,9 +94,11 @@ int ProblemNodeContainer::hash( BitboardContainer& bitboard){
 					     + (__builtin_clzll(pieces.back()) << 16);
 }
 
+void ProblemNodeContainer::remove(BitboardContainer & problemNodes) {
+	problemNodeHashes.erase(hash(problemNodes));
+}
 void ProblemNodeContainer::removePiece( BitboardContainer & piece) {
 	if (piece.count() != 1) {
-		cout << "piece is not one bit in a BitboardContainer" << endl;
 		throw 14;
 	}
 
@@ -99,32 +107,57 @@ void ProblemNodeContainer::removePiece( BitboardContainer & piece) {
 
 	int pieceHash = hash(piece);
 
+
 	BitboardContainer testUpdate;
 	for (auto board: locationHashTable[pieceHash]){
 		testUpdate.unionWith(board);
 	}
 	testUpdate.unionWith(piece);
 
-	//delete all problemNodes stored at that location
-	locationHashTable[pieceHash].clear();
 
+	int boardIndex = *(piece.internalBoardCache.begin());
+
+	BitboardContainer pieceRemoved(*allPieces);
+	pieceRemoved.unionWith(piece);
+	pieceRemoved.xorWith(piece);
+	BitboardContainer * temp = allPieces;
+
+	
+
+	list <BitboardContainer> problemNodesCollection = getProblemNodesAtLocation(boardIndex, 
+			piece.internalBoards[boardIndex]);
+
+	
+
+	for (auto problemNodes: problemNodesCollection) {
+		//remove from problemNodeHashes
+		remove(problemNodes);
+		//add locations to update list over every problem node location
+		testUpdate.unionWith(problemNodes);
+	}
+
+
+	allPieces = &pieceRemoved;
 	//update to see if there are more problem nodes at those locations
 	updateVisible(testUpdate);
+
+	allPieces = temp;
 }
 
 //call this only once! very slow and inefficient
 //TODO: programatically enforce above rule
 void ProblemNodeContainer::findAllProblemNodes() {
+	
+	BitboardContainer testUpdate;
 	for (auto map: allPieces -> split() ) {
 		for (unsigned long long board: map.second) {
-			BitboardContainer testUpdate;
 			for (auto problemNodes: getProblemNodesAtLocation(map.first, board)){
 				insert(problemNodes);
 				testUpdate.unionWith(problemNodes);
-			}
-			updateVisible(testUpdate);
+			}	
 		}
 	}
+	updateVisible(testUpdate);
 }
 
 void ProblemNodeContainer::insertPiece(BitboardContainer & piece) {
@@ -147,26 +180,33 @@ void ProblemNodeContainer::updateVisible(BitboardContainer& locations) {
 
 	for (auto location: locations.splitIntoBitboardContainers()){
 		int hashInt = hash(location);
-		for (BitboardContainer problemNodes: locationHashTable[hashInt]){
-			//delete pieces from problemNodes
-			problemNodes.unionWith(*allPieces);
-			problemNodes.xorWith(*allPieces);
-				
-			if (problemNodes.count() == 2) {
-				visibleProblemNodes.unionWith(problemNodes);
-				break;
-			}
+
+		auto problemNodes = locationHashTable[hashInt].begin();
+
+		while (problemNodes != locationHashTable[hashInt].end()) {
+			BitboardContainer testProblemNodes(*problemNodes);
+			testProblemNodes.unionWith(*allPieces);
+			testProblemNodes.xorWith(*allPieces);
+
+			if (testProblemNodes.count() == 2) {
+
+				if (problemNodeExists(testProblemNodes)) {
+					visibleProblemNodes.unionWith(testProblemNodes);
+					break;
+				} else {
+					locationHashTable[hashInt].erase(problemNodes++);
+				}
+			} else 
+				problemNodes++;
 		}
 	}
 }
-
-
 
 list <BitboardContainer>
 ProblemNodeContainer::getProblemNodesAtLocation(int boardIndex, unsigned long long
 														   piece){	
 
-
+												
 	list <BitboardContainer> retList;
 	int leadingZeroesCount = __builtin_clzll(piece);
 

@@ -45,6 +45,7 @@ class Test {
 		class ProblemNodeContainerTest {
 			public:
 				static void testFindAllProblemNodes();
+				static void testRemovePiece(bool);
 		};
 
 		static void pass(bool, string);

@@ -699,20 +699,29 @@ void Test::BitboardTest::testSplitIntoConnectedComponents() {
 
 void Test::ProblemNodeContainerTest::testFindAllProblemNodes(){
 	cout << "===================FindAllProblemNodes===================" << endl;
+	//TODO: bug when the the piecesi shiftDirection too far horizontally
 	vector <unordered_map <int, unsigned long long>> gatesTest = {
-		{{0,4513793024u}},
+		{{0,17632004u}},
 		{{2,4484114285830u}},
-		{{4,36099441180057792u}, {5, 846645512438272u}}
+		{{4,36099441180057792u}, {5, 846645512438272u}},
+		{{12, 51708299278u}},
+		{{15, 2361380u}},
+		{{9, 1116741894656u}},
+		{{6,549755813888u}, {7,16777216}}
 	};
 
 	vector <unordered_map <int, unsigned long long >> expected= {
-		{{0,8623753216u}},
+		{{0, 33686536u}},
 		{{2, 8830520132096u}},
-		{{4, 141287244169216u}, {5, 1108135248128u}}
+		{{4, 141287244169216u}, {5, 1108135248128u}},
+		{{12,1792u}},
+		{{15,1586712u}},
+		{{9,2211908550912u}},
+		{{6,2147483648u}, {7, 4294967296u}}
 	};
 
-	for (unsigned int i = 0; i < gatesTest.size(); i++) {
-		cout << endl;
+	for (unsigned int i = 0; i < expected.size(); i++ ){
+		cout << "Test" << i << ": ";
 		BitboardContainer gateTest(gatesTest[i]);
 		BitboardContainer expectedProblemNodes(expected[i]);
 		ProblemNodeContainer test(&gateTest);
@@ -720,14 +729,83 @@ void Test::ProblemNodeContainerTest::testFindAllProblemNodes(){
 		test.findAllProblemNodes();
 		Test::pass(test.visibleProblemNodes == expectedProblemNodes,
 					"incorrect board returned for problemNodes");
-		cout << "given Board: " ;
+		/*cout << "given Board: " ;
 		for (int i : test.visibleProblemNodes.internalBoardCache) {
 			cout << "\n " << i << " " << test.visibleProblemNodes.internalBoards[i];
 		}
-		cout << endl;
+		cout << endl;*/
 	}
 }
 
+
+void Test::ProblemNodeContainerTest::testRemovePiece(bool noMessage){
+	//This test will not work if FindAllProblemNodes() does not work
+	cout << "===================TestRemovePiece===================" << endl;
+	vector <unordered_map <int, unsigned long long>> gatesTest = {
+		{{0,17632004u}},
+		{{2,4484114285830u}},
+		{{4,36099441180057792u}, {5, 846645512438272u}},
+		{{12, 51708299278u}},
+		{{15, 2361380u}},
+		{{9, 1116741894656u}},
+		{{6,549755813888u}, {7,16777216}},
+		{{9,50660096u} , {8,3225468928u}}
+	};
+
+	vector <unordered_map <int, unsigned long long >> removePiece = {
+		{{0, 4}},
+		{{2, 1024}},
+		{{5, 16777216u}},
+		{{12,17179869184u}},
+		{{15, 2048u}},
+		{{9, 1099511627776u}},
+		{{7,16777216}},
+		{{9,65536}}
+	};
+
+	vector <unordered_map <int, unsigned long long >> expected= {
+		{{0, 33685504u}},
+		{{2, 8830520131584u}},
+		{{4, 141289391652864u}, {5, 1108118470912u}},
+		{{12, 17246979840u}},
+		{{15, 13824u}},
+		{{9, 393472u}},
+		{{}},
+		{{8,8388608u}, {9,196608u}}
+		
+	};
+
+	for (unsigned int i = 0; i < gatesTest.size(); i++) {
+		cout << "Test " << i << ": ";
+		
+		BitboardContainer initialBoard(gatesTest[i]);
+		BitboardContainer removePieceBoard(removePiece[i]);
+		ProblemNodeContainer test(&initialBoard);
+		BitboardContainer expectedProblemNodes(expected[i]);
+
+		test.findAllProblemNodes();
+		test.removePiece(removePieceBoard);
+
+		Test::pass(test.visibleProblemNodes == expectedProblemNodes,
+					"incorrect board returned for problemNodes");
+
+		if (!noMessage) {
+			cout << "given Board: " ;
+			for (int i : test.visibleProblemNodes.internalBoardCache) {
+				cout << "\n " << i << " " << test.visibleProblemNodes.internalBoards[i];
+			}
+			
+			cout << endl;
+
+			cout << "expected Board: " ;
+			for (int i : expectedProblemNodes.internalBoardCache) {
+				cout << "\n " << i << " " << expectedProblemNodes.internalBoards[i];
+			}
+
+			cout << endl <<endl ;
+		}
+	}
+}
 
 int main() {
 	Test::HiveTest::insertPieceTest();
@@ -744,4 +822,5 @@ int main() {
 	Test::BitboardTest::testSplit();
 	Test::BitboardTest::testSplitIntoConnectedComponents();
 	Test::ProblemNodeContainerTest::testFindAllProblemNodes();
+	Test::ProblemNodeContainerTest::testRemovePiece(true);
 }
