@@ -14,7 +14,6 @@ class BitboardContainer {
 	set<int> internalBoardCache;
 
 
-	int  boundingBoxes[16][4];
 	unsigned long long int internalBoards[16];
 
 	//TODO: make internalBoardCache safe so we don't have to initialize
@@ -33,8 +32,6 @@ class BitboardContainer {
 	unsigned long long createLowOverflowMask(Direction, int);
 	unsigned long long adjustOverflowMask(Direction, int, bool, unsigned long long);
 
-	void findBoundingBoxes(); 
-	void findBoundingBoxes(int);
 
 	void floodFillStep(BitboardContainer&, BitboardContainer&);
 	void floodFill(BitboardContainer&);

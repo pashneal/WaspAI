@@ -52,7 +52,6 @@ void BitboardContainer::initialize(unordered_map < int, unsigned long long> pred
 		internalBoardCache.insert(keyValueList.first);
 		internalBoards[keyValueList.first] = keyValueList.second;
 	}
-	findBoundingBoxes();
 }
 
 void BitboardContainer::initializeTo(BitboardContainer &other) {
@@ -70,41 +69,6 @@ void BitboardContainer::initializeTo(BitboardContainer &other) {
 void BitboardContainer::setBoard(int boardIndex, unsigned long long board) {
 	internalBoards[boardIndex] = board;
 	internalBoardCache.insert(boardIndex);
-}
-void BitboardContainer::findBoundingBoxes(){
-	for (auto boardIndex: internalBoardCache) { 
-		findBoundingBoxes(boardIndex);
-	}
-}
-void BitboardContainer::findBoundingBoxes(int boardIndex){
-	if (internalBoardCache.find(boardIndex) == internalBoardCache.end()){
-		cout << "error 8" << endl;
-		throw 8;
-	}
-
-	int minX = 8;
-	int minY = 8;
-	int maxX = -1;
-	int maxY = -1;
-	unsigned long long int testBoard = internalBoards[boardIndex];
-
-	for(int x = 0; x < 8; x++){
-		for(int y = 0; y < 8; y++){
-			int testBit = (testBoard >> (x + y*8)) % 2;
-			//find the place of the if it is set
-			if (testBit) {
-				minX = (minX > x) ? x : minX;
-				minY = (minY > y) ? y : minY;
-				maxX = (maxX < x) ? x : maxX;
-				maxY = (maxY < y) ? y : maxY;
-			}
-			
-		}
-	}
-	boundingBoxes[boardIndex][0] = minX;
-	boundingBoxes[boardIndex][1] = minY;
-	boundingBoxes[boardIndex][2] = maxX;
-	boundingBoxes[boardIndex][3] = maxY;
 }
  
 void BitboardContainer::convertToHexRepresentation (

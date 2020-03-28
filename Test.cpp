@@ -224,44 +224,6 @@ void Test::HiveTest::parseCommandTest(){
 	
 }
 
-void Test::BitboardTest::testBitboardBoundings(){
-	cout << "===========Test::Bitboard::testBoundingBoxes()==========" << endl;
-	unordered_map<int, unsigned long long int> 
-		BitboardContainerMap
-		={
-			{0,9241421619870564865u},
-			{1,	220799870910337024u},
-			{2,	4627088527065088u},
-			{3,2313752099815424u},
-			{4,		68719476736u},
-			{5,72057594037928448u},
-			{6,576460752303440384u},
-			{7,4035225266123981312u}
-		};
-
-	int expectedBoundingBoxes[][4] = 
-	{
-		{0,0,7,7},
-		{0,1,6,7},
-		{4,4,6,6},
-		{1,2,6,6},
-		{4,4,4,4},
-		{0,1,1,7},
-		{1,1,6,7},
-		{1,1,6,7}
-	};
-
-	BitboardContainer testBitboardContainer(BitboardContainerMap);
-
-	for (int i = 0; i < 8; ++i){
-		for (int j = 0; j < 4; ++j){
-
-			cout << "board " << i << " coordinate " << j << " ";
-			Test::pass(testBitboardContainer.boundingBoxes[i][j] == expectedBoundingBoxes[i][j],
-					"expected bounding coordinate is incorrect");
-		}
-	}
-}
 
 void Test::BitboardTest::testShiftDirection(){
 	cout << "==========Test::Bitboard::shiftDirection()=======" << endl;
@@ -807,11 +769,33 @@ void Test::ProblemNodeContainerTest::testRemovePiece(bool noMessage){
 	}
 }
 
+void Test::MoveGeneratorTest::testQueenMoves() {
+	cout << "===================TestQueenMoves===================" << endl;
+
+	//I'm too lazy to add more tests but there is space if future me wants to
+
+	vector <unordered_map <int, unsigned long long>> testBoard = {
+		{{9, 2258422653255680u}},
+	};
+
+	vector <unordered_map<int, unsigned long long>> piece = {
+		{{9,2251799813685248u}}
+	};
+	vector <unordered_map <int, unsigned long long >> expected = {
+		{{9, 1134695999864832u}}
+	};
+
+
+
+	for (unsigned long long i = 0; i < expected.size(); i++ ) {
+		cout << "Test " << i << " ";
+		BitboardContainer h;
+	}
+}
 int main() {
 	Test::HiveTest::insertPieceTest();
 	Test::HiveTest::movePieceTest();
 	Test::HiveTest::parseCommandTest();
-	Test::BitboardTest::testBitboardBoundings();
 	Test::BitboardTest::testShiftDirection();
 	Test::BitboardTest::testXorWith();
 	Test::BitboardTest::testIntersectionWith();

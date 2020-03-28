@@ -13,7 +13,7 @@ class Test {
 				static void parseCommandTest();
 		};
 
-		class PieceTest {
+		class MoveGeneratorTest {
 			public:
 				static void testAntMoves();
 				static void testGrasshopperMoves();
@@ -30,7 +30,6 @@ class Test {
 		class BitboardTest {
 			public:
 				static void testMovePiece();
-				static void testBitboardBoundings();
 				static void testShiftDirection();
 				static void testXorWith();
 				static void testIntersectionWith();
