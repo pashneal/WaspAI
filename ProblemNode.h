@@ -13,7 +13,6 @@ class ProblemNodeContainer {
 		//TODO: this might be an optimization worth trying
 		//unordered_map <int, list<BitboardContainer>> perimeterHashTable;
 		
-		//maps location -> all problemNodes containing that location
 		unordered_map <int, list<BitboardContainer>> locationHashTable;
 
 		unordered_set <int> problemNodeHashes;
@@ -25,6 +24,7 @@ class ProblemNodeContainer {
 
 		void updateVisible(BitboardContainer&);
 		void remove(BitboardContainer&);
+		//requires that a piece is actally in *allPieces
 		void insert(BitboardContainer&);
 		bool problemNodeExists(BitboardContainer&);
 
@@ -40,6 +40,8 @@ class ProblemNodeContainer {
 		void clear();
 
 		void findAllProblemNodes();
+
+		BitboardContainer getPerimeter(BitboardContainer&);
 };
 
 // gate (1) (2) 

@@ -160,7 +160,9 @@ void ProblemNodeContainer::findAllProblemNodes() {
 	updateVisible(testUpdate);
 }
 
+//TODO: test and remove pruneCache
 void ProblemNodeContainer::insertPiece(BitboardContainer & piece) {
+	piece.pruneCache();
 	int boardIndex = *(piece.internalBoardCache.begin());
 	unsigned long long board = piece.internalBoards[boardIndex];
 
@@ -252,4 +254,19 @@ ProblemNodeContainer::getProblemNodesAtLocation(int boardIndex, unsigned long lo
 		}
 	}
 	return retList;
+}
+
+BitboardContainer ProblemNodeContainer::getPerimeter(BitboardContainer& piece) {
+	//assumes piece is in visibleProblemNodes
+	BitboardContainer perimeter;
+	for (auto restrictedNodes: locationHashTable[hash(piece)]) {
+		perimeter.unionWith(restrictedNodes);
+	}
+	//remove piece from perimeter
+	perimeter.xorWith(piece);
+	BitboardContainer initialPerimeter = piece.getPerimeter();
+
+	//add everything from normal perimeter that is not restricted
+	perimeter.xorWith(initialPerimeter);
+	return perimeter;
 }
