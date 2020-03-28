@@ -360,6 +360,14 @@ void BitboardContainer::xorWith( BitboardContainer &other) {
 	pruneCache();
 }
 
+void BitboardContainer::notIntersectionWith( BitboardContainer &other) {
+	for (auto i: other.internalBoardCache) {
+		if (other.internalBoardCache.find(i) != other.internalBoardCache.end())
+			internalBoards[i] &= ~other.internalBoards[i];
+	}
+	pruneCache();
+}
+
 bool BitboardContainer::containsAny(BitboardContainer& other) {
 	bool any = 0;	
 	for (int i: other.internalBoardCache) { 
