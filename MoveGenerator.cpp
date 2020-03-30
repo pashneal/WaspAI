@@ -1,4 +1,5 @@
 #include "Bitboard.h"
+#include "ProblemNode.h"
 #include "MoveGenerator.h"
 #include "constants.h"
 #include <vector>
@@ -7,18 +8,29 @@
 
 using namespace std;
 
-BitboardContainer MoveGenerator::getMoves() {	
-	BitboardContainer piecesExceptCurrent = *allPieces;
+MoveGenerator::MoveGenerator(BitboardContainer * allPiecesIn , ProblemNodeContainer * problemNodesIn) {
+	allPieces = allPiecesIn;
+	problemNodes = problemNodesIn;
+}
 
+BitboardContainer MoveGenerator::getMoves() {	
+
+	BitboardContainer piecesExceptCurrent(*allPieces);
+
+	moves.clear();
 	//remove generatingPiece
 	piecesExceptCurrent.xorWith(*generatingPieceBoard);
 
-	BitboardContainer p = piecesExceptCurrent.getPerimeter();
-	perimeter.initializeTo(p);
+	perimeter = piecesExceptCurrent.getPerimeter();
+	
+	problemNodes -> removePiece(*generatingPieceBoard);
 	generateMoves();
+	problemNodes -> insertPiece(*generatingPieceBoard);
+	
 	return moves;
 }
 
+//I know I should have made separate classes or sum'n ={
 void MoveGenerator::generateMoves() {
 	switch(*generatingPieceName){
 		case GRASSHOPPER:
@@ -58,9 +70,6 @@ void MoveGenerator::generateMoves() {
 	moves.xorWith(*generatingPieceBoard);
 }
 
-void MoveGenerator::setGatesSplit( vector <BitboardContainer> * p){
-	gatesSplit = p;
-}
 
 //TODO:optimize it is so slow
 void MoveGenerator::generateGrasshopperMoves(){
@@ -95,22 +104,22 @@ void MoveGenerator::generateGrasshopperMoves(){
 }
 
 void MoveGenerator::generateQueenMoves(){ 
-	BitboardContainer frontier, visited;
+	BitboardContainer frontier;
 	frontier.initializeTo(*generatingPieceBoard);
 
-	//Find a valid move (if any) in the perimeter
-	perimeter.floodFillStep(frontier, visited);
+	//if the piece is on a problematic node
+	if (problemNodes -> contains(*generatingPieceBoard)){
+		cout << "contains";
+		//get allowed directions to travel
+		frontier = problemNodes -> getPerimeter(frontier);
 
-	//Get edges that lie along gates
-	BitboardContainer inaccessibleFrontier;
-	visited.initializeTo(*generatingPieceBoard);
-	gatesCombined -> floodFillStep(inaccessibleFrontier, visited);
+	} else { 
+		//search all directions around frontier
+		frontier = frontier.getPerimeter();
+	}
 
-	//remove inaccessible nodes and initial location
-	frontier.xorWith(inaccessibleFrontier);
-	frontier.unionWith(*generatingPieceBoard);
-	frontier.xorWith(*generatingPieceBoard);
-
+	//only keep nodes that are along the board perimeter
+	frontier.intersectionWith(perimeter);
 	moves.unionWith(frontier);
 }
 
@@ -119,20 +128,15 @@ void MoveGenerator::generateLadybugMoves(){
 	BitboardContainer frontier, visited;
 	frontier.initializeTo(*generatingPieceBoard);
 
-	//must first make two moves on top of the hive
+	//must first make two moves on top of other pieces 
 	allPieces -> floodFillStep(frontier, visited);
-	//remove nodes from an earlier depth
-	frontier.unionWith(visited);
-	frontier.xorWith(visited);
 	allPieces -> floodFillStep(frontier, visited);
-	frontier.unionWith(visited);
-	frontier.xorWith(visited);
 
-	//must make a move along the perimiter
-	perimeter.floodFillStep(frontier, visited);
+	//must make a move that is not on top other pieces
+	frontier = frontier.getPerimeter();
+	frontier.notIntersectionWith(*allPieces);
 
-	//remove nodes from an earlier depth
-	frontier.xorWith(visited);
+	moves.unionWith(frontier);
 
 } 
 
@@ -146,22 +150,40 @@ void MoveGenerator::generateMosquitoMoves(){
 	//and is a bettle on top of the hive (nothing more)
 	//takes no moves from adjacent mosquitoes
 }
+
 void MoveGenerator::generateBeetleMoves(){
-	//Beetle generation is lazy
+	//TODO: Beetle move generation is lazy
 	//Further analysis is necessary in order to see
 	//If moves atop the hive are legal
+
 	BitboardContainer traversable;
 
+	//since the beetle can move atop the other pieces
+	//include those pieces as traversable
 	traversable.initializeTo(perimeter);
 	traversable.unionWith(*allPieces);
-	BitboardContainer * temp = allPieces;
 
-	allPieces = &traversable;
+	BitboardContainer frontier;
+	frontier.initializeTo(*generatingPieceBoard);
 
-	generateQueenMoves();
+	//if the piece is on a problematic node
+	if (problemNodes -> contains(*generatingPieceBoard)){
+		
+		//get allowed directions to travel
+		frontier = problemNodes -> getPerimeter(frontier);
 
-	allPieces = temp;
+	} else { 
+
+		//search all directions around frontier
+		frontier = frontier.getPerimeter();
+	}
+	//only keep directions that are traversable
+	frontier.intersectionWith(traversable);
+
+	moves.unionWith(frontier);
+
 }  
+
 void MoveGenerator::generateAntMoves(){
 	BitboardContainer inaccessibleNodes = getInaccessibleNodes(gatesSplit);
 
@@ -174,43 +196,33 @@ void MoveGenerator::generateAntMoves(){
 	moves.unionWith(*generatingPieceBoard);
 	moves.xorWith(*generatingPieceBoard);
 }     
+
 void MoveGenerator::generateSpiderMoves(){
 
-	BitboardContainer frontier, visited, emptyVisited, inaccessible;
+	BitboardContainer frontier, visited, problemFrontier;
 	frontier.initializeTo(*generatingPieceBoard);
 
-	for (int i = 0; i < NUM_SPIDER_MOVES; i++){
+	//TODO: mini-optimization if problemFrontier.count() == 0
+	//could unroll this for speed
+	for (int i = 0; i < NUM_SPIDER_MOVES ; i++) {
 
-		emptyVisited.clear();
+		problemFrontier.initializeTo(frontier);
 		
-		//get every edge that is disallowed from current nodes
-		inaccessible.initializeTo(frontier);
-		BitboardContainer inaccessiblePerimeter = inaccessible.getPerimeter();
-		inaccessiblePerimeter.intersectionWith(*gatesCombined);
-
-		//reinitialize to nodes that are illegal if reached from current node
-		inaccessible.initializeTo(inaccessiblePerimeter);
-		inaccessible.pruneCache();
-
-		if (!inaccessible.internalBoardCache.size()){
-			//remove all nodes that touch illegal edges
-			frontier.unionWith(*gatesCombined);
-			frontier.xorWith(*gatesCombined);
-
-			//if there exists some other way to access a gate
-			//set inaccessible to it
-			frontier.floodFillStep(inaccessible, emptyVisited);
-
-			frontier.xorWith(inaccessible);
-			frontier.pruneCache();
-		}
-		//expand search along board perimeter
+		//get places in search that are on visible and problematic nodes
+		problemFrontier.intersectionWith(problemNodes -> visibleProblemNodes);
+		if (i == 0 && problemNodes -> contains(frontier)) 
+			problemFrontier.initializeTo(frontier);
+		visited.unionWith(problemFrontier);
+		
+		frontier.notIntersectionWith(problemFrontier);
 		perimeter.floodFillStep(frontier, visited);
 
-		//only keep the newest nodes
-		frontier.unionWith(visited);
-		frontier.xorWith(visited);
+		problemFrontier = problemNodes -> getPerimeter(problemFrontier);
+		problemFrontier.notIntersectionWith(visited);
+		frontier.unionWith(problemFrontier);
+
 	}
+
 	moves.unionWith(frontier);
 }  
 
@@ -234,7 +246,7 @@ BitboardContainer MoveGenerator::getInaccessibleNodes(vector <BitboardContainer>
 		}
 
 		bool searchResolved[frontiers.size()];
-		unsigned long searchResolvedCount;
+		unsigned long searchResolvedCount = 0;
 		int index;
 
 		for (unsigned long i = 0; i < frontiers.size() ; i++) searchResolved[i] = 0;
@@ -284,16 +296,25 @@ BitboardContainer MoveGenerator::getInaccessibleNodes(vector <BitboardContainer>
 	return inaccessible;
 }
 
+void MoveGenerator::setGeneratingName(PieceName * pieceNameIn) {
+	generatingPieceName = pieceNameIn;
+}
+
+void MoveGenerator::setGeneratingPieceBoard(BitboardContainer * b, bool pieceIsAtopHiveIn) {
+	generatingPieceBoard = b;
+	pieceIsAtopHive = pieceIsAtopHiveIn;
+}
+
 BitboardContainer MoveGenerator::generatePillbugSwap() {
-	BitboardContainer pillbugPerimeter = generatingPieceBoard -> getPerimeter();
 	
-	//remove other piece locations from the 
 	//Pillbug swap also uses lazy evaluation
 	//just as beetleMove does
 
-	pillbugPerimeter.unionWith(*allPieces);
-	pillbugPerimeter.xorWith(*allPieces);
+	BitboardContainer pillbugPerimeter = generatingPieceBoard -> getPerimeter();
+	
+	pillbugPerimeter.notIntersectionWith(*allPieces);
 
+	return pillbugPerimeter;
 }
 
 //Optimize TODO

@@ -6,6 +6,7 @@
 #include "Bitboard.h"
 #include "Hive.h"
 #include "constants.h"
+#include "ProblemNode.h"
 
 using namespace std;
 
@@ -18,8 +19,10 @@ class MoveGenerator {
 		//TODO: make these read-only pointers
 		BitboardContainer * allPieces;
 		vector <BitboardContainer> * gatesSplit;
+		//TODO: change everything that is generatingPieceBoard to generatingPiece
 		BitboardContainer * generatingPieceBoard;
 		BitboardContainer * gatesCombined;
+		ProblemNodeContainer *problemNodes;
 
 
 		BitboardContainer moves;
@@ -44,20 +47,16 @@ class MoveGenerator {
 										      Direction::E,
 											  Direction::SE,
 											  Direction::SW,
-											  Direction::N,
-											  Direction::S };
+											  Direction::W,
+											  Direction::NW };
 		const int NUM_SPIDER_MOVES = 3;
 
-		MoveGenerator() {};
+		MoveGenerator(BitboardContainer *, ProblemNodeContainer *);
 
 		BitboardContainer getMoves();
 
-
 		void setGeneratingName(PieceName *);
-		void setAllPiecesBoard(BitboardContainer *);		
-		void setGatesSplit(vector <BitboardContainer> *);
 		void setGeneratingPieceBoard(BitboardContainer *, bool);
-		void setGatesCombined(BitboardContainer);
 		
 		BitboardContainer generatePillbugSwap();
 

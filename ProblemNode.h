@@ -42,6 +42,8 @@ class ProblemNodeContainer {
 		void findAllProblemNodes();
 
 		BitboardContainer getPerimeter(BitboardContainer&);
+
+		bool contains(BitboardContainer&);
 };
 
 // gate (1) (2) 

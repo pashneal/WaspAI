@@ -53,6 +53,8 @@ void ProblemNodeContainer::insert(BitboardContainer& problemNodes) {
 				throw 19;
 			}
 			//assigned the hash to a map for O(1) access
+			//cout << piece << " -> " <<  problemNodes.internalBoards[5] <<
+			//		" " << problemNodes.internalBoards[6] << endl;
 			locationHashTable[hashInt].push_front(problemNodes);
 		}
 	}	
@@ -107,19 +109,20 @@ void ProblemNodeContainer::removePiece( BitboardContainer & piece) {
 
 	int pieceHash = hash(piece);
 
+	cout << locationHashTable.size();
 
 	BitboardContainer testUpdate;
-	for (auto board: locationHashTable[pieceHash]){
-		testUpdate.unionWith(board);
-	}
+	if (locationHashTable.find(pieceHash) != locationHashTable.end()) {
+		for (auto board: locationHashTable[pieceHash]){
+			testUpdate.unionWith(board);
+		}
 	testUpdate.unionWith(piece);
-
+	}
 
 	int boardIndex = *(piece.internalBoardCache.begin());
 
 	BitboardContainer pieceRemoved(*allPieces);
-	pieceRemoved.unionWith(piece);
-	pieceRemoved.xorWith(piece);
+	pieceRemoved.notIntersectionWith(piece);
 	BitboardContainer * temp = allPieces;
 
 	
@@ -187,8 +190,7 @@ void ProblemNodeContainer::updateVisible(BitboardContainer& locations) {
 
 		while (problemNodes != locationHashTable[hashInt].end()) {
 			BitboardContainer testProblemNodes(*problemNodes);
-			testProblemNodes.unionWith(*allPieces);
-			testProblemNodes.xorWith(*allPieces);
+			testProblemNodes.notIntersectionWith(*allPieces);
 
 			if (testProblemNodes.count() == 2) {
 
@@ -201,6 +203,8 @@ void ProblemNodeContainer::updateVisible(BitboardContainer& locations) {
 			} else 
 				problemNodes++;
 		}
+
+		if (locationHashTable.size() == 0) locationHashTable.erase(hashInt);
 	}
 }
 
@@ -244,29 +248,27 @@ ProblemNodeContainer::getProblemNodesAtLocation(int boardIndex, unsigned long lo
 			//Add nodes to allProblemNodes (disregarding visibility);
 			if (testProblemNodes.count() == 2 ) retList.push_front(testProblemNodes);
 
-			//visibleProblemNodes only forms where a piece does not occupy that square 
-			//testProblemNodes.unionWith(*allPieces);
-			//testProblemNodes.xorWith(*allPieces);
-
-			//add problemNodes to visible only if edge is shared between two unoccupied squares
-			//if(testProblemNodes.count() == 2) 
-		    //		visibleProblemNodes.unionWith(testProblemNodes);
 		}
 	}
 	return retList;
 }
 
-BitboardContainer ProblemNodeContainer::getPerimeter(BitboardContainer& piece) {
-	//assumes piece is in visibleProblemNodes
+BitboardContainer ProblemNodeContainer::getPerimeter(BitboardContainer& pieces) {
 	BitboardContainer perimeter;
-	for (auto restrictedNodes: locationHashTable[hash(piece)]) {
-		perimeter.unionWith(restrictedNodes);
-	}
-	//remove piece from perimeter
-	perimeter.xorWith(piece);
-	BitboardContainer initialPerimeter = piece.getPerimeter();
 
-	//add everything from normal perimeter that is not restricted
-	perimeter.xorWith(initialPerimeter);
+	//first assume every direction is in perimeter
+	perimeter = pieces.getPerimeter();
+
+	for (auto piece: pieces.splitIntoBitboardContainers()) {
+		for (auto restrictedNodes: locationHashTable[hash(piece)]) {
+			//remove every restriction found
+			perimeter.notIntersectionWith(restrictedNodes);
+		}
+	}
 	return perimeter;
 }
+
+bool ProblemNodeContainer::contains(BitboardContainer& piece){
+	return (locationHashTable.find(hash(piece)) != locationHashTable.end());
+}
+

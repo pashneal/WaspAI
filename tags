@@ -31,6 +31,7 @@ LADYBUG	constants.h	/^	LADYBUG,$/;"	e	enum:PieceName
 MOSQUITO	constants.h	/^	MOSQUITO,$/;"	e	enum:PieceName
 MoveGenerator	MoveGenerator.h	/^		MoveGenerator() {};$/;"	f	class:MoveGenerator
 MoveGenerator	MoveGenerator.h	/^class MoveGenerator {$/;"	c
+MoveGeneratorTest	Test.h	/^		class MoveGeneratorTest {$/;"	c	class:Test
 N	constants.h	/^	N = -1,$/;"	e	enum:Direction
 NE	constants.h	/^	NE = 0,$/;"	e	enum:Direction
 NUM_SPIDER_MOVES	MoveGenerator.h	/^		const int NUM_SPIDER_MOVES = 3;$/;"	m	class:MoveGenerator	typeref:typename:const int
@@ -44,9 +45,9 @@ PieceName	constants.h	/^enum PieceName{$/;"	g
 PieceNode	PieceNode.cpp	/^PieceNode::PieceNode(int pieceNum, BitboardContainer b) { $/;"	f	class:PieceNode
 PieceNode	PieceNode.h	/^		PieceNode() {};$/;"	f	class:PieceNode
 PieceNode	PieceNode.h	/^class PieceNode {$/;"	c
-PieceTest	Test.h	/^		class PieceTest {$/;"	c	class:Test
 ProblemNodeContainer	ProblemNode.cpp	/^ProblemNodeContainer::ProblemNodeContainer(BitboardContainer * pieces) {$/;"	f	class:ProblemNodeContainer
 ProblemNodeContainer	ProblemNode.h	/^class ProblemNodeContainer {$/;"	c
+ProblemNodeContainerTest	Test.h	/^		class ProblemNodeContainerTest {$/;"	c	class:Test
 QUEEN	constants.h	/^	QUEEN,$/;"	e	enum:PieceName
 ROW_SHIFT	constants.h	/^const int ROW_SHIFT = 8;$/;"	v	typeref:typename:const int
 S	constants.h	/^	S = -2$/;"	e	enum:Direction
@@ -139,7 +140,6 @@ movePieceTest	Test.cpp	/^void Test::HiveTest::movePieceTest(){$/;"	f	class:Test:
 moves	MoveGenerator.h	/^		BitboardContainer moves;$/;"	m	class:MoveGenerator	typeref:typename:BitboardContainer
 name	Piece.h	/^	string name;$/;"	m	class:Piece	typeref:typename:string
 neighbors	PieceNode.h	/^		list <PieceNode*> neighbors;	$/;"	m	class:PieceNode	typeref:typename:list<PieceNode * >
-numDirections	Bitboard.cpp	/^int numDirections = 6;$/;"	v	typeref:typename:int
 numDirections	ProblemNode.cpp	/^int numDirections = 6;$/;"	v	typeref:typename:int
 operator ==	Bitboard.h	/^	bool operator ==(BitboardContainer &other) {$/;"	f	class:BitboardContainer	typeref:typename:bool
 oppositeDirection	Bitboard.cpp	/^unordered_map<Direction, Direction> oppositeDirection = $/;"	v	typeref:typename:unordered_map<Direction,Direction>
@@ -167,10 +167,12 @@ pillbugs	Hive.h	/^	BitboardContainer pillbugs;$/;"	m	class:Hive	typeref:typename
 potentialProblemNodes	ProblemNode.cpp	/^BitboardContainer potentialProblemNodes[] = {$/;"	v	typeref:typename:BitboardContainer[]
 print	Hive.cpp	/^void Hive::print() {$/;"	f	class:Hive	typeref:typename:void
 printDebug	Hive.cpp	/^void Hive::printDebug() {$/;"	f	class:Hive	typeref:typename:void
+problemNodeExists	ProblemNode.cpp	/^bool ProblemNodeContainer::problemNodeExists(BitboardContainer& problemNode) {$/;"	f	class:ProblemNodeContainer	typeref:typename:bool
 problemNodeHashes	ProblemNode.h	/^		unordered_set <int> problemNodeHashes;$/;"	m	class:ProblemNodeContainer	typeref:typename:unordered_set<int>
 problemNodes	Hive.h	/^	BitboardContainer problemNodes;$/;"	m	class:Hive	typeref:typename:BitboardContainer
 pruneCache	Bitboard.cpp	/^void BitboardContainer::pruneCache(){$/;"	f	class:BitboardContainer	typeref:typename:void
 queens	Hive.h	/^	BitboardContainer queens;$/;"	m	class:Hive	typeref:typename:BitboardContainer
+remove	ProblemNode.cpp	/^void ProblemNodeContainer::remove(BitboardContainer & problemNodes) {$/;"	f	class:ProblemNodeContainer	typeref:typename:void
 removePiece	ProblemNode.cpp	/^void ProblemNodeContainer::removePiece( BitboardContainer & piece) {$/;"	f	class:ProblemNodeContainer	typeref:typename:void
 reposition	PieceNode.cpp	/^void PieceNode::reposition(list <PieceNode*> &newNeighbors, BitboardContainer &newBitboard){$/;"	f	class:PieceNode	typeref:typename:void
 rings	Hive.h	/^	BitboardContainer rings;$/;"	m	class:Hive	typeref:typename:BitboardContainer
@@ -191,10 +193,12 @@ splitIntoBitboardContainers	Bitboard.cpp	/^list <BitboardContainer> BitboardCont
 splitIntoConnectedComponents	Bitboard.cpp	/^vector <BitboardContainer> BitboardContainer::splitIntoConnectedComponents(){$/;"	f	class:BitboardContainer	typeref:typename:vector<BitboardContainer>
 testBitboardBoundings	Test.cpp	/^void Test::BitboardTest::testBitboardBoundings(){$/;"	f	class:Test::BitboardTest	typeref:typename:void
 testContainsAny	Test.cpp	/^void Test::BitboardTest::testContainsAny() {$/;"	f	class:Test::BitboardTest	typeref:typename:void
-testFindAllProblemNodes	Test.cpp	/^void Test::BitboardTest::testFindAllProblemNodes(){$/;"	f	class:Test::BitboardTest	typeref:typename:void
+testFindAllProblemNodes	Test.cpp	/^void Test::ProblemNodeContainerTest::testFindAllProblemNodes(){$/;"	f	class:Test::ProblemNodeContainerTest	typeref:typename:void
 testFloodFill	Test.cpp	/^void Test::BitboardTest::testFloodFill() {$/;"	f	class:Test::BitboardTest	typeref:typename:void
 testFloodFillStep	Test.cpp	/^void Test::BitboardTest::testFloodFillStep() {$/;"	f	class:Test::BitboardTest	typeref:typename:void
 testIntersectionWith	Test.cpp	/^void Test::BitboardTest::testIntersectionWith() {$/;"	f	class:Test::BitboardTest	typeref:typename:void
+testQueenMoves	Test.cpp	/^void Test::MoveGeneratorTest::testQueenMoves() {$/;"	f	class:Test::MoveGeneratorTest	typeref:typename:void
+testRemovePiece	Test.cpp	/^void Test::ProblemNodeContainerTest::testRemovePiece(bool noMessage){$/;"	f	class:Test::ProblemNodeContainerTest	typeref:typename:void
 testShiftDirection	Test.cpp	/^void Test::BitboardTest::testShiftDirection(){$/;"	f	class:Test::BitboardTest	typeref:typename:void
 testSplit	Test.cpp	/^void Test::BitboardTest::testSplit() {$/;"	f	class:Test::BitboardTest	typeref:typename:void
 testSplitIntoConnectedComponents	Test.cpp	/^void Test::BitboardTest::testSplitIntoConnectedComponents() {$/;"	f	class:Test::BitboardTest	typeref:typename:void

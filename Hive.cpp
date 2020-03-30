@@ -77,12 +77,9 @@ void Hive::printDebug() {
 	}
 }
 
-
-
 bool Hive::pieceInHive(char color, string shorthandName) {
 	return pieceLookupTable[14*(color == 'b') + pieceNum[shorthandName]];
 }
-
 
 bool Hive::pieceInHive(int pieceNum) {
 	return pieceLookupTable[pieceNum];
@@ -182,29 +179,11 @@ bool Hive::parseCommand(vector<string> command){
 					"start piece under tournament rules \n");
 		}
 
-		//always start the first piece in the middle of the bitboard
-		//  (0,7)                                                          
-		//      (0,6)                                    ...                   
-		//  (0,5)                                                          
-		//      (0,4)  (1,4)          ....                                     
-		//  (0,3)  (1,3)                       ....                        
-		//      (0,2)  (1,2)                                                                 
-		//  (0,1)  (1,1)                                                   
-		//      (0,0)  
-		//  (1,0)  (2,0)                                            
-		// (x,y)  is the bit at the x + y*8 position 
-
-		// board 0  board 1  board 2
-		// board 3  board 4  board 5
-		// board 6  board 7  board 8
-
 		Piece firstPiece = Piece(color, shorthandName, CENTER_X, CENTER_Y);
 		insertPiece(firstPiece);
 		turnCounter += 1;
 		return true;
 	}
-
-
 
 	if (command.size() != 2) {
 		cout << "I can't figure out why there an incorrent number of words" << endl;
@@ -268,8 +247,6 @@ void Hive::getArticulationNodes(PieceNode &n, int &counter) {
 	//if arrived update node visited
 	n.visited = true;
 
-	//the vistedNumber represents that this is the nth
-	//node visited where counter = n
 	n.visitedNum = counter++;	
 
 	//initially assume that this node is the lowest link
