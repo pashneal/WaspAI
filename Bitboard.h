@@ -47,7 +47,7 @@ class BitboardContainer {
 
 	bool equals(BitboardContainer&);
 
-	void duplicateBoard(vector<Direction>);
+	void duplicateBoard(list<Direction>);
 
 	int count();
 
@@ -58,6 +58,7 @@ class BitboardContainer {
 
 	vector <BitboardContainer> splitIntoConnectedComponents();
 
+	void print();
 	bool operator ==(BitboardContainer &other) {
 		return equals(other);
 	}

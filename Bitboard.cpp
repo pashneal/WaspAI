@@ -6,6 +6,14 @@
 
 using namespace std;
 
+list <Direction> hexagonalDirections = {
+	Direction::NE,
+	Direction::E,
+	Direction::SE,
+	Direction::SW,
+	Direction::W,
+	Direction::NW
+};
 unordered_map<Direction, Direction> oppositeDirection = 
 {
 	{Direction::N, Direction::S},
@@ -382,7 +390,7 @@ void BitboardContainer::clear() {
 }
 //TODO optimize
 //TODO test
-void BitboardContainer::duplicateBoard(vector <Direction> dirs){
+void BitboardContainer::duplicateBoard(list <Direction> dirs){
 
 
 	BitboardContainer init;
@@ -414,11 +422,8 @@ int BitboardContainer::count(){
 BitboardContainer  BitboardContainer::getPerimeter() {
 	BitboardContainer perimeter;
 	
-	vector <Direction> directions = {Direction::E,Direction::SE,Direction::NE,
-										Direction::NW,Direction::SW,Direction::W};
-
 	perimeter.initializeTo(*this);
-	perimeter.duplicateBoard( directions);	
+	perimeter.duplicateBoard( hexagonalDirections);	
 	perimeter.xorWith(*this);
 
 	return perimeter;
@@ -490,4 +495,12 @@ vector <BitboardContainer> BitboardContainer::splitIntoConnectedComponents(){
 	}
 
 	return components;
+}
+
+void BitboardContainer::print() {
+	for (int i: internalBoardCache) {
+		cout << i << "\t"  << internalBoards[i] << endl;
+	}	
+
+	if (!internalBoardCache.size())  cout << "empty" << endl;
 }
