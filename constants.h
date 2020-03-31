@@ -1,6 +1,7 @@
 #pragma once
 #include <unordered_map>
 #include <vector>
+#include <list>
 
 using namespace std;
 
@@ -32,6 +33,8 @@ extern int dxdy[6][2];
 extern unordered_map <string, int> pieceNum; 
 
 extern unordered_map < string , vector<Direction> > directions;  
+
+extern list <Direction> hexagonalDirections ;
 
 
 const int ROW_SHIFT = 8;

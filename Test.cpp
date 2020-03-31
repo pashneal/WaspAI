@@ -777,7 +777,7 @@ void Test::ProblemNodeContainerTest::testRemovePiece(bool noMessage){
 void Test::MoveGeneratorTest::testQueenMoves() {
 	cout << "===================TestQueenMoves===================" << endl;
 	PieceName name = PieceName::QUEEN;
-	bool silenced =false;
+	bool silenced =true;
 
 	vector <unordered_map <int, unsigned long long>> test = {
 		{{9, 2258422653255680u}},
@@ -799,13 +799,13 @@ void Test::MoveGeneratorTest::testQueenMoves() {
 		{{9, 1134695999864832u}},
 		{{}},
 		{{}},
-		{{5,1077952512u}},
-		{{4, 2151694336u}}
+		{{5,1073758208u}},
+		{{4, 2151677952u}}
 	};
 
 
 	for (unsigned long long i = 0; i < expected.size(); i++ ) {
-		cout << "Test " << i << " ";
+		cout << "Test " << i << ": ";
 		BitboardContainer testBoard(test[i]);
 		BitboardContainer expectedBoard(expected[i]);
 		BitboardContainer pieceBoard(piece[i]);
@@ -834,14 +834,17 @@ void Test::MoveGeneratorTest::testQueenMoves() {
 void Test::MoveGeneratorTest::testSpiderMoves() {
 	cout << "===================TestSpiderMoves===================" << endl;
 	PieceName name = PieceName::SPIDER;
-	bool silenced =false;
+	bool silenced =true;
 
 	vector <unordered_map <int, unsigned long long>> test = {
 		{{9, 68921589760u}},
 		{{10, 103550550016u}},
 		{{13, 103550025728u}},
 		{{5, 827595993088u}, {6, 16908544u}},
-		{{4,1621106688u}}
+		{{4,1621106688u}},
+		//TODO: stop being lazy with this test 
+		{{14, 211381651554304u}, {15, 4479648768u}},
+		{{3,1006910464u}}
 	};
 
 	vector <unordered_map<int, unsigned long long>> piece = {
@@ -849,20 +852,124 @@ void Test::MoveGeneratorTest::testSpiderMoves() {
 		{{10, 134217728u}},
 		{{13, 134217728u}},
 		{{5 , 8388608u}},
-		{{4, 8388608u}}
+		{{4, 8388608u}},
+		{{15,131072u}},
+		{{3, 536870912u}}
 	};
 
 	vector <unordered_map <int, unsigned long long >> expected = {
-		{{9, 1073745920u}},
+		{{9, 33556480u}},
 		{{}},
 		{{}},
-		{{5,1077952512u}},
-		{{4, 2151694336u}}
+		{{5, 1073758240u}, {6, 1}},
+		{{4, 274877907008u}},
+		{{14, 550829555712u} , {15, 51608291333u}},
+		{{3, 34359754752u}}
 	};
 
 
 	for (unsigned long long i = 0; i < expected.size(); i++ ) {
-		cout << "Test " << i << " ";
+		if (!silenced) cout << endl;
+		cout << "Test " << i << ": ";
+		BitboardContainer testBoard(test[i]);
+		BitboardContainer expectedBoard(expected[i]);
+		BitboardContainer pieceBoard(piece[i]);
+
+		ProblemNodeContainer problemNodeCont(&testBoard);
+		problemNodeCont.findAllProblemNodes();
+
+		MoveGenerator moveGen(&testBoard, &problemNodeCont);
+		moveGen.setGeneratingName(&name);
+		moveGen.setGeneratingPieceBoard(&pieceBoard, false);
+	
+		BitboardContainer moves = moveGen.getMoves();
+		Test::pass( moves == expectedBoard, 
+				"incorrect moves outputted for move generation");
+
+		if (!silenced) {
+			moves.print();
+		}
+	}
+}
+
+
+void Test::MoveGeneratorTest::testBeetleMoves() {
+	cout << "===================TestQueenMoves===================" << endl;
+	PieceName name = PieceName::QUEEN;
+	bool silenced =true;
+
+	vector <unordered_map <int, unsigned long long>> test = {
+		{{9, 2258422653255680u}},
+		{{10, 103550550016u}},
+		{{13, 103550025728u}},
+		{{5, 827595993088u}, {6, 16908544u}},
+		{{4,1621106688u}}
+	};
+
+	vector <unordered_map<int, unsigned long long>> piece = {
+		{{9,2251799813685248u}},
+		{{10, 134217728u}},
+		{{13, 134217728u}},
+		{{5 , 8388608u}},
+		{{4, 8388608u}}
+	};
+
+	vector <unordered_map <int, unsigned long long >> expected = {
+		{{9, 1139094046375936u}},
+		{{}},
+		{{}},
+		{{5,1073758208u}},
+		{{4, 2151677952u}}
+	};
+
+
+	for (unsigned long long i = 0; i < expected.size(); i++ ) {
+		cout << "Test " << i << ": ";
+		BitboardContainer testBoard(test[i]);
+		BitboardContainer expectedBoard(expected[i]);
+		BitboardContainer pieceBoard(piece[i]);
+
+		ProblemNodeContainer problemNodeCont(&testBoard);
+		problemNodeCont.findAllProblemNodes();
+
+		MoveGenerator moveGen(&testBoard, &problemNodeCont);
+		moveGen.setGeneratingName(&name);
+		moveGen.setGeneratingPieceBoard(&pieceBoard, false);
+	
+		BitboardContainer moves = moveGen.getMoves();
+		Test::pass( moves == expectedBoard, 
+				"incorrect moves outputted for move generation");
+
+		if (!silenced) {
+			for (int boardIndex: moves.internalBoardCache) {
+				cout << boardIndex << " ";
+				cout << moves.internalBoards[boardIndex] << endl;
+			} 
+			if (moves.internalBoardCache.size() == 0) cout << "given boards empty " << endl;
+		}
+	}
+}
+
+void Test::MoveGeneratorTest::testGrasshopperMoves() {
+	cout << "===================TestGrasshopperMoves===================" << endl;
+	PieceName name = PieceName::GRASSHOPPER;
+	bool silenced = false;
+
+	vector <unordered_map <int, unsigned long long>> test = {
+		{{4, 10155194288446468u}}
+	};
+
+	vector <unordered_map<int, unsigned long long>> piece = {
+		{{4 , 134217728u }},
+	};
+
+	vector <unordered_map <int, unsigned long long >> expected = {
+		{{4, 2449958197323104288u}}
+	};
+
+
+	for (unsigned long long i = 0; i < expected.size(); i++ ) {
+		cout << "Test " << i << ": ";
 		BitboardContainer testBoard(test[i]);
 		BitboardContainer expectedBoard(expected[i]);
 		BitboardContainer pieceBoard(piece[i]);
@@ -903,4 +1010,6 @@ int main() {
 	Test::ProblemNodeContainerTest::testFindAllProblemNodes();
 	Test::ProblemNodeContainerTest::testRemovePiece(true);
 	Test::MoveGeneratorTest::testQueenMoves();
+	Test::MoveGeneratorTest::testSpiderMoves();
+	Test::MoveGeneratorTest::testGrasshopperMoves();
 }

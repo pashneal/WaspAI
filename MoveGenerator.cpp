@@ -15,9 +15,10 @@ MoveGenerator::MoveGenerator(BitboardContainer * allPiecesIn , ProblemNodeContai
 
 BitboardContainer MoveGenerator::getMoves() {	
 
-	BitboardContainer piecesExceptCurrent(*allPieces);
+	piecesExceptCurrent.initializeTo(*allPieces);
 
 	moves.clear();
+
 	//remove generatingPiece
 	piecesExceptCurrent.xorWith(*generatingPieceBoard);
 
@@ -74,29 +75,32 @@ void MoveGenerator::generateMoves() {
 //TODO:optimize it is so slow
 void MoveGenerator::generateGrasshopperMoves(){
 
-	for (Direction dir: gameDirections){
-		BitboardContainer testBitboard, nextPiece;
+	
+	for (Direction dir: hexagonalDirections){
 
-		nextPiece.initializeTo(testBitboard);
+		BitboardContainer nextPiece(*generatingPieceBoard);
 
 		nextPiece.shiftDirection(dir);
 		
 		//check if there is a piece to jump over
 		nextPiece.intersectionWith(*allPieces);
-		if (nextPiece.internalBoardCache.size() == 0) {
+		if (nextPiece.count() == 0) {
 			//cannot move in this Direction
 			//if no piece to jump over
 			continue;
 		}
 
-		bool pieceExists;
-		do{
+		bool pieceExists = true;
+		nextPiece.initializeTo(*generatingPieceBoard);
+		nextPiece.shiftDirection(dir);
+
+		while (pieceExists) {
+
 			//see if there is a piece to jump over
 			nextPiece.shiftDirection(dir);
 			pieceExists = allPieces -> containsAny(nextPiece);
 
-		// end only there is no more piece
-		} while (pieceExists);
+		}
 
 		moves.unionWith(nextPiece);
 	}
@@ -106,10 +110,13 @@ void MoveGenerator::generateGrasshopperMoves(){
 void MoveGenerator::generateQueenMoves(){ 
 	BitboardContainer frontier;
 	frontier.initializeTo(*generatingPieceBoard);
+	
+	BitboardContainer neighbors = frontier.getPerimeter();
+	neighbors.intersectionWith(*allPieces);
+	neighbors = neighbors.getPerimeter();
 
 	//if the piece is on a problematic node
 	if (problemNodes -> contains(*generatingPieceBoard)){
-		cout << "contains";
 		//get allowed directions to travel
 		frontier = problemNodes -> getPerimeter(frontier);
 
@@ -120,6 +127,10 @@ void MoveGenerator::generateQueenMoves(){
 
 	//only keep nodes that are along the board perimeter
 	frontier.intersectionWith(perimeter);
+	
+	//maintain contact with any of original neighbors
+	frontier.intersectionWith(neighbors);
+
 	moves.unionWith(frontier);
 }
 
@@ -158,13 +169,21 @@ void MoveGenerator::generateBeetleMoves(){
 
 	BitboardContainer traversable;
 
+
 	//since the beetle can move atop the other pieces
 	//include those pieces as traversable
-	traversable.initializeTo(perimeter);
-	traversable.unionWith(*allPieces);
 
 	BitboardContainer frontier;
 	frontier.initializeTo(*generatingPieceBoard);
+
+	traversable.initializeTo(frontier);
+
+	//set traversable to neighbors
+	traversable = traversable.getPerimeter();
+	traversable.intersectionWith(*allPieces);
+
+	//union with every node adjacent to neighbors
+	traversable.duplicateBoard(hexagonalDirections);
 
 	//if the piece is on a problematic node
 	if (problemNodes -> contains(*generatingPieceBoard)){
@@ -199,31 +218,74 @@ void MoveGenerator::generateAntMoves(){
 
 void MoveGenerator::generateSpiderMoves(){
 
-	BitboardContainer frontier, visited, problemFrontier;
+	BitboardContainer frontier, visited, neighbors;
+
+	list <pair<BitboardContainer, BitboardContainer>> frontierVisited;
+	
 	frontier.initializeTo(*generatingPieceBoard);
+	frontierVisited.push_back({frontier, visited});
 
-	//TODO: mini-optimization if problemFrontier.count() == 0
-	//could unroll this for speed
-	for (int i = 0; i < NUM_SPIDER_MOVES ; i++) {
+	//TODO: optimize by storing the intermediate search in a 9 KB lookup table
 
-		problemFrontier.initializeTo(frontier);
+	for (int depth = 0; depth < NUM_SPIDER_MOVES ; depth++) {
+
+		list <pair<BitboardContainer, BitboardContainer>> next;
+
 		
-		//get places in search that are on visible and problematic nodes
-		problemFrontier.intersectionWith(problemNodes -> visibleProblemNodes);
-		if (i == 0 && problemNodes -> contains(frontier)) 
-			problemFrontier.initializeTo(frontier);
-		visited.unionWith(problemFrontier);
-		
-		frontier.notIntersectionWith(problemFrontier);
-		perimeter.floodFillStep(frontier, visited);
+		for (auto pairOfBoards : frontierVisited) {
 
-		problemFrontier = problemNodes -> getPerimeter(problemFrontier);
-		problemFrontier.notIntersectionWith(visited);
-		frontier.unionWith(problemFrontier);
+			frontier.initializeTo(pairOfBoards.first);
+			visited.initializeTo(pairOfBoards.second);
 
+			//get pieces that touch the frontier
+			neighbors = frontier.getPerimeter();
+			neighbors.intersectionWith(piecesExceptCurrent);
+
+
+			if (problemNodes -> contains(frontier)) {
+
+				// add problematic nodes (if any) to visited
+				visited.unionWith(frontier);
+
+				// find the problematic perimeter
+				frontier = problemNodes -> getPerimeter(frontier);
+				frontier.notIntersectionWith(visited);
+
+
+			} else { 
+				// normal search along perimeter of hive
+				perimeter.floodFillStep(frontier, visited);
+			}
+
+			// get the perimeter of original neighbors
+			neighbors = neighbors.getPerimeter();
+
+			// make sure to maintain contact with any of the original neighbors
+			frontier.intersectionWith(neighbors);
+
+
+
+			if (frontier.count()) {
+
+				for (auto node: frontier.splitIntoBitboardContainers()) {
+
+					//store the node and the path to the node
+					pair <BitboardContainer, BitboardContainer> pairOfBoards =
+					{node, visited};
+
+					next.push_back(pairOfBoards);
+
+				}
+				
+			}
+
+		}
+		//get next set of frontiers and visited paths
+		frontierVisited = next;
 	}
 
-	moves.unionWith(frontier);
+	for (auto pairOfBoards : frontierVisited)
+		moves.unionWith(pairOfBoards.first);
 }  
 
 //TODO: Optimize so you don't have to iterate through every gate separately 

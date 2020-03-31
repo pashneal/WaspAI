@@ -109,8 +109,6 @@ void ProblemNodeContainer::removePiece( BitboardContainer & piece) {
 
 	int pieceHash = hash(piece);
 
-	cout << locationHashTable.size();
-
 	BitboardContainer testUpdate;
 	if (locationHashTable.find(pieceHash) != locationHashTable.end()) {
 		for (auto board: locationHashTable[pieceHash]){

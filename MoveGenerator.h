@@ -40,15 +40,10 @@ class MoveGenerator {
 		void generateBeetleMoves();  
 		void generateAntMoves();     
 		void generateSpiderMoves();  	
+		
+		BitboardContainer piecesExceptCurrent;
 
 	public:
-
-		vector <Direction> gameDirections = { Direction::NE,
-										      Direction::E,
-											  Direction::SE,
-											  Direction::SW,
-											  Direction::W,
-											  Direction::NW };
 		const int NUM_SPIDER_MOVES = 3;
 
 		MoveGenerator(BitboardContainer *, ProblemNodeContainer *);
