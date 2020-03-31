@@ -892,11 +892,10 @@ void Test::MoveGeneratorTest::testSpiderMoves() {
 	}
 }
 
-
 void Test::MoveGeneratorTest::testBeetleMoves() {
-	cout << "===================TestQueenMoves===================" << endl;
-	PieceName name = PieceName::QUEEN;
-	bool silenced =true;
+	cout << "===================TestBeetleMoves===================" << endl;
+	PieceName name = PieceName::BEETLE;
+	bool silenced = false;
 
 	vector <unordered_map <int, unsigned long long>> test = {
 		{{9, 2258422653255680u}},
@@ -916,10 +915,10 @@ void Test::MoveGeneratorTest::testBeetleMoves() {
 
 	vector <unordered_map <int, unsigned long long >> expected = {
 		{{9, 1139094046375936u}},
-		{{}},
-		{{}},
-		{{5,1073758208u}},
-		{{4, 2151677952u}}
+		{{10,103416332288u}},
+		{{13,103415808000u}},
+		{{5, 3221274624u}},
+		{{4, 3225419776u}}
 	};
 
 
@@ -953,18 +952,21 @@ void Test::MoveGeneratorTest::testBeetleMoves() {
 void Test::MoveGeneratorTest::testGrasshopperMoves() {
 	cout << "===================TestGrasshopperMoves===================" << endl;
 	PieceName name = PieceName::GRASSHOPPER;
-	bool silenced = false;
+	bool silenced = true;
 
 	vector <unordered_map <int, unsigned long long>> test = {
-		{{4, 10155194288446468u}}
+		{{4, 10155194288446468u}},
+		{{5, 203164672u}}
 	};
 
 	vector <unordered_map<int, unsigned long long>> piece = {
 		{{4 , 134217728u }},
+		{{5,  524288u}}
 	};
 
 	vector <unordered_map <int, unsigned long long >> expected = {
-		{{4, 2449958197323104288u}}
+		{{4, 2449958197323104288u}},
+		{{5, 85901574164u}}
 	};
 
 
@@ -994,6 +996,121 @@ void Test::MoveGeneratorTest::testGrasshopperMoves() {
 		}
 	}
 }
+
+void Test::MoveGeneratorTest::testLadybugMoves() {
+	cout << "===================TestLadybugMoves===================" << endl;
+	PieceName name = PieceName::LADYBUG;
+	bool silenced = false;
+
+	vector <unordered_map <int, unsigned long long>> test = {
+		{{9, 68921589760u}},
+		{{10, 103550550016u}},
+		{{13, 103550025728u}},
+		{{5, 827595993088u}, {6, 16908544u}},
+		{{4,1621106688u}},
+		{{3,1006910464u}}
+	};
+
+	vector <unordered_map<int, unsigned long long>> piece = {
+		{{9,68719476736u}},
+		{{10, 134217728u}},
+		{{13, 134217728u}},
+		{{5 , 8388608u}},
+		{{4, 8388608u}},
+		{{3, 536870912u}}
+	};
+
+	vector <unordered_map <int, unsigned long long >> expected = {
+		{{9, 51574213632u}},
+		{{10, 30941517192192u}},
+		{{13, 30941517715456u}},
+		{{5, 211107306274816u}, {6, 12918522371u}},
+		{{4, 412589490176u}},
+		{{3, 103080787968u}}
+	};
+
+
+	for (unsigned long long i = 0; i < expected.size(); i++ ) {
+		if (!silenced) cout << endl;
+		cout << "Test " << i << ": ";
+		BitboardContainer testBoard(test[i]);
+		BitboardContainer expectedBoard(expected[i]);
+		BitboardContainer pieceBoard(piece[i]);
+
+		ProblemNodeContainer problemNodeCont(&testBoard);
+		problemNodeCont.findAllProblemNodes();
+
+		MoveGenerator moveGen(&testBoard, &problemNodeCont);
+		moveGen.setGeneratingName(&name);
+		moveGen.setGeneratingPieceBoard(&pieceBoard, false);
+	
+		BitboardContainer moves = moveGen.getMoves();
+		Test::pass( moves == expectedBoard, 
+				"incorrect moves outputted for move generation");
+
+		if (!silenced) {
+			moves.print();
+		}
+	}
+}
+
+void Test::MoveGeneratorTest::testAntMoves() {
+	cout << "===================TestAntMoves===================" << endl;
+	PieceName name = PieceName::ANT;
+	bool silenced = false;
+
+	vector <unordered_map <int, unsigned long long>> test = {
+		{{9, 68921589760u}},
+		{{10, 103550550016u}},
+		{{13, 103550025728u}},
+		{{5, 827595993088u}, {6, 16908544u}},
+		{{4,1621106688u}},
+		{{3,1006910464u}}
+	};
+
+	vector <unordered_map<int, unsigned long long>> piece = {
+		{{9,68719476736u}},
+		{{10, 134217728u}},
+		{{13, 134217728u}},
+		{{5 , 8388608u}},
+		{{4, 8388608u}},
+		{{3, 536870912u}}
+	};
+
+	vector <unordered_map <int, unsigned long long >> expected = {
+		{{9, 51842780672u}},
+		{{}},
+		{{}},
+		{{5, 246497975748848}, {6, 12918718979u}},
+		{{4, 964493856864u}},
+		{{3, 257738031740u}}
+	};
+
+
+	for (unsigned long long i = 0; i < expected.size(); i++ ) {
+		if (!silenced) cout << endl;
+		cout << "Test " << i << ": ";
+		BitboardContainer testBoard(test[i]);
+		BitboardContainer expectedBoard(expected[i]);
+		BitboardContainer pieceBoard(piece[i]);
+
+		ProblemNodeContainer problemNodeCont(&testBoard);
+		problemNodeCont.findAllProblemNodes();
+
+		MoveGenerator moveGen(&testBoard, &problemNodeCont);
+		moveGen.setGeneratingName(&name);
+		moveGen.setGeneratingPieceBoard(&pieceBoard, false);
+	
+		BitboardContainer moves = moveGen.getMoves();
+		Test::pass( moves == expectedBoard, 
+				"incorrect moves outputted for move generation");
+
+		if (!silenced) {
+			moves.print();
+		}
+	}
+}
+
 int main() {
 	Test::HiveTest::insertPieceTest();
 	Test::HiveTest::movePieceTest();
@@ -1012,4 +1129,7 @@ int main() {
 	Test::MoveGeneratorTest::testQueenMoves();
 	Test::MoveGeneratorTest::testSpiderMoves();
 	Test::MoveGeneratorTest::testGrasshopperMoves();
+	Test::MoveGeneratorTest::testBeetleMoves();
+	Test::MoveGeneratorTest::testLadybugMoves();
+	Test::MoveGeneratorTest::testAntMoves();
 }

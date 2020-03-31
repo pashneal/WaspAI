@@ -74,8 +74,6 @@ void MoveGenerator::generateMoves() {
 
 //TODO:optimize it is so slow
 void MoveGenerator::generateGrasshopperMoves(){
-
-	
 	for (Direction dir: hexagonalDirections){
 
 		BitboardContainer nextPiece(*generatingPieceBoard);
@@ -95,16 +93,12 @@ void MoveGenerator::generateGrasshopperMoves(){
 		nextPiece.shiftDirection(dir);
 
 		while (pieceExists) {
-
 			//see if there is a piece to jump over
 			nextPiece.shiftDirection(dir);
 			pieceExists = allPieces -> containsAny(nextPiece);
-
 		}
-
 		moves.unionWith(nextPiece);
 	}
-
 }
 
 void MoveGenerator::generateQueenMoves(){ 
@@ -133,22 +127,39 @@ void MoveGenerator::generateQueenMoves(){
 
 	moves.unionWith(frontier);
 }
-
+//TODO:optimize
 void MoveGenerator::generateLadybugMoves(){
-	
 	BitboardContainer frontier, visited;
 	frontier.initializeTo(*generatingPieceBoard);
 
-	//must first make two moves on top of other pieces 
-	allPieces -> floodFillStep(frontier, visited);
-	allPieces -> floodFillStep(frontier, visited);
+	// makes three moves
+	// must first a move on top of other pieces 
+	piecesExceptCurrent.floodFillStep(frontier, visited);
 
-	//must make a move that is not on top other pieces
+	//keep nodes from frontier that are not isolated
+	BitboardContainer nonIsolated;
+	for (auto nodes: frontier.splitIntoConnectedComponents()){
+		if (nodes.count() > 1) {
+			nonIsolated.unionWith(nodes);
+		}
+	}
+
+	// must then make another move on top of the hive
 	frontier = frontier.getPerimeter();
-	frontier.notIntersectionWith(*allPieces);
+	frontier.intersectionWith(piecesExceptCurrent);
+
+	//don't allow second move to be on previous pieces
+	frontier.notIntersectionWith(visited);
+
+	
+	//add in non isolated nodes
+	frontier.unionWith(nonIsolated);
+
+	//must finally make a move off of the hive
+	frontier = frontier.getPerimeter();
+	frontier.intersectionWith(perimeter);
 
 	moves.unionWith(frontier);
-
 } 
 
 void MoveGenerator::generatePillbugMoves(){
@@ -167,23 +178,20 @@ void MoveGenerator::generateBeetleMoves(){
 	//Further analysis is necessary in order to see
 	//If moves atop the hive are legal
 
-	BitboardContainer traversable;
-
 
 	//since the beetle can move atop the other pieces
 	//include those pieces as traversable
 
-	BitboardContainer frontier;
+	BitboardContainer frontier, neighbors;
 	frontier.initializeTo(*generatingPieceBoard);
+	neighbors = frontier.getPerimeter();
+	neighbors.intersectionWith(piecesExceptCurrent);
 
-	traversable.initializeTo(frontier);
+	//if the piece is adjacent, assume the beetle can climb it
+	moves.unionWith(neighbors);
 
-	//set traversable to neighbors
-	traversable = traversable.getPerimeter();
-	traversable.intersectionWith(*allPieces);
-
-	//union with every node adjacent to neighbors
-	traversable.duplicateBoard(hexagonalDirections);
+	//set neighbors to perimeter of neighbors
+	neighbors = neighbors.getPerimeter();
 
 	//if the piece is on a problematic node
 	if (problemNodes -> contains(*generatingPieceBoard)){
@@ -196,28 +204,44 @@ void MoveGenerator::generateBeetleMoves(){
 		//search all directions around frontier
 		frontier = frontier.getPerimeter();
 	}
-	//only keep directions that are traversable
-	frontier.intersectionWith(traversable);
+
+	//maintain contact with at least one of the original neighbors
+	frontier.intersectionWith(neighbors);
 
 	moves.unionWith(frontier);
-
 }  
 
+//TODO: this is so slowwww
+void MoveGenerator::generateAntMoves() {
+	//perform a flood fill step until it cannot anymore
+
+	BitboardContainer frontier(*generatingPieceBoard);
+	BitboardContainer visited;
+
+	while(frontier.count()) {
+		//perform a flood fill step with regard to problematic nodes
+		frontier = problemNodes -> getPerimeter(frontier);
+		frontier.intersectionWith(perimeter);
+		frontier.notIntersectionWith(visited);
+
+		// store previously visited nodes
+		visited.unionWith(frontier);
+	}
+
+	moves.unionWith(visited);
+}
+/*
+TODO: make this work when you have time for optimization
 void MoveGenerator::generateAntMoves(){
 	BitboardContainer inaccessibleNodes = getInaccessibleNodes(gatesSplit);
-
-	//since inaccessible nodes are a subset of perimeter
-	//xor them out after adding perimeter
+	
 	moves.unionWith(perimeter);
-	moves.xorWith(inaccessibleNodes);
+	moves.notIntersectionWith(inaccessibleNodes);
+	moves.notIntersectionWith(*generatingPieceBoard);
 
-	//remove initial location
-	moves.unionWith(*generatingPieceBoard);
-	moves.xorWith(*generatingPieceBoard);
 }     
-
+*/
 void MoveGenerator::generateSpiderMoves(){
-
 	BitboardContainer frontier, visited, neighbors;
 
 	list <pair<BitboardContainer, BitboardContainer>> frontierVisited;
@@ -368,7 +392,6 @@ void MoveGenerator::setGeneratingPieceBoard(BitboardContainer * b, bool pieceIsA
 }
 
 BitboardContainer MoveGenerator::generatePillbugSwap() {
-	
 	//Pillbug swap also uses lazy evaluation
 	//just as beetleMove does
 
