@@ -4,7 +4,6 @@
 #include <vector>
 #include <unordered_map>
 #include "Bitboard.h"
-#include "Hive.h"
 #include "constants.h"
 #include "ProblemNode.h"
 

@@ -11,7 +11,6 @@
 #include "Piece.h"
 #include "PieceNode.h"
 #include "ProblemNode.h"
-#include "Hive.h"
 #include "PieceGraph.h"
 #include "Test.h"
 
@@ -68,162 +67,6 @@ void Test::pass(bool testPassed, string message){
 		if (!testPassed) cout << "\033[1;31m" << message << "\033[0m" << endl;
 		if (!silent && testPassed) cout << "Test passed" << endl;
 }
-
-void Test::HiveTest::insertPieceTest() {
-	cout << "===========Test::Hive::insertPieceTest()==========" << endl;
-	Piece testWhiteQueen = Piece('w', "Q", 4, 4);
-	Piece testBlackQueen = Piece('b', "Q", 4, 5);
-	Piece testWhiteBeetle1 = Piece( 'w', "B1", 5, 5);
-	Piece testBlackAnt2 = Piece('b', "A2", 5, 6 );
-	Piece testWhiteSpider2 = Piece('w', "S2", 3, 3);
-
-	
-	Hive testHive;
-
-	testHive.insertPiece(testWhiteQueen);
-	testHive.insertPiece(testBlackQueen);
-	testHive.insertPiece(testWhiteBeetle1);
-	testHive.insertPiece(testBlackAnt2);
-	testHive.insertPiece(testWhiteSpider2);
-	testHive.insertPiece('b', "L", 2, 3);
-	testHive.insertPiece('w', "G3", 6, 7);
-
-	bool * testHiveLookupTable = testHive.getPieceLookupTable();
-	Piece * testHivePieceArray = testHive.getPieceArray();
-	
-
-	set<int> correctSet = {0, 1, 5, 10, 14, 21, 26};
-	cout << "-------------------------------------------" << endl;
-	cout << "correctSetTest" << endl;
-
-
-	Test::pass(correctSet == testHive.getPieceLookupSet(), "insertPieceTest \n The "
-			"pieceSet is incorrect");
-
-
-	cout << "-------------------------------------------" << endl;
-	cout << "correctHiveLookup" << endl;
-
-
-	for (int i = 0; i < 28; ++i){
-		
-		cout << i << " ";
-		Test::pass((correctSet.find(i) == correctSet.end()) != testHiveLookupTable[i],
-				"insertPieceTest \n" 
-				"failed to produce correct answer in Hive::pieceLookupTable");
-	}
-	
-	int ii = 0;
-	string s[7] = {"Q","B1","G3","S2","Q","A2","L"};
-	char c[7] =     {'w','w','w','w','b','b','b'};
-	int x[7] = {4,5,6,3,4,5,2};
-	int y[7] = {4,5,7,3,5,6,3};
-	
-	cout << "-------------------------------------------" << endl;
-	cout << "correctHiveLookup" << endl;
-	for (auto i: correctSet) {		
-		cout << ii << " ";
-		Test::pass(testHivePieceArray[i].shorthandName == s[ii] && 
-				   testHivePieceArray[i].x == x[ii] &&
-				   testHivePieceArray[i].y == y[ii] &&
-				   testHivePieceArray[i].color == c[ii],
-				   "insertPieceTest\nThe hivePieceArray is incorrect");
-		ii++;
-	}
-
-}
-
-void Test::HiveTest::movePieceTest(){
-	cout << "========Test::Hive::movePieceTest()======" << endl;
-	int testPiecesSize = 8;
-	Piece testPieces[] = {
-						Piece('b', "Q", 11, 11),
-						Piece('b', "B2", -1, -1),
-						Piece('b', "A2", -1, -1),
-						Piece('b', "S1", -1, -1),
-						Piece('w', "Q", -1, -1),
-						Piece('w', "M", -1, -1),
-						Piece('w', "L", -1, -1),
-						Piece('w', "G2", -1, -1),
-						};
-	
-	unordered_map< string, int> pieceXY[] = {	 
-									 {{"x", 11}, {"y", 11}, }, //1
-									 {{"x", 12}, {"y", 12}, }, //2
-									 {{"x", 14}, {"y", 12}, }, //3
-									 {{"x", 10}, {"y", 12}, }, //4
-									 {{"x", 9}, {"y", 13}, }, //5
-									 {{"x",  8}, {"y", 12}, }, //6
-									 {{"x",  7}, {"y", 11}, }, //7
-									 {{"x", 12}, {"y", 10}, }, //8
-									};
-	
-	Hive testHive;
-	for (auto i = 0; i < testPiecesSize; ++i){
-		testHive.insertPiece(testPieces[i]);
-	}
-	
-	testHive.movePiece('b', "B2", Direction::NE, 'b', "Q"); //2
-	testHive.movePiece('b', "A2", true, "-", 'b', "B2"); //3
-	testHive.movePiece(Hive::pieceNumber('b',"S1"), Direction::W, Hive::pieceNumber('b',"B2")); //4
-	testHive.movePiece('w', "Q", false, "\\", 'b', "S1"); //5
-	testHive.movePiece('w', "M", Direction::SW, 'w', "Q"); //6
-	testHive.movePiece(Hive::pieceNumber('w', "L"), Direction::SW, Hive::pieceNumber('w', "M")); //7
-	testHive.movePiece('w', "G2", Direction::SE, 'b', "Q"); //8
-
-	Piece * testHivePieceArray = testHive.getPieceArray();
-	for (auto i : testHive.getPieceLookupSet()){
-		for (int j = 0 ; j < testPiecesSize; ++j){
-			if (i == Hive::pieceNumber(testPieces[j])){
-				cout << "pieceNumber " << i << " ";
-				Test::pass(testHivePieceArray[i].x == pieceXY[j]["x"] &&
-						   testHivePieceArray[i].y == pieceXY[j]["y"], 
-						   "movePieceTest()\n"
-						   "correct results were not produced");
-			}
-		}
-	}
-}
-
-void Test::HiveTest::parseCommandTest(){
-	Hive testHive;
-	cout << "=========Test::Hive::parseCommandTest()========" << endl;
-
-	vector<vector<string>> commands = {
-							{"wQ", "."},
-							{"bB2", "wQ\\"},
-							{ "wA3", "-bB2"},
-							{"bB2", "-wQ"},
-							{"wA3", "-bB2"},
-							{"bG2", "\\wA3"},
-							{"wL", "wA3\\"},
-							{"wP", "/wA3"}
-	};
-
-
-	vector<Piece> testPieces = {
-						Piece('w', "Q", 23, 11),
-						Piece('b', "B2", 21, 11),
-						Piece('w', "A3", 19, 11),
-						Piece('w', "L", 20, 10),
-						Piece('b', "G2", 18, 12),
-						Piece('w', "P", 18, 10),
-						};
-	
-	for (auto i = commands.begin(); i != commands.end(); ++i){
-		testHive.parseCommand(*i);
-	}
-
-	Piece * testHivePieceArray = testHive.getPieceArray();
-	for (auto piece: testPieces){
-		cout << "pieceNumber " << Hive::pieceNumber(piece) << " ";
-		Piece comparisonPiece = testHivePieceArray[Hive::pieceNumber(piece)];
-		Test::pass(comparisonPiece.x == piece.x && comparisonPiece.y == piece.y,
-				   "parseCommandTest\n"
-				   "the command was not parsed as expected");
-	}
-}
-
 
 void Test::BitboardTest::testShiftDirection(){
 	cout << "==========Test::Bitboard::shiftDirection()=======" << endl;
@@ -360,7 +203,6 @@ void Test::BitboardTest::testShiftDirection(){
 	testProblemNodes.convertToHexRepresentation(Direction::NE, 15);
 	BitboardContainer result({{5,1026u}});
 	Test::pass(result.equals(testProblemNodes), " result incorrect");
-	
 }
 
 void Test::BitboardTest::testXorWith() {
@@ -1212,9 +1054,6 @@ void Test::PieceGraphTest::testFindAllPinnedPieces(){
 };
 
 int main() {
-	Test::HiveTest::insertPieceTest();
-	Test::HiveTest::movePieceTest();
-	Test::HiveTest::parseCommandTest();
 	Test::BitboardTest::testShiftDirection();
 	Test::BitboardTest::testXorWith();
 	Test::BitboardTest::testIntersectionWith();
