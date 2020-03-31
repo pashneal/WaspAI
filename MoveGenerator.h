@@ -57,4 +57,6 @@ class MoveGenerator {
 
 		BitboardContainer getInaccessibleNodes(BitboardContainer);
 		BitboardContainer getInaccessibleNodes(vector <BitboardContainer> *);
+
+		bool checkLegalClimb(BitboardContainer&,BitboardContainer&,BitboardContainer&);
 };

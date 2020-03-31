@@ -404,8 +404,17 @@ BitboardContainer MoveGenerator::generatePillbugSwap() {
 
 //Optimize TODO
 BitboardContainer MoveGenerator::getInaccessibleNodes(BitboardContainer gates) {
-
 	vector <BitboardContainer> gatesVector = {gates};
 	return getInaccessibleNodes(&gatesVector);
-
 }
+
+bool MoveGenerator::checkLegalClimb(BitboardContainer &oldLocation,
+									BitboardContainer& newLocation,
+									BitboardContainer& upperLevelPieces) {
+	ProblemNodeContainer problemNodeContainer(&upperLevelPieces);
+	problemNodeContainer.findAllProblemNodes();
+	newLocation.unionWith(oldLocation);
+	return (problemNodeContainer.problemNodeExists(newLocation));
+	
+}
+
