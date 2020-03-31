@@ -243,44 +243,6 @@ bool * Hive::getPieceLookupTable(){
 	return pieceLookupTable;
 }
 
-void Hive::getArticulationNodes(PieceNode &n, int &counter) {
-	//if arrived update node visited
-	n.visited = true;
-
-	n.visitedNum = counter++;	
-
-	//initially assume that this node is the lowest link
-	n.lowLink = n.visitedNum;
-
-	for(auto neighbor: n.neighbors){
-		
-		if (! (neighbor -> visited) ){
-
-			(*neighbor).parent = &n;
-
-			//see if node has a path to lower node
-			getArticulationNodes(*neighbor, counter);
-
-			//if neighbor points to a lower node
-			//update lowest Link
-			n.lowLink = (n.lowLink < neighbor -> lowLink) ? n.lowLink : (*neighbor).lowLink;
-
-			
-			//if neighbor cannot reach a lower node
-			//that means this node is not a leaf in a DFS tree
-			if ( neighbor -> lowLink >=  n.visitedNum) articulationNodes.insert(&n);
-		}
-
-		//if the node is a back edge
-		else if ((*neighbor).parent -> pieceNumber  != n.pieceNumber) {
-
-			// set lowest link to min(lowlink, neighbor.num)
-			n.lowLink = (n.lowLink < (*neighbor).visitedNum) ?
-						n.lowLink : (*neighbor).visitedNum;
-		}
-	}
-}
-
 
 void Hive::updateArticulationFramework(vector <PieceNode*> &affectedNodes){
 	// can be turned to an O(k) algo;

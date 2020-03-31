@@ -12,6 +12,7 @@
 #include "PieceNode.h"
 #include "ProblemNode.h"
 #include "Hive.h"
+#include "PieceGraph.h"
 #include "Test.h"
 
 using namespace std;
@@ -182,7 +183,6 @@ void Test::HiveTest::movePieceTest(){
 			}
 		}
 	}
-	
 }
 
 void Test::HiveTest::parseCommandTest(){
@@ -222,7 +222,6 @@ void Test::HiveTest::parseCommandTest(){
 				   "parseCommandTest\n"
 				   "the command was not parsed as expected");
 	}
-	
 }
 
 
@@ -895,7 +894,7 @@ void Test::MoveGeneratorTest::testSpiderMoves() {
 void Test::MoveGeneratorTest::testBeetleMoves() {
 	cout << "===================TestBeetleMoves===================" << endl;
 	PieceName name = PieceName::BEETLE;
-	bool silenced = false;
+	bool silenced = true;
 
 	vector <unordered_map <int, unsigned long long>> test = {
 		{{9, 2258422653255680u}},
@@ -1000,7 +999,7 @@ void Test::MoveGeneratorTest::testGrasshopperMoves() {
 void Test::MoveGeneratorTest::testLadybugMoves() {
 	cout << "===================TestLadybugMoves===================" << endl;
 	PieceName name = PieceName::LADYBUG;
-	bool silenced = false;
+	bool silenced = true;
 
 	vector <unordered_map <int, unsigned long long>> test = {
 		{{9, 68921589760u}},
@@ -1057,7 +1056,7 @@ void Test::MoveGeneratorTest::testLadybugMoves() {
 void Test::MoveGeneratorTest::testAntMoves() {
 	cout << "===================TestAntMoves===================" << endl;
 	PieceName name = PieceName::ANT;
-	bool silenced = false;
+	bool silenced = true;
 
 	vector <unordered_map <int, unsigned long long>> test = {
 		{{9, 68921589760u}},
@@ -1111,6 +1110,107 @@ void Test::MoveGeneratorTest::testAntMoves() {
 	}
 }
 
+void Test::MoveGeneratorTest::testPillbugMoves() {
+	cout << "===================TestPillbugMoves===================" << endl;
+	PieceName name = PieceName::PILLBUG;
+	bool silenced = true;
+
+	vector <unordered_map <int, unsigned long long>> test = {
+		{{9, 68921589760u}},
+		{{10, 103550550016u}},
+		{{13, 103550025728u}},
+		{{5, 827595993088u}, {6, 16908544u}},
+		{{4,1621106688u}},
+		{{3,1006910464u}}
+	};
+
+	vector <unordered_map<int, unsigned long long>> piece = {
+		{{9,68719476736u}},
+		{{10, 134217728u}},
+		{{13, 134217728u}},
+		{{5 , 8388608u}},
+		{{4, 8388608u}},
+		{{3, 536870912u}}
+	};
+
+	vector <unordered_map <int, unsigned long long >> expected = {
+		{{9, 34628173824u}},
+		{{}},
+		{{}},
+		{{5,1073758208u}},
+		{{4, 2151677952u}}
+	};
+
+
+	for (unsigned long long i = 0; i < expected.size(); i++ ) {
+		if (!silenced) cout << endl;
+		cout << "Test " << i << ": ";
+		BitboardContainer testBoard(test[i]);
+		BitboardContainer expectedBoard(expected[i]);
+		BitboardContainer pieceBoard(piece[i]);
+
+		ProblemNodeContainer problemNodeCont(&testBoard);
+		problemNodeCont.findAllProblemNodes();
+
+		MoveGenerator moveGen(&testBoard, &problemNodeCont);
+		moveGen.setGeneratingName(&name);
+		moveGen.setGeneratingPieceBoard(&pieceBoard, false);
+	
+		BitboardContainer moves = moveGen.getMoves();
+		Test::pass( moves == expectedBoard, 
+				"incorrect moves outputted for move generation");
+
+		if (!silenced) {
+			moves.print();
+		}
+	}
+}
+
+void Test::PieceGraphTest::testFindAllPinnedPieces(){
+	cout << "===================TestFindAllPinnedPieces===================" << endl;
+	bool silenced = true;
+
+	vector <unordered_map <int, unsigned long long>> test = {
+		{{9, 68921589760u}},
+		{{10, 103550550016u}},
+		{{13, 103550025728u}},
+		{{5, 827595993088u}, {6, 16908544u}},
+		{{4,1621106688u}},
+		{{3,1006910464u}}
+	};
+
+	vector <unordered_map <int, unsigned long long >> expected = {
+		{{9,134217728u}},
+		{{}},
+		{{}},
+		{{5,827587563520u}},
+		{{4, 1612709888u}},
+		{{3,470031360u}}
+	};
+
+
+	for (unsigned long long i = 0; i < expected.size(); i++ ) {
+		if (!silenced) cout << endl;
+		cout << "Test " << i << ": ";
+		BitboardContainer allPieces(test[i]);
+		BitboardContainer expectedBoard(expected[i]);
+		
+		PieceGraph pieceGraph;
+
+		for (auto board: allPieces.splitIntoBitboardContainers()) 
+			pieceGraph.insert(board);
+
+		BitboardContainer pinned = pieceGraph.getPinnedPieces();
+
+		Test::pass( pinned == expectedBoard, 
+				"incorrect pinned pieces");
+
+		if (!silenced) {
+			pinned.print();
+		}
+	}
+};
+
 int main() {
 	Test::HiveTest::insertPieceTest();
 	Test::HiveTest::movePieceTest();
@@ -1132,4 +1232,6 @@ int main() {
 	Test::MoveGeneratorTest::testBeetleMoves();
 	Test::MoveGeneratorTest::testLadybugMoves();
 	Test::MoveGeneratorTest::testAntMoves();
+	Test::MoveGeneratorTest::testPillbugMoves();
+	Test::PieceGraphTest::testFindAllPinnedPieces();
 }

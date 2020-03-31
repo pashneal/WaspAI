@@ -325,6 +325,16 @@ bool BitboardContainer::equals(BitboardContainer& other){
 	return true;
 }
 
+pair <int , unsigned long long > BitboardContainer::getLeastSignificantBit () {
+	pair <int, unsigned long long> LSB;
+	int min = 40;
+	for (int i: internalBoardCache) 
+		min = (min < i) ? min : i;
+	LSB.first = min;
+	LSB.second = (internalBoards[min] &  -internalBoards[min]);
+
+	return LSB;
+}
 
 void BitboardContainer::pruneCache(){
 	list <int> emptyBoards;
@@ -504,3 +514,27 @@ void BitboardContainer::print() {
 
 	if (!internalBoardCache.size())  cout << "empty" << endl;
 }
+
+int BitboardContainer::hash() {
+	//TODO:implement a hash for greater than 2 pieces
+	int maxBoardIndex = -1;
+	list <unsigned long long> pieces ;
+	
+
+	for (auto map: split()){
+		maxBoardIndex = (maxBoardIndex < map.first) ? map.first : maxBoardIndex;
+
+		for (auto piece: map.second){
+			if (pieces.size() == 0 || pieces.front() < piece) 
+				pieces.push_front(piece);
+			else 
+				pieces.push_back(piece);
+		}
+	}
+
+	if (pieces.size() == 1) return maxBoardIndex + (__builtin_clzll(pieces.front()) << 8);
+
+	return maxBoardIndex + (__builtin_clzll(pieces.front()) << 8)
+					     + (__builtin_clzll(pieces.back()) << 16);
+}
+

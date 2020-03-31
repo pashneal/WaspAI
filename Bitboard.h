@@ -36,6 +36,8 @@ class BitboardContainer {
 	void floodFillStep(BitboardContainer&, BitboardContainer&);
 	void floodFill(BitboardContainer&);
 
+	pair <int , unsigned long long> getLeastSignificantBit();
+
 	void pruneCache();
 	void clear();
 
@@ -59,6 +61,8 @@ class BitboardContainer {
 	vector <BitboardContainer> splitIntoConnectedComponents();
 
 	void print();
+	int hash();
+	
 	bool operator ==(BitboardContainer &other) {
 		return equals(other);
 	}

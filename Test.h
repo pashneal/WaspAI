@@ -47,6 +47,11 @@ class Test {
 				static void testRemovePiece(bool);
 		};
 
+		class PieceGraphTest {
+			public: 
+				static void testFindAllPinnedPieces();
+		};
+
 		static void pass(bool, string);
 };
 

@@ -20,15 +20,15 @@ class ProblemNodeContainer {
 		list <BitboardContainer> getProblemNodesAtLocation(int,unsigned long long);
 
 		int hash(int, unsigned long long);
-		int hash(BitboardContainer&);
 
 		void updateVisible(BitboardContainer&);
 		void remove(BitboardContainer&);
 		//requires that a piece is actally in *allPieces
 		void insert(BitboardContainer&);
-		bool problemNodeExists(BitboardContainer&);
 
 	public:
+
+		bool problemNodeExists(BitboardContainer&);
 
 		BitboardContainer visibleProblemNodes;
 

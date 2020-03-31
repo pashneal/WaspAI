@@ -39,7 +39,7 @@ ProblemNodeContainer::ProblemNodeContainer(BitboardContainer * pieces) {
 }
 
 void ProblemNodeContainer::insert(BitboardContainer& problemNodes) {
-	int problemNodeHash = hash(problemNodes);
+	int problemNodeHash = problemNodes.hash();
 
 	if (problemNodeExists(problemNodes)) return;
 
@@ -61,7 +61,7 @@ void ProblemNodeContainer::insert(BitboardContainer& problemNodes) {
 }
 
 bool ProblemNodeContainer::problemNodeExists(BitboardContainer& problemNode) {
-	return problemNodeHashes.find(hash(problemNode)) != problemNodeHashes.end();
+	return problemNodeHashes.find(problemNode.hash()) != problemNodeHashes.end();
 }
 void ProblemNodeContainer::clear() {
 	locationHashTable.clear();
@@ -73,31 +73,9 @@ int ProblemNodeContainer::hash(int boardIndex, unsigned long long piece) {
 	// 0x04d7651f <- might be faster to use this ;-)
 }
 
-int ProblemNodeContainer::hash( BitboardContainer& bitboard){
-	int maxBoardIndex = -1;
-	list <unsigned long long> pieces ;
-	
-	auto iter = bitboard.split();
-
-	for (auto map: iter){
-		maxBoardIndex = (maxBoardIndex < map.first) ? map.first : maxBoardIndex;
-
-		for (auto piece: map.second){
-			if (pieces.size() == 0 || pieces.front() < piece) 
-				pieces.push_front(piece);
-			else 
-				pieces.push_back(piece);
-		}
-	}
-
-	if (pieces.size() == 1) return maxBoardIndex + (__builtin_clzll(pieces.front()) << 8);
-
-	return maxBoardIndex + (__builtin_clzll(pieces.front()) << 8)
-					     + (__builtin_clzll(pieces.back()) << 16);
-}
 
 void ProblemNodeContainer::remove(BitboardContainer & problemNodes) {
-	problemNodeHashes.erase(hash(problemNodes));
+	problemNodeHashes.erase(problemNodes.hash());
 }
 void ProblemNodeContainer::removePiece( BitboardContainer & piece) {
 	if (piece.count() != 1) {
@@ -107,7 +85,7 @@ void ProblemNodeContainer::removePiece( BitboardContainer & piece) {
 	//TODO: make this unneccessary
 	piece.pruneCache();
 
-	int pieceHash = hash(piece);
+	int pieceHash = piece.hash();
 
 	BitboardContainer testUpdate;
 	if (locationHashTable.find(pieceHash) != locationHashTable.end()) {
@@ -182,7 +160,7 @@ void ProblemNodeContainer::updateVisible(BitboardContainer& locations) {
 	visibleProblemNodes.xorWith(locations);
 
 	for (auto location: locations.splitIntoBitboardContainers()){
-		int hashInt = hash(location);
+		int hashInt = location.hash();
 
 		auto problemNodes = locationHashTable[hashInt].begin();
 
@@ -258,7 +236,7 @@ BitboardContainer ProblemNodeContainer::getPerimeter(BitboardContainer& pieces) 
 	perimeter = pieces.getPerimeter();
 
 	for (auto piece: pieces.splitIntoBitboardContainers()) {
-		for (auto restrictedNodes: locationHashTable[hash(piece)]) {
+		for (auto restrictedNodes: locationHashTable[piece.hash()]) {
 			//remove every restriction found
 			perimeter.notIntersectionWith(restrictedNodes);
 		}
@@ -267,6 +245,6 @@ BitboardContainer ProblemNodeContainer::getPerimeter(BitboardContainer& pieces) 
 }
 
 bool ProblemNodeContainer::contains(BitboardContainer& piece){
-	return (locationHashTable.find(hash(piece)) != locationHashTable.end());
+	return (locationHashTable.find(piece.hash()) != locationHashTable.end());
 }
 

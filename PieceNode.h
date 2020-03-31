@@ -7,22 +7,29 @@
 using namespace std;
 
 class PieceNode {
-		BitboardContainer bitboard;
 	public:	
+		int boardIndex = -1;
+		unsigned long long location = 0;
+
 		list <PieceNode*> neighbors;	
 
 		bool visited = false;
-		bool isEmpty = true;
 		int visitedNum;
 		int lowLink;
+
 		PieceNode * parent;
 		
-		int pieceNumber;
-
-		PieceNode() {};
-		PieceNode(int, BitboardContainer);
+		PieceNode(){};
 		void shiftDirection(Direction, int);
 		void shiftDirection(Direction);
 		void reposition(list<PieceNode*>&, BitboardContainer&);
 		void insert(list<PieceNode*>&, BitboardContainer&);
+		void remove();
+		void print();
+		
+		bool operator==(PieceNode &other) {
+			return (boardIndex == other.boardIndex && 
+					location   == other.location);
+		}
+
 };
