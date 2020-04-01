@@ -14,7 +14,6 @@
 using namespace std;
 
 struct MoveInfo {
-	PieceColor pieceColor;
 	BitboardContainer oldPieceLocation;
 	BitboardContainer newPieceLocation;
 	PieceName pieceName;
@@ -23,6 +22,10 @@ struct MoveInfo {
 class GameState {
 
   public:
+
+
+	GameState();
+	~GameState() { destroy();}
 
 	PieceColor turnColor;
 	BitboardContainer allPieces;
@@ -50,15 +53,15 @@ class GameState {
 
 	int turnCounter = 0;
 
-	GameState();
 
 	MoveInfo insertPiece(BitboardContainer&, PieceName);
 	MoveInfo movePiece(BitboardContainer&, BitboardContainer&, PieceName name);
 
 	void undoMove(MoveInfo);
 
-	void checkVictory();
-	void checkDraw();
+	PieceColor checkVictory();
+	bool checkDraw();
+	void destroy();
 	
 	BitboardContainer * getPieces();
 	BitboardContainer * getPieces(PieceName);
@@ -67,5 +70,7 @@ class GameState {
 	pair <BitboardContainer, BitboardContainer> getAllMoves();
 	
 	void print();
+
+	void changeTurnColor();
 };
 

@@ -30,8 +30,10 @@ enum Direction{
 
 enum PieceColor {
 	WHITE = 0,
-	BLACK = 1
+	BLACK = 1,
+	NONE = 2
 };
+
 extern int dxdy[6][2];  
 
 extern unordered_map <string, int> pieceNum; 

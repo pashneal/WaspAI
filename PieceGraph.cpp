@@ -114,3 +114,13 @@ BitboardContainer PieceGraph::getPinnedPieces() {
 }
 
 
+void PieceGraph::destroy() {
+	articulationNodes.clear();
+	for (PieceNode * ptr: allPieceNodes) {
+		ptr->neighbors.clear();
+		ptr->parent = nullptr;
+		delete ptr;
+	}
+	allPieceNodes.clear();
+	bitboardHashTable.clear();
+}

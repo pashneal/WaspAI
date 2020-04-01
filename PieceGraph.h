@@ -20,6 +20,8 @@ class PieceGraph {
 		//list <list<PieceNode>> adjList;
 	public:
 
+		~PieceGraph() { destroy();}
+
 		void insert(BitboardContainer&);
 		void remove(BitboardContainer&);
 		void reposition(BitboardContainer&, BitboardContainer&);
@@ -30,4 +32,6 @@ class PieceGraph {
 		bool isTopOfStack();
 
 		BitboardContainer getPinnedPieces();
+
+		void destroy();
 };
