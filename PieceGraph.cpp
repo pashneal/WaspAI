@@ -6,21 +6,25 @@
 
 
 void PieceGraph::insert(BitboardContainer& newBitboard) {
-	PieceNode * newPieceNode = new PieceNode();
 
-	BitboardContainer perimeter = newBitboard.getPerimeter();
-	perimeter.intersectionWith(allPieces);
+	if (!(allPieces.containsAny(newBitboard))) {
 
+		PieceNode * newPieceNode = new PieceNode();
+		BitboardContainer perimeter = newBitboard.getPerimeter();
 
-	list <PieceNode*> neighbors;
-	for (auto bitboard: perimeter.splitIntoBitboardContainers()){
-		neighbors.push_front(bitboardHashTable[bitboard.hash()]);
+		perimeter.intersectionWith(allPieces);
+
+		list <PieceNode*> neighbors;
+		for (auto bitboard: perimeter.splitIntoBitboardContainers()){
+			neighbors.push_front(bitboardHashTable[bitboard.hash()]);
+		}
+
+		newPieceNode -> insert(neighbors, newBitboard);
+		bitboardHashTable[newBitboard.hash()] = newPieceNode;
+
+		allPieces.unionWith(newBitboard);
 	}
-	
-	newPieceNode -> insert(neighbors, newBitboard);
-	bitboardHashTable[newBitboard.hash()] = newPieceNode;
 
-	allPieces.unionWith(newBitboard);
 }
 
 void PieceGraph::remove(BitboardContainer& oldBitboard) {

@@ -12,26 +12,25 @@ BITBOARD_CONTAINER_ROWS	constants.h	/^const int BITBOARD_CONTAINER_ROWS = 4;$/;"
 BITBOARD_CONTAINER_SIZE	constants.h	/^const int BITBOARD_CONTAINER_SIZE  = 16;$/;"	v	typeref:typename:const int
 BITBOARD_HEIGHT	constants.h	/^const int BITBOARD_HEIGHT = 8;$/;"	v	typeref:typename:const int
 BITBOARD_WIDTH	constants.h	/^const int BITBOARD_WIDTH = 8;$/;"	v	typeref:typename:const int
-BitBoardShiftX	Hive.h	/^	int BitBoardShiftX = 0;$/;"	m	class:Hive	typeref:typename:int
-BitBoardShiftY	Hive.h	/^	int BitBoardShiftY = 0;$/;"	m	class:Hive	typeref:typename:int
+BLACK	constants.h	/^	BLACK = 1$/;"	e	enum:PieceColor
 BitboardContainer	Bitboard.cpp	/^BitboardContainer::BitboardContainer(unordered_map<int, unsigned long long > predefinedBoards){$/;"	f	class:BitboardContainer
 BitboardContainer	Bitboard.h	/^	BitboardContainer() {};$/;"	f	class:BitboardContainer
 BitboardContainer	Bitboard.h	/^class BitboardContainer {$/;"	c
 BitboardTest	Test.h	/^		class BitboardTest {$/;"	c	class:Test
-CENTER_X	Hive.h	/^	static const int CENTER_X = 23;$/;"	m	class:Hive	typeref:typename:const int
-CENTER_Y	Hive.h	/^	static const int CENTER_Y = 11;$/;"	m	class:Hive	typeref:typename:const int
 COLUMN_SHIFT	constants.h	/^const int COLUMN_SHIFT = 1;$/;"	v	typeref:typename:const int
 Direction	constants.h	/^enum Direction{$/;"	g
 E	constants.h	/^	E = 1,$/;"	e	enum:Direction
 GRASSHOPPER	constants.h	/^	GRASSHOPPER=0,$/;"	e	enum:PieceName
-Hive	Hive.cpp	/^Hive::Hive() { $/;"	f	class:Hive
-Hive	Hive.h	/^class Hive {$/;"	c
+GameState	GameState.cpp	/^GameState::GameState () {$/;"	f	class:GameState
+GameState	GameState.h	/^class GameState {$/;"	c
 HiveTest	Test.h	/^		class HiveTest {$/;"	c	class:Test
 LADYBUG	constants.h	/^	LADYBUG,$/;"	e	enum:PieceName
 MOSQUITO	constants.h	/^	MOSQUITO,$/;"	e	enum:PieceName
 MoveGenerator	MoveGenerator.cpp	/^MoveGenerator::MoveGenerator(BitboardContainer * allPiecesIn , ProblemNodeContainer * problemNod/;"	f	class:MoveGenerator
+MoveGenerator	MoveGenerator.h	/^		MoveGenerator(){};$/;"	f	class:MoveGenerator
 MoveGenerator	MoveGenerator.h	/^class MoveGenerator {$/;"	c
 MoveGeneratorTest	Test.h	/^		class MoveGeneratorTest {$/;"	c	class:Test
+MoveInfo	GameState.h	/^struct MoveInfo {$/;"	s
 N	constants.h	/^	N = -1,$/;"	e	enum:Direction
 NE	constants.h	/^	NE = 0,$/;"	e	enum:Direction
 NUM_SPIDER_MOVES	MoveGenerator.h	/^		const int NUM_SPIDER_MOVES = 3;$/;"	m	class:MoveGenerator	typeref:typename:const int
@@ -41,12 +40,14 @@ PILLBUG	constants.h	/^	PILLBUG,$/;"	e	enum:PieceName
 Piece	Piece.cpp	/^Piece::Piece(char pieceColor, string shorthand, int xPos, int yPos) {$/;"	f	class:Piece
 Piece	Piece.h	/^	Piece() {};$/;"	f	class:Piece
 Piece	Piece.h	/^class Piece {$/;"	c
-PieceGraph	PieceGraph.cpp	/^PieceGraph::PieceGraph (BitboardContainer *allPiecesIn) {$/;"	f	class:PieceGraph
+PieceColor	constants.h	/^enum PieceColor {$/;"	g
 PieceGraph	PieceGraph.h	/^class PieceGraph {$/;"	c
+PieceGraphTest	Test.h	/^		class PieceGraphTest {$/;"	c	class:Test
 PieceName	constants.h	/^enum PieceName{$/;"	g
-PieceNode	PieceNode.cpp	/^PieceNode::PieceNode(BitboardContainer b) { $/;"	f	class:PieceNode
+PieceNode	PieceNode.h	/^		PieceNode(){};$/;"	f	class:PieceNode
 PieceNode	PieceNode.h	/^class PieceNode {$/;"	c
 ProblemNodeContainer	ProblemNode.cpp	/^ProblemNodeContainer::ProblemNodeContainer(BitboardContainer * pieces) {$/;"	f	class:ProblemNodeContainer
+ProblemNodeContainer	ProblemNode.h	/^		ProblemNodeContainer(){};$/;"	f	class:ProblemNodeContainer
 ProblemNodeContainer	ProblemNode.h	/^class ProblemNodeContainer {$/;"	c
 ProblemNodeContainerTest	Test.h	/^		class ProblemNodeContainerTest {$/;"	c	class:Test
 QUEEN	constants.h	/^	QUEEN,$/;"	e	enum:PieceName
@@ -57,22 +58,24 @@ SPIDER	constants.h	/^	SPIDER$/;"	e	enum:PieceName
 SW	constants.h	/^	SW = 3,$/;"	e	enum:Direction
 Test	Test.h	/^class Test {$/;"	c
 W	constants.h	/^	W = 4,$/;"	e	enum:Direction
+WHITE	constants.h	/^	WHITE = 0,$/;"	e	enum:PieceColor
 WaspAI	README.md	/^# WaspAI$/;"	c
 adjustOverflowMask	Bitboard.cpp	/^unsigned long long BitboardContainer::adjustOverflowMask($/;"	f	class:BitboardContainer	typeref:typename:unsigned long long
 allPieceNodes	PieceGraph.h	/^		list <PieceNode*> allPieceNodes;$/;"	m	class:PieceGraph	typeref:typename:list<PieceNode * >
-allPieces	Hive.h	/^	BitboardContainer allPieces;$/;"	m	class:Hive	typeref:typename:BitboardContainer
+allPieces	GameState.h	/^	BitboardContainer allPieces;$/;"	m	class:GameState	typeref:typename:BitboardContainer
 allPieces	MoveGenerator.h	/^		BitboardContainer * allPieces;$/;"	m	class:MoveGenerator	typeref:typename:BitboardContainer *
-allPieces	PieceGraph.h	/^		BitboardContainer * allPieces;$/;"	m	class:PieceGraph	typeref:typename:BitboardContainer *
+allPieces	PieceGraph.h	/^		BitboardContainer allPieces;$/;"	m	class:PieceGraph	typeref:typename:BitboardContainer
 allPieces	ProblemNode.h	/^		BitboardContainer *allPieces;$/;"	m	class:ProblemNodeContainer	typeref:typename:BitboardContainer *
-ants	Hive.h	/^	BitboardContainer ants;$/;"	m	class:Hive	typeref:typename:BitboardContainer
-articulationNodes	Hive.h	/^	set <PieceNode*> articulationNodes;$/;"	m	class:Hive	typeref:typename:set<PieceNode * >
+ants	GameState.h	/^	BitboardContainer ants;$/;"	m	class:GameState	typeref:typename:BitboardContainer
 articulationNodes	PieceGraph.h	/^		set <PieceNode*> articulationNodes;$/;"	m	class:PieceGraph	typeref:typename:set<PieceNode * >
-beetles	Hive.h	/^	BitboardContainer beetles;$/;"	m	class:Hive	typeref:typename:BitboardContainer
+beetles	GameState.h	/^	BitboardContainer beetles;$/;"	m	class:GameState	typeref:typename:BitboardContainer
 bitboard	Piece.h	/^	int bitboard;$/;"	m	class:Piece	typeref:typename:int
-bitboard	PieceNode.h	/^		BitboardContainer bitboard;$/;"	m	class:PieceNode	typeref:typename:BitboardContainer
 bitboardHashTable	PieceGraph.h	/^		unordered_map <int, PieceNode*> bitboardHashTable;$/;"	m	class:PieceGraph	typeref:typename:unordered_map<int,PieceNode * >
-blackPieces	Hive.h	/^	BitboardContainer blackPieces;$/;"	m	class:Hive	typeref:typename:BitboardContainer
+blackPieces	GameState.h	/^	BitboardContainer blackPieces;$/;"	m	class:GameState	typeref:typename:BitboardContainer
+boardIndex	PieceNode.h	/^		int boardIndex = -1;$/;"	m	class:PieceNode	typeref:typename:int
 boardNumber	Piece.h	/^	int boardNumber;$/;"	m	class:Piece	typeref:typename:int
+checkArticulationRoot	PieceGraph.cpp	/^void PieceGraph::checkArticulationRoot(PieceNode * root) {$/;"	f	class:PieceGraph	typeref:typename:void
+checkLegalClimb	MoveGenerator.cpp	/^bool MoveGenerator::checkLegalClimb(BitboardContainer &oldLocation,$/;"	f	class:MoveGenerator	typeref:typename:bool
 clear	Bitboard.cpp	/^void BitboardContainer::clear() {$/;"	f	class:BitboardContainer	typeref:typename:void
 clear	ProblemNode.cpp	/^void ProblemNodeContainer::clear() {$/;"	f	class:ProblemNodeContainer	typeref:typename:void
 color	Piece.h	/^	char color;$/;"	m	class:Piece	typeref:typename:char
@@ -82,16 +85,14 @@ convertToHexRepresentation	Bitboard.cpp	/^void BitboardContainer::convertToHexRe
 count	Bitboard.cpp	/^int BitboardContainer::count(){$/;"	f	class:BitboardContainer	typeref:typename:int
 createLowOverflowMask	Bitboard.cpp	/^unsigned long long BitboardContainer::createLowOverflowMask(Direction dir, int overflowAmount) {$/;"	f	class:BitboardContainer	typeref:typename:unsigned long long
 directions	Test.cpp	/^ unordered_map < string , vector<Direction> > directions = $/;"	v	typeref:typename:unordered_map<string,vector<Direction>>
-doors	Hive.h	/^	BitboardContainer doors;$/;"	m	class:Hive	typeref:typename:BitboardContainer
 duplicateBoard	Bitboard.cpp	/^void BitboardContainer::duplicateBoard(list <Direction> dirs){$/;"	f	class:BitboardContainer	typeref:typename:void
 dxdy	Test.cpp	/^ int dxdy[6][2] = {{1,1},$/;"	v	typeref:typename:int[6][2]
 equals	Bitboard.cpp	/^bool BitboardContainer::equals(BitboardContainer& other){$/;"	f	class:BitboardContainer	typeref:typename:bool
 findAllProblemNodes	ProblemNode.cpp	/^void ProblemNodeContainer::findAllProblemNodes() {$/;"	f	class:ProblemNodeContainer	typeref:typename:void
-firstPieces	Hive.h	/^	BitboardContainer firstPieces;$/;"	m	class:Hive	typeref:typename:BitboardContainer
+firstPieces	GameState.h	/^	BitboardContainer firstPieces;$/;"	m	class:GameState	typeref:typename:BitboardContainer
 floodFill	Bitboard.cpp	/^void BitboardContainer::floodFill(BitboardContainer &frontier){$/;"	f	class:BitboardContainer	typeref:typename:void
 floodFillStep	Bitboard.cpp	/^void BitboardContainer::floodFillStep(BitboardContainer &frontier,  BitboardContainer &visited){$/;"	f	class:BitboardContainer	typeref:typename:void
 gates	ProblemNode.cpp	/^BitboardContainer gates[] = {$/;"	v	typeref:typename:BitboardContainer[]
-gatesCombined	MoveGenerator.h	/^		BitboardContainer * gatesCombined;$/;"	m	class:MoveGenerator	typeref:typename:BitboardContainer *
 gatesSplit	MoveGenerator.h	/^		vector <BitboardContainer> * gatesSplit;$/;"	m	class:MoveGenerator	typeref:typename:vector<BitboardContainer> *
 generateAntMoves	MoveGenerator.cpp	/^void MoveGenerator::generateAntMoves() {$/;"	f	class:MoveGenerator	typeref:typename:void
 generateBeetleMoves	MoveGenerator.cpp	/^void MoveGenerator::generateBeetleMoves(){$/;"	f	class:MoveGenerator	typeref:typename:void
@@ -105,106 +106,97 @@ generateQueenMoves	MoveGenerator.cpp	/^void MoveGenerator::generateQueenMoves(){
 generateSpiderMoves	MoveGenerator.cpp	/^void MoveGenerator::generateSpiderMoves(){$/;"	f	class:MoveGenerator	typeref:typename:void
 generatingPieceBoard	MoveGenerator.h	/^		BitboardContainer * generatingPieceBoard;$/;"	m	class:MoveGenerator	typeref:typename:BitboardContainer *
 generatingPieceName	MoveGenerator.h	/^		PieceName * generatingPieceName;$/;"	m	class:MoveGenerator	typeref:typename:PieceName *
-getArticulationNodes	PieceGraph.cpp	/^void PieceGraph::getArticulationNodes(PieceNode &n, int counter) {$/;"	f	class:PieceGraph	typeref:typename:void
+getArticulationNodes	PieceGraph.cpp	/^void PieceGraph::getArticulationNodes(PieceNode * n, int& counter) {$/;"	f	class:PieceGraph	typeref:typename:void
 getInaccessibleNodes	MoveGenerator.cpp	/^BitboardContainer MoveGenerator::getInaccessibleNodes(BitboardContainer gates) {$/;"	f	class:MoveGenerator	typeref:typename:BitboardContainer
 getInaccessibleNodes	MoveGenerator.cpp	/^BitboardContainer MoveGenerator::getInaccessibleNodes(vector <BitboardContainer> * gates) {$/;"	f	class:MoveGenerator	typeref:typename:BitboardContainer
+getLeastSignificantBit	Bitboard.cpp	/^pair <int , unsigned long long > BitboardContainer::getLeastSignificantBit () {$/;"	f	class:BitboardContainer	typeref:typename:pair<int,unsigned long long>
 getMoves	MoveGenerator.cpp	/^BitboardContainer MoveGenerator::getMoves() {	$/;"	f	class:MoveGenerator	typeref:typename:BitboardContainer
 getPerimeter	Bitboard.cpp	/^BitboardContainer  BitboardContainer::getPerimeter() {$/;"	f	class:BitboardContainer	typeref:typename:BitboardContainer
 getPerimeter	ProblemNode.cpp	/^BitboardContainer ProblemNodeContainer::getPerimeter(BitboardContainer& pieces) {$/;"	f	class:ProblemNodeContainer	typeref:typename:BitboardContainer
-getPiece	Hive.cpp	/^Piece * Hive::getPiece(char color, string shorthandName){$/;"	f	class:Hive	typeref:typename:Piece *
-getPiece	Hive.cpp	/^Piece * Hive::getPiece(int pieceNumber) {$/;"	f	class:Hive	typeref:typename:Piece *
-getPieceArray	Hive.cpp	/^Piece * Hive::getPieceArray(){$/;"	f	class:Hive	typeref:typename:Piece *
-getPieceLookupSet	Hive.cpp	/^set<int> Hive::getPieceLookupSet(){$/;"	f	class:Hive	typeref:typename:set<int>
-getPieceLookupTable	Hive.cpp	/^bool * Hive::getPieceLookupTable(){$/;"	f	class:Hive	typeref:typename:bool *
+getPieces	GameState.cpp	/^BitboardContainer * GameState::getPieces(PieceColor color) {$/;"	f	class:GameState	typeref:typename:BitboardContainer *
+getPieces	GameState.cpp	/^BitboardContainer * GameState::getPieces(PieceName name) {$/;"	f	class:GameState	typeref:typename:BitboardContainer *
+getPieces	GameState.cpp	/^inline BitboardContainer * GameState::getPieces() { $/;"	f	class:GameState	typeref:typename:BitboardContainer *
 getPinnedPieces	PieceGraph.cpp	/^BitboardContainer PieceGraph::getPinnedPieces() {$/;"	f	class:PieceGraph	typeref:typename:BitboardContainer
 getProblemNodesAtLocation	ProblemNode.cpp	/^ProblemNodeContainer::getProblemNodesAtLocation(int boardIndex, unsigned long long$/;"	f	class:ProblemNodeContainer	typeref:typename:list<BitboardContainer>
-grasshoppers	Hive.h	/^	BitboardContainer grasshoppers;$/;"	m	class:Hive	typeref:typename:BitboardContainer
+grasshoppers	GameState.h	/^	BitboardContainer grasshoppers;$/;"	m	class:GameState	typeref:typename:BitboardContainer
 hash	Bitboard.cpp	/^int BitboardContainer::hash() {$/;"	f	class:BitboardContainer	typeref:typename:int
 hash	ProblemNode.cpp	/^int ProblemNodeContainer::hash(int boardIndex, unsigned long long piece) {$/;"	f	class:ProblemNodeContainer	typeref:typename:int
 hexagonalDirections	Bitboard.cpp	/^list <Direction> hexagonalDirections = {$/;"	v	typeref:typename:list<Direction>
 initialize	Bitboard.cpp	/^void BitboardContainer::initialize(unordered_map < int, unsigned long long> predefinedBoards) {$/;"	f	class:BitboardContainer	typeref:typename:void
 initializeTo	Bitboard.cpp	/^void BitboardContainer::initializeTo(BitboardContainer &other) {$/;"	f	class:BitboardContainer	typeref:typename:void
+insert	PieceGraph.cpp	/^void PieceGraph::insert(BitboardContainer& newBitboard) {$/;"	f	class:PieceGraph	typeref:typename:void
 insert	PieceNode.cpp	/^void PieceNode::insert( list <PieceNode*> &newNeighbors, BitboardContainer &newBitboard) {$/;"	f	class:PieceNode	typeref:typename:void
 insert	ProblemNode.cpp	/^void ProblemNodeContainer::insert(BitboardContainer& problemNodes) {$/;"	f	class:ProblemNodeContainer	typeref:typename:void
-insertNewPiece	PieceGraph.cpp	/^void PieceGraph::insertNewPiece(BitboardContainer& newBitboard) {$/;"	f	class:PieceGraph	typeref:typename:void
-insertPiece	Hive.cpp	/^void Hive::insertPiece(Piece piece){$/;"	f	class:Hive	typeref:typename:void
-insertPiece	Hive.cpp	/^void Hive::insertPiece(char pieceColor, string shorthandName,$/;"	f	class:Hive	typeref:typename:void
+insertPiece	GameState.cpp	/^MoveInfo GameState::insertPiece(BitboardContainer& bitboard, PieceName name, PieceColor color) {$/;"	f	class:GameState	typeref:typename:MoveInfo
 insertPiece	ProblemNode.cpp	/^void ProblemNodeContainer::insertPiece(BitboardContainer & piece) {$/;"	f	class:ProblemNodeContainer	typeref:typename:void
-insertPieceTest	Test.cpp	/^void Test::HiveTest::insertPieceTest() {$/;"	f	class:Test::HiveTest	typeref:typename:void
 internalBoardCache	Bitboard.h	/^	set<int> internalBoardCache;$/;"	m	class:BitboardContainer	typeref:typename:set<int>
 internalBoards	Bitboard.h	/^	unsigned long long int internalBoards[16];$/;"	m	class:BitboardContainer	typeref:typename:unsigned long long int[16]
 intersectionWith	Bitboard.cpp	/^void BitboardContainer::intersectionWith( BitboardContainer &other) {$/;"	f	class:BitboardContainer	typeref:typename:void
-ladybugs	Hive.h	/^	BitboardContainer ladybugs;$/;"	m	class:Hive	typeref:typename:BitboardContainer
+ladybugs	GameState.h	/^	BitboardContainer ladybugs;$/;"	m	class:GameState	typeref:typename:BitboardContainer
+lastPieceTurn	GameState.h	/^	PieceColor lastPieceTurn;$/;"	m	struct:MoveInfo	typeref:typename:PieceColor
+location	PieceNode.h	/^		unsigned long long location = 0;$/;"	m	class:PieceNode	typeref:typename:unsigned long long
 locationHashTable	ProblemNode.h	/^		unordered_map <int, list<BitboardContainer>> locationHashTable;$/;"	m	class:ProblemNodeContainer	typeref:typename:unordered_map<int,list<BitboardContainer>>
 lowLink	PieceNode.h	/^		int lowLink;$/;"	m	class:PieceNode	typeref:typename:int
 main	Test.cpp	/^int main() {$/;"	f	typeref:typename:int
-mosquitoes	Hive.h	/^	BitboardContainer mosquitoes;$/;"	m	class:Hive	typeref:typename:BitboardContainer
-movePiece	Hive.cpp	/^void Hive::movePiece(char color, string shorthandName, bool right,$/;"	f	class:Hive	typeref:typename:void
-movePiece	Hive.cpp	/^void Hive::movePiece(char color, string shorthandName,$/;"	f	class:Hive	typeref:typename:void
-movePiece	Hive.cpp	/^void Hive::movePiece(int piece1Int, Direction dir ,int piece2Int){$/;"	f	class:Hive	typeref:typename:void
-movePieceTest	Test.cpp	/^void Test::HiveTest::movePieceTest(){$/;"	f	class:Test::HiveTest	typeref:typename:void
+mosquitoes	GameState.h	/^	BitboardContainer mosquitoes;$/;"	m	class:GameState	typeref:typename:BitboardContainer
+moveGenerator	GameState.h	/^	MoveGenerator moveGenerator;$/;"	m	class:GameState	typeref:typename:MoveGenerator
 moves	MoveGenerator.h	/^		BitboardContainer moves;$/;"	m	class:MoveGenerator	typeref:typename:BitboardContainer
 name	Piece.h	/^	string name;$/;"	m	class:Piece	typeref:typename:string
 neighbors	PieceNode.h	/^		list <PieceNode*> neighbors;	$/;"	m	class:PieceNode	typeref:typename:list<PieceNode * >
+newPieceLocation	GameState.h	/^	BitboardContainer newPieceLocation;$/;"	m	struct:MoveInfo	typeref:typename:BitboardContainer
 notIntersectionWith	Bitboard.cpp	/^void BitboardContainer::notIntersectionWith( BitboardContainer &other) {$/;"	f	class:BitboardContainer	typeref:typename:void
 numDirections	ProblemNode.cpp	/^int numDirections = 6;$/;"	v	typeref:typename:int
+oldPieceLocation	GameState.h	/^	BitboardContainer oldPieceLocation;$/;"	m	struct:MoveInfo	typeref:typename:BitboardContainer
 operator ==	Bitboard.h	/^	bool operator ==(BitboardContainer &other) {$/;"	f	class:BitboardContainer	typeref:typename:bool
+operator ==	PieceNode.h	/^		bool operator==(PieceNode &other) {$/;"	f	class:PieceNode	typeref:typename:bool
 oppositeDirection	Bitboard.cpp	/^unordered_map<Direction, Direction> oppositeDirection = $/;"	v	typeref:typename:unordered_map<Direction,Direction>
 overflowBitmask	Bitboard.cpp	/^unordered_map <Direction, unsigned long long> overflowBitmask =$/;"	v	typeref:typename:unordered_map<Direction,unsigned long long>
 overflowLocation	Bitboard.cpp	/^unordered_map <Direction, vector<int>> overflowLocation =$/;"	v	typeref:typename:unordered_map<Direction,vector<int>>
 parameters	Bitboard.cpp	/^unordered_map <Direction, vector<int>> parameters  = {$/;"	v	typeref:typename:unordered_map<Direction,vector<int>>
 parent	PieceNode.h	/^		PieceNode * parent;$/;"	m	class:PieceNode	typeref:typename:PieceNode *
-parseCommand	Hive.cpp	/^bool Hive::parseCommand(vector<string> command){$/;"	f	class:Hive	typeref:typename:bool
-parseCommandTest	Test.cpp	/^void Test::HiveTest::parseCommandTest(){$/;"	f	class:Test::HiveTest	typeref:typename:void
 pass	Test.cpp	/^void Test::pass(bool testPassed, string message){$/;"	f	class:Test	typeref:typename:void
 perimeter	MoveGenerator.h	/^		BitboardContainer perimeter;$/;"	m	class:MoveGenerator	typeref:typename:BitboardContainer
-pieceArray	Hive.h	/^	Piece pieceArray[28];$/;"	m	class:Hive	typeref:typename:Piece[28]
-pieceInHive	Hive.cpp	/^bool Hive::pieceInHive(char color, string shorthandName) {$/;"	f	class:Hive	typeref:typename:bool
-pieceInHive	Hive.cpp	/^bool Hive::pieceInHive(int pieceNum) {$/;"	f	class:Hive	typeref:typename:bool
+pieceGraph	GameState.h	/^	PieceGraph pieceGraph;$/;"	m	class:GameState	typeref:typename:PieceGraph
 pieceIsAtopHive	MoveGenerator.h	/^		bool pieceIsAtopHive;$/;"	m	class:MoveGenerator	typeref:typename:bool
-pieceLookupSet	Hive.h	/^	set<int> pieceLookupSet;$/;"	m	class:Hive	typeref:typename:set<int>
-pieceLookupTable	Hive.h	/^	bool pieceLookupTable[28];$/;"	m	class:Hive	typeref:typename:bool[28]
+pieceName	GameState.h	/^	PieceName pieceName;$/;"	m	struct:MoveInfo	typeref:typename:PieceName
 pieceName	Piece.cpp	/^unordered_map<string , string> pieceName = {{"Q","queen"},$/;"	v	typeref:typename:unordered_map<string,string>
-pieceNodes	Hive.h	/^	list <PieceNode*> pieceNodes; $/;"	m	class:Hive	typeref:typename:list<PieceNode * >
 pieceNum	Test.cpp	/^ unordered_map <string, int> pieceNum = {{"Q",0},$/;"	v	typeref:typename:unordered_map<string,int>
-pieceNumber	Hive.cpp	/^int Hive::pieceNumber(Piece piece){$/;"	f	class:Hive	typeref:typename:int
-pieceNumber	Hive.cpp	/^int Hive::pieceNumber(char color, string shorthandName) {$/;"	f	class:Hive	typeref:typename:int
 piecesExceptCurrent	MoveGenerator.h	/^		BitboardContainer piecesExceptCurrent;$/;"	m	class:MoveGenerator	typeref:typename:BitboardContainer
-pillbugs	Hive.h	/^	BitboardContainer pillbugs;$/;"	m	class:Hive	typeref:typename:BitboardContainer
+pillbugs	GameState.h	/^	BitboardContainer pillbugs;$/;"	m	class:GameState	typeref:typename:BitboardContainer
 potentialProblemNodes	ProblemNode.cpp	/^BitboardContainer potentialProblemNodes[] = {$/;"	v	typeref:typename:BitboardContainer[]
 print	Bitboard.cpp	/^void BitboardContainer::print() {$/;"	f	class:BitboardContainer	typeref:typename:void
-print	Hive.cpp	/^void Hive::print() {$/;"	f	class:Hive	typeref:typename:void
-printDebug	Hive.cpp	/^void Hive::printDebug() {$/;"	f	class:Hive	typeref:typename:void
+print	PieceNode.cpp	/^void PieceNode::print() {$/;"	f	class:PieceNode	typeref:typename:void
+problemNodeContainer	GameState.h	/^	ProblemNodeContainer problemNodeContainer;$/;"	m	class:GameState	typeref:typename:ProblemNodeContainer
 problemNodeExists	ProblemNode.cpp	/^bool ProblemNodeContainer::problemNodeExists(BitboardContainer& problemNode) {$/;"	f	class:ProblemNodeContainer	typeref:typename:bool
 problemNodeHashes	ProblemNode.h	/^		unordered_set <int> problemNodeHashes;$/;"	m	class:ProblemNodeContainer	typeref:typename:unordered_set<int>
-problemNodes	Hive.h	/^	BitboardContainer problemNodes;$/;"	m	class:Hive	typeref:typename:BitboardContainer
 problemNodes	MoveGenerator.h	/^		ProblemNodeContainer *problemNodes;$/;"	m	class:MoveGenerator	typeref:typename:ProblemNodeContainer *
 pruneCache	Bitboard.cpp	/^void BitboardContainer::pruneCache(){$/;"	f	class:BitboardContainer	typeref:typename:void
-queens	Hive.h	/^	BitboardContainer queens;$/;"	m	class:Hive	typeref:typename:BitboardContainer
+queens	GameState.h	/^	BitboardContainer queens;$/;"	m	class:GameState	typeref:typename:BitboardContainer
+remove	PieceGraph.cpp	/^void PieceGraph::remove(BitboardContainer& oldBitboard) {$/;"	f	class:PieceGraph	typeref:typename:void
 remove	PieceNode.cpp	/^void PieceNode::remove() {$/;"	f	class:PieceNode	typeref:typename:void
 remove	ProblemNode.cpp	/^void ProblemNodeContainer::remove(BitboardContainer & problemNodes) {$/;"	f	class:ProblemNodeContainer	typeref:typename:void
+removePiece	GameState.cpp	/^MoveInfo GameState::removePiece() {$/;"	f	class:GameState	typeref:typename:MoveInfo
 removePiece	ProblemNode.cpp	/^void ProblemNodeContainer::removePiece( BitboardContainer & piece) {$/;"	f	class:ProblemNodeContainer	typeref:typename:void
+reposition	PieceGraph.cpp	/^void PieceGraph::reposition(BitboardContainer& oldBitboard, BitboardContainer& newBitboard) {$/;"	f	class:PieceGraph	typeref:typename:void
 reposition	PieceNode.cpp	/^void PieceNode::reposition(list <PieceNode*> &newNeighbors, BitboardContainer &newBitboard){$/;"	f	class:PieceNode	typeref:typename:void
-rings	Hive.h	/^	BitboardContainer rings;$/;"	m	class:Hive	typeref:typename:BitboardContainer
-secondPieces	Hive.h	/^	BitboardContainer secondPieces;$/;"	m	class:Hive	typeref:typename:BitboardContainer
 setBoard	Bitboard.cpp	/^void BitboardContainer::setBoard(int boardIndex, unsigned long long board) {$/;"	f	class:BitboardContainer	typeref:typename:void
 setGeneratingName	MoveGenerator.cpp	/^void MoveGenerator::setGeneratingName(PieceName * pieceNameIn) {$/;"	f	class:MoveGenerator	typeref:typename:void
 setGeneratingPieceBoard	MoveGenerator.cpp	/^void MoveGenerator::setGeneratingPieceBoard(BitboardContainer * b, bool pieceIsAtopHiveIn) {$/;"	f	class:MoveGenerator	typeref:typename:void
 shiftDirection	Bitboard.cpp	/^void BitboardContainer::shiftDirection(Direction dir) {$/;"	f	class:BitboardContainer	typeref:typename:void
 shiftDirection	Bitboard.cpp	/^void BitboardContainer::shiftDirection(Direction dir, int numTimes){$/;"	f	class:BitboardContainer	typeref:typename:void
-shiftDirection	PieceNode.cpp	/^void PieceNode::shiftDirection(Direction dir) {$/;"	f	class:PieceNode	typeref:typename:void
-shiftDirection	PieceNode.cpp	/^void PieceNode::shiftDirection(Direction dir, int numTimes) {$/;"	f	class:PieceNode	typeref:typename:void
 shiftOrthogonalDirection	Bitboard.cpp	/^void BitboardContainer::shiftOrthogonalDirection(Direction dir, int numTimes){$/;"	f	class:BitboardContainer	typeref:typename:void
 shorthandName	Piece.h	/^	string shorthandName;$/;"	m	class:Piece	typeref:typename:string
 silent	Test.cpp	/^bool Test::silent = false;$/;"	m	class:Test	typeref:typename:bool
 silent	Test.h	/^		static bool silent;$/;"	m	class:Test	typeref:typename:bool
-spiders	Hive.h	/^	BitboardContainer spiders;$/;"	m	class:Hive	typeref:typename:BitboardContainer
+spiders	GameState.h	/^	BitboardContainer spiders;$/;"	m	class:GameState	typeref:typename:BitboardContainer
 split	Bitboard.cpp	/^unordered_map< int, vector < unsigned long long >> BitboardContainer::split(){$/;"	f	class:BitboardContainer	typeref:typename:unordered_map<int,vector<unsigned long long>>
 splitIntoBitboardContainers	Bitboard.cpp	/^list <BitboardContainer> BitboardContainer::splitIntoBitboardContainers() {$/;"	f	class:BitboardContainer	typeref:typename:list<BitboardContainer>
 splitIntoConnectedComponents	Bitboard.cpp	/^vector <BitboardContainer> BitboardContainer::splitIntoConnectedComponents(){$/;"	f	class:BitboardContainer	typeref:typename:vector<BitboardContainer>
+stackHashTable	PieceGraph.h	/^		unordered_map < int , stack <PieceNode*>> stackHashTable;$/;"	m	class:PieceGraph	typeref:typename:unordered_map<int,stack<PieceNode * >>
 testAntMoves	Test.cpp	/^void Test::MoveGeneratorTest::testAntMoves() {$/;"	f	class:Test::MoveGeneratorTest	typeref:typename:void
 testBeetleMoves	Test.cpp	/^void Test::MoveGeneratorTest::testBeetleMoves() {$/;"	f	class:Test::MoveGeneratorTest	typeref:typename:void
 testContainsAny	Test.cpp	/^void Test::BitboardTest::testContainsAny() {$/;"	f	class:Test::BitboardTest	typeref:typename:void
+testFindAllPinnedPieces	Test.cpp	/^void Test::PieceGraphTest::testFindAllPinnedPieces(){$/;"	f	class:Test::PieceGraphTest	typeref:typename:void
 testFindAllProblemNodes	Test.cpp	/^void Test::ProblemNodeContainerTest::testFindAllProblemNodes(){$/;"	f	class:Test::ProblemNodeContainerTest	typeref:typename:void
 testFloodFill	Test.cpp	/^void Test::BitboardTest::testFloodFill() {$/;"	f	class:Test::BitboardTest	typeref:typename:void
 testFloodFillStep	Test.cpp	/^void Test::BitboardTest::testFloodFillStep() {$/;"	f	class:Test::BitboardTest	typeref:typename:void
@@ -220,15 +212,14 @@ testSplit	Test.cpp	/^void Test::BitboardTest::testSplit() {$/;"	f	class:Test::Bi
 testSplitIntoConnectedComponents	Test.cpp	/^void Test::BitboardTest::testSplitIntoConnectedComponents() {$/;"	f	class:Test::BitboardTest	typeref:typename:void
 testUnionWith	Test.cpp	/^void Test::BitboardTest::testUnionWith() {$/;"	f	class:Test::BitboardTest	typeref:typename:void
 testXorWith	Test.cpp	/^void Test::BitboardTest::testXorWith() {$/;"	f	class:Test::BitboardTest	typeref:typename:void
-thirdPieces	Hive.h	/^	BitboardContainer thirdPieces;$/;"	m	class:Hive	typeref:typename:BitboardContainer
-turnCounter	Hive.h	/^	int turnCounter = 0;$/;"	m	class:Hive	typeref:typename:int
+turnCounter	GameState.h	/^	int turnCounter = 0;$/;"	m	class:GameState	typeref:typename:int
 unionWith	Bitboard.cpp	/^void BitboardContainer::unionWith( BitboardContainer &other){$/;"	f	class:BitboardContainer	typeref:typename:void
-updateArticulationFramework	Hive.cpp	/^void Hive::updateArticulationFramework(vector <PieceNode*> &affectedNodes){$/;"	f	class:Hive	typeref:typename:void
 updateVisible	ProblemNode.cpp	/^void ProblemNodeContainer::updateVisible(BitboardContainer& locations) {$/;"	f	class:ProblemNodeContainer	typeref:typename:void
+upperLevelPieces	GameState.h	/^	BitboardContainer upperLevelPieces;$/;"	m	class:GameState	typeref:typename:BitboardContainer
 visibleProblemNodes	ProblemNode.h	/^		BitboardContainer visibleProblemNodes;$/;"	m	class:ProblemNodeContainer	typeref:typename:BitboardContainer
 visited	PieceNode.h	/^		bool visited = false;$/;"	m	class:PieceNode	typeref:typename:bool
 visitedNum	PieceNode.h	/^		int visitedNum;$/;"	m	class:PieceNode	typeref:typename:int
-whitePieces	Hive.h	/^	BitboardContainer whitePieces;$/;"	m	class:Hive	typeref:typename:BitboardContainer
+whitePieces	GameState.h	/^	BitboardContainer whitePieces;$/;"	m	class:GameState	typeref:typename:BitboardContainer
 x	Piece.h	/^	int x;$/;"	m	class:Piece	typeref:typename:int
 xorWith	Bitboard.cpp	/^void BitboardContainer::xorWith( BitboardContainer &other) {$/;"	f	class:BitboardContainer	typeref:typename:void
 y	Piece.h	/^	int y;$/;"	m	class:Piece	typeref:typename:int

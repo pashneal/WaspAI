@@ -3,7 +3,7 @@
 #include <list>
 #include "PieceNode.h"
 #include <unordered_map>
-
+#include <stack>
 using namespace std;
 
 class PieceGraph {
@@ -26,6 +26,8 @@ class PieceGraph {
 
 		void getArticulationNodes(PieceNode*, int&);
 		void checkArticulationRoot(PieceNode*);
+
+		bool isTopOfStack();
 
 		BitboardContainer getPinnedPieces();
 };

@@ -8,7 +8,6 @@ using namespace std;
 
 class ProblemNodeContainer {
 
-		BitboardContainer *allPieces;
 
 		//TODO: this might be an optimization worth trying
 		//unordered_map <int, list<BitboardContainer>> perimeterHashTable;
@@ -28,11 +27,15 @@ class ProblemNodeContainer {
 
 	public:
 
+		BitboardContainer *allPieces;
+
+		ProblemNodeContainer(){};
+		ProblemNodeContainer(BitboardContainer*);
+
 		bool problemNodeExists(BitboardContainer&);
 
 		BitboardContainer visibleProblemNodes;
 
-		ProblemNodeContainer(BitboardContainer*);
 
 		void insertPiece(BitboardContainer&);
 		void removePiece(BitboardContainer&);

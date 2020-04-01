@@ -16,12 +16,9 @@ class MoveGenerator {
 		//TODO: Optimize by checking inaccesible points only after it has been
 		//decided on by game engine
 		//TODO: make these read-only pointers
-		BitboardContainer * allPieces;
 		vector <BitboardContainer> * gatesSplit;
 		//TODO: change everything that is generatingPieceBoard to generatingPiece
 		BitboardContainer * generatingPieceBoard;
-		BitboardContainer * gatesCombined;
-		ProblemNodeContainer *problemNodes;
 
 
 		BitboardContainer moves;
@@ -43,8 +40,12 @@ class MoveGenerator {
 		BitboardContainer piecesExceptCurrent;
 
 	public:
+		ProblemNodeContainer *problemNodes;
+		BitboardContainer * allPieces;
+
 		const int NUM_SPIDER_MOVES = 3;
 
+		MoveGenerator(){};
 		MoveGenerator(BitboardContainer *, ProblemNodeContainer *);
 
 		BitboardContainer getMoves();
