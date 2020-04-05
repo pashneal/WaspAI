@@ -20,12 +20,8 @@ struct MoveInfo {
 };
 
 class GameState {
-
   public:
-
-	
-
-	GameState(list <PieceName> possibleNamesIn) {possibleNames = possibleNamesIn;};
+	GameState(list <PieceName> possibleNamesIn);
 	GameState(GameState&);
 	~GameState() { destroy();}
 
@@ -52,7 +48,7 @@ class GameState {
 	list <PieceName> possibleNames;
 	int totalPossibleMoves;
 
-	unordered_map < int , stack < pair <PieceColor, PieceName> > > stackHashTable;
+	unordered_map < int , stack < pair < PieceColor , PieceName > > > stackHashTable;
 
 	ProblemNodeContainer problemNodeContainer;
 	PieceGraph pieceGraph;
@@ -90,6 +86,5 @@ class GameState {
 	void findPinnedPieces();
 
 	pair <BitboardContainer, BitboardContainer> getSwapSpaces(BitboardContainer);
-
 };
 

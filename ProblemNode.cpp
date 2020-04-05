@@ -5,17 +5,27 @@
 #include "ProblemNode.h"
 
 int numDirections = 6;
+int lowerLeftGate = (BITBOARD_CONTAINER_ROWS - 1)*BITBOARD_CONTAINER_COLS;
 
+//TODO: CHECK THESE IF ANY ERROR IN BEETLE MOVE
+unordered_map <Direction, unsigned long long> gateInDirection = {
+	 {Direction::SE, 524800u},
+	 {Direction::SW, 132096u},
+	 {Direction::W, 33554944u}, 
+	 {Direction::NW, 67239936u},
+	 {Direction::NE, 34078720u},
+	 {Direction::E, 67109888u}
+	};
 
 //gates are structures that create problemNodes
 //they are centered around 2,2 at board index 12
 BitboardContainer gates[] = {
-	BitboardContainer({{12, 134479872u}}),
-	BitboardContainer({{12, 264192u}}),
-	BitboardContainer({{12, 262148u}}),
-	BitboardContainer({{12, 262400u}}),
-	BitboardContainer({{12, 17039360u}}),
-	BitboardContainer({{12, 17180131328u}})
+	BitboardContainer({{lowerLeftGate, 134479872u}}),
+	BitboardContainer({{lowerLeftGate, 264192u}}),
+	BitboardContainer({{lowerLeftGate, 262148u}}),
+	BitboardContainer({{lowerLeftGate, 262400u}}),
+	BitboardContainer({{lowerLeftGate, 17039360u}}),
+	BitboardContainer({{lowerLeftGate, 17180131328u}})
 };
 
 
@@ -23,12 +33,12 @@ BitboardContainer gates[] = {
 //not have the freedom to move along all edges
 //they are centered around 2,2 at board index 12
 BitboardContainer potentialProblemNodes[] = {
-	BitboardContainer({{12,67633152u}}),
-	BitboardContainer({{12,525312u}}),
-	BitboardContainer({{12,1536u}}),
-	BitboardContainer({{12,131584u}}),
-	BitboardContainer({{12,33685504u}}),
-	BitboardContainer({{12,100663296u}})
+	BitboardContainer({{lowerLeftGate,67633152u}}),
+	BitboardContainer({{lowerLeftGate,525312u}}),
+	BitboardContainer({{lowerLeftGate,1536u}}),
+	BitboardContainer({{lowerLeftGate,131584u}}),
+	BitboardContainer({{lowerLeftGate,33685504u}}),
+	BitboardContainer({{lowerLeftGate,100663296u}})
 };
 
 using namespace std;
@@ -58,6 +68,68 @@ void ProblemNodeContainer::insert(BitboardContainer& problemNodes) {
 			locationHashTable[hashInt].push_front(problemNodes);
 		}
 	}	
+}
+
+BitboardContainer ProblemNodeContainer::getLegalClimbs(BitboardContainer& initialPiece,
+				  BitboardContainer& upperLevelPieces,
+				  unordered_map < int , stack < pair < PieceColor, PieceName>>> stackHashTable) {
+
+	BitboardContainer legalClimbs;
+
+	pair <int , unsigned long long> bit = initialPiece.getLeastSignificantBit();
+
+	int boardIndex = bit.first;
+	unsigned long long piece = bit.second; 
+
+	int leadingZeroesCount = __builtin_clzll(piece);
+
+	int xShift = ((63) - leadingZeroesCount )% 8 - 2;
+	int yShift = ((63) - leadingZeroesCount )/ 8 - 2;
+
+	xShift += (BITBOARD_WIDTH * (boardIndex % BITBOARD_CONTAINER_COLS));
+	yShift += BITBOARD_HEIGHT * (BITBOARD_CONTAINER_ROWS - 1 - (boardIndex / BITBOARD_CONTAINER_ROWS));	
+
+	BitboardContainer testGate;
+	BitboardContainer finalPiece;
+	for (auto dir: hexagonalDirections) {
+
+		//TODO: make a 2d shift function
+		testGate.initialize({{lowerLeftGate ,  gateInDirection[dir]}});
+		testGate.shiftDirection(Direction::N, yShift);
+		testGate.shiftDirection(Direction::E, xShift);
+		testGate.convertToHexRepresentation(Direction::NE,yShift);
+		
+		testGate.intersectionWith(upperLevelPieces);
+		if (testGate.count() == 2) {
+			finalPiece.initializeTo(initialPiece);
+			finalPiece.shiftDirection(dir);
+			int maxPieceHeight = 0;
+			int minGateHeight = 100;
+
+			for (BitboardContainer gatePiece: testGate.splitIntoBitboardContainers() ) {
+				int min = stackHashTable[gatePiece.hash()].size();
+				minGateHeight = (min < minGateHeight) ? min : minGateHeight;
+			}
+
+			if (upperLevelPieces.containsAny(finalPiece)) {
+				maxPieceHeight = stackHashTable[finalPiece.hash()].size();
+			}
+			int max = stackHashTable[initialPiece.hash()].size();
+
+			if (upperLevelPieces.containsAny(initialPiece) && 
+				 max > maxPieceHeight)  {
+				maxPieceHeight = max;
+			}
+
+			if (maxPieceHeight > minGateHeight) {
+				legalClimbs.unionWith(finalPiece);
+			}
+
+		}
+		
+	}
+
+	return legalClimbs;
 }
 
 bool ProblemNodeContainer::problemNodeExists(BitboardContainer& problemNode) {
@@ -126,7 +198,6 @@ void ProblemNodeContainer::removePiece( BitboardContainer & piece) {
 //call this only once! very slow and inefficient
 //TODO: programatically enforce above rule
 void ProblemNodeContainer::findAllProblemNodes() {
-	
 	BitboardContainer testUpdate;
 	for (auto map: allPieces -> split() ) {
 		for (unsigned long long board: map.second) {
@@ -198,11 +269,13 @@ ProblemNodeContainer::getProblemNodesAtLocation(int boardIndex, unsigned long lo
 	xShift += (BITBOARD_WIDTH * (boardIndex % BITBOARD_CONTAINER_COLS));
 	yShift += BITBOARD_HEIGHT * (BITBOARD_CONTAINER_ROWS - 1 - (boardIndex / BITBOARD_CONTAINER_ROWS));	
 
+	BitboardContainer testGate;
+	BitboardContainer testProblemNodes;
 	for( int i = 0; i < numDirections; i++){
 
-		BitboardContainer testGate;
 		
 		//create and shift into place
+		//TODO: make a 2d shift function
 		testGate.initializeTo(gates[i]);
 		testGate.shiftDirection(Direction::N, yShift);
 		testGate.shiftDirection(Direction::E, xShift);
@@ -213,7 +286,6 @@ ProblemNodeContainer::getProblemNodesAtLocation(int boardIndex, unsigned long lo
 
 		if (testGate.count() == 2){
 
-			BitboardContainer testProblemNodes;
 			
 			//create and shift into place
 			testProblemNodes.initializeTo(potentialProblemNodes[i]);
