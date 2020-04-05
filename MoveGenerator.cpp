@@ -14,7 +14,6 @@ MoveGenerator::MoveGenerator(BitboardContainer * allPiecesIn , ProblemNodeContai
 }
 
 BitboardContainer MoveGenerator::getMoves() {	
-
 	piecesExceptCurrent.initializeTo(*allPieces);
 
 	moves.clear();
@@ -127,6 +126,7 @@ void MoveGenerator::generateQueenMoves(){
 
 	moves.unionWith(frontier);
 }
+
 //TODO:optimize
 void MoveGenerator::generateLadybugMoves(){
 	BitboardContainer frontier, visited;
@@ -150,7 +150,6 @@ void MoveGenerator::generateLadybugMoves(){
 
 	//don't allow second move to be on previous pieces
 	frontier.notIntersectionWith(visited);
-
 	
 	//add in non isolated nodes
 	frontier.unionWith(nonIsolated);
@@ -314,7 +313,6 @@ void MoveGenerator::generateSpiderMoves(){
 
 //TODO: Optimize so you don't have to iterate through every gate separately 
 BitboardContainer MoveGenerator::getInaccessibleNodes(vector <BitboardContainer> * gates) {
-
 	BitboardContainer inaccessible;
 
 	for (auto gate: *gates) {
@@ -386,21 +384,10 @@ void MoveGenerator::setGeneratingName(PieceName * pieceNameIn) {
 	generatingPieceName = pieceNameIn;
 }
 
-void MoveGenerator::setGeneratingPieceBoard(BitboardContainer * b, bool pieceIsAtopHiveIn) {
+void MoveGenerator::setGeneratingPieceBoard(BitboardContainer * b) {
 	generatingPieceBoard = b;
-	pieceIsAtopHive = pieceIsAtopHiveIn;
 }
 
-BitboardContainer MoveGenerator::generatePillbugSwap() {
-	//Pillbug swap also uses lazy evaluation
-	//just as beetleMove does
-
-	BitboardContainer pillbugPerimeter = generatingPieceBoard -> getPerimeter();
-	
-	pillbugPerimeter.notIntersectionWith(*allPieces);
-
-	return pillbugPerimeter;
-}
 
 //Optimize TODO
 BitboardContainer MoveGenerator::getInaccessibleNodes(BitboardContainer gates) {

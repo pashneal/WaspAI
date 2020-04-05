@@ -23,8 +23,10 @@ class GameState {
 
   public:
 
+	
 
-	GameState();
+	GameState(list <PieceName> possibleNamesIn) {possibleNames = possibleNamesIn;};
+	GameState(GameState&);
 	~GameState() { destroy();}
 
 	PieceColor turnColor;
@@ -41,8 +43,14 @@ class GameState {
 	BitboardContainer grasshoppers;
 	BitboardContainer firstPieces;
 	BitboardContainer upperLevelPieces;
+	BitboardContainer immobile;
+	BitboardContainer pinned;
+	int turnCounter = 0;
 
-
+	list < pair <BitboardContainer , BitboardContainer > > pieceMoves;
+	list < int > numberMoves;
+	list <PieceName> possibleNames;
+	int totalPossibleMoves;
 
 	unordered_map < int , stack < pair <PieceColor, PieceName> > > stackHashTable;
 
@@ -50,13 +58,14 @@ class GameState {
 	PieceGraph pieceGraph;
 	MoveGenerator moveGenerator;
 
+	MoveInfo insertPiece(BitboardContainer&, PieceName&);
+	MoveInfo movePiece(BitboardContainer&, BitboardContainer&, PieceName&);
 
-	int turnCounter = 0;
+	void fastInsertPiece(BitboardContainer&, PieceName&);
+	void fastMovePiece(BitboardContainer&, BitboardContainer&, PieceName&);
+	void fastRemovePiece(BitboardContainer&, PieceName&);
 
-
-	MoveInfo insertPiece(BitboardContainer&, PieceName);
-	MoveInfo movePiece(BitboardContainer&, BitboardContainer&, PieceName name);
-
+	PieceName findPieceName(BitboardContainer);
 	void undoMove(MoveInfo);
 
 	PieceColor checkVictory();
@@ -67,10 +76,20 @@ class GameState {
 	BitboardContainer * getPieces(PieceName);
 	BitboardContainer * getPieces(PieceColor);
 
-	pair <BitboardContainer, BitboardContainer> getAllMoves();
+	void getAllMoves(list <PieceName>);
+	void getMosquitoMoves(BitboardContainer);
+	BitboardContainer getAllSpawnSpaces();
 	
 	void print();
 
 	void changeTurnColor();
+
+	void makePsuedoRandomMove();
+	int moveApproximation(BitboardContainer, PieceName);
+
+	void findPinnedPieces();
+
+	pair <BitboardContainer, BitboardContainer> getSwapSpaces(BitboardContainer);
+
 };
 

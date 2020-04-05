@@ -20,12 +20,9 @@ class MoveGenerator {
 		//TODO: change everything that is generatingPieceBoard to generatingPiece
 		BitboardContainer * generatingPieceBoard;
 
-
 		BitboardContainer moves;
 		BitboardContainer perimeter;
 	
-		bool pieceIsAtopHive;
-
 		void generateMoves();
 
 		void generateGrasshopperMoves();
@@ -51,7 +48,7 @@ class MoveGenerator {
 		BitboardContainer getMoves();
 
 		void setGeneratingName(PieceName *);
-		void setGeneratingPieceBoard(BitboardContainer *, bool);
+		void setGeneratingPieceBoard(BitboardContainer *);
 		
 		BitboardContainer generatePillbugSwap();
 

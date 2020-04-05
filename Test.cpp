@@ -656,7 +656,7 @@ void Test::MoveGeneratorTest::testQueenMoves() {
 
 		MoveGenerator moveGen(&testBoard, &problemNodeCont);
 		moveGen.setGeneratingName(&name);
-		moveGen.setGeneratingPieceBoard(&pieceBoard, false);
+		moveGen.setGeneratingPieceBoard(&pieceBoard);
 	
 		BitboardContainer moves = moveGen.getMoves();
 		Test::pass( moves == expectedBoard, 
@@ -721,7 +721,7 @@ void Test::MoveGeneratorTest::testSpiderMoves() {
 
 		MoveGenerator moveGen(&testBoard, &problemNodeCont);
 		moveGen.setGeneratingName(&name);
-		moveGen.setGeneratingPieceBoard(&pieceBoard, false);
+		moveGen.setGeneratingPieceBoard(&pieceBoard);
 	
 		BitboardContainer moves = moveGen.getMoves();
 		Test::pass( moves == expectedBoard, 
@@ -774,7 +774,7 @@ void Test::MoveGeneratorTest::testBeetleMoves() {
 
 		MoveGenerator moveGen(&testBoard, &problemNodeCont);
 		moveGen.setGeneratingName(&name);
-		moveGen.setGeneratingPieceBoard(&pieceBoard, false);
+		moveGen.setGeneratingPieceBoard(&pieceBoard);
 	
 		BitboardContainer moves = moveGen.getMoves();
 		Test::pass( moves == expectedBoard, 
@@ -822,7 +822,7 @@ void Test::MoveGeneratorTest::testGrasshopperMoves() {
 
 		MoveGenerator moveGen(&testBoard, &problemNodeCont);
 		moveGen.setGeneratingName(&name);
-		moveGen.setGeneratingPieceBoard(&pieceBoard, false);
+		moveGen.setGeneratingPieceBoard(&pieceBoard);
 	
 		BitboardContainer moves = moveGen.getMoves();
 		Test::pass( moves == expectedBoard, 
@@ -883,7 +883,7 @@ void Test::MoveGeneratorTest::testLadybugMoves() {
 
 		MoveGenerator moveGen(&testBoard, &problemNodeCont);
 		moveGen.setGeneratingName(&name);
-		moveGen.setGeneratingPieceBoard(&pieceBoard, false);
+		moveGen.setGeneratingPieceBoard(&pieceBoard);
 	
 		BitboardContainer moves = moveGen.getMoves();
 		Test::pass( moves == expectedBoard, 
@@ -940,7 +940,7 @@ void Test::MoveGeneratorTest::testAntMoves() {
 
 		MoveGenerator moveGen(&testBoard, &problemNodeCont);
 		moveGen.setGeneratingName(&name);
-		moveGen.setGeneratingPieceBoard(&pieceBoard, false);
+		moveGen.setGeneratingPieceBoard(&pieceBoard);
 	
 		BitboardContainer moves = moveGen.getMoves();
 		Test::pass( moves == expectedBoard, 
@@ -996,7 +996,7 @@ void Test::MoveGeneratorTest::testPillbugMoves() {
 
 		MoveGenerator moveGen(&testBoard, &problemNodeCont);
 		moveGen.setGeneratingName(&name);
-		moveGen.setGeneratingPieceBoard(&pieceBoard, false);
+		moveGen.setGeneratingPieceBoard(&pieceBoard);
 	
 		BitboardContainer moves = moveGen.getMoves();
 		Test::pass( moves == expectedBoard, 
