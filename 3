@@ -6,10 +6,8 @@
 
 using namespace std;
 
-GameState::GameState (list <PieceName> possibleNamesIn,
-					  vector <unordered_map <PieceName, int>> unusedPiecesIn) {
+GameState::GameState (list <PieceName> possibleNamesIn) {
 	possibleNames = possibleNamesIn;
-	unusedPieces = unusedPiecesIn;
 	problemNodeContainer.allPieces = &allPieces;
 	moveGenerator.allPieces = &allPieces;
 	moveGenerator.problemNodes = &problemNodeContainer;
@@ -37,6 +35,7 @@ void GameState::fastInsertPiece(BitboardContainer& bitboard, PieceName& name) {
 	getPieces(name) -> unionWith(bitboard);
 	getPieces(turnColor) -> unionWith(bitboard);
 	immobile.initializeTo(bitboard);
+	
 }
 
 MoveInfo GameState::movePiece(BitboardContainer& oldBitboard, BitboardContainer& newBitboard,
@@ -77,78 +76,7 @@ void GameState::fastRemovePiece(BitboardContainer& oldBitboard, PieceName& name)
 	}
 }
 
-void GameState::fastSpawnPiece(BitboardContainer& b, PieceName& n) {
-	int colorInt = (int)turnColor;
-	unusedPieces[colorInt][n]--;
-	fastInsertPiece(b, n);
-}
-
-int	 GameState::countSwaps(BitboardContainer& piece){
-	pair <BitboardContainer, BitboardContainer> swappableEmpty = getSwapSpaces(piece);
-	return swappableEmpty.first.count() * swappableEmpty.second.count();
-}
-
-int GameState::countPossibleSpawns(BitboardContainer& spawns) {
-	int colorInt = (int)turnColor;
-	int totalUnusedPieces = 0;
-	for (auto pieceAmountMap: unusedPieces[colorInt]){
-		totalUnusedPieces += pieceAmountMap.second;
-	}
-	return totalUnusedPieces*spawns.count();
-
-}
-void GameState::spawnPiece(BitboardContainer& spawnLocations, int moveSelect) {
-	int colorInt = (int)turnColor;
-	int i = moveSelect;
-	for (auto pieceAmountMap: unusedPieces[colorInt]){
-		for (int j = 0; j < pieceAmountMap.second; j++) {
-			if ( i  == 0) {
-				i = moveSelect % spawnLocations.count();
-				for (auto spawnLocation: spawnLocations.splitIntoBitboardContainers() ) {
-					
-					if (i == 0) {
-						PieceName name = pieceAmountMap.first;
-						fastSpawnPiece(spawnLocation, name);
-						return;
-					}
-					i--;
-				}
-
-			}
-			i = i/spawnLocations.count();
-		}
-	}
-}
-void GameState::swapPiece(BitboardContainer& swappable, BitboardContainer& empty, int moveSelect) {
-	int i = 0;
-	for (auto initialPiece: swappable.splitIntoBitboardContainers() )  {
-		for (auto finalPiece: empty.splitIntoBitboardContainers() ) {
-			if (moveSelect  == i) {
-				PieceName name = findPieceName(initialPiece);
-				fastMovePiece(initialPiece, finalPiece, name);
-				return;
-			}
-			i++;
-		}
-	}
-}
-
-void GameState::movePiece(BitboardContainer& initialPiece,
-						  BitboardContainer& possibleFinalLocations,
-						  int moveSelect) {
-	int i = 0;
-	for (BitboardContainer piece: possibleFinalLocations.splitIntoBitboardContainers() ) {
-		if (moveSelect == i) {
-			PieceName name = findPieceName(initialPiece);
-			fastMovePiece(initialPiece, piece, name);
-			return;
-		}
-		i++;
-	}
-}
-
 void GameState::undoMove(MoveInfo moveInfo) {
-	//ADD LOGIC TO UNDO A SPAWN
 	changeTurnColor();
 	movePiece(moveInfo.newPieceLocation, moveInfo.oldPieceLocation,
 			  moveInfo.pieceName);
@@ -259,8 +187,8 @@ void GameState::getAllMoves(list <PieceName> names) {
 	}
 }
 
-BitboardContainer GameState::getMosquitoMoves(BitboardContainer piece) {
-	BitboardContainer moves, generated;
+void GameState::getMosquitoMoves(BitboardContainer piece) {
+	BitboardContainer moves;
 	PieceName beetle = PieceName::BEETLE;
 	moveGenerator.setGeneratingName(&beetle);
 	moveGenerator.setGeneratingPieceBoard(&piece);
@@ -268,8 +196,9 @@ BitboardContainer GameState::getMosquitoMoves(BitboardContainer piece) {
 	//if on top of the hive
 	if (upperLevelPieces.containsAny(piece)) {
 		//can only move like a beetle on top of the hive
-		moves = moveGenerator.getMoves();
-		return moves;
+		BitboardContainer moves = moveGenerator.getMoves();
+		pieceMoves.push_front(pair <BitboardContainer , BitboardContainer> {piece, moves});
+		return;
 	}	
 
 	BitboardContainer piecePerimeter = piece.getPerimeter();
@@ -280,35 +209,24 @@ BitboardContainer GameState::getMosquitoMoves(BitboardContainer piece) {
 
 	for (BitboardContainer test: testUpperLevel.splitIntoBitboardContainers()) {
 		if(stackHashTable[test.hash()].top().second == PieceName::BEETLE) {
-			generated = moveGenerator.getMoves();
-			moves.unionWith(generated);
+
+			moves = moveGenerator.getMoves();
+			pieceMoves.push_front(pair <BitboardContainer , BitboardContainer> {piece, moves});
+
 		}
 	}
 
-	//removes nodes resolved by above loop
+	//removes nodes resolved by above
 	piecePerimeter.notIntersectionWith(testUpperLevel);
 
 	for (PieceName name: possibleNames) {
 		//see if mosquito is beside one of these types
 		if (piecePerimeter.containsAny(*getPieces(name))) {
 			moveGenerator.setGeneratingName(&name);
-			generated = moveGenerator.getMoves();
-			moves.unionWith(generated);
+			moves = moveGenerator.getMoves();
+			pieceMoves.push_front(pair <BitboardContainer , BitboardContainer> {piece, moves});
 		}
 	}
-	return moves;
-}
-
-BitboardContainer GameState::getMosquitoPillbug() {
-	BitboardContainer mosquitoPillbug = *getPieces(PieceName::PILLBUG);
-	mosquitoPillbug.notIntersectionWith(upperLevelPieces);
-	mosquitoPillbug = mosquitoPillbug.getPerimeter();
-	mosquitoPillbug.intersectionWith(*getPieces(PieceName::MOSQUITO));
-
-	//make sure mosquito is not apart of a stack of pieces
-	if (stackHashTable.find(mosquitoPillbug.hash()) != stackHashTable.end()) 
-		mosquitoPillbug.clear();
-	return mosquitoPillbug;
 }
 
 BitboardContainer GameState::getAllSpawnSpaces() {
@@ -336,17 +254,16 @@ BitboardContainer GameState::getAllSpawnSpaces() {
 //faster than random
 //but does not store in move information
 void GameState::makePsuedoRandomMove() {
-	BitboardContainer notCovered(allPieces);
+	BitboardContainer notPinned(allPieces);
 
-
-	//remove covered pieces 
-	notCovered.notIntersectionWith(upperLevelPieces);
+	//find all non-pinned pieces
+	notPinned.notIntersectionWith(pinned);
+	
+	//remove covered pieces as well
+	notPinned.notIntersectionWith(upperLevelPieces);
 
 	//remove any piece that might have been swapped
-	notCovered.notIntersectionWith(immobile);
-
-	//can only move pieces of correct color
-	notCovered.intersectionWith(*getPieces(turnColor));
+	notPinned.notIntersectionWith(immobile);
 
 	list <PieceName> names;
 	list <int> upperBound;
@@ -354,34 +271,23 @@ void GameState::makePsuedoRandomMove() {
 
 	int total = 0;
 	BitboardContainer test;
-	BitboardContainer mosquitoPillbug = getMosquitoPillbug();
-
+	
 	int numMoves;
 	//add a slot for each piece found
 	for (auto name : possibleNames) {
-
-		test.initializeTo(*getPieces(name));
-		
-		if (name == PieceName::MOSQUITO) {
-			numMoves = getMosquitoMoves(test).count();
-
-			//if mosquito is touching a pillbug
-			//count swaps as part of move
-			if (mosquitoPillbug.count())
-				numMoves += countSwaps(test);	
-
-			total+= numMoves;
-			upperBound.push_front(total);
-			names.push_front(name);
-			boards.push_front(test);
-			continue;
-		}
-
-		test.intersectionWith(notCovered);
+			
+		test.initializeTo(notPinned);
+		test.intersectionWith(*getPieces(name));
 		if (test.count()) {
 			for (BitboardContainer piece: test.splitIntoBitboardContainers() ) {
-
-				total += moveApproximation(piece, name);
+				if (name == PieceName::MOSQUITO) {
+					getMosquitoMoves(piece);
+					numMoves = pieceMoves.front().second.count();
+					pieceMoves.clear();
+				} else {
+					numMoves = moveApproximation(piece, name);
+				}
+				total += numMoves;
 				upperBound.push_front(total);
 				names.push_front(name);
 				boards.push_front(piece);
@@ -390,7 +296,7 @@ void GameState::makePsuedoRandomMove() {
 	}
 
 	//deal with upperLevelPieces
-
+	
 	for (BitboardContainer piece: upperLevelPieces.splitIntoBitboardContainers()) {
 		if (stackHashTable[piece.hash()].top().first == turnColor) {
 			numMoves = moveApproximation(piece, PieceName::BEETLE);
@@ -401,79 +307,79 @@ void GameState::makePsuedoRandomMove() {
 		}
 	}
 
-	auto iterNames = names.begin();
-	auto iterUpperBound = upperBound.begin();
-	auto iterBoards = boards.begin();
+	//get mosquitoes that touch pillbugs
+	BitboardContainer mosquitoPillbug = getPieces(PieceName::PILLBUG)->getPerimeter();
+	mosquitoPillbug.intersectionWith(*getPieces(PieceName::MOSQUITO));
 
-	BitboardContainer spawns = getAllSpawnSpaces();
-	total += spawns.count();
+	//make sure mosquito is not apart of a stack of pieces
+	if (stackHashTable.find(mosquitoPillbug.hash()) != stackHashTable.end()) 
+		mosquitoPillbug.clear();
+		
 
-	srand(time(NULL));
-	int randInt = rand() % total;
-
-	if (randInt >= total - spawns.count() ) 
-
-	while (iterNames != names.end() ) {
-		if (*iterUpperBound < randInt) {
-			//if randInt is too large
-			iterNames++; iterUpperBound++; iterBoards++;
-			continue;
-		} 
-		PieceName name = *iterNames;
-		BitboardContainer initialPiece = *iterBoards;
-		moveGenerator.setGeneratingName(&name);
-		moveGenerator.setGeneratingPieceBoard(&initialPiece);
-		BitboardContainer moves;
-		int moveCount = 0;
-		int swapCount = 0;
-		if (notCovered.containsAny(initialPiece)) { 
-			moves = moveGenerator.getMoves();
-			moveCount += moves.count();
-		}
-
-		switch(name) {
-			case PILLBUG:
-				{
-
-					pair <BitboardContainer, BitboardContainer> swappableEmpty =
-						getSwapSpaces(initialPiece);
-					swapCount += swappableEmpty.first.count() * swappableEmpty.second.count();
-					randInt = rand() % (moveCount + swapCount);
-					if (randInt < moveCount){
-						movePiece(initialPiece, moves, randInt);
-					} else {
-						swapPiece(swappableEmpty.first, 
-								  swappableEmpty.second,
-								  randInt - moveCount);
-					}
-					return;
-				}
-			case MOSQUITO:
-				{
-
-					if (mosquitoPillbug.count()) {
-						pair <BitboardContainer, BitboardContainer> swappableEmpty =
-							getSwapSpaces(initialPiece);
-
-						swapCount += swappableEmpty.first.count() * swappableEmpty.second.count();
-
-						randInt = rand() % (moveCount + swapCount);
-
-						if (randInt >= moveCount){
-							swapPiece(swappableEmpty.first, 
-									swappableEmpty.second,
-									randInt - moveCount);
-							return;
-						}
-					}
-					movePiece(initialPiece, moves, randInt);
-					return;
-				}
-			default:
-				randInt = rand() % moves.count();
-				movePiece(initialPiece, moves, randInt);
-		}
+	//If mosquito-pillbug count swaps
+	if (mosquitoPillbug.count() == 1) {
+		int numMoves = moveApproximation(mosquitoPillbug,PieceName::PILLBUG);
+		total += numMoves;
 	}
+	
+		srand(time(NULL));
+		int randInt = rand() % total;
+
+		// if the randInt is greater than first of list,
+		// perform a swap
+		if (randInt > upperBound.front() ) {
+			pair <BitboardContainer, BitboardContainer> swappableEmpty =
+				getSwapSpaces(mosquitoPillbug);
+			int moveNumber = upperBound.front();
+			for (auto swappable : swappableEmpty.first.splitIntoBitboardContainers()) {
+				for (auto empty : swappableEmpty.second.splitIntoBitboardContainers() ) {
+					if (moveNumber == randInt) {
+
+						//perform a swap
+						PieceName name = findPieceName(swappable);
+						fastMovePiece(swappable,empty,name);
+						return;
+					}
+					moveNumber++;
+				}
+			}
+		}
+
+		auto iterNames = names.begin();
+		auto iterUpperBound = upperBound.begin();
+		auto iterBoards = boards.begin();
+		while (iterNames != names.end() ) {
+			if (*iterUpperBound < randInt) {
+				//if randInt is too large
+				iterNames++; iterUpperBound++; iterBoards++;
+			} else { 
+				PieceName name = *iterNames;
+				BitboardContainer initialPiece = *iterBoards;
+				//IF PILLBUG (SWAPS)
+				//IF MOSQUITO (MOVES)
+				moveGenerator.setGeneratingName(&name);
+				moveGenerator.setGeneratingPieceBoard(&initialPiece);
+
+
+				BitboardContainer moves = moveGenerator.getMoves();
+
+
+			
+				//reinitialize random to be more accurate
+				randInt = rand() % moves.count();
+				//select and perform a move according to random
+				int moveSelect = 0;
+				for (BitboardContainer piece: moves.splitIntoBitboardContainers() ) {
+					if (moveSelect == randInt) {
+						fastMovePiece(initialPiece, piece, name);
+						return;
+					}
+					moveSelect++;
+				}
+
+				
+			}
+		}
 }	
 
 int GameState::moveApproximation(BitboardContainer piece, PieceName name){
@@ -542,12 +448,6 @@ pair <BitboardContainer, BitboardContainer> GameState::getSwapSpaces(BitboardCon
 
 	//allowed to swap if no piece on space
 	empty.notIntersectionWith(allPieces);
-
-	moveGenerator.setGeneratingPieceBoard(&piece);
-	BitboardContainer legal = moveGenerator.getPillbugSwapSpaces();
-
-	swappable.intersectionWith(legal);
-	empty.intersectionWith(legal);
 
 	return pair <BitboardContainer, BitboardContainer> {swappable, empty};
 }

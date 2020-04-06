@@ -38,3 +38,4 @@ Direction rotateCounterClockWise(Direction dir) {
 			throw 21;
 	}
 }
+

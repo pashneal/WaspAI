@@ -21,7 +21,8 @@ struct MoveInfo {
 
 class GameState {
   public:
-	GameState(list <PieceName> possibleNamesIn);
+	GameState(list <PieceName> possibleNamesIn, 
+			 vector <unordered_map <PieceName, int>>);
 	GameState(GameState&);
 	~GameState() { destroy();}
 
@@ -43,6 +44,8 @@ class GameState {
 	BitboardContainer pinned;
 	int turnCounter = 0;
 
+	vector <unordered_map <PieceName, int>> unusedPieces;
+
 	list < pair <BitboardContainer , BitboardContainer > > pieceMoves;
 	list < int > numberMoves;
 	list <PieceName> possibleNames;
@@ -60,6 +63,15 @@ class GameState {
 	void fastInsertPiece(BitboardContainer&, PieceName&);
 	void fastMovePiece(BitboardContainer&, BitboardContainer&, PieceName&);
 	void fastRemovePiece(BitboardContainer&, PieceName&);
+	void fastSpawnPiece(BitboardContainer&, PieceName&);
+
+
+	int countSwaps(BitboardContainer&);
+	int countPossibleSpawns(BitboardContainer&);
+
+	void spawnPiece(BitboardContainer&, int);
+	void swapPiece(BitboardContainer&, BitboardContainer&, int);
+	void movePiece(BitboardContainer&, BitboardContainer&, int);
 
 	PieceName findPieceName(BitboardContainer);
 	void undoMove(MoveInfo);
@@ -73,7 +85,9 @@ class GameState {
 	BitboardContainer * getPieces(PieceColor);
 
 	void getAllMoves(list <PieceName>);
-	void getMosquitoMoves(BitboardContainer);
+	BitboardContainer getMosquitoMoves(BitboardContainer);
+	BitboardContainer getMosquitoPillbug();
+
 	BitboardContainer getAllSpawnSpaces();
 	
 	void print();
