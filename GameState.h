@@ -27,6 +27,8 @@ class GameState {
 	~GameState() { destroy();}
 
 	PieceColor turnColor;
+	int turnCounter = 0;
+
 	BitboardContainer allPieces;
 	BitboardContainer whitePieces;
 	BitboardContainer blackPieces;
@@ -41,8 +43,7 @@ class GameState {
 	BitboardContainer firstPieces;
 	BitboardContainer upperLevelPieces;
 	BitboardContainer immobile;
-	BitboardContainer pinned;
-	int turnCounter = 0;
+	BitboardContainer pinned;    
 
 	vector <unordered_map <PieceName, int>> unusedPieces;
 

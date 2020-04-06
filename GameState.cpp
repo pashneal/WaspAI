@@ -6,6 +6,36 @@
 
 using namespace std;
 
+GameState::GameState( GameState& other) {
+	allPieces =         other.allPieces;
+	whitePieces =       other.whitePieces;
+	blackPieces =       other.blackPieces;
+	ants =              other.ants;
+	beetles =           other.beetles;
+	spiders =           other.spiders;
+	ladybugs =          other.ladybugs;
+	queens =            other.queens;
+	mosquitoes =        other.mosquitoes;
+	pillbugs =          other.pillbugs;
+	grasshoppers =      other.grasshoppers;
+	firstPieces =       other.firstPieces;
+	upperLevelPieces =  other.upperLevelPieces;
+	immobile =          other.immobile;
+	pinned =            other.pinned;          
+
+	vector <unordered_map <PieceName, int>> unusedPieces;
+
+	list < pair <BitboardContainer , BitboardContainer > > pieceMoves;
+	list < int > numberMoves;
+	list <PieceName> possibleNames;
+	int totalPossibleMoves;
+
+	unordered_map < int , stack < pair < PieceColor , PieceName > > > stackHashTable;
+
+	ProblemNodeContainer problemNodeContainer;
+	PieceGraph pieceGraph;
+	MoveGenerator moveGenerator;
+}
 GameState::GameState (list <PieceName> possibleNamesIn,
 					  vector <unordered_map <PieceName, int>> unusedPiecesIn) {
 	possibleNames = possibleNamesIn;
@@ -51,8 +81,11 @@ MoveInfo GameState::movePiece(BitboardContainer& oldBitboard, BitboardContainer&
 void GameState::fastMovePiece(BitboardContainer& oldBitboard, BitboardContainer& newBitboard,
 							  PieceName& name) {
 
+
 	fastInsertPiece(newBitboard, name);
 	fastRemovePiece(oldBitboard, name);
+	changeTurnColor();
+	turnCounter++;
 }
 
 void GameState::fastRemovePiece(BitboardContainer& oldBitboard, PieceName& name){ 
@@ -81,6 +114,8 @@ void GameState::fastSpawnPiece(BitboardContainer& b, PieceName& n) {
 	int colorInt = (int)turnColor;
 	unusedPieces[colorInt][n]--;
 	fastInsertPiece(b, n);
+	turnCounter++;
+	changeTurnColor();
 }
 
 int	 GameState::countSwaps(BitboardContainer& piece){
@@ -529,6 +564,7 @@ void GameState::findPinnedPieces(){
 	pinned = pieceGraph.getPinnedPieces();
 }
 
+
 //returns pair <swappable, empty>
 //where any one piece from swappable can be moved to empty
 pair <BitboardContainer, BitboardContainer> GameState::getSwapSpaces(BitboardContainer piece) {
@@ -559,18 +595,8 @@ pair <BitboardContainer, BitboardContainer> GameState::getSwapSpaces(BitboardCon
 //QUEEN CAN'T BE PLACED FIRST (FOR NOW)
 //NO OTHER PIECE CAN MOVE IF QUEEN NOT PLACED
 
-//no piece can move if it was moved last turn
-//(that includes swaps)
+//TODO: delayed legality check
 
-//Pillbug swap and last move restriction;
-//cannot swap out from up top hive or through gates
-//blocked when covered
-//can still use power if pinned
-
-//beetle also can't move through upperLevelGates
-
-//Mosquito movement ={
-//only a bettle on the hive
-//also can't move through upperLevel gates
-
-//delayed legality check
+//recenter / overflow?
+//playout 
+//end evaluation func
