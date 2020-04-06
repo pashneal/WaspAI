@@ -127,62 +127,47 @@ void MoveGenerator::generateQueenMoves(){
 	moves.unionWith(frontier);
 }
 
-//TODO:optimize currently most expensive function
+//TODO:optimize
 void MoveGenerator::generateLadybugMoves(){
-	BitboardContainer frontier, path, visited, result;
-
+	BitboardContainer frontier, visited;
 	frontier.initializeTo(*generatingPieceBoard);
 
-	ladybugStep(frontier, result, path, 0);
+	// makes three moves
+	// must first a move on top of other pieces 
+	piecesExceptCurrent.floodFillStep(frontier, visited);
 
-	result.intersectionWith(perimeter);
+	//DEAL WITH PROBLEM NODES AT THE UPPER LEVEL
 
-	moves.unionWith(result);
-}
-
-void MoveGenerator::ladybugStep(BitboardContainer& frontier,	
-								BitboardContainer& result, 
-								BitboardContainer& path,
-								int step) {
-	if (step == 3){
-		result.unionWith(frontier);
-		return;
+	//keep nodes from frontier that are not isolated
+	BitboardContainer nonIsolated;
+	for (auto nodes: frontier.splitIntoConnectedComponents()){
+		if (nodes.count() > 1) {
+			nonIsolated.unionWith(nodes);
+		}
 	}
 
-	BitboardContainer newFrontier;
-	for (auto dir: hexagonalDirections ){
-		newFrontier = getLegalClimb(frontier, dir);
-		newFrontier.notIntersectionWith(path);
+	// must then make another move on top of the hive
+	frontier = frontier.getPerimeter();
+	frontier.intersectionWith(piecesExceptCurrent);
 
-		if (step < 2) 
-			newFrontier.intersectionWith(piecesExceptCurrent);
-		if (newFrontier.count() == 0) 
-			continue;
+	//don't allow second move to be on previous pieces
+	frontier.notIntersectionWith(visited);
+	
+	//add in non isolated nodes
+	frontier.unionWith(nonIsolated);
 
-		path.unionWith(newFrontier);
-		ladybugStep(newFrontier, result, path, step + 1);
-		path.notIntersectionWith(newFrontier);
-	}
+	//must finally make a move off of the hive
+	frontier = frontier.getPerimeter();
+	frontier.intersectionWith(perimeter);
 
-}
+	moves.unionWith(frontier);
+} 
+
 void MoveGenerator::generatePillbugMoves(){
 	//the Pillbug moves just as a Queen does
 	generateQueenMoves();
 } 
 
-//any piece in the returned Bitboard can be moved to any empty square in returned bit board
-//assumes that they are not pinned
-BitboardContainer MoveGenerator::getPillbugSwapSpaces() {
-
-	BitboardContainer legalClimbs;
-	for (Direction dir : hexagonalDirections) {
-		BitboardContainer legalClimb = getLegalClimb(*generatingPieceBoard, dir);
-		legalClimb.notIntersectionWith(*upperLevelPieces);
-		legalClimbs.unionWith(legalClimb);
-	}
-	return legalClimbs;
-
-}
 void MoveGenerator::generateMosquitoMoves(){
 	//no such thing as MosquitoMoves as it takes the moves from its neighbors
 	//and is a bettle on top of the hive (nothing more)
@@ -191,7 +176,12 @@ void MoveGenerator::generateMosquitoMoves(){
 
 void MoveGenerator::generateBeetleMoves(){
 	//TODO: Beetle move generation is lazy
+	//Further analysis is necessary in order to see
+	//If moves atop the hive are legal
 
+
+	//since the beetle can move atop the other pieces
+	//include those pieces as traversable
 
 	BitboardContainer frontier, neighbors;
 	frontier.initializeTo(*generatingPieceBoard);
@@ -206,7 +196,7 @@ void MoveGenerator::generateBeetleMoves(){
 
 	//if the piece is on a problematic node
 	if (problemNodes -> contains(*generatingPieceBoard)){
-
+		
 		//get allowed directions to travel
 		frontier = problemNodes -> getPerimeter(frontier);
 
@@ -218,19 +208,6 @@ void MoveGenerator::generateBeetleMoves(){
 
 	//maintain contact with at least one of the original neighbors
 	frontier.intersectionWith(neighbors);
-
-	BitboardContainer legalClimbs(frontier);
-	legalClimbs.intersectionWith(*upperLevelPieces);
-
-	if (legalClimbs.count() > 1) {
-		legalClimbs.clear();
-		for (auto dir: hexagonalDirections) {
-			BitboardContainer legalClimb = getLegalClimb(frontier, dir);
-			legalClimbs.unionWith(legalClimb);
-		}
-		frontier.intersectionWith(legalClimbs);
-	}
-
 
 	moves.unionWith(frontier);
 }  
@@ -428,41 +405,27 @@ BitboardContainer MoveGenerator::getInaccessibleNodes(BitboardContainer gates) {
 
 
 BitboardContainer MoveGenerator::getLegalClimb( BitboardContainer& board, Direction dir) {
-	BitboardContainer test(board), gate, CWgate(board), CCWgate(board);
-
-	//TODO: optimize
+	BitboardContainer test(board), gate, CWgate, CCWgate;
 
 	Direction CW = rotateClockWise(dir);
-	CWgate.shiftDirection(CW);
-	gate.unionWith(CWgate);
+	test.shiftDirection(CW);
+	gate.unionWith(test);
 
+	test.initializeTo(board);
 	Direction CCW = rotateCounterClockWise(dir);
-	CCWgate.shiftDirection(CCW);
-	gate.unionWith(CCWgate);
+	test.shiftDirection(CCW);
+	gate.unionWith(test);
 	
 	gate.intersectionWith(*upperLevelPieces);
 
 	test.shiftDirection(dir);
 	
 	if (gate.count() == 2) {
-		int maxPieceHeight = 0;
-		if (upperLevelPieces -> containsAny(board)) {
-			maxPieceHeight = stackHashTable ->at(test.hash()).size(); 
+		test.intersectionWith(*upperLevelPieces);
+		if (test.count()) {
+			stackHashTable[test.hash()] 
 		}
-		if (upperLevelPieces -> containsAny(board) ) {
-			int max = stackHashTable ->at(board.hash()).size();
-			maxPieceHeight = (max > maxPieceHeight) ? max : maxPieceHeight;
-		}
-
-		int minGateHeight = 100;
-		int gateCWHeight = stackHashTable ->at(CWgate.hash() ).size();
-		int gateCCWHeight = stackHashTable ->at(CCWgate.hash() ).size();
-
-		minGateHeight = (gateCWHeight < gateCCWHeight) ? gateCWHeight : gateCCWHeight;
-		if (minGateHeight <= maxPieceHeight) {
-			return test;
-		}
-
+	} else {
+		return test;
 	}
-	return test;
 }

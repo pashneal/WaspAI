@@ -407,9 +407,10 @@ int GameState::moveApproximation(BitboardContainer piece, PieceName name){
 			//highly variable but expensive to compute (currently)
 			return 2;
 		case LADYBUG:
-			//ladybug is relatively inexpensive to compute and highly variable
-			moveGenerator.setGeneratingName(&name);
-			moveGenerator.setGeneratingPieceBoard(&piece);
+			//highly variable but expensive to compute
+			piece = piece.getPerimeter();
+			piece.intersectionWith(allPieces);
+			return (int)(2.5)*piece.count();
 		case BEETLE:
 			// if the beetle is on the hive it has more freedom
 			return 4 + 2*(upperLevelPieces.containsAny(piece)); 

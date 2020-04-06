@@ -1,4 +1,5 @@
 #pragma once
+#include <iostream>
 #include <unordered_map>
 #include <vector>
 #include <list>
@@ -42,6 +43,8 @@ extern unordered_map < string , vector<Direction> > directions;
 
 extern list <Direction> hexagonalDirections ;
 
+Direction rotateClockWise(Direction dir);
+Direction rotateCounterClockWise(Direction dir);
 
 const int ROW_SHIFT = 8;
 const int COLUMN_SHIFT = 1;

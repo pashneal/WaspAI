@@ -19,6 +19,8 @@ class MoveGenerator {
 		vector <BitboardContainer> * gatesSplit;
 		//TODO: change everything that is generatingPieceBoard to generatingPiece
 		BitboardContainer * generatingPieceBoard;
+		unordered_map < int, stack < pair < PieceColor , PieceName> > > * stackHashTable;
+		BitboardContainer * upperLevelPieces;
 
 		BitboardContainer moves;
 		BitboardContainer perimeter;
@@ -28,6 +30,7 @@ class MoveGenerator {
 		void generateGrasshopperMoves();
 		void generateQueenMoves();   
 		void generateLadybugMoves(); 
+		void ladybugStep(BitboardContainer&, BitboardContainer&, BitboardContainer&, int);
 		void generatePillbugMoves(); 
 		void generateMosquitoMoves();
 		void generateBeetleMoves();  
@@ -37,6 +40,7 @@ class MoveGenerator {
 		BitboardContainer piecesExceptCurrent;
 
 	public:
+
 		ProblemNodeContainer *problemNodes;
 		BitboardContainer * allPieces;
 
@@ -49,11 +53,11 @@ class MoveGenerator {
 
 		void setGeneratingName(PieceName *);
 		void setGeneratingPieceBoard(BitboardContainer *);
-		
-		BitboardContainer generatePillbugSwap();
+		void setUpperLevelPieces(BitboardContainer *);
+		void setStackHashTable(unordered_map <int , stack <pair < PieceColor , PieceName >>> * );
+		BitboardContainer getPillbugSwapSpaces();
 
 		BitboardContainer getInaccessibleNodes(BitboardContainer);
 		BitboardContainer getInaccessibleNodes(vector <BitboardContainer> *);
-
-		bool checkLegalClimb(BitboardContainer&,BitboardContainer&,BitboardContainer&);
+		BitboardContainer getLegalClimb(BitboardContainer&, Direction);
 };

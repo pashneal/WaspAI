@@ -776,6 +776,11 @@ void Test::MoveGeneratorTest::testBeetleMoves() {
 		moveGen.setGeneratingName(&name);
 		moveGen.setGeneratingPieceBoard(&pieceBoard);
 	
+		unordered_map <int, stack < pair < PieceColor, PieceName>>> m;
+		BitboardContainer upperLevelPieces;
+
+		moveGen.setStackHashTable(&m);
+		moveGen.setUpperLevelPieces(&upperLevelPieces);
 		BitboardContainer moves = moveGen.getMoves();
 		Test::pass( moves == expectedBoard, 
 				"incorrect moves outputted for move generation");
@@ -880,10 +885,15 @@ void Test::MoveGeneratorTest::testLadybugMoves() {
 
 		ProblemNodeContainer problemNodeCont(&testBoard);
 		problemNodeCont.findAllProblemNodes();
+		unordered_map <int, stack < pair < PieceColor, PieceName>>> m;
+		BitboardContainer upperLevelPieces;
+
 
 		MoveGenerator moveGen(&testBoard, &problemNodeCont);
 		moveGen.setGeneratingName(&name);
 		moveGen.setGeneratingPieceBoard(&pieceBoard);
+		moveGen.setStackHashTable(&m);
+		moveGen.setUpperLevelPieces(&upperLevelPieces);
 	
 		BitboardContainer moves = moveGen.getMoves();
 		Test::pass( moves == expectedBoard, 
