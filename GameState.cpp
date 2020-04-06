@@ -338,7 +338,6 @@ BitboardContainer GameState::getAllSpawnSpaces() {
 void GameState::makePsuedoRandomMove() {
 	BitboardContainer notCovered(allPieces);
 
-
 	//remove covered pieces 
 	notCovered.notIntersectionWith(upperLevelPieces);
 
@@ -412,6 +411,7 @@ void GameState::makePsuedoRandomMove() {
 	int randInt = rand() % total;
 
 	if (randInt >= total - spawns.count() ) 
+		spawnPiece(spawns, rand() % spawns.count() );
 
 	while (iterNames != names.end() ) {
 		if (*iterUpperBound < randInt) {
@@ -433,11 +433,14 @@ void GameState::makePsuedoRandomMove() {
 
 		switch(name) {
 			case PILLBUG:
+				//TODO: refactor duplicate code
 				{
 
 					pair <BitboardContainer, BitboardContainer> swappableEmpty =
 						getSwapSpaces(initialPiece);
+
 					swapCount += swappableEmpty.first.count() * swappableEmpty.second.count();
+
 					randInt = rand() % (moveCount + swapCount);
 					if (randInt < moveCount){
 						movePiece(initialPiece, moves, randInt);
