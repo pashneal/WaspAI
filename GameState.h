@@ -48,9 +48,7 @@ class GameState {
 	vector <unordered_map <PieceName, int>> unusedPieces;
 
 	list < pair <BitboardContainer , BitboardContainer > > pieceMoves;
-	list < int > numberMoves;
 	list <PieceName> possibleNames;
-	int totalPossibleMoves;
 
 	unordered_map < int , stack < pair < PieceColor , PieceName > > > stackHashTable;
 

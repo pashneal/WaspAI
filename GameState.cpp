@@ -23,18 +23,16 @@ GameState::GameState( GameState& other) {
 	immobile =          other.immobile;
 	pinned =            other.pinned;          
 
-	vector <unordered_map <PieceName, int>> unusedPieces;
+	unusedPieces=       other.unusedPieces;
+	pieceMoves=         other.pieceMoves;
+	possibleNames=      other.possibleNames;
+	stackHashTable=     other.stackHashTable;     
 
-	list < pair <BitboardContainer , BitboardContainer > > pieceMoves;
-	list < int > numberMoves;
-	list <PieceName> possibleNames;
-	int totalPossibleMoves;
+	problemNodeContainer = other.problemNodeContainer;
+	problemNodeContainer.allPieces = &allPieces;
 
-	unordered_map < int , stack < pair < PieceColor , PieceName > > > stackHashTable;
-
-	ProblemNodeContainer problemNodeContainer;
-	PieceGraph pieceGraph;
-	MoveGenerator moveGenerator;
+	pieceGraph = other.pieceGraph;
+	;
 }
 GameState::GameState (list <PieceName> possibleNamesIn,
 					  vector <unordered_map <PieceName, int>> unusedPiecesIn) {
@@ -600,3 +598,4 @@ pair <BitboardContainer, BitboardContainer> GameState::getSwapSpaces(BitboardCon
 //recenter / overflow?
 //playout 
 //end evaluation func
+//deep copy

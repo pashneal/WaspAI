@@ -34,4 +34,11 @@ class PieceGraph {
 		BitboardContainer getPinnedPieces();
 
 		void destroy();
+
+		void operator = (const PieceGraph& other) {
+			for (auto element: other.bitboardHashTable) {
+				BitboardContainer bitboard({{element.second -> boardIndex, 
+											 element.second -> location}});
+			}
+		}
 };

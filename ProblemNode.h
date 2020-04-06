@@ -24,9 +24,6 @@ class ProblemNodeContainer {
 		//requires that currentPiece is actally in *allPieces? (maybe?)
 		void insert(BitboardContainer&);
 
-		BitboardContainer getLegalClimbs(BitboardContainer&, BitboardContainer&,
-						  unordered_map < int , stack < pair <PieceColor, PieceName>>>);
-
 	public:
 
 		BitboardContainer *allPieces;

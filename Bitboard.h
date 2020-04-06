@@ -12,8 +12,6 @@ class BitboardContainer {
   public:
 	//TODO: figure out shift direction O(n) sort so you can get rid of log(n) ordered set
 	set<int> internalBoardCache;
-
-
 	unsigned long long int internalBoards[16];
 
 	//TODO: make internalBoardCache safe so we don't have to initialize
