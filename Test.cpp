@@ -13,6 +13,7 @@
 #include "ProblemNode.h"
 #include "PieceGraph.h"
 #include "Test.h"
+#include "GameState.h"
 
 using namespace std;
 
@@ -193,7 +194,7 @@ void Test::BitboardTest::testShiftDirection(){
 	cout << "Test " << shiftDirections.size() << ": ";
 	Test::pass(testBitboardContainer.internalBoards[5] == 1, "result incorrect");
 
-	bool silenced = false;
+	bool silenced = true;
 
 	cout << "Test " << shiftDirections.size() + 1 << ": ";
 
@@ -1068,6 +1069,12 @@ void Test::PieceGraphTest::testFindAllPinnedPieces(){
 	}
 };
 
+void Test::GameStateTest::testMovePiece(){
+	GameState gameState(HivePLM, PieceColor::WHITE);
+	//initialize the gameState here
+	
+	gameState.setUnusedPieces(HivePLM);
+}
 int main() {
 	Test::BitboardTest::testShiftDirection();
 	Test::BitboardTest::testXorWith();

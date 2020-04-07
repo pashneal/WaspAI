@@ -52,6 +52,11 @@ class Test {
 				static void testFindAllPinnedPieces();
 		};
 
+		class GameStateTest {
+			public:
+				static void testMovePiece();
+		};
+
 		static void pass(bool, string);
 };
 

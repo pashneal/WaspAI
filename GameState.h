@@ -21,8 +21,7 @@ struct MoveInfo {
 
 class GameState {
   public:
-	GameState(list <PieceName> possibleNamesIn, 
-			 vector <unordered_map <PieceName, int>>);
+	GameState( vector <unordered_map <PieceName, int>>, PieceColor);
 	GameState(GameState&);
 	~GameState() { destroy();}
 
@@ -101,5 +100,7 @@ class GameState {
 	pair <BitboardContainer, BitboardContainer> getSwapSpaces(BitboardContainer);
 
 	void playout(int);
+
+	void setUnusedPieces(vector <unordered_map < PieceName, int >>);
 };
 

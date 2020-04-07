@@ -6,6 +6,7 @@
 
 using namespace std;
 
+//TEST
 GameState::GameState( GameState& other) {
 	turnColor =			other.turnColor;
 	turnCounter =		other.turnCounter;
@@ -40,9 +41,13 @@ GameState::GameState( GameState& other) {
 	moveGenerator.setUpperLevelPieces(&upperLevelPieces);
 	moveGenerator.setStackHashTable(&stackHashTable);
 }
-GameState::GameState (list <PieceName> possibleNamesIn,
-					  vector <unordered_map <PieceName, int>> unusedPiecesIn) {
-	possibleNames = possibleNamesIn;
+
+GameState::GameState (vector <unordered_map <PieceName, int>> unusedPiecesIn, 
+					  PieceColor turnColorIn) {
+	for (auto element: unusedPiecesIn[0]) {
+		possibleNames.push_front(element.first);
+	}
+	turnColor = turnColorIn;
 	unusedPieces = unusedPiecesIn;
 	problemNodeContainer.allPieces = &allPieces;
 	moveGenerator.allPieces = &allPieces;
@@ -62,13 +67,15 @@ MoveInfo GameState::insertPiece(BitboardContainer& bitboard, PieceName& name) {
 	return moveInfo;
 }
 
+//TEST
 void GameState::fastInsertPiece(BitboardContainer& bitboard, PieceName& name) {
-	pieceGraph.insert(bitboard);
-	problemNodeContainer.insertPiece(bitboard);
 
 	if (allPieces.containsAny(bitboard)) {
 		stackHashTable[bitboard.hash()].push({turnColor, name});
 		upperLevelPieces.xorWith(bitboard);
+	} else {
+		pieceGraph.insert(bitboard);
+		problemNodeContainer.insertPiece(bitboard);
 	}
 
 	allPieces.unionWith(bitboard);
@@ -88,15 +95,18 @@ MoveInfo GameState::movePiece(BitboardContainer& oldBitboard, BitboardContainer&
 
 void GameState::fastMovePiece(BitboardContainer& oldBitboard, BitboardContainer& newBitboard,
 							  PieceName& name) {
-
-
 	fastInsertPiece(newBitboard, name);
 	fastRemovePiece(oldBitboard, name);
 	changeTurnColor();
 	turnCounter++;
 }
 
+//TEST
 void GameState::fastRemovePiece(BitboardContainer& oldBitboard, PieceName& name){ 
+	if (oldBitboard.count() == 0) {
+		cout << "Attempting to remove a piece that doesn't exist" << endl;
+		throw 30;
+	}
 	int bitHash = oldBitboard.hash();
 	if (stackHashTable.find(bitHash) != stackHashTable.end()) { 
 		if (stackHashTable[bitHash].top().first == turnColor &&
@@ -607,6 +617,46 @@ void GameState::playout(int limitMoves) {
 		return;
 	makePsuedoRandomMove();
 	limitMoves--;
+}
+
+//given a maximum allowed piece count for each piece
+//count every piece in the GameState and setUnusedPieces accordingly
+void GameState::setUnusedPieces(vector <unordered_map <PieceName, int>> maxPieceCount) {
+
+	for (int i = 0; i < 2; i++) {
+		PieceColor color = (PieceColor)i;
+		for (PieceName name: possibleNames) {
+			BitboardContainer uncoveredPieces(*getPieces(color));
+			uncoveredPieces.intersectionWith(*getPieces(name));
+			uncoveredPieces.notIntersectionWith(upperLevelPieces);
+
+			int numPieces = maxPieceCount[color][name] - uncoveredPieces.count();
+
+			BitboardContainer coveredPieces(*getPieces(color));
+			coveredPieces.intersectionWith(*getPieces(name));
+			coveredPieces.intersectionWith(upperLevelPieces);
+
+			for (BitboardContainer s: coveredPieces.splitIntoBitboardContainers() ) {
+				stack < pair < PieceColor, PieceName > > stackCopy = stackHashTable[s.hash()];
+
+				while (!stackCopy.empty()) {
+					pair <PieceColor, PieceName> p = stackCopy.top();
+					if (p.first == color && p.second == name) 
+						numPieces--;
+					stackCopy.pop();
+				}
+			}
+
+			if (numPieces < 0 ) {
+				cout << "greater than allowed number of Pieces in GameState" << endl;
+				cout << "PieceColor " << color;
+				cout << "PieceName " << name;
+				throw 40;
+			}
+
+			unusedPieces[color][name] = numPieces;
+		}
+	}
 }
 //STILL WORKING ON RANDOM 
 //FORGOT THE RULE ABOUT PILLBUG CAN BE USED IF PINNED
