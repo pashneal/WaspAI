@@ -4,6 +4,8 @@
 #include "PieceNode.h"
 #include <unordered_map>
 #include <stack>
+#include <unordered_set>
+#include <functional>
 using namespace std;
 
 class PieceGraph {
@@ -18,6 +20,7 @@ class PieceGraph {
 		unordered_map <int, PieceNode*> bitboardHashTable;
 		//no adjecency list needed; it is stored within the nodes themselves
 		//list <list<PieceNode>> adjList;
+		
 	public:
 
 		~PieceGraph() { destroy();}
@@ -26,7 +29,7 @@ class PieceGraph {
 		void remove(BitboardContainer&);
 		void reposition(BitboardContainer&, BitboardContainer&);
 
-		void getArticulationNodes(PieceNode*, int&);
+		void getArticulationNodes(PieceNode*, int&, unordered_set<PieceNode*>&);
 		void checkArticulationRoot(PieceNode*);
 
 		bool isTopOfStack();
@@ -42,4 +45,7 @@ class PieceGraph {
 				insert(bitboard);
 			}
 		}
+
+		void DFS ( PieceNode*, function<void(PieceNode*)>, unordered_set<PieceNode*>&);
+		void DFS ( function<void (PieceNode*)>);
 };

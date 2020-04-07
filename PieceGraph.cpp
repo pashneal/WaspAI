@@ -1,6 +1,7 @@
 #include <vector>
 #include <list>
 #include <unordered_map>
+#include <unordered_set>
 #include "PieceGraph.h"
 
 
@@ -41,9 +42,10 @@ void PieceGraph::reposition(BitboardContainer& oldBitboard, BitboardContainer& n
 	insert(newBitboard);
 }
 
-void PieceGraph::getArticulationNodes(PieceNode * n, int& counter) {
-	//if arrived update node visited
-	n -> visited = true;
+void PieceGraph::getArticulationNodes(PieceNode * n, int& counter, 
+									 unordered_set<PieceNode*>& visited) {
+
+	visited.insert(n);
 
 	n -> visitedNum = counter++;	
 
@@ -52,13 +54,14 @@ void PieceGraph::getArticulationNodes(PieceNode * n, int& counter) {
 
 
 	for(auto neighbor: n -> neighbors){
-		
-		if (! (neighbor -> visited) ){
+	
+		//if not yet visited
+		if (visited.find(neighbor) == visited.end() ){
 
 			(*neighbor).parent = n;
 
 			//see if node has a path to lower node
-			getArticulationNodes(neighbor, counter);
+			getArticulationNodes(neighbor, counter, visited);
 
 			//if neighbor points to a lower node
 			//update lowest Link
@@ -91,7 +94,6 @@ void PieceGraph::checkArticulationRoot(PieceNode * root) {
 		}
 	}
 	articulationNodes.erase(root);
-
 }
 
 //TODO: optimize (recalculate O(k) for inserted leaves)
@@ -100,7 +102,8 @@ BitboardContainer PieceGraph::getPinnedPieces() {
 	int counter  = 0;
 	PieceNode * firstPieceNode = bitboardHashTable.begin() -> second;
 
-	getArticulationNodes(firstPieceNode, counter);
+	unordered_set<PieceNode*> visited;
+	getArticulationNodes(firstPieceNode, counter, visited);
 	checkArticulationRoot(firstPieceNode);
 	
 
@@ -124,3 +127,24 @@ void PieceGraph::destroy() {
 	allPieceNodes.clear();
 	bitboardHashTable.clear();
 }
+
+//this is just something fun to tinker with c++ features
+//and help with testing
+void PieceGraph::DFS( PieceNode * root, function<void (PieceNode*)> func,
+					 unordered_set<PieceNode*>& visited) {
+
+	if (visited.find(root) != visited.end()) 
+		return;
+	visited.insert(root);
+	func(root);
+
+	for (auto neighbor : root -> neighbors) {
+		DFS(neighbor, func, visited);
+	}
+}
+
+void PieceGraph::DFS( function<void (PieceNode*)> func) {
+	unordered_set <PieceNode*> visited;
+	DFS(*allPieceNodes.begin(), func, visited);
+}
+

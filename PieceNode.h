@@ -13,7 +13,6 @@ class PieceNode {
 
 		list <PieceNode*> neighbors;	
 
-		bool visited = false;
 		int visitedNum;
 		int lowLink;
 

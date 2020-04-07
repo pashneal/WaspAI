@@ -55,6 +55,8 @@ class Test {
 		class GameStateTest {
 			public:
 				static void testMovePiece();
+				static void testInsertPiece();
+				static void testFastSpawnPiece();
 		};
 
 		static void pass(bool, string);

@@ -1069,11 +1069,42 @@ void Test::PieceGraphTest::testFindAllPinnedPieces(){
 	}
 };
 
-void Test::GameStateTest::testMovePiece(){
-	GameState gameState(HivePLM, PieceColor::WHITE);
-	//initialize the gameState here
+void Test::GameStateTest::testFastSpawnPiece(){
 	
-	gameState.setUnusedPieces(HivePLM);
+	bool silenced = false;
+
+	GameState gameState(HivePLM, PieceColor::WHITE);
+	vector <pair <BitboardContainer, PieceName> > initialPieces;
+	initialPieces = {
+		{BitboardContainer({{5,134217728u}}), PieceName::ANT},
+		{BitboardContainer({{5,34359738368u}}), PieceName::ANT},
+		{BitboardContainer({{5,1048576u}}), PieceName::ANT},
+		{BitboardContainer({{5, 4398046511104u}}), PieceName::ANT},
+		{BitboardContainer({{5, 524288u}}), PieceName::QUEEN},
+	};
+
+	BitboardContainer finalBoard;
+
+	for (auto p : initialPieces) {
+		finalBoard.unionWith(p.first);
+		gameState.fastSpawnPiece(p.first, p.second);
+	}
+	
+	cout << "===================TestFastSpawn==================" << endl;
+
+	BitboardContainer * pieceGraphBoard = new BitboardContainer();
+	auto buildPieceGraphBoard = [&](PieceNode* node) {
+		BitboardContainer nodeBoard({{node -> boardIndex, node -> location}});
+		pieceGraphBoard -> unionWith(nodeBoard);
+	};
+
+	gameState.pieceGraph.DFS(buildPieceGraphBoard);
+
+	Test::pass( *pieceGraphBoard == finalBoard , "pieceGraph not updated correctly");
+
+
+
+
 }
 int main() {
 	Test::BitboardTest::testShiftDirection();
