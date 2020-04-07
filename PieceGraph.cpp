@@ -100,6 +100,7 @@ void PieceGraph::checkArticulationRoot(PieceNode * root) {
 BitboardContainer PieceGraph::getPinnedPieces() {
 	articulationNodes.clear();
 	int counter  = 0;
+	if (bitboardHashTable.size() == 0) return BitboardContainer();
 	PieceNode * firstPieceNode = bitboardHashTable.begin() -> second;
 
 	unordered_set<PieceNode*> visited;
@@ -119,32 +120,31 @@ BitboardContainer PieceGraph::getPinnedPieces() {
 
 void PieceGraph::destroy() {
 	articulationNodes.clear();
-	for (PieceNode * ptr: allPieceNodes) {
-		ptr->neighbors.clear();
-		ptr->parent = nullptr;
-		delete ptr;
+	for (auto element : bitboardHashTable ) {
+		PieceNode * ptr = element.second;
+			ptr->neighbors.clear();
+			ptr->parent = nullptr;
+			delete ptr;
 	}
-	allPieceNodes.clear();
 	bitboardHashTable.clear();
 }
 
-//this is just something fun to tinker with c++ features
-//and help with testing
-void PieceGraph::DFS( PieceNode * root, function<void (PieceNode*)> func,
+void PieceGraph::DFS( PieceNode * root,
 					 unordered_set<PieceNode*>& visited) {
 
-	if (visited.find(root) != visited.end()) 
-		return;
 	visited.insert(root);
-	func(root);
 
 	for (auto neighbor : root -> neighbors) {
-		DFS(neighbor, func, visited);
+		
+		if (visited.find(neighbor) != visited.end() ) continue;
+		DFS(neighbor, visited);
 	}
 }
 
-void PieceGraph::DFS( function<void (PieceNode*)> func) {
+unordered_set <PieceNode*> PieceGraph::DFS() {
 	unordered_set <PieceNode*> visited;
-	DFS(*allPieceNodes.begin(), func, visited);
+	if (bitboardHashTable.size() != 0)
+		DFS(bitboardHashTable.begin() -> second, visited);
+	return visited;
 }
 

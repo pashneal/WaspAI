@@ -48,30 +48,7 @@ Direction rotateCounterClockWise(Direction dir);
 unsigned modulo(int, unsigned);
 
 	
-vector <unordered_map <PieceName, int>> HivePLM = 
-{
-	{	
-		{PieceName::GRASSHOPPER, 3},
-		{PieceName::QUEEN, 1},
-		{PieceName::LADYBUG, 1},
-		{PieceName::PILLBUG, 1},
-		{PieceName::MOSQUITO, 1},
-		{PieceName::BEETLE, 2},
-		{PieceName::ANT, 3},
-		{PieceName::SPIDER, 2}
-	},
-
-	{	
-		{PieceName::GRASSHOPPER, 3},
-		{PieceName::QUEEN, 1},
-		{PieceName::LADYBUG, 1},
-		{PieceName::PILLBUG, 1},
-		{PieceName::MOSQUITO, 1},
-		{PieceName::BEETLE, 2},
-		{PieceName::ANT, 3},
-		{PieceName::SPIDER, 2}
-	}
-};
+extern vector <unordered_map <PieceName, int>> HivePLM; 
 const int ROW_SHIFT = 8;
 const int COLUMN_SHIFT = 1;
 const int BITBOARD_HEIGHT = 8;
