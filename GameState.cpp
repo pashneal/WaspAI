@@ -21,7 +21,6 @@ GameState::GameState( GameState& other) {
 	mosquitoes =        other.mosquitoes;
 	pillbugs =          other.pillbugs;
 	grasshoppers =      other.grasshoppers;
-	firstPieces =       other.firstPieces;
 	upperLevelPieces =  other.upperLevelPieces;
 	immobile =          other.immobile;
 	pinned =            other.pinned;          
@@ -69,7 +68,6 @@ MoveInfo GameState::insertPiece(BitboardContainer& bitboard, PieceName& name) {
 
 //TEST
 void GameState::fastInsertPiece(BitboardContainer& bitboard, PieceName& name) {
-
 	if (allPieces.containsAny(bitboard)) {
 		stackHashTable[bitboard.hash()].push({turnColor, name});
 		upperLevelPieces.xorWith(bitboard);
@@ -82,6 +80,7 @@ void GameState::fastInsertPiece(BitboardContainer& bitboard, PieceName& name) {
 	getPieces(name) -> unionWith(bitboard);
 	getPieces(turnColor) -> unionWith(bitboard);
 	immobile.initializeTo(bitboard);
+	findPinnedPieces();
 }
 
 MoveInfo GameState::movePiece(BitboardContainer& oldBitboard, BitboardContainer& newBitboard,

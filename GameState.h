@@ -39,7 +39,6 @@ class GameState {
 	BitboardContainer mosquitoes;
 	BitboardContainer pillbugs;
 	BitboardContainer grasshoppers;
-	BitboardContainer firstPieces;
 	BitboardContainer upperLevelPieces;
 	BitboardContainer immobile;
 	BitboardContainer pinned;    
