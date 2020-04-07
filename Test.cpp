@@ -1085,8 +1085,14 @@ void Test::GameStateTest::testFastSpawnPiece(){
 
 	BitboardContainer finalBoard;
 
+	bool color = (bool)PieceColor::WHITE;
+	vector <BitboardContainer> whiteBlackPieces(2);
 	for (auto p : initialPieces) {
+		color = (color) ? 0 : 1;
+
+		whiteBlackPieces[color].unionWith(p.first);
 		finalBoard.unionWith(p.first);
+
 		gameState.fastSpawnPiece(p.first, p.second);
 	}
 	
@@ -1098,14 +1104,48 @@ void Test::GameStateTest::testFastSpawnPiece(){
 		pieceGraphBoard -> unionWith(nodeBoard);
 	};
 
+	Test::pass( whiteBlackPieces[(PieceColor)0] == *gameState.getPieces((PieceColor)0) && 
+				whiteBlackPieces[(PieceColor)1] == *gameState.getPieces((PieceColor)1),
+				"whiteBlackPieces not updated correctly");
+
 	gameState.pieceGraph.DFS(buildPieceGraphBoard);
 
 	Test::pass( *pieceGraphBoard == finalBoard , "pieceGraph not updated correctly");
+	if (!silenced) { cout << "pieceGraphBoard\n" << endl; pieceGraphBoard -> print();}
 
+	Test::pass( gameState.allPieces == finalBoard , "allPieces not updated correctly");
+	if (!silenced) {cout << "allpiece\n" << endl; gameState.allPieces.print();}
 
+	BitboardContainer ants(finalBoard);
+	BitboardContainer queen({{5, 524288u}});
+	ants.notIntersectionWith(queen);
 
+	Test::pass( gameState.ants == ants, "ants not updated correctly");
+	if (!silenced) {cout << "ants\n" << endl; gameState.ants.print();};
 
+	Test::pass( gameState.queens == queen, "queens not updated correctly");
+	if (!silenced) {cout << "queens" << endl; gameState.queens.print();}
+
+	BitboardContainer empty;
+
+	for (int i = 0 ; i < PieceName::SPIDER; i++) {
+		if (i == PieceName::ANT || i == PieceName::SPIDER) continue;
+		Test::pass( *gameState.getPieces((PieceName)i) == empty, " a piece not updated correctly");
+		if (!silenced) {gameState.getPieces((PieceName)i) -> print();}
+	}
+
+	Test::pass( gameState.immobile == queen, " immobile not updated correctly");
+	if (!silenced) {cout << "immobile\n" << endl; gameState.immobile.print();}
+	
+	BitboardContainer pinned({{5, 34493956096u}});
+	Test::pass( gameState.pinned == pinned, " pinned not updated correctly");
+	if (!silenced) {cout << "pinned\n" << endl; pinned.print();}
+	Test::pass( gameState.upperLevelPieces == empty, " upperLevelPieces not updated correctly");
+	if (!silenced) {cout << "upperLevelPieces\n" << endl; gameState.upperLevelPieces.print();}
+	Test::pass( gameState.setUnusedPieces(HivePLM) == false, 
+			" unusedPieces was not originally correct");
 }
+
 int main() {
 	Test::BitboardTest::testShiftDirection();
 	Test::BitboardTest::testXorWith();
@@ -1126,4 +1166,5 @@ int main() {
 	Test::MoveGeneratorTest::testAntMoves();
 	Test::MoveGeneratorTest::testPillbugMoves();
 	Test::PieceGraphTest::testFindAllPinnedPieces();
+	Test::GameStateTest::testFastSpawnPiece();
 }

@@ -8,13 +8,13 @@ using namespace std;
 
 enum PieceName{
 	GRASSHOPPER=0,
-	QUEEN,
-	LADYBUG,
-	PILLBUG,
-	MOSQUITO,
-	BEETLE,
-	ANT,
-	SPIDER
+	QUEEN=1,
+	LADYBUG=2,
+	PILLBUG=3,
+	MOSQUITO=4,
+	BEETLE=5,
+	ANT=6,
+	SPIDER=7
 };
 
 enum Direction{
@@ -47,6 +47,7 @@ Direction rotateClockWise(Direction dir);
 Direction rotateCounterClockWise(Direction dir);
 unsigned modulo(int, unsigned);
 
+	
 vector <unordered_map <PieceName, int>> HivePLM = 
 {
 	{	

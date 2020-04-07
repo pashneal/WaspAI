@@ -100,6 +100,7 @@ class GameState {
 
 	void playout(int);
 
-	void setUnusedPieces(vector <unordered_map < PieceName, int >>);
+	//returns true if any values in unusedPieces was changed
+	bool setUnusedPieces(vector <unordered_map < PieceName, int >>);
 };
 

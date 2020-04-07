@@ -620,8 +620,8 @@ void GameState::playout(int limitMoves) {
 
 //given a maximum allowed piece count for each piece
 //count every piece in the GameState and setUnusedPieces accordingly
-void GameState::setUnusedPieces(vector <unordered_map <PieceName, int>> maxPieceCount) {
-
+bool GameState::setUnusedPieces(vector <unordered_map <PieceName, int>> maxPieceCount) {
+	bool flag;
 	for (int i = 0; i < 2; i++) {
 		PieceColor color = (PieceColor)i;
 		for (PieceName name: possibleNames) {
@@ -653,9 +653,11 @@ void GameState::setUnusedPieces(vector <unordered_map <PieceName, int>> maxPiece
 				throw 40;
 			}
 
+			flag |= unusedPieces[color][name] != numPieces;
 			unusedPieces[color][name] = numPieces;
 		}
 	}
+	return flag;
 }
 //STILL WORKING ON RANDOM 
 //FORGOT THE RULE ABOUT PILLBUG CAN BE USED IF PINNED
