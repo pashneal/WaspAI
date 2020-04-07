@@ -39,6 +39,7 @@ class PieceGraph {
 			for (auto element: other.bitboardHashTable) {
 				BitboardContainer bitboard({{element.second -> boardIndex, 
 											 element.second -> location}});
+				insert(bitboard);
 			}
 		}
 };
