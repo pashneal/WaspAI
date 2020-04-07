@@ -16,7 +16,6 @@ class MoveGenerator {
 		//TODO: Optimize by checking inaccesible points only after it has been
 		//decided on by game engine
 		//TODO: make these read-only pointers
-		vector <BitboardContainer> * gatesSplit;
 		//TODO: change everything that is generatingPieceBoard to generatingPiece
 		BitboardContainer * generatingPieceBoard;
 		unordered_map < int, stack < pair < PieceColor , PieceName> > > * stackHashTable;

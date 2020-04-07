@@ -45,8 +45,7 @@ extern list <Direction> hexagonalDirections ;
 
 Direction rotateClockWise(Direction dir);
 Direction rotateCounterClockWise(Direction dir);
-
-int hash( PieceColor, PieceName);
+unsigned modulo(int, unsigned);
 
 const int ROW_SHIFT = 8;
 const int COLUMN_SHIFT = 1;

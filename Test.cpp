@@ -193,16 +193,21 @@ void Test::BitboardTest::testShiftDirection(){
 	cout << "Test " << shiftDirections.size() << ": ";
 	Test::pass(testBitboardContainer.internalBoards[5] == 1, "result incorrect");
 
+	bool silenced = false;
 
 	cout << "Test " << shiftDirections.size() + 1 << ": ";
 
 	BitboardContainer testProblemNodes;
 	testProblemNodes.initialize({{12, 524800u}});
+	if (!silenced) {testProblemNodes.print(); cout << endl;}
 	testProblemNodes.shiftDirection(Direction::N, 15);
+	if (!silenced) {testProblemNodes.print(); cout << endl;}
 	testProblemNodes.shiftDirection(Direction::E, 7);
+	if (!silenced) {testProblemNodes.print(); cout << endl;}
 	testProblemNodes.convertToHexRepresentation(Direction::NE, 15);
+	if (!silenced) {testProblemNodes.print(); cout << endl;}
 	BitboardContainer result({{5,1026u}});
-	Test::pass(result.equals(testProblemNodes), " result incorrect");
+	Test::pass(result == testProblemNodes, " result incorrect");
 }
 
 void Test::BitboardTest::testXorWith() {

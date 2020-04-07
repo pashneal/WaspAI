@@ -7,6 +7,8 @@
 using namespace std;
 
 GameState::GameState( GameState& other) {
+	turnColor =			other.turnColor;
+	turnCounter =		other.turnCounter;
 	allPieces =         other.allPieces;
 	whitePieces =       other.whitePieces;
 	blackPieces =       other.blackPieces;
@@ -32,7 +34,11 @@ GameState::GameState( GameState& other) {
 	problemNodeContainer.allPieces = &allPieces;
 
 	pieceGraph = other.pieceGraph;
-	;
+	moveGenerator.allPieces = &allPieces;
+	moveGenerator.problemNodes = &problemNodeContainer;
+
+	moveGenerator.setUpperLevelPieces(&upperLevelPieces);
+	moveGenerator.setStackHashTable(&stackHashTable);
 }
 GameState::GameState (list <PieceName> possibleNamesIn,
 					  vector <unordered_map <PieceName, int>> unusedPiecesIn) {
@@ -41,6 +47,9 @@ GameState::GameState (list <PieceName> possibleNamesIn,
 	problemNodeContainer.allPieces = &allPieces;
 	moveGenerator.allPieces = &allPieces;
 	moveGenerator.problemNodes = &problemNodeContainer;
+
+	moveGenerator.setUpperLevelPieces(&upperLevelPieces);
+	moveGenerator.setStackHashTable(&stackHashTable);
 }
 
 MoveInfo GameState::insertPiece(BitboardContainer& bitboard, PieceName& name) {
@@ -49,6 +58,7 @@ MoveInfo GameState::insertPiece(BitboardContainer& bitboard, PieceName& name) {
 	if (bitboard.count() == 0) return moveInfo;
 	fastInsertPiece(bitboard, name);
 	moveInfo.newPieceLocation.initializeTo(bitboard);
+
 	return moveInfo;
 }
 
@@ -562,7 +572,6 @@ void GameState::findPinnedPieces(){
 	pinned = pieceGraph.getPinnedPieces();
 }
 
-
 //returns pair <swappable, empty>
 //where any one piece from swappable can be moved to empty
 pair <BitboardContainer, BitboardContainer> GameState::getSwapSpaces(BitboardContainer piece) {
@@ -588,6 +597,17 @@ pair <BitboardContainer, BitboardContainer> GameState::getSwapSpaces(BitboardCon
 
 	return pair <BitboardContainer, BitboardContainer> {swappable, empty};
 }
+
+void GameState::playout(int limitMoves) {
+	if (limitMoves == 0)
+		return;
+	if (checkVictory() != PieceColor::NONE)
+		return;
+	if (checkDraw())
+		return;
+	makePsuedoRandomMove();
+	limitMoves--;
+}
 //STILL WORKING ON RANDOM 
 //FORGOT THE RULE ABOUT PILLBUG CAN BE USED IF PINNED
 //QUEEN CAN'T BE PLACED FIRST (FOR NOW)
@@ -596,6 +616,4 @@ pair <BitboardContainer, BitboardContainer> GameState::getSwapSpaces(BitboardCon
 //TODO: delayed legality check
 
 //recenter / overflow?
-//playout 
 //end evaluation func
-//deep copy

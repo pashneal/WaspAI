@@ -39,3 +39,10 @@ Direction rotateCounterClockWise(Direction dir) {
 	}
 }
 
+unsigned modulo( int value, unsigned m) {
+	int mod = value % (int)m;
+	if (value < 0) {
+		mod += m;
+	}
+	return mod;
+}

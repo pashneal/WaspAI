@@ -158,6 +158,9 @@ void BitboardContainer::shiftOrthogonalDirection(Direction dir, int numTimes){
 		if (overflowAmount == 0) {
 			newHighBoardIndex -= boardIndexDiff;
 		}
+
+		newHighBoardIndex = modulo(newHighBoardIndex, BITBOARD_CONTAINER_SIZE);
+		newLowBoardIndex = modulo(newLowBoardIndex, BITBOARD_CONTAINER_SIZE);
 		//TODO: shift direction may be able to overflow
 		if (numTimes >= BITBOARD_HEIGHT) {
 			internalBoardCache.erase(initialBoardIndex);
@@ -169,21 +172,17 @@ void BitboardContainer::shiftOrthogonalDirection(Direction dir, int numTimes){
 		overflowLow = adjustOverflowMask(dir, overflowAmount, true, overflowLow);
 		overflowHigh = adjustOverflowMask(dir, overflowAmount, false, overflowHigh);
 
-		if (newLowBoardIndex < 16 && newLowBoardIndex >= 0) {
 
-			internalBoards[newLowBoardIndex] = 0;
-			internalBoards[newLowBoardIndex] |= overflowLow;
-			internalBoardCache.insert(newLowBoardIndex);
-		}
+		internalBoards[newLowBoardIndex] = 0;
+		internalBoards[newLowBoardIndex] |= overflowLow;
+		internalBoardCache.insert(newLowBoardIndex);
 
-		if (newHighBoardIndex < 16 && newHighBoardIndex >= 0) {
 
-			if (internalBoardCache.find(newHighBoardIndex) == internalBoardCache.end()) 
-				internalBoards[newHighBoardIndex] = 0;
+		if (internalBoardCache.find(newHighBoardIndex) == internalBoardCache.end()) 
+			internalBoards[newHighBoardIndex] = 0;
 
-			internalBoards[newHighBoardIndex] |= overflowHigh;
-			internalBoardCache.insert(newHighBoardIndex);
-		}
+		internalBoards[newHighBoardIndex] |= overflowHigh;
+		internalBoardCache.insert(newHighBoardIndex);
 
 
 	}

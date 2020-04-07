@@ -99,5 +99,7 @@ class GameState {
 	void findPinnedPieces();
 
 	pair <BitboardContainer, BitboardContainer> getSwapSpaces(BitboardContainer);
+
+	void playout(int);
 };
 

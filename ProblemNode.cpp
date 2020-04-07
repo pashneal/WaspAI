@@ -70,67 +70,6 @@ void ProblemNodeContainer::insert(BitboardContainer& problemNodes) {
 	}	
 }
 
-BitboardContainer ProblemNodeContainer::getLegalClimbs(BitboardContainer& initialPiece,
-				  BitboardContainer& upperLevelPieces,
-				  unordered_map < int , stack < pair < PieceColor, PieceName>>> stackHashTable) {
-
-	BitboardContainer legalClimbs;
-
-	pair <int , unsigned long long> bit = initialPiece.getLeastSignificantBit();
-
-	int boardIndex = bit.first;
-	unsigned long long piece = bit.second; 
-
-	int leadingZeroesCount = __builtin_clzll(piece);
-
-	int xShift = ((63) - leadingZeroesCount )% 8 - 2;
-	int yShift = ((63) - leadingZeroesCount )/ 8 - 2;
-
-	xShift += (BITBOARD_WIDTH * (boardIndex % BITBOARD_CONTAINER_COLS));
-	yShift += BITBOARD_HEIGHT * (BITBOARD_CONTAINER_ROWS - 1 - (boardIndex / BITBOARD_CONTAINER_ROWS));	
-
-	BitboardContainer testGate;
-	BitboardContainer finalPiece;
-	for (auto dir: hexagonalDirections) {
-
-		//TODO: make a 2d shift function
-		testGate.initialize({{lowerLeftGate ,  gateInDirection[dir]}});
-		testGate.shiftDirection(Direction::N, yShift);
-		testGate.shiftDirection(Direction::E, xShift);
-		testGate.convertToHexRepresentation(Direction::NE,yShift);
-		
-		testGate.intersectionWith(upperLevelPieces);
-		if (testGate.count() == 2) {
-			finalPiece.initializeTo(initialPiece);
-			finalPiece.shiftDirection(dir);
-			int maxPieceHeight = 0;
-			int minGateHeight = 100;
-
-			for (BitboardContainer gatePiece: testGate.splitIntoBitboardContainers() ) {
-				int min = stackHashTable[gatePiece.hash()].size();
-				minGateHeight = (min < minGateHeight) ? min : minGateHeight;
-			}
-
-			if (upperLevelPieces.containsAny(finalPiece)) {
-				maxPieceHeight = stackHashTable[finalPiece.hash()].size();
-			}
-			int max = stackHashTable[initialPiece.hash()].size();
-
-			if (upperLevelPieces.containsAny(initialPiece) && 
-				 max > maxPieceHeight)  {
-				maxPieceHeight = max;
-			}
-
-			if (maxPieceHeight > minGateHeight) {
-				legalClimbs.unionWith(finalPiece);
-			}
-
-		}
-		
-	}
-
-	return legalClimbs;
-}
 
 bool ProblemNodeContainer::problemNodeExists(BitboardContainer& problemNode) {
 	return problemNodeHashes.find(problemNode.hash()) != problemNodeHashes.end();
