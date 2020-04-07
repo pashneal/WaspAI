@@ -1144,6 +1144,12 @@ void Test::GameStateTest::testFastSpawnPiece(){
 	if (!silenced) {cout << "upperLevelPieces\n" << endl; gameState.upperLevelPieces.print();}
 	Test::pass( gameState.setUnusedPieces(HivePLM) == false, 
 			" unusedPieces was not originally correct");
+
+	Test::pass( PieceColor::BLACK == gameState.turnColor, " turnColor is incorrect");
+	if (!silenced) {cout << gameState.turnColor<< endl;}
+	Test::pass( gameState.turnCounter == 5, "turnCounter is incorrect");
+	if (!silenced) {cout << gameState.turnCounter << endl;}
+
 }
 
 int main() {
