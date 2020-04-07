@@ -149,6 +149,7 @@ void BitboardContainer::shiftOrthogonalDirection(Direction dir, int numTimes){
 
 
 		//TODO: name everything here better
+	
 		//determine where all the bits will move to
 		newLowBoardIndex =  initialBoardIndex + boardIndexDiff * boardLengthDiff;
 		newHighBoardIndex = newLowBoardIndex + boardIndexDiff;
@@ -159,16 +160,19 @@ void BitboardContainer::shiftOrthogonalDirection(Direction dir, int numTimes){
 			newHighBoardIndex -= boardIndexDiff;
 		}
 
+		//wrap the board around to a legalBoard
 		newHighBoardIndex = modulo(newHighBoardIndex, BITBOARD_CONTAINER_SIZE);
 		newLowBoardIndex = modulo(newLowBoardIndex, BITBOARD_CONTAINER_SIZE);
-		//TODO: shift direction may be able to overflow
+
 		if (numTimes >= BITBOARD_HEIGHT) {
 			internalBoardCache.erase(initialBoardIndex);
 		}
 
+		//get the two parts of the new mask
 		overflowHigh = overflowHighMask & internalBoards[initialBoardIndex];
 		overflowLow = overflowLowMask & internalBoards[initialBoardIndex];
 
+		//shift the contents into the correct place
 		overflowLow = adjustOverflowMask(dir, overflowAmount, true, overflowLow);
 		overflowHigh = adjustOverflowMask(dir, overflowAmount, false, overflowHigh);
 
@@ -183,8 +187,6 @@ void BitboardContainer::shiftOrthogonalDirection(Direction dir, int numTimes){
 
 		internalBoards[newHighBoardIndex] |= overflowHigh;
 		internalBoardCache.insert(newHighBoardIndex);
-
-
 	}
 }
 
