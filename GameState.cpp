@@ -143,10 +143,9 @@ int GameState::countPossibleSpawns(BitboardContainer& spawns) {
 	int colorInt = (int)turnColor;
 	int totalUnusedPieces = 0;
 	for (auto pieceAmountMap: unusedPieces[colorInt]){
-		totalUnusedPieces += pieceAmountMap.second;
+		totalUnusedPieces += (bool)pieceAmountMap.second;
 	}
 	return totalUnusedPieces*spawns.count();
-
 }
 void GameState::spawnPiece(BitboardContainer& spawnLocations, int moveSelect) {
 	int colorInt = (int)turnColor;
@@ -460,15 +459,16 @@ void GameState::makePsuedoRandomMove() {
 	auto iterBoards = boards.begin();
 
 	BitboardContainer spawns = getAllSpawnSpaces();
-	total += spawns.count();
+	int spawnsCount = countPossibleSpawns(spawns);
+	total +=  spawnsCount;
 
 	//if there are no legal moves
 	if (total == 0) return;
 	srand(time(NULL));
 	int randInt = rand() % total;
 
-	if (randInt >= total - spawns.count() ) 
-		spawnPiece(spawns, rand() % spawns.count() );
+	if (randInt >= total - spawnsCount ) 
+		spawnPiece(spawns, rand() % spawnsCount );
 
 	
 	while (iterNames != names.end() ) {
