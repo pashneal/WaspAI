@@ -57,6 +57,7 @@ class Test {
 				static void testMovePiece();
 				static void testInsertPiece();
 				static void testFastSpawnPiece();
+				static void testPsuedoRandom();
 		};
 
 		static void pass(bool, string);

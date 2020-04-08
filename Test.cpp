@@ -1261,6 +1261,36 @@ void Test::GameStateTest::testMovePiece(){
 	Test::pass(gameState.allPieces == finalBoard , " allPieces produced incorrect results");
 	Test::pass(finalMosquito == gameState.upperLevelPieces, " upperLevelPieces incorrect");
 	if (!silenced) {gameState.upperLevelPieces.print();}
+}
+
+void Test::GameStateTest::testPsuedoRandom() {
+	GameState gameState(HivePLM, PieceColor::WHITE);
+	vector <pair <BitboardContainer, PieceName> > initialPieces;
+	cout << "====================TestMovePiece====================" << endl;
+	initialPieces = {
+		{BitboardContainer({{5,134217728u}}), PieceName::ANT},
+		{BitboardContainer({{5,34359738368u}}), PieceName::ANT},
+		{BitboardContainer({{5,1048576u}}), PieceName::ANT},
+		{BitboardContainer({{5, 4398046511104u}}), PieceName::ANT},
+		{BitboardContainer({{5, 524288u}}), PieceName::QUEEN},
+		{BitboardContainer({{5, 8796093022208u}}), PieceName::BEETLE},
+		{BitboardContainer({{5, 67108864u}}), PieceName::MOSQUITO},
+		{BitboardContainer({{5, 17592186044416u}}), PieceName::ANT},
+		{BitboardContainer({{5, 17179869184u}}), PieceName::LADYBUG},
+		{BitboardContainer({{5, 134217728u}}), PieceName::BEETLE},
+	};
+	
+	for (auto p : initialPieces) {
+		gameState.insertPiece(p.first, p.second);	
+	}
+
+	BitboardContainer ant({{5,1048576u}});
+	BitboardContainer queen({{5, 524288u}});
+	BitboardContainer mosquito({{5, 67108864u}});
+	BitboardContainer ladybug({{5, 17179869184u}});
+
+	
+	
 
 }
 

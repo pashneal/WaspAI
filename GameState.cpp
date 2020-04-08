@@ -546,13 +546,14 @@ int GameState::moveApproximation(BitboardContainer piece, PieceName name){
 		case QUEEN:
 			return 2;
 		case GRASSHOPPER:
-			//highly variable but expensive to compute (currently)
-			return 2;
+			//can jump over a piece thats beside them
+			piece = piece.getPerimeter();
+			return piece.count();
 		case LADYBUG:
 			//highly variable but expensive to compute
 			piece = piece.getPerimeter();
 			piece.intersectionWith(allPieces);
-			return (int)(2.5)*piece.count();
+			return (int)(1.6)*piece.count();
 		case BEETLE:
 			// if the beetle is on the hive it has more freedom
 			return 4 + 2*(upperLevelPieces.containsAny(piece)); 
