@@ -71,6 +71,7 @@ class GameState {
 	void movePiece(BitboardContainer&, BitboardContainer&, int);
 
 	PieceName findPieceName(BitboardContainer);
+	PieceColor findPieceColor(BitboardContainer);
 	void undoMove(MoveInfo);
 
 	PieceColor checkVictory();

@@ -1070,8 +1070,7 @@ void Test::PieceGraphTest::testFindAllPinnedPieces(){
 };
 
 void Test::GameStateTest::testFastSpawnPiece(){
-	
-	bool silenced = false;
+	bool silenced = true;
 
 	GameState gameState(HivePLM, PieceColor::WHITE);
 	vector <pair <BitboardContainer, PieceName> > initialPieces;
@@ -1149,11 +1148,120 @@ void Test::GameStateTest::testFastSpawnPiece(){
 
 	Test::pass( gameState.setUnusedPieces(HivePLM) == false, 
 			" unusedPieces was not originally correct");
-
+	
 	Test::pass( PieceColor::BLACK == gameState.turnColor, " turnColor is incorrect");
 	if (!silenced) {cout << gameState.turnColor<< endl;}
+
 	Test::pass( gameState.turnCounter == 5, "turnCounter is incorrect");
 	if (!silenced) {cout << gameState.turnCounter << endl;}
+}
+
+void Test::GameStateTest::testMovePiece(){
+	GameState gameState(HivePLM, PieceColor::WHITE);
+	vector <pair <BitboardContainer, PieceName> > initialPieces;
+	cout << "====================TestMovePiece====================" << endl;
+	initialPieces = {
+		{BitboardContainer({{5,134217728u}}), PieceName::ANT},
+		{BitboardContainer({{5,34359738368u}}), PieceName::ANT},
+		{BitboardContainer({{5,1048576u}}), PieceName::ANT},
+		{BitboardContainer({{5, 4398046511104u}}), PieceName::ANT},
+		{BitboardContainer({{5, 524288u}}), PieceName::QUEEN},
+		{BitboardContainer({{5, 8796093022208u}}), PieceName::BEETLE},
+		{BitboardContainer({{5, 67108864u}}), PieceName::MOSQUITO},
+	};
+	
+
+	BitboardContainer testAnt({{5, 4398046511104u}});
+	BitboardContainer testBeetle({{5, 8796093022208u}});
+	BitboardContainer testMosquito({{5, 67108864u}});
+	BitboardContainer finalBeetle({{5, 34359738368u}});
+	BitboardContainer finalMosquito({{5, 34359738368u}});
+	BitboardContainer finalAnt({{5, 17179869184u}});
+
+	bool color = (bool)PieceColor::WHITE;
+	for (auto p : initialPieces) {
+
+		gameState.fastSpawnPiece(p.first, p.second);
+		color = !color;
+	}
+
+	PieceName ant = PieceName::ANT;
+	PieceName mosquito = PieceName::MOSQUITO;
+	PieceName beetle = PieceName::BEETLE;
+
+	gameState.fastMovePiece(testAnt, finalAnt, ant);
+	gameState.fastMovePiece(testMosquito, finalMosquito, mosquito);
+	gameState.fastMovePiece(testBeetle, finalBeetle, beetle);
+	
+	color = !color;
+	int turnCounter = 10;
+	BitboardContainer blackPieces({{5, 51539607552u}});
+	BitboardContainer whitePieces({{5, 34495528960u}});
+	BitboardContainer finalBoard({{5, 51675398144u}});
+	BitboardContainer ants({{5, 51674873856u}});
+	BitboardContainer queens({{5, 524288u}});
+	BitboardContainer mosquitoes({{5, 34359738368u}});
+	BitboardContainer beetles({{5, 34359738368u}});
+	BitboardContainer pinned({{5, 34493956096u}});
+	BitboardContainer immobile(finalBeetle);
+	auto stackCopy = gameState.stackHashTable[finalBeetle.hash()];
+	stack < pair < PieceColor , PieceName> >  stackCompare;
+
+	stackCompare.push({PieceColor::WHITE, PieceName::MOSQUITO});
+	stackCompare.push({PieceColor::BLACK, PieceName::BEETLE});
+	
+	while (!stackCompare.empty() ) {
+		Test::pass(stackCompare.top() == stackCopy.top(),
+				"stackHashTable produced unexpected results");
+		stackCompare.pop(); stackCopy.pop();
+	}
+
+	bool silenced = true;
+	Test::pass(turnCounter == gameState.turnCounter, "turnCounter produced incorrect results");
+	Test::pass(gameState.ants == ants , " ants produced incorrect results");
+	Test::pass(gameState.queens == queens , " queens produced incorrect results");
+	Test::pass(gameState.mosquitoes == mosquitoes , " mosquitoes produced incorrect results");
+	Test::pass(gameState.beetles == beetles , " beetles produced incorrect results");
+	Test::pass(gameState.pinned == pinned , " pinned produced incorrect results");
+	Test::pass(gameState.immobile == immobile , " immobile produced incorrect results");
+	Test::pass(gameState.whitePieces == whitePieces , " whitePieces produced incorrect results");
+	Test::pass(gameState.blackPieces == blackPieces , " blackPieces produced incorrect results");
+	Test::pass(gameState.allPieces == finalBoard , " allPieces produced incorrect results");
+	Test::pass(finalBeetle == gameState.upperLevelPieces, " upperLevelPieces incorrect");
+	if (!silenced) {gameState.upperLevelPieces.print();}
+
+	gameState.changeTurnColor();
+	gameState.fastMovePiece(finalBeetle, testBeetle, beetle);
+	blackPieces.initialize({{5, 8813272891392u}});	
+	finalBoard.unionWith(blackPieces);
+	immobile.initializeTo(testBeetle);
+	beetles.initializeTo(testBeetle);
+	turnCounter++;
+
+	stackCopy = gameState.stackHashTable[finalBeetle.hash()];
+	stackCompare.push({PieceColor::WHITE, PieceName::MOSQUITO}); 
+
+	cout << "-----------------------------" << endl;
+	while (!stackCompare.empty() ) {
+		Test::pass(stackCompare.top() == stackCopy.top(),
+				"stackHashTable produced unexpected results");
+		stackCompare.pop(); stackCopy.pop();
+	}
+
+	Test::pass(turnCounter == gameState.turnCounter, "turnCounter produced incorrect results");
+	Test::pass(gameState.ants == ants , " ants produced incorrect results");
+	Test::pass(gameState.queens == queens , " queens produced incorrect results");
+	Test::pass(gameState.mosquitoes == mosquitoes , " mosquitoes produced incorrect results");
+	Test::pass(gameState.beetles == beetles , " beetles produced incorrect results");
+	if (!silenced) {gameState.beetles.print();};
+	Test::pass(gameState.pinned == pinned , " pinned produced incorrect results");
+	Test::pass(gameState.immobile == immobile , " immobile produced incorrect results");
+	Test::pass(gameState.whitePieces == whitePieces , " whitePieces produced incorrect results");
+	Test::pass(gameState.blackPieces == blackPieces , " blackPieces produced incorrect results");
+	Test::pass(gameState.allPieces == finalBoard , " allPieces produced incorrect results");
+	Test::pass(finalMosquito == gameState.upperLevelPieces, " upperLevelPieces incorrect");
+	if (!silenced) {gameState.upperLevelPieces.print();}
+
 }
 
 int main() {
@@ -1177,4 +1285,5 @@ int main() {
 	Test::MoveGeneratorTest::testPillbugMoves();
 	Test::PieceGraphTest::testFindAllPinnedPieces();
 	Test::GameStateTest::testFastSpawnPiece();
+	Test::GameStateTest::testMovePiece();
 }

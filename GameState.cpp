@@ -66,11 +66,10 @@ MoveInfo GameState::insertPiece(BitboardContainer& bitboard, PieceName& name) {
 	return moveInfo;
 }
 
-//TEST
 void GameState::fastInsertPiece(BitboardContainer& bitboard, PieceName& name) {
 	if (allPieces.containsAny(bitboard)) {
 		stackHashTable[bitboard.hash()].push({turnColor, name});
-		upperLevelPieces.xorWith(bitboard);
+		upperLevelPieces.unionWith(bitboard);
 	} else {
 		pieceGraph.insert(bitboard);
 		problemNodeContainer.insertPiece(bitboard);
@@ -100,7 +99,6 @@ void GameState::fastMovePiece(BitboardContainer& oldBitboard, BitboardContainer&
 	turnCounter++;
 }
 
-//TEST
 void GameState::fastRemovePiece(BitboardContainer& oldBitboard, PieceName& name){ 
 	if (oldBitboard.count() == 0) {
 		cout << "Attempting to remove a piece that doesn't exist" << endl;
@@ -109,22 +107,23 @@ void GameState::fastRemovePiece(BitboardContainer& oldBitboard, PieceName& name)
 	int bitHash = oldBitboard.hash();
 	if (stackHashTable.find(bitHash) != stackHashTable.end()) { 
 		if (stackHashTable[bitHash].top().first == turnColor &&
-		    stackHashTable[bitHash].top().second == name) 
+				stackHashTable[bitHash].top().second == name) 
 		{
 			stackHashTable[bitHash].pop();
-			
+
 			if (!(stackHashTable[bitHash].size())) {
 				stackHashTable.erase(bitHash);
 				upperLevelPieces.xorWith(oldBitboard);
 			}
 		}
 	} else {
+
 		problemNodeContainer.removePiece(oldBitboard);
 		pieceGraph.remove(oldBitboard);
 		allPieces.xorWith(oldBitboard);
-		getPieces(name) -> xorWith(oldBitboard);
-		getPieces(turnColor) -> xorWith(oldBitboard);
 	}
+	getPieces(name) -> xorWith(oldBitboard);
+	getPieces(turnColor) -> xorWith(oldBitboard);
 }
 
 void GameState::fastSpawnPiece(BitboardContainer& b, PieceName& n) {
@@ -177,7 +176,10 @@ void GameState::swapPiece(BitboardContainer& swappable, BitboardContainer& empty
 		for (auto finalPiece: empty.splitIntoBitboardContainers() ) {
 			if (moveSelect  == i) {
 				PieceName name = findPieceName(initialPiece);
-				fastMovePiece(initialPiece, finalPiece, name);
+				PieceColor temp = turnColor; turnColor = findPieceColor(initialPiece);
+				fastMovePiece(initialPiece, finalPiece, name);	
+				turnColor = temp;
+				changeTurnColor();
 				return;
 			}
 			i++;
@@ -200,7 +202,8 @@ void GameState::movePiece(BitboardContainer& initialPiece,
 }
 
 void GameState::undoMove(MoveInfo moveInfo) {
-	//ADD LOGIC TO UNDO A SPAWN
+
+	//TODO: ADD LOGIC TO UNDO A SPAWN
 	changeTurnColor();
 	movePiece(moveInfo.newPieceLocation, moveInfo.oldPieceLocation,
 			  moveInfo.pieceName);
@@ -234,7 +237,7 @@ bool GameState::checkDraw() {
 	queenCheck.intersectionWith(allPieces);
 
 	BitboardContainer originalQueenPerimeter = queens.getPerimeter();
-	return (queenCheck == originalQueenPerimeter);
+	return (queenCheck == originalQueenPerimeter && queens.count() == 2);
 }
 
 inline BitboardContainer * GameState::getPieces() { 
@@ -459,12 +462,15 @@ void GameState::makePsuedoRandomMove() {
 	BitboardContainer spawns = getAllSpawnSpaces();
 	total += spawns.count();
 
+	//if there are no legal moves
+	if (total == 0) return;
 	srand(time(NULL));
 	int randInt = rand() % total;
 
 	if (randInt >= total - spawns.count() ) 
 		spawnPiece(spawns, rand() % spawns.count() );
 
+	
 	while (iterNames != names.end() ) {
 		if (*iterUpperBound < randInt) {
 			//if randInt is too large
@@ -529,6 +535,7 @@ void GameState::makePsuedoRandomMove() {
 				movePiece(initialPiece, moves, randInt);
 		}
 	}
+
 }	
 
 int GameState::moveApproximation(BitboardContainer piece, PieceName name){
@@ -567,14 +574,21 @@ int GameState::moveApproximation(BitboardContainer piece, PieceName name){
 		}
 }
 
+//only find the name of lower level pieces
 PieceName GameState::findPieceName(BitboardContainer piece) {
-	BitboardContainer test;
-	for (auto name: possibleNames) {
-		test.initializeTo(piece);
-		test.intersectionWith(*getPieces(name));
-		if (test.count()) return name;
-	}
+	for (auto name: possibleNames) 
+		if (getPieces(name) -> containsAny(piece)) return name;
+
 	return PieceName::QUEEN;
+}
+
+//only finds the colors of lower level pieces
+PieceColor GameState::findPieceColor( BitboardContainer piece) {
+	for (int i = 0 ; i < 2; i ++ ) 
+		if (getPieces((PieceColor)i) -> containsAny(piece) ) 
+			return	(PieceColor) i;
+
+	return PieceColor::NONE;
 }
 
 void GameState::findPinnedPieces(){
@@ -621,7 +635,7 @@ void GameState::playout(int limitMoves) {
 //given a maximum allowed piece count for each piece
 //count every piece in the GameState and setUnusedPieces accordingly
 bool GameState::setUnusedPieces(vector <unordered_map <PieceName, int>> maxPieceCount) {
-	bool flag;
+	bool flag = false;
 	for (int i = 0; i < 2; i++) {
 		PieceColor color = (PieceColor)i;
 		for (PieceName name: possibleNames) {

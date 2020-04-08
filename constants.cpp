@@ -20,6 +20,7 @@ Direction rotateClockWise(Direction dir) {
 	}
 }
 Direction rotateCounterClockWise(Direction dir) {
+
 	switch (dir) {
 		case NE: 
 			return Direction::NW;
