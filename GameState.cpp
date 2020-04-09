@@ -4,7 +4,6 @@
 #include <vector>
 #include <set>
 
-#define movesCollection unordered_map<PieceName, list<pair<BitboardContainer,int>>>
 using namespace std;
 
 //TEST
@@ -412,13 +411,14 @@ bool GameState::makePsuedoRandomMove() {
 	for (auto name : possibleNames) {
 
 		test.initializeTo(*getPieces(name));
-		test.intersectionWith(notCovered);
+		test.intersectionWith(notCovered); 
 
 		if (test.count()) {
 			for (BitboardContainer piece: test.splitIntoBitboardContainers() ) {
 				int numMoves = moveApproximation(piece, name);
+
 				if (numMoves == 0) continue;
-				movesPerPiece[name].push_front({piece, numMoves});
+				movesPerPiece[name].push_back({piece, numMoves});
 				total += numMoves;
 				prevTotal = total;
 			}
@@ -432,7 +432,7 @@ bool GameState::makePsuedoRandomMove() {
 
 			int numMoves = moveApproximation(piece, PieceName::BEETLE);
 			total += numMoves;
-			movesPerPiece[name].push_front({piece, numMoves});
+			movesPerPiece[name].push_back({piece, numMoves});
 		}
 	}
 
@@ -461,6 +461,7 @@ bool GameState::attemptMove(movesCollection& approxMovesPerPiece, int total){
 		int random = rand() % total;
 		int approxMoveSelect = 0;
 		int approxMoveCount = 0;
+		vector<pair<BitboardContainer, int>>::iterator boardNumMoves;
 		BitboardContainer pieceBoard;
 
 		PieceName name;
@@ -468,15 +469,17 @@ bool GameState::attemptMove(movesCollection& approxMovesPerPiece, int total){
 
 		//count number of moves for every piece 
 		for (auto iter: approxMovesPerPiece){
-			for (auto boardNumMoves : iter.second) {
-				approxMoveSelect += boardNumMoves.second;
+			boardNumMoves = iter.second.begin();
+			while (boardNumMoves != iter.second.end()) {
+				approxMoveSelect += boardNumMoves->second;
 				if  (approxMoveSelect > random) {
-					pieceBoard = boardNumMoves.first;
-					approxMoveCount = boardNumMoves.second;
+					pieceBoard = boardNumMoves->first;
+					approxMoveCount = boardNumMoves->second;
 					name = iter.first;
 					flag = true;
 					break;
 				}
+				boardNumMoves++;
 			}
 			if (flag) break;
 		}
@@ -515,7 +518,7 @@ bool GameState::attemptMove(movesCollection& approxMovesPerPiece, int total){
 
 		//move approximation is incorrect so update
 		total -= approxMoveCount;
-		approxMovesPerPiece[name].remove({pieceBoard, approxMoveCount});
+		approxMovesPerPiece[name].erase(boardNumMoves);
 		if (approxMovesPerPiece[name].size() == 0) approxMovesPerPiece.erase(name);
 	}
 	//no move was made

@@ -305,7 +305,6 @@ void BitboardContainer::floodFill(BitboardContainer &frontier){
 }
 
 bool BitboardContainer::equals(BitboardContainer& other){
-
 	//TODO: fix prunce cache leaks
 	other.pruneCache();
 	pruneCache();

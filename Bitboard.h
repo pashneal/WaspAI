@@ -1,4 +1,5 @@
 #pragma once
+#include <unordered_set> 
 #include <list>
 #include <vector>
 #include <unordered_map>
@@ -65,6 +66,7 @@ class BitboardContainer {
 		return equals(other);
 	}
 
+
 	//overload the assigment operator to O(k) instead of O(n)
 	void operator = (const BitboardContainer& other) {
 		internalBoardCache = other.internalBoardCache;
@@ -73,7 +75,5 @@ class BitboardContainer {
 		}
 	}
 };
-
-
 
 
