@@ -414,6 +414,7 @@ void GameState::makePsuedoRandomMove() {
 	for (auto name : possibleNames) {
 
 		test.initializeTo(*getPieces(name));
+		test.intersectionWith(notCovered);
 		
 		if (name == PieceName::MOSQUITO) {
 			numMoves = getMosquitoMoves(test).count();
@@ -430,7 +431,6 @@ void GameState::makePsuedoRandomMove() {
 			continue;
 		}
 
-		test.intersectionWith(notCovered);
 		if (test.count()) {
 			for (BitboardContainer piece: test.splitIntoBitboardContainers() ) {
 
