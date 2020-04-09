@@ -532,7 +532,6 @@ void Test::ProblemNodeContainerTest::testFindAllProblemNodes(){
 		{{6,6291456}},
 		{{6, 8388608u}, {7, 65536u}}
 	};
-
 	for (unsigned int i = 0; i < expected.size(); i++ ){
 		cout << "Test" << i << ": ";
 		BitboardContainer gateTest(gatesTest[i]);
@@ -1057,6 +1056,16 @@ void Test::PieceGraphTest::testFindAllPinnedPieces(){
 		for (auto board: allPieces.splitIntoBitboardContainers()) 
 			pieceGraph.insert(board);
 
+		for (auto board: allPieces.splitIntoBitboardContainers()) {
+			BitboardContainer testboard = board.getPerimeter();
+			testboard.intersectionWith(allPieces);
+			for ( auto adjBoard: testboard.splitIntoBitboardContainers() ) {
+				Test::pass(pieceGraph.checkBiDirectional(adjBoard, board), "An edge given by "
+						"pieceGraph was not bidirectional");
+			}
+		}
+
+
 		BitboardContainer pinned = pieceGraph.getPinnedPieces();
 
 		Test::pass( pinned == expectedBoard, 
@@ -1066,6 +1075,7 @@ void Test::PieceGraphTest::testFindAllPinnedPieces(){
 			pinned.print();
 		}
 	}
+
 };
 
 void Test::GameStateTest::testFastSpawnPiece(){
@@ -1346,12 +1356,25 @@ void Test::GameStateTest::testPsuedoRandom() {
 		}
 	}
 
+	gameState.setUnusedPieces(HivePLM);
 	unordered_map <int, BitboardContainer> foundMoves;
 	for (int i = 0 ; i < 5000 ; i ++ ) {
-		if ((i % 100) == 0) cout << i << " moves Generated" << endl;
+		if ((i % 1) == 0) cout << i << " moves Generated" << endl;
 
 		GameState testGameState(gameState);
 
+		for (BitboardContainer board: testGameState.allPieces.splitIntoBitboardContainers()) {
+			BitboardContainer testboard = board.getPerimeter();
+			testboard.intersectionWith(testGameState.allPieces);
+			for ( auto adjBoard: testboard.splitIntoBitboardContainers() ) {
+				if (!testGameState.pieceGraph.checkBiDirectional(adjBoard, board)) {
+				Test::pass(false, "An edge given by pieceGraph was not bidirectional");
+
+				}
+			}
+		}
+
+		testGameState.allPieces.print();
 		testGameState.makePsuedoRandomMove();
 
 		if (testGameState.upperLevelPieces.containsAny(testGameState.immobile)) {
@@ -1359,6 +1382,14 @@ void Test::GameStateTest::testPsuedoRandom() {
 			if ( testGameState.allPieces.containsAny(whiteMosquito)) {
 				//if the white mosquito didn't move
 				Test::pass(false, "made illegal move involving mosquito");
+				cout << "testGameState.immobile" << endl;
+				testGameState.immobile.print();
+				BitboardContainer diff(testGameState.allPieces);
+				diff.xorWith(gameState.allPieces);
+				cout << "differenceInBoards" << endl;
+				diff.print();
+				cout <<"testGameState.allPieces"<< endl;
+				testGameState.allPieces.print();
 				return;
 			}
 		}

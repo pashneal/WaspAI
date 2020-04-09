@@ -24,11 +24,18 @@ void PieceGraph::insert(BitboardContainer& newBitboard) {
 		bitboardHashTable[newBitboard.hash()] = newPieceNode;
 
 		allPieces.unionWith(newBitboard);
+	} else {
+		cout << "you attempted to insert a piece that already exists" << endl;
 	}
 
 }
 
 void PieceGraph::remove(BitboardContainer& oldBitboard) {
+	if (bitboardHashTable.find(oldBitboard.hash() ) == bitboardHashTable.end()) {
+		cout << "attempting to remove piece that does exist in piece graph" << endl;
+		oldBitboard.print();
+		throw 15;
+	}
 	PieceNode * p = bitboardHashTable[oldBitboard.hash()];
 	p -> remove();
 	delete p;
@@ -148,3 +155,26 @@ unordered_set <PieceNode*> PieceGraph::DFS() {
 	return visited;
 }
 
+
+bool PieceGraph::checkBiDirectional(BitboardContainer a, BitboardContainer b) {
+	if (bitboardHashTable.find(a.hash()) == bitboardHashTable.end() ||
+		bitboardHashTable.find(b.hash()) == bitboardHashTable.end())
+	{
+		cout << "node does not exist in hash table" << endl;
+		throw 2;
+	}
+
+	PieceNode * ap = bitboardHashTable[a.hash()];
+	PieceNode * bp = bitboardHashTable[b.hash()];
+
+	bool forward = false;
+	bool backward = false;
+	for (PieceNode * next : ap ->neighbors) {
+		forward |= next == bp;
+	}
+	for (PieceNode * back : bp ->neighbors) {
+		backward |= back == ap;
+	}
+
+	return forward && backward;
+}

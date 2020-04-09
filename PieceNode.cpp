@@ -20,13 +20,18 @@ void PieceNode::insert( list <PieceNode*> &newNeighbors, BitboardContainer &newB
 	location = LSB.second;
 }
 
+
 void PieceNode::remove() {
+	
+
 	for (auto otherNode: neighbors) {
-		BitboardContainer hello({{otherNode -> boardIndex , otherNode -> location}});
-		hello.print();
+		
 		otherNode -> neighbors.remove(this);
 	}
+	cout << "here" << endl;
 	neighbors.clear();
+	cout << "here" << endl;
+
 	boardIndex = -1;
 	location = 0;
 }

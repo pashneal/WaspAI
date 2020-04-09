@@ -30,6 +30,8 @@ class PieceGraph {
 		void getArticulationNodes(PieceNode*, int&, unordered_set<PieceNode*>&);
 		void checkArticulationRoot(PieceNode*);
 
+		bool checkBiDirectional(BitboardContainer, BitboardContainer);
+
 		bool isTopOfStack();
 
 		BitboardContainer getPinnedPieces();

@@ -193,6 +193,7 @@ void GameState::movePiece(BitboardContainer& initialPiece,
 	for (BitboardContainer piece: possibleFinalLocations.splitIntoBitboardContainers() ) {
 		if (moveSelect == i) {
 			PieceName name = findPieceName(initialPiece);
+
 			fastMovePiece(initialPiece, piece, name);
 			return;
 		}
@@ -466,13 +467,15 @@ void GameState::makePsuedoRandomMove() {
 	if (total == 0) return;
 	int randInt = rand() % total;
 
-	if (randInt >= total - spawnsCount ) 
+	if (randInt >= total - spawnsCount ) {
 		spawnPiece(spawns, rand() % spawnsCount );
-
+		return;
+	}
 	
 	while (iterNames != names.end() ) {
-		if (*iterUpperBound < randInt) {
-			//if randInt is too large
+		//NEED TO DEAL WITH PIECES THAT HAVE ZERO MOVES
+		if (*iterUpperBound > randInt) {
+			//if UpperBound is too large
 			iterNames++; iterUpperBound++; iterBoards++;
 			continue;
 		} 
@@ -491,6 +494,7 @@ void GameState::makePsuedoRandomMove() {
 		switch(name) {
 			case PILLBUG:
 				//TODO: refactor duplicate code
+				//MOSQUITO AND PILLBUG MOVES ***AND*** SWAPS SHOULD BE DEALT WITH
 				{
 
 					pair <BitboardContainer, BitboardContainer> swappableEmpty =
@@ -511,6 +515,8 @@ void GameState::makePsuedoRandomMove() {
 			case MOSQUITO:
 				{
 
+					cout << "here" << endl;
+					cout << mosquitoPillbug.count() <<endl;
 					if (mosquitoPillbug.count()) {
 						pair <BitboardContainer, BitboardContainer> swappableEmpty =
 							getSwapSpaces(initialPiece);
@@ -526,12 +532,14 @@ void GameState::makePsuedoRandomMove() {
 							return;
 						}
 					}
+					randInt = rand() % (moveCount);
 					movePiece(initialPiece, moves, randInt);
 					return;
 				}
 			default:
 				randInt = rand() % moves.count();
 				movePiece(initialPiece, moves, randInt);
+				return;
 		}
 	}
 
@@ -545,14 +553,19 @@ int GameState::moveApproximation(BitboardContainer piece, PieceName name){
 		case QUEEN:
 			return 2;
 		case GRASSHOPPER:
+		{
 			//can jump over a piece thats beside them
 			piece = piece.getPerimeter();
 			return piece.count();
+		}
 		case LADYBUG:
-			//highly variable but expensive to compute
-			piece = piece.getPerimeter();
-			piece.intersectionWith(allPieces);
-			return (int)(1.6)*piece.count();
+		{
+			//Ladybug is afforded more moves if she can climb more pieces
+			BitboardContainer visited;
+			allPieces.floodFillStep(piece, visited);
+			allPieces.floodFillStep(piece, visited);
+			return (int)(1.5)*piece.count();
+		}
 		case BEETLE:
 			// if the beetle is on the hive it has more freedom
 			return 4 + 2*(upperLevelPieces.containsAny(piece)); 
@@ -576,18 +589,19 @@ int GameState::moveApproximation(BitboardContainer piece, PieceName name){
 
 //only find the name of lower level pieces
 PieceName GameState::findPieceName(BitboardContainer piece) {
-	for (auto name: possibleNames) 
+	for (auto name: possibleNames) {
 		if (getPieces(name) -> containsAny(piece)) return name;
+	}
 
 	return PieceName::QUEEN;
 }
 
 //only finds the colors of lower level pieces
 PieceColor GameState::findPieceColor( BitboardContainer piece) {
-	for (int i = 0 ; i < 2; i ++ ) 
+	for (int i = 0 ; i < 2; i ++ )  {
 		if (getPieces((PieceColor)i) -> containsAny(piece) ) 
 			return	(PieceColor) i;
-
+	}
 	return PieceColor::NONE;
 }
 
