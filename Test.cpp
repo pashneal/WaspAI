@@ -453,7 +453,6 @@ void Test::BitboardTest::testFloodFill() {
 }
 
 void Test::BitboardTest::testSplit() {
-	srand(time(NULL));
 	vector <unsigned long long> randomNums;
 
 	BitboardContainer testBitboard;
@@ -1266,10 +1265,10 @@ void Test::GameStateTest::testMovePiece(){
 void Test::GameStateTest::testPsuedoRandom() {
 	GameState gameState(HivePLM, PieceColor::WHITE);
 	vector <pair <BitboardContainer, PieceName> > initialPieces;
-	cout << "====================TestMovePiece====================" << endl;
+	cout << "====================TestRandomMove====================" << endl;
 	initialPieces = {
 		{BitboardContainer({{5,134217728u}}), PieceName::ANT},
-		{BitboardContainer({{5,34359738368u}}), PieceName::ANT},
+		{BitboardContainer({{5,34359738368u}}), PieceName::MOSQUITO},
 		{BitboardContainer({{5,1048576u}}), PieceName::ANT},
 		{BitboardContainer({{5, 4398046511104u}}), PieceName::ANT},
 		{BitboardContainer({{5, 524288u}}), PieceName::QUEEN},
@@ -1281,20 +1280,164 @@ void Test::GameStateTest::testPsuedoRandom() {
 	};
 	
 	for (auto p : initialPieces) {
-		gameState.insertPiece(p.first, p.second);	
+		gameState.fastInsertPiece(p.first, p.second);	
+		gameState.changeTurnColor();
 	}
+
+	PieceName name;
 
 	BitboardContainer ant({{5,1048576u}});
 	BitboardContainer queen({{5, 524288u}});
-	BitboardContainer mosquito({{5, 67108864u}});
+	BitboardContainer whiteMosquito({{5, 67108864u}});
 	BitboardContainer ladybug({{5, 17179869184u}});
 
-	
-	
+	MoveGenerator moveGenerator(&gameState.allPieces, &gameState.problemNodeContainer);
+	BitboardContainer antMoves, queenMoves, ladybugMoves, whiteMosquitoMoves;
 
+	moveGenerator.setStackHashTable(&gameState.stackHashTable);
+	moveGenerator.setUpperLevelPieces(&gameState.upperLevelPieces);
+	moveGenerator.setGeneratingName(&name);
+
+
+	
+	name = PieceName::ANT;
+	moveGenerator.setGeneratingPieceBoard(&ant);
+	antMoves = moveGenerator.getMoves();
+
+	name = PieceName::QUEEN;
+	moveGenerator.setGeneratingPieceBoard(&queen);
+	queenMoves = moveGenerator.getMoves();
+
+	name = PieceName::LADYBUG;
+	moveGenerator.setGeneratingPieceBoard(&ladybug);
+	ladybugMoves = moveGenerator.getMoves();	
+	
+	moveGenerator.setGeneratingPieceBoard(&whiteMosquito);
+	whiteMosquitoMoves = moveGenerator.getMoves();
+
+	BitboardContainer fauxBeetleMoves(whiteMosquito);
+	fauxBeetleMoves = fauxBeetleMoves.getPerimeter();
+	fauxBeetleMoves.intersectionWith(gameState.allPieces);
+	whiteMosquitoMoves.unionWith(fauxBeetleMoves);
+
+	name = PieceName::QUEEN;
+	BitboardContainer fauxQueenMoves = moveGenerator.getMoves();
+	whiteMosquitoMoves.unionWith(fauxQueenMoves);
+	
+	unordered_map <int, BitboardContainer> expectedMoves  = {
+		{ant.hash(), antMoves},
+		{queen.hash(), queenMoves},
+		{ladybug.hash(), ladybugMoves},
+		{whiteMosquito.hash(), whiteMosquitoMoves},
+	};
+
+	BitboardContainer expectedSpawns({{5,8625854464}});
+	BitboardContainer immobilePieces({{5,30820819533824}});
+
+
+	unordered_map < int , unordered_map <PieceName, bool> > foundSpawns;
+
+
+	for (auto board: expectedSpawns.splitIntoBitboardContainers() ) {
+		for ( auto element: gameState.unusedPieces[PieceColor::WHITE]) {
+			if (element.second > 0) {
+				foundSpawns[board.hash()][element.first] = false;
+			}
+		}
+	}
+
+	unordered_map <int, BitboardContainer> foundMoves;
+	for (int i = 0 ; i < 5000 ; i ++ ) {
+		if ((i % 100) == 0) cout << i << " moves Generated" << endl;
+
+		GameState testGameState(gameState);
+
+		testGameState.makePsuedoRandomMove();
+
+		if (testGameState.upperLevelPieces.containsAny(testGameState.immobile)) {
+			//if piece moved on top of stack
+			if ( testGameState.allPieces.containsAny(whiteMosquito)) {
+				//if the white mosquito didn't move
+				Test::pass(false, "made illegal move involving mosquito");
+				return;
+			}
+		}
+
+		BitboardContainer testIllegal(immobilePieces);
+		testIllegal.intersectionWith(testGameState.allPieces);
+		if (testIllegal.count() != immobilePieces.count()) {
+			Test::pass(false, "Moved a black Piece");
+			return;
+		}
+
+		testIllegal.initializeTo(testGameState.allPieces);
+		testIllegal.intersectionWith(gameState.allPieces);
+		if (testIllegal == gameState.allPieces) {
+			//no pieces moved
+			testIllegal.xorWith(testGameState.allPieces);
+			if (!expectedSpawns.containsAny(testIllegal) || testIllegal.count() != 1)  {
+				Test::pass(false, "Did not spawn in correct square despite"
+							      " moving no existing piece");
+				return;
+			}
+
+			if ( foundSpawns.find(testIllegal.hash() ) != foundSpawns.end() ) {
+				PieceName spawnedName = testGameState.findPieceName(testIllegal);
+				if ( foundSpawns[testIllegal.hash()].find(spawnedName)  != 
+					 foundSpawns[testIllegal.hash()].end() )
+				{
+					
+					foundSpawns[testIllegal.hash()][spawnedName] = true;
+				} else {
+					
+					Test::pass(false, "spawning illegal piece");
+					return;
+				}
+
+			} else {
+				Test::pass(false, "Did not spawn in predefined square");
+				return;
+			}
+
+		}
+
+		testIllegal.initializeTo(gameState.allPieces);
+		testIllegal.xorWith(testGameState.allPieces);
+		testIllegal.notIntersectionWith(testGameState.immobile);
+		if (testIllegal.count() != 0) {
+			Test::pass(false, "Something weird happened");
+			return;
+		}
+		foundMoves[testIllegal.hash()].unionWith(testGameState.immobile);
+	}
+
+	for (auto element: foundMoves) {
+		BitboardContainer intersection(element.second);
+		intersection.intersectionWith(expectedMoves[element.first]);
+		cout << intersection.count() << "/" << expectedMoves[element.first].count() << " "; 
+		Test::pass( element.second == expectedMoves[element.first],
+				   "Did not produce expected moves");
+	}
+
+	int passed = 0;
+	int total = 0;
+	for (auto element: foundSpawns) {
+		for (auto iter: element.second) {
+			
+			if (iter.second) passed++;
+			total++;
+		}
+	}
+
+	
+	cout << passed << "/" << total << " ";
+	Test::pass(passed == total, "Did not produce expected spawns");
+	
 }
 
 int main() {
+
+	srand(2);
 	Test::BitboardTest::testShiftDirection();
 	Test::BitboardTest::testXorWith();
 	Test::BitboardTest::testIntersectionWith();
@@ -1316,4 +1459,5 @@ int main() {
 	Test::PieceGraphTest::testFindAllPinnedPieces();
 	Test::GameStateTest::testFastSpawnPiece();
 	Test::GameStateTest::testMovePiece();
+	Test::GameStateTest::testPsuedoRandom();
 }

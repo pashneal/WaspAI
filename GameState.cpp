@@ -464,7 +464,6 @@ void GameState::makePsuedoRandomMove() {
 
 	//if there are no legal moves
 	if (total == 0) return;
-	srand(time(NULL));
 	int randInt = rand() % total;
 
 	if (randInt >= total - spawnsCount ) 

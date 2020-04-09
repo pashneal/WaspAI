@@ -60,6 +60,7 @@ void ProblemNodeContainer::insert(BitboardContainer& problemNodes) {
 			int hashInt = hash(map.first, piece);
 
 			if (problemNodes.count() != 2) {
+				cout << "Attempting to insert an incorrectly sized problemNode" << endl;
 				throw 19;
 			}
 			//assigned the hash to a map for O(1) access
@@ -90,6 +91,7 @@ void ProblemNodeContainer::remove(BitboardContainer & problemNodes) {
 }
 void ProblemNodeContainer::removePiece( BitboardContainer & piece) {
 	if (piece.count() != 1) {
+		cout << "Attempting to remove incorrectly sized piece" << endl;
 		throw 14;
 	}
 

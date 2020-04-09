@@ -22,6 +22,8 @@ void PieceNode::insert( list <PieceNode*> &newNeighbors, BitboardContainer &newB
 
 void PieceNode::remove() {
 	for (auto otherNode: neighbors) {
+		BitboardContainer hello({{otherNode -> boardIndex , otherNode -> location}});
+		hello.print();
 		otherNode -> neighbors.remove(this);
 	}
 	neighbors.clear();
