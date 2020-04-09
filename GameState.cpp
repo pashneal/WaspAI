@@ -4,6 +4,7 @@
 #include <vector>
 #include <set>
 
+#define movesCollection unordered_map<PieceName, list<pair<BitboardContainer,int>>>
 using namespace std;
 
 //TEST
@@ -390,171 +391,168 @@ BitboardContainer GameState::getAllSpawnSpaces() {
 
 //faster than random
 //but does not store in move information
-void GameState::makePsuedoRandomMove() {
+bool GameState::makePsuedoRandomMove() {
 	BitboardContainer notCovered(allPieces);
 
 	//remove covered pieces 
 	notCovered.notIntersectionWith(upperLevelPieces);
-
 	//remove any piece that might have been swapped
 	notCovered.notIntersectionWith(immobile);
-
 	//can only move pieces of correct color
 	notCovered.intersectionWith(*getPieces(turnColor));
 
-	list <PieceName> names;
-	list <int> upperBound;
-	list <BitboardContainer> boards;
+	movesCollection movesPerPiece;
 
 	int total = 0;
-	BitboardContainer test;
-	BitboardContainer mosquitoPillbug = getMosquitoPillbug();
+	int prevTotal;
 
-	int numMoves;
+	BitboardContainer test;
+
 	//add a slot for each piece found
 	for (auto name : possibleNames) {
 
 		test.initializeTo(*getPieces(name));
 		test.intersectionWith(notCovered);
-		
-		if (name == PieceName::MOSQUITO) {
-			numMoves = getMosquitoMoves(test).count();
-
-			//if mosquito is touching a pillbug
-			//count swaps as part of move
-			if (mosquitoPillbug.count())
-				numMoves += countSwaps(test);	
-
-			total+= numMoves;
-			upperBound.push_front(total);
-			names.push_front(name);
-			boards.push_front(test);
-			continue;
-		}
 
 		if (test.count()) {
 			for (BitboardContainer piece: test.splitIntoBitboardContainers() ) {
-
-				total += moveApproximation(piece, name);
-				upperBound.push_front(total);
-				names.push_front(name);
-				boards.push_front(piece);
+				int numMoves = moveApproximation(piece, name);
+				if (numMoves == 0) continue;
+				movesPerPiece[name].push_front({piece, numMoves});
+				total += numMoves;
+				prevTotal = total;
 			}
 		}
 	}
 
 	//deal with upperLevelPieces
-
 	for (BitboardContainer piece: upperLevelPieces.splitIntoBitboardContainers()) {
 		if (stackHashTable[piece.hash()].top().first == turnColor) {
-			numMoves = moveApproximation(piece, PieceName::BEETLE);
+			PieceName name = stackHashTable[piece.hash()].top().second;
+
+			int numMoves = moveApproximation(piece, PieceName::BEETLE);
 			total += numMoves;
-			upperBound.push_front(total);
-			names.push_front(stackHashTable[piece.hash()].top().second);
-			boards.push_front(piece);
+			movesPerPiece[name].push_front({piece, numMoves});
 		}
 	}
 
-	auto iterNames = names.begin();
-	auto iterUpperBound = upperBound.begin();
-	auto iterBoards = boards.begin();
-
+	if(!attemptSpawn(total)) 
+		return attemptMove(movesPerPiece, total);
+	return true;
+}
+bool GameState::attemptSpawn(int totalApproxMoves) {
 	BitboardContainer spawns = getAllSpawnSpaces();
 	int spawnsCount = countPossibleSpawns(spawns);
-	total +=  spawnsCount;
 
-	//if there are no legal moves
-	if (total == 0) return;
-	int randInt = rand() % total;
+	//if there are no legal spawns 
+	int randInt = rand() % totalApproxMoves;
 
-	if (randInt >= total - spawnsCount ) {
+	if (randInt >= totalApproxMoves - spawnsCount ) {
 		spawnPiece(spawns, rand() % spawnsCount );
-		return;
+		return true;
 	}
-	
-	while (iterNames != names.end() ) {
-		//NEED TO DEAL WITH PIECES THAT HAVE ZERO MOVES
-		if (*iterUpperBound > randInt) {
-			//if UpperBound is too large
-			iterNames++; iterUpperBound++; iterBoards++;
-			continue;
-		} 
-		PieceName name = *iterNames;
-		BitboardContainer initialPiece = *iterBoards;
-		moveGenerator.setGeneratingName(&name);
-		moveGenerator.setGeneratingPieceBoard(&initialPiece);
+	return false;
+}	
+
+bool GameState::attemptMove(movesCollection& approxMovesPerPiece, int total){
+		
+	while (approxMovesPerPiece.size() ) {
+
+		int random = rand() % total;
+		int approxMoveSelect = 0;
+		int approxMoveCount = 0;
+		BitboardContainer pieceBoard;
+
+		PieceName name;
+		bool flag;
+
+		//count number of moves for every piece 
+		for (auto iter: approxMovesPerPiece){
+			for (auto boardNumMoves : iter.second) {
+				approxMoveSelect += boardNumMoves.second;
+				if  (approxMoveSelect > random) {
+					pieceBoard = boardNumMoves.first;
+					approxMoveCount = boardNumMoves.second;
+					name = iter.first;
+					flag = true;
+					break;
+				}
+			}
+			if (flag) break;
+		}
+		
 		BitboardContainer moves;
-		int moveCount = 0;
-		int swapCount = 0;
-		if (notCovered.containsAny(initialPiece)) { 
-			moves = moveGenerator.getMoves();
-			moveCount += moves.count();
+		if (name == PieceName::MOSQUITO) {
+			moves = getMosquitoMoves(pieceBoard);
+		} else {
+			moveGenerator.setGeneratingName(&name);
+			moveGenerator.setGeneratingPieceBoard(&pieceBoard);
+			moves =  moveGenerator.getMoves();
 		}
 
-		switch(name) {
-			case PILLBUG:
-				//TODO: refactor duplicate code
-				//MOSQUITO AND PILLBUG MOVES ***AND*** SWAPS SHOULD BE DEALT WITH
-				{
+		int movesCount = moves.count();
 
-					pair <BitboardContainer, BitboardContainer> swappableEmpty =
-						getSwapSpaces(initialPiece);
+		//if a pillbug or a mosquito-pillbug
+		if ( (name == PieceName::MOSQUITO && getMosquitoPillbug().containsAny(pieceBoard) ) 
+			 || name == PieceName::PILLBUG) {
 
-					swapCount += swappableEmpty.first.count() * swappableEmpty.second.count();
+			int swapsCount = countSwaps(pieceBoard);
+			if (swapsCount) {
+				//reroll to account for swaps
+				int randInt = rand() % (swapsCount + movesCount);
 
-					randInt = rand() % (moveCount + swapCount);
-					if (randInt < moveCount){
-						movePiece(initialPiece, moves, randInt);
-					} else {
-						swapPiece(swappableEmpty.first, 
-								  swappableEmpty.second,
-								  randInt - moveCount);
-					}
-					return;
+				if (randInt >= movesCount){
+					auto swappableEmpty = getSwapSpaces(pieceBoard);
+					swapPiece(swappableEmpty.first, swappableEmpty.second, rand() % swapsCount);
+					return true;
 				}
-			case MOSQUITO:
-				{
-
-					cout << "here" << endl;
-					cout << mosquitoPillbug.count() <<endl;
-					if (mosquitoPillbug.count()) {
-						pair <BitboardContainer, BitboardContainer> swappableEmpty =
-							getSwapSpaces(initialPiece);
-
-						swapCount += swappableEmpty.first.count() * swappableEmpty.second.count();
-
-						randInt = rand() % (moveCount + swapCount);
-
-						if (randInt >= moveCount){
-							swapPiece(swappableEmpty.first, 
-									swappableEmpty.second,
-									randInt - moveCount);
-							return;
-						}
-					}
-					randInt = rand() % (moveCount);
-					movePiece(initialPiece, moves, randInt);
-					return;
-				}
-			default:
-				randInt = rand() % moves.count();
-				movePiece(initialPiece, moves, randInt);
-				return;
+			}
 		}
+		if (movesCount) {
+			movePiece(pieceBoard, moves, rand() % movesCount);
+			return true;
+		}
+
+		//move approximation is incorrect so update
+		total -= approxMoveCount;
+		approxMovesPerPiece[name].remove({pieceBoard, approxMoveCount});
+		if (approxMovesPerPiece[name].size() == 0) approxMovesPerPiece.erase(name);
 	}
-
+	//no move was made
+	return false;
 }	
 
 int GameState::moveApproximation(BitboardContainer piece, PieceName name){
 	switch (name) {
 		case MOSQUITO:
-			//hell if I know
-			return -1000;
+		{
+			BitboardContainer piecePerimeter = piece.getPerimeter();
+			BitboardContainer piecePerimeterUpper(piecePerimeter);
+			piecePerimeter.notIntersectionWith(upperLevelPieces);
+			piecePerimeterUpper.intersectionWith(upperLevelPieces);
+
+			//inherits no moves from mosquito
+			piecePerimeter.notIntersectionWith(*getPieces(PieceName::MOSQUITO));
+
+			int approxMoves = 0;
+			//inherits moves of surrounding pieces
+			for (auto lower: piecePerimeter.splitIntoBitboardContainers()) {
+				approxMoves += moveApproximation(piece, findPieceName(lower));
+			}
+
+			//inherits moves of beetles on top of hive
+			for (auto upper: piecePerimeterUpper.splitIntoBitboardContainers() ) {
+				if (stackHashTable[upper.hash()].top().second == PieceName::BEETLE)
+					approxMoves += moveApproximation(piece, PieceName::BEETLE);
+			}
+
+			return approxMoves;
+		}
 		case QUEEN:
 			return 2;
 		case GRASSHOPPER:
 		{
-			//can jump over a piece thats beside them
+			//can jump over a piece that's beside them
 			piece = piece.getPerimeter();
 			return piece.count();
 		}

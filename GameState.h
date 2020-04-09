@@ -11,6 +11,8 @@
 #include <vector>
 #include <string>
 
+#define movesCollection unordered_map<PieceName, list<pair<BitboardContainer,int>>>
+
 using namespace std;
 
 struct MoveInfo {
@@ -92,7 +94,10 @@ class GameState {
 
 	void changeTurnColor();
 
-	void makePsuedoRandomMove();
+	bool makePsuedoRandomMove();
+	bool attemptSpawn(int);
+	bool attemptMove(movesCollection&, int);
+
 	int moveApproximation(BitboardContainer, PieceName);
 
 	void findPinnedPieces();
