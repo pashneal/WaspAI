@@ -68,12 +68,12 @@ class BitboardContainer {
 
 
 	//overload the assigment operator to O(k) instead of O(n)
-	void operator = (const BitboardContainer& other) {
+	/*void operator = (const BitboardContainer& other) {
 		internalBoardCache = other.internalBoardCache;
 		for (int boardIndex : internalBoardCache) {
 			internalBoards[boardIndex] = other.internalBoards[boardIndex];
 		}
-	}
+	}*/
 };
 
 

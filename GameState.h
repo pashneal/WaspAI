@@ -90,7 +90,6 @@ class GameState {
 
 	BitboardContainer getAllSpawnSpaces();
 	
-	void print();
 
 	void changeTurnColor();
 
@@ -105,8 +104,7 @@ class GameState {
 	pair <BitboardContainer, BitboardContainer> getSwapSpaces(BitboardContainer);
 
 	void playout(int);
+	void print();
 
-	//returns true if any values in unusedPieces was changed
-	bool setUnusedPieces(vector <unordered_map < PieceName, int >>);
 };
 

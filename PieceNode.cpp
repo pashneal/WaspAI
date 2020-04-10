@@ -28,9 +28,7 @@ void PieceNode::remove() {
 		
 		otherNode -> neighbors.remove(this);
 	}
-	cout << "here" << endl;
 	neighbors.clear();
-	cout << "here" << endl;
 
 	boardIndex = -1;
 	location = 0;

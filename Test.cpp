@@ -1,3 +1,4 @@
+#include <chrono>
 #include <stdlib.h>
 #include <time.h>
 #include <string>
@@ -1155,8 +1156,6 @@ void Test::GameStateTest::testFastSpawnPiece(){
 	Test::pass( gameState.upperLevelPieces == empty, " upperLevelPieces not updated correctly");
 	if (!silenced) {cout << "upperLevelPieces" << endl; gameState.upperLevelPieces.print();}
 
-	Test::pass( gameState.setUnusedPieces(HivePLM) == false, 
-			" unusedPieces was not originally correct");
 	
 	Test::pass( PieceColor::BLACK == gameState.turnColor, " turnColor is incorrect");
 	if (!silenced) {cout << gameState.turnColor<< endl;}
@@ -1290,8 +1289,7 @@ void Test::GameStateTest::testPsuedoRandom() {
 	};
 	
 	for (auto p : initialPieces) {
-		gameState.fastInsertPiece(p.first, p.second);	
-		gameState.changeTurnColor();
+		gameState.fastSpawnPiece(p.first, p.second);	
 	}
 
 	PieceName name;
@@ -1341,8 +1339,8 @@ void Test::GameStateTest::testPsuedoRandom() {
 		{whiteMosquito.hash(), whiteMosquitoMoves},
 	};
 
-	BitboardContainer expectedSpawns({{5,8625854464}});
-	BitboardContainer immobilePieces({{5,30820819533824}});
+	BitboardContainer expectedSpawns({{5,8625855488u}});
+	BitboardContainer immobilePieces({{5,30820819533824u}});
 
 
 	unordered_map < int , unordered_map <PieceName, bool> > foundSpawns;
@@ -1353,13 +1351,13 @@ void Test::GameStateTest::testPsuedoRandom() {
 			if (element.second > 0) {
 				foundSpawns[board.hash()][element.first] = false;
 			}
+			
 		}
 	}
 
-	gameState.setUnusedPieces(HivePLM);
 	unordered_map <int, BitboardContainer> foundMoves;
-	for (int i = 0 ; i < 5000 ; i ++ ) {
-		if ((i % 1) == 0) cout << i << " moves Generated" << endl;
+	for (int i = 0 ; i < -1 ; i ++ ) {
+		if ((i % 100) == 0) cout << i << " moves Generated" << endl;
 
 		GameState testGameState(gameState);
 
@@ -1369,12 +1367,12 @@ void Test::GameStateTest::testPsuedoRandom() {
 			for ( auto adjBoard: testboard.splitIntoBitboardContainers() ) {
 				if (!testGameState.pieceGraph.checkBiDirectional(adjBoard, board)) {
 				Test::pass(false, "An edge given by pieceGraph was not bidirectional");
+				testGameState.print();
 
 				}
 			}
 		}
 
-		testGameState.allPieces.print();
 		testGameState.makePsuedoRandomMove();
 
 		if (testGameState.upperLevelPieces.containsAny(testGameState.immobile)) {
@@ -1382,14 +1380,11 @@ void Test::GameStateTest::testPsuedoRandom() {
 			if ( testGameState.allPieces.containsAny(whiteMosquito)) {
 				//if the white mosquito didn't move
 				Test::pass(false, "made illegal move involving mosquito");
-				cout << "testGameState.immobile" << endl;
-				testGameState.immobile.print();
 				BitboardContainer diff(testGameState.allPieces);
 				diff.xorWith(gameState.allPieces);
-				cout << "differenceInBoards" << endl;
+				testGameState.print();
+				cout << "difference of boards" << endl;
 				diff.print();
-				cout <<"testGameState.allPieces"<< endl;
-				testGameState.allPieces.print();
 				return;
 			}
 		}
@@ -1398,6 +1393,7 @@ void Test::GameStateTest::testPsuedoRandom() {
 		testIllegal.intersectionWith(testGameState.allPieces);
 		if (testIllegal.count() != immobilePieces.count()) {
 			Test::pass(false, "Moved a black Piece");
+			testGameState.print();
 			return;
 		}
 
@@ -1409,6 +1405,13 @@ void Test::GameStateTest::testPsuedoRandom() {
 			if (!expectedSpawns.containsAny(testIllegal) || testIllegal.count() != 1)  {
 				Test::pass(false, "Did not spawn in correct square despite"
 							      " moving no existing piece");
+				cout << "testIllegal" << endl;
+				testIllegal.print();
+				cout << ">>>>>>testGameState" << endl;
+				testGameState.print();
+				cout << ">>>>>>gameState" << endl;
+				gameState.print();
+
 				return;
 			}
 
@@ -1419,6 +1422,7 @@ void Test::GameStateTest::testPsuedoRandom() {
 				{
 					
 					foundSpawns[testIllegal.hash()][spawnedName] = true;
+					continue;
 				} else {
 					
 					Test::pass(false, "spawning illegal piece");
@@ -1435,26 +1439,35 @@ void Test::GameStateTest::testPsuedoRandom() {
 		testIllegal.initializeTo(gameState.allPieces);
 		testIllegal.xorWith(testGameState.allPieces);
 		testIllegal.notIntersectionWith(testGameState.immobile);
-		if (testIllegal.count() != 0) {
+		if (testIllegal.count() == 0) {
 			Test::pass(false, "Something weird happened");
+			cout << "gameState.allPieces" << endl;
+			gameState.allPieces.print();
+			cout << "testGameState.allPieces" << endl;
+			testGameState.allPieces.print();
+			cout << "testGameState.immobile" << endl;
+			testGameState.immobile.print();
 			return;
 		}
 		foundMoves[testIllegal.hash()].unionWith(testGameState.immobile);
 	}
 
-	for (auto element: foundMoves) {
-		BitboardContainer intersection(element.second);
-		intersection.intersectionWith(expectedMoves[element.first]);
-		cout << intersection.count() << "/" << expectedMoves[element.first].count() << " "; 
-		Test::pass( element.second == expectedMoves[element.first],
-				   "Did not produce expected moves");
+	for (auto element: expectedMoves) {
+		BitboardContainer intersection;
+		if (foundMoves.find(element.first) != foundMoves.end() ){
+			intersection.initializeTo(foundMoves[element.first]);
+		}
+		intersection.intersectionWith(element.second);
+		cout << intersection.count() << "/" << element.second.count() << " "; 
+		if (intersection.count() != element.second.count() ) {
+			Test::pass( false, "Did not produce all expected moves");
+		}
 	}
 
 	int passed = 0;
 	int total = 0;
 	for (auto element: foundSpawns) {
 		for (auto iter: element.second) {
-			
 			if (iter.second) passed++;
 			total++;
 		}
@@ -1462,8 +1475,23 @@ void Test::GameStateTest::testPsuedoRandom() {
 
 	
 	cout << passed << "/" << total << " ";
-	Test::pass(passed == total, "Did not produce expected spawns");
+	Test::pass(passed == total, "Did not produce all expected spawns");
 	
+	GameState c(gameState);
+
+	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+
+	for (int i = 0 ; i < 1000 ; i++ ) {
+		c.makePsuedoRandomMove();
+		
+		cout << i << " ============ " << endl;
+		c.print();
+	}
+
+	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+	std::cout << "Time difference = " << 
+	std::chrono::duration_cast<std::chrono::milliseconds>
+	(end - begin).count() << "[ms]" << std::endl;
 }
 
 int main() {

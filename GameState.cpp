@@ -142,6 +142,7 @@ int	 GameState::countSwaps(BitboardContainer& piece){
 int GameState::countPossibleSpawns(BitboardContainer& spawns) {
 	int colorInt = (int)turnColor;
 	int totalUnusedPieces = 0;
+	
 	for (auto pieceAmountMap: unusedPieces[colorInt]){
 		totalUnusedPieces += (bool)pieceAmountMap.second;
 	}
@@ -435,6 +436,7 @@ bool GameState::makePsuedoRandomMove() {
 			movesPerPiece[name].push_back({piece, numMoves});
 		}
 	}
+	cout << total << endl;
 
 	if(!attemptSpawn(total)) 
 		return attemptMove(movesPerPiece, total);
@@ -455,7 +457,6 @@ bool GameState::attemptSpawn(int totalApproxMoves) {
 }	
 
 bool GameState::attemptMove(movesCollection& approxMovesPerPiece, int total){
-		
 	while (approxMovesPerPiece.size() ) {
 
 		int random = rand() % total;
@@ -517,9 +518,13 @@ bool GameState::attemptMove(movesCollection& approxMovesPerPiece, int total){
 		}
 
 		//move approximation is incorrect so update
+		
 		total -= approxMoveCount;
+		cout << "lookiehere" << approxMovesPerPiece[name].size() <<(boardNumMoves != approxMovesPerPiece[name].end()) << flag << endl;
 		approxMovesPerPiece[name].erase(boardNumMoves);
+		cout << "lookiehere" << approxMovesPerPiece[name].size() <<(boardNumMoves != approxMovesPerPiece[name].end()) << flag << endl;
 		if (approxMovesPerPiece[name].size() == 0) approxMovesPerPiece.erase(name);
+		cout << "lookiehere" << approxMovesPerPiece[name].size() <<(boardNumMoves != approxMovesPerPiece[name].end()) << flag << endl;
 	}
 	//no move was made
 	return false;
@@ -647,46 +652,37 @@ void GameState::playout(int limitMoves) {
 	limitMoves--;
 }
 
-//given a maximum allowed piece count for each piece
-//count every piece in the GameState and setUnusedPieces accordingly
-bool GameState::setUnusedPieces(vector <unordered_map <PieceName, int>> maxPieceCount) {
-	bool flag = false;
-	for (int i = 0; i < 2; i++) {
-		PieceColor color = (PieceColor)i;
-		for (PieceName name: possibleNames) {
-			BitboardContainer uncoveredPieces(*getPieces(color));
-			uncoveredPieces.intersectionWith(*getPieces(name));
-			uncoveredPieces.notIntersectionWith(upperLevelPieces);
-
-			int numPieces = maxPieceCount[color][name] - uncoveredPieces.count();
-
-			BitboardContainer coveredPieces(*getPieces(color));
-			coveredPieces.intersectionWith(*getPieces(name));
-			coveredPieces.intersectionWith(upperLevelPieces);
-
-			for (BitboardContainer s: coveredPieces.splitIntoBitboardContainers() ) {
-				stack < pair < PieceColor, PieceName > > stackCopy = stackHashTable[s.hash()];
-
-				while (!stackCopy.empty()) {
-					pair <PieceColor, PieceName> p = stackCopy.top();
-					if (p.first == color && p.second == name) 
-						numPieces--;
-					stackCopy.pop();
-				}
-			}
-
-			if (numPieces < 0 ) {
-				cout << "greater than allowed number of Pieces in GameState" << endl;
-				cout << "PieceColor " << color;
-				cout << "PieceName " << name;
-				throw 40;
-			}
-
-			flag |= unusedPieces[color][name] != numPieces;
-			unusedPieces[color][name] = numPieces;
-		}
-	}
-	return flag;
+void GameState::print() {
+	cout << "turnColor" << endl; 
+	cout << turnColor << endl;			
+	cout << "turnCounter" << endl; 
+	cout << turnCounter << endl;		
+	cout << "allPieces" << endl; 
+	allPieces.print(); 
+	cout << "whitePieces" << endl; 
+	whitePieces.print();       
+	cout << "blackPieces" << endl; 
+	blackPieces.print();       
+	cout << "ants" << endl; 
+	ants.print();              
+	cout << "beetles" << endl; 
+	beetles.print();           
+	cout << "spiders" << endl; 
+	spiders.print();           
+	cout << "ladybugs" << endl; 
+	ladybugs.print();          
+	cout << "queens" << endl; 
+	queens.print();            
+	cout << "mosquitoes" << endl; 
+	mosquitoes.print();        
+	cout << "pillbugs" << endl; 
+	pillbugs.print();          
+	cout << "grasshoppers" << endl; 
+	grasshoppers.print();      
+	cout << "upperLevelPieces" << endl; 
+	upperLevelPieces.print();  
+	cout << "immobile" << endl; 
+	immobile.print();          
 }
 //STILL WORKING ON RANDOM 
 //FORGOT THE RULE ABOUT PILLBUG CAN BE USED IF PINNED
