@@ -1356,7 +1356,7 @@ void Test::GameStateTest::testPsuedoRandom() {
 	}
 
 	unordered_map <int, BitboardContainer> foundMoves;
-	for (int i = 0 ; i < -1; i ++ ) {
+	for (int i = 0 ; i <  1000; i ++ ) {
 		if ((i % 100) == 0) cout << i << " moves Generated" << endl;
 
 		GameState testGameState(gameState);
@@ -1483,9 +1483,9 @@ void Test::GameStateTest::testPsuedoRandom() {
 
 	for (int i = 0 ; i < 1000 ; i++ ) {
 		c.makePsuedoRandomMove();
-		
-		cout << i << " ============ " << endl;
+		if (!(i % 100)) cout << i << " probably legal moves made" << endl;	
 		c.print();
+		//HAVE TO MAKE SURE THAT IT'S FULLY CONNECTED AFTER EVERYMOVE
 	}
 
 	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();

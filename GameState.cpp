@@ -68,6 +68,10 @@ MoveInfo GameState::insertPiece(BitboardContainer& bitboard, PieceName& name) {
 
 void GameState::fastInsertPiece(BitboardContainer& bitboard, PieceName& name) {
 	if (allPieces.containsAny(bitboard)) {
+		if ( name == PieceName::QUEEN) {
+			cout << "non-beetle being inserted into stack" << endl;
+			throw 23;
+		}
 		stackHashTable[bitboard.hash()].push({turnColor, name});
 		upperLevelPieces.unionWith(bitboard);
 	} else {

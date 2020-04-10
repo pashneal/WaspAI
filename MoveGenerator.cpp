@@ -429,6 +429,7 @@ BitboardContainer MoveGenerator::getInaccessibleNodes(BitboardContainer gates) {
 
 
 BitboardContainer MoveGenerator::getLegalClimb( BitboardContainer& board, Direction dir) {
+	
 	BitboardContainer test(board), gate, CWgate(board), CCWgate(board);
 
 	//TODO: optimize
