@@ -11,7 +11,7 @@
 #include <vector>
 #include <string>
 
-#define movesCollection unordered_map<PieceName, vector<pair<BitboardContainer,int>>>
+#define movesCollection vector<pair<BitboardContainer,int>>
 
 using namespace std;
 
@@ -95,7 +95,7 @@ class GameState {
 
 	bool makePsuedoRandomMove();
 	bool attemptSpawn(int);
-	bool attemptMove(movesCollection&, int);
+	bool attemptMove(vector<movesCollection>& , int);
 
 	int moveApproximation(BitboardContainer, PieceName);
 

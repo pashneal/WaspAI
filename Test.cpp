@@ -1356,10 +1356,11 @@ void Test::GameStateTest::testPsuedoRandom() {
 	}
 
 	unordered_map <int, BitboardContainer> foundMoves;
-	for (int i = 0 ; i < -1 ; i ++ ) {
+	for (int i = 0 ; i < -1; i ++ ) {
 		if ((i % 100) == 0) cout << i << " moves Generated" << endl;
 
 		GameState testGameState(gameState);
+		testGameState.makePsuedoRandomMove();
 
 		for (BitboardContainer board: testGameState.allPieces.splitIntoBitboardContainers()) {
 			BitboardContainer testboard = board.getPerimeter();
@@ -1373,7 +1374,6 @@ void Test::GameStateTest::testPsuedoRandom() {
 			}
 		}
 
-		testGameState.makePsuedoRandomMove();
 
 		if (testGameState.upperLevelPieces.containsAny(testGameState.immobile)) {
 			//if piece moved on top of stack
@@ -1391,7 +1391,7 @@ void Test::GameStateTest::testPsuedoRandom() {
 
 		BitboardContainer testIllegal(immobilePieces);
 		testIllegal.intersectionWith(testGameState.allPieces);
-		if (testIllegal.count() != immobilePieces.count()) {
+		if (!(testIllegal == immobilePieces)) {
 			Test::pass(false, "Moved a black Piece");
 			testGameState.print();
 			return;

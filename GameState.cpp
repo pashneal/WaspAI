@@ -257,6 +257,9 @@ BitboardContainer * GameState::getPieces(PieceName name) {
 	case ANT:         return &ants         ;
 	case SPIDER:      return &spiders      ;
 		break;
+	default:
+		cout << "not a valid piece" << endl;
+		throw 5;
 	}
 }
 
@@ -401,7 +404,7 @@ bool GameState::makePsuedoRandomMove() {
 	//can only move pieces of correct color
 	notCovered.intersectionWith(*getPieces(turnColor));
 
-	movesCollection movesPerPiece;
+	vector<movesCollection> movesPerPiece((int)PieceName::LENGTH);
 
 	int total = 0;
 	int prevTotal;
@@ -419,7 +422,7 @@ bool GameState::makePsuedoRandomMove() {
 				int numMoves = moveApproximation(piece, name);
 
 				if (numMoves == 0) continue;
-				movesPerPiece[name].push_back({piece, numMoves});
+				movesPerPiece[name].push_back(make_pair(piece, numMoves));
 				total += numMoves;
 				prevTotal = total;
 			}
@@ -433,10 +436,9 @@ bool GameState::makePsuedoRandomMove() {
 
 			int numMoves = moveApproximation(piece, PieceName::BEETLE);
 			total += numMoves;
-			movesPerPiece[name].push_back({piece, numMoves});
+			movesPerPiece[name].push_back(make_pair(piece, numMoves));
 		}
 	}
-	cout << total << endl;
 
 	if(!attemptSpawn(total)) 
 		return attemptMove(movesPerPiece, total);
@@ -456,27 +458,28 @@ bool GameState::attemptSpawn(int totalApproxMoves) {
 	return false;
 }	
 
-bool GameState::attemptMove(movesCollection& approxMovesPerPiece, int total){
-	while (approxMovesPerPiece.size() ) {
+bool GameState::attemptMove(vector<movesCollection>& approxMovesPerPiece, int total){
+	while (total) {
 
 		int random = rand() % total;
 		int approxMoveSelect = 0;
 		int approxMoveCount = 0;
-		vector<pair<BitboardContainer, int>>::iterator boardNumMoves;
+		movesCollection::iterator boardNumMoves;
 		BitboardContainer pieceBoard;
 
 		PieceName name;
-		bool flag;
+		bool flag = false;
 
 		//count number of moves for every piece 
-		for (auto iter: approxMovesPerPiece){
-			boardNumMoves = iter.second.begin();
-			while (boardNumMoves != iter.second.end()) {
+		for (unsigned int i = 0; i < approxMovesPerPiece.size() ; i++){
+			boardNumMoves = approxMovesPerPiece[i].begin();
+			while (boardNumMoves != approxMovesPerPiece[i].end()) {
 				approxMoveSelect += boardNumMoves->second;
+
 				if  (approxMoveSelect > random) {
 					pieceBoard = boardNumMoves->first;
 					approxMoveCount = boardNumMoves->second;
-					name = iter.first;
+					name = (PieceName)i;
 					flag = true;
 					break;
 				}
@@ -518,13 +521,8 @@ bool GameState::attemptMove(movesCollection& approxMovesPerPiece, int total){
 		}
 
 		//move approximation is incorrect so update
-		
 		total -= approxMoveCount;
-		cout << "lookiehere" << approxMovesPerPiece[name].size() <<(boardNumMoves != approxMovesPerPiece[name].end()) << flag << endl;
 		approxMovesPerPiece[name].erase(boardNumMoves);
-		cout << "lookiehere" << approxMovesPerPiece[name].size() <<(boardNumMoves != approxMovesPerPiece[name].end()) << flag << endl;
-		if (approxMovesPerPiece[name].size() == 0) approxMovesPerPiece.erase(name);
-		cout << "lookiehere" << approxMovesPerPiece[name].size() <<(boardNumMoves != approxMovesPerPiece[name].end()) << flag << endl;
 	}
 	//no move was made
 	return false;
@@ -582,6 +580,7 @@ int GameState::moveApproximation(BitboardContainer piece, PieceName name){
 			//the spider will almost always have two moves
 			return 2;
 		case PILLBUG:
+		{
 			piece = piece.getPerimeter();
 			BitboardContainer noPiece(piece);
 			noPiece.notIntersectionWith(allPieces);
@@ -590,6 +589,10 @@ int GameState::moveApproximation(BitboardContainer piece, PieceName name){
 			//can usually move two squares and can usually swap out
 			// all but one piece into an empty square
 			return (2 + noPiece.count() * (piece.count() -1));
+		}
+		default:
+			cout << "cannot find the approximateMove for given PieceName" << endl;
+			throw 6;
 		}
 }
 

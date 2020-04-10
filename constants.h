@@ -14,7 +14,8 @@ enum PieceName{
 	MOSQUITO=4,
 	BEETLE=5,
 	ANT=6,
-	SPIDER=7
+	SPIDER=7,
+	LENGTH=8,
 };
 
 enum Direction{
