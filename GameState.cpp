@@ -256,7 +256,6 @@ BitboardContainer * GameState::getPieces(PieceName name) {
 	case BEETLE:      return &beetles      ;
 	case ANT:         return &ants         ;
 	case SPIDER:      return &spiders      ;
-		break;
 	default:
 		cout << "not a valid piece" << endl;
 		throw 5;
@@ -533,6 +532,8 @@ int GameState::moveApproximation(BitboardContainer piece, PieceName name){
 		case MOSQUITO:
 		{
 			BitboardContainer piecePerimeter = piece.getPerimeter();
+			//get places only where perimeter exists
+			piecePerimeter.intersectionWith(allPieces);
 			BitboardContainer piecePerimeterUpper(piecePerimeter);
 			piecePerimeter.notIntersectionWith(upperLevelPieces);
 			piecePerimeterUpper.intersectionWith(upperLevelPieces);
@@ -555,7 +556,9 @@ int GameState::moveApproximation(BitboardContainer piece, PieceName name){
 			return approxMoves;
 		}
 		case QUEEN:
+		{
 			return 2;
+		}
 		case GRASSHOPPER:
 		{
 			//can jump over a piece that's beside them
@@ -568,17 +571,23 @@ int GameState::moveApproximation(BitboardContainer piece, PieceName name){
 			BitboardContainer visited;
 			allPieces.floodFillStep(piece, visited);
 			allPieces.floodFillStep(piece, visited);
-			return (int)(1.5)*piece.count();
+			return (int)(1.5)*visited.count();
 		}
-		case BEETLE:
+		case BEETLE: 
+		{
 			// if the beetle is on the hive it has more freedom
 			return 4 + 2*(upperLevelPieces.containsAny(piece)); 
+		}
 		case ANT:
+		{
 			// The ant can usually go almost anywhere in the perimeter 
 			return (int) (allPieces.getPerimeter().count()*.9);
+		}
 		case SPIDER:
+		{
 			//the spider will almost always have two moves
 			return 2;
+		}
 		case PILLBUG:
 		{
 			piece = piece.getPerimeter();
