@@ -1485,7 +1485,11 @@ void Test::GameStateTest::testPsuedoRandom() {
 		c.makePsuedoRandomMove();
 		if (!(i % 100)) cout << i << " probably legal moves made" << endl;	
 		c.print();
-		//HAVE TO MAKE SURE THAT IT'S FULLY CONNECTED AFTER EVERYMOVE
+		if (c.allPieces.splitIntoConnectedComponents().size() != 1){
+			cout << "last move broke the hive" << endl;
+			throw 42;
+		}
+		
 	}
 
 	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();

@@ -257,7 +257,7 @@ BitboardContainer * GameState::getPieces(PieceName name) {
 	case ANT:         return &ants         ;
 	case SPIDER:      return &spiders      ;
 	default:
-		cout << "not a valid piece" << endl;
+		cout << "not a valid pieceName" << endl;
 		throw 5;
 	}
 }
