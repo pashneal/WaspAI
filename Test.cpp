@@ -1210,6 +1210,7 @@ void Test::GameStateTest::testMovePiece(){
 	BitboardContainer queens({{5, 524288u}});
 	BitboardContainer mosquitoes({{5, 34359738368u}});
 	BitboardContainer beetles({{5, 34359738368u}});
+	BitboardContainer pinned({{5, 34493956096u}});
 	BitboardContainer immobile(finalBeetle);
 	auto stackCopy = gameState.stackHashTable[finalBeetle.hash()];
 	stack < pair < PieceColor , PieceName> >  stackCompare;
@@ -1229,6 +1230,7 @@ void Test::GameStateTest::testMovePiece(){
 	Test::pass(gameState.queens == queens , " queens produced incorrect results");
 	Test::pass(gameState.mosquitoes == mosquitoes , " mosquitoes produced incorrect results");
 	Test::pass(gameState.beetles == beetles , " beetles produced incorrect results");
+	Test::pass(gameState.pinned == pinned , " pinned produced incorrect results");
 	Test::pass(gameState.immobile == immobile , " immobile produced incorrect results");
 	Test::pass(gameState.whitePieces == whitePieces , " whitePieces produced incorrect results");
 	Test::pass(gameState.blackPieces == blackPieces , " blackPieces produced incorrect results");
@@ -1260,6 +1262,7 @@ void Test::GameStateTest::testMovePiece(){
 	Test::pass(gameState.mosquitoes == mosquitoes , " mosquitoes produced incorrect results");
 	Test::pass(gameState.beetles == beetles , " beetles produced incorrect results");
 	if (!silenced) {gameState.beetles.print();};
+	Test::pass(gameState.pinned == pinned , " pinned produced incorrect results");
 	Test::pass(gameState.immobile == immobile , " immobile produced incorrect results");
 	Test::pass(gameState.whitePieces == whitePieces , " whitePieces produced incorrect results");
 	Test::pass(gameState.blackPieces == blackPieces , " blackPieces produced incorrect results");

@@ -206,14 +206,12 @@ void MoveGenerator::generateBeetleMoves(){
 	neighbors = neighbors.getPerimeter();
 
 	//if the piece is on a problematic node
-	if (problemNodes -> contains(*generatingPieceBoard)){
-
+	if (!upperLevelPieces->containsAny(frontier) &&
+		problemNodes -> contains(*generatingPieceBoard)){
 		//get allowed directions to travel
 		frontier = problemNodes -> getPerimeter(frontier);
 
 	} else { 
-
-		//search all directions around frontier
 		frontier = frontier.getPerimeter();
 	}
 

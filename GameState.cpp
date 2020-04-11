@@ -79,6 +79,7 @@ void GameState::fastInsertPiece(BitboardContainer& bitboard, PieceName& name) {
 	getPieces(name) -> unionWith(bitboard);
 	getPieces(turnColor) -> unionWith(bitboard);
 	immobile.initializeTo(bitboard);
+	findPinnedPieces();
 }
 
 MoveInfo GameState::movePiece(BitboardContainer& oldBitboard, BitboardContainer& newBitboard,
@@ -92,8 +93,8 @@ MoveInfo GameState::movePiece(BitboardContainer& oldBitboard, BitboardContainer&
 
 void GameState::fastMovePiece(BitboardContainer& oldBitboard, BitboardContainer& newBitboard,
 							  PieceName& name) {
-	fastInsertPiece(newBitboard, name);
 	fastRemovePiece(oldBitboard, name);
+	fastInsertPiece(newBitboard, name);
 	changeTurnColor();
 	turnCounter++;
 }
@@ -394,7 +395,6 @@ BitboardContainer GameState::getAllSpawnSpaces() {
 //but does not store in move information
 bool GameState::makePsuedoRandomMove() {
 	BitboardContainer notCovered(allPieces);
-	findPinnedPieces();
 	//remove covered pieces 
 	notCovered.notIntersectionWith(upperLevelPieces);
 	//remove any piece that might have been swapped
