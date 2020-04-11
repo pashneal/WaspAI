@@ -1433,7 +1433,7 @@ void Test::GameStateTest::testPsuedoRandom() {
 			}
 
 			if ( foundSpawns.find(testIllegal.hash() ) != foundSpawns.end() ) {
-				PieceName spawnedName = testGameState.findPieceName(testIllegal);
+				PieceName spawnedName = testGameState.findTopPieceName(testIllegal);
 				if ( foundSpawns[testIllegal.hash()].find(spawnedName)  != 
 					 foundSpawns[testIllegal.hash()].end() )
 				{
@@ -1501,7 +1501,7 @@ void Test::GameStateTest::testPsuedoRandom() {
 	for (int i = 0 ; i < 1000 ; i++ ) {
 		if (!(i % 100)) cout << i << " probably legal moves made" << endl;	
 		c.makePsuedoRandomMove();
-		c.print();
+		cout << c.turnCounter << endl;
 		if (c.allPieces.splitIntoConnectedComponents().size() != 1){
 			Test::pass(false, "Last move violated one Hive Rule");
 			throw 42;

@@ -105,25 +105,34 @@ void GameState::fastRemovePiece(BitboardContainer& oldBitboard, PieceName& name)
 		throw 30;
 	}
 	int bitHash = oldBitboard.hash();
+	
+	getPieces(name) -> xorWith(oldBitboard);
+	getPieces(turnColor) -> xorWith(oldBitboard);
+
+	// if currently in a stack
 	if (stackHashTable.find(bitHash) != stackHashTable.end()) { 
+
+		//if on top of the stack 
 		if (stackHashTable[bitHash].top().first == turnColor &&
-				stackHashTable[bitHash].top().second == name) 
+			stackHashTable[bitHash].top().second == name) 
 		{
 			stackHashTable[bitHash].pop();
 
 			if (!(stackHashTable[bitHash].size())) {
+				//if only piece in stack, remove
 				stackHashTable.erase(bitHash);
 				upperLevelPieces.xorWith(oldBitboard);
 			}
+			//update allPieces with piece underneath
+			getPieces(findTopPieceName(oldBitboard)) ->unionWith(oldBitboard);
+			getPieces(findTopPieceColor(oldBitboard)) -> unionWith(oldBitboard);
 		}
 	} else {
-
+	//if not in stack, remove normally
 		problemNodeContainer.removePiece(oldBitboard);
 		pieceGraph.remove(oldBitboard);
 		allPieces.xorWith(oldBitboard);
 	}
-	getPieces(name) -> xorWith(oldBitboard);
-	getPieces(turnColor) -> xorWith(oldBitboard);
 }
 
 void GameState::fastSpawnPiece(BitboardContainer& b, PieceName& n) {
@@ -175,8 +184,8 @@ void GameState::swapPiece(BitboardContainer& swappable, BitboardContainer& empty
 	for (auto initialPiece: swappable.splitIntoBitboardContainers() )  {
 		for (auto finalPiece: empty.splitIntoBitboardContainers() ) {
 			if (moveSelect  == i) {
-				PieceName name = findPieceName(initialPiece);
-				PieceColor temp = turnColor; turnColor = findPieceColor(initialPiece);
+				PieceName name = findTopPieceName(initialPiece);
+				PieceColor temp = turnColor; turnColor = findTopPieceColor(initialPiece);
 				fastMovePiece(initialPiece, finalPiece, name);	
 				turnColor = temp;
 				changeTurnColor();
@@ -194,12 +203,7 @@ void GameState::movePiece(BitboardContainer& initialPiece,
 	for (BitboardContainer piece: possibleFinalLocations.splitIntoBitboardContainers() ) {
 		if (moveSelect == i) {
 
-			PieceName name;
-			if (upperLevelPieces.containsAny(initialPiece))
-				name = stackHashTable[initialPiece.hash()].top().second;
-			else 
-				name = findPieceName(initialPiece);
-
+			PieceName name = findTopPieceName(initialPiece);
 			fastMovePiece(initialPiece, piece, name);
 			return;
 		}
@@ -535,16 +539,14 @@ bool GameState::attemptMove(vector<movesCollection>& approxMovesPerPiece, int to
 }	
 
 int GameState::moveApproximation(BitboardContainer piece, PieceName name, bool isPinned){
-	if (isPinned) return 0;
+	if (isPinned && name != PieceName::PILLBUG) return 0;
 	switch (name) {
 		case MOSQUITO:
 		{
 			BitboardContainer piecePerimeter = piece.getPerimeter();
-			//get places only where perimeter exists
+
+			//get places in perimeter where pieces exist
 			piecePerimeter.intersectionWith(allPieces);
-			BitboardContainer piecePerimeterUpper(piecePerimeter);
-			piecePerimeter.notIntersectionWith(upperLevelPieces);
-			piecePerimeterUpper.intersectionWith(upperLevelPieces);
 
 			//inherits no moves from adjacent mosquito
 			piecePerimeter.notIntersectionWith(*getPieces(PieceName::MOSQUITO));
@@ -555,17 +557,10 @@ int GameState::moveApproximation(BitboardContainer piece, PieceName name, bool i
 
 			int approxMoves = 0;
 			//inherits moves of surrounding pieces
-			for (auto lower: piecePerimeter.splitIntoBitboardContainers()) {
-				approxMoves += moveApproximation(piece, findPieceName(lower), isPinned);
+			for (auto adjPiece: piecePerimeter.splitIntoBitboardContainers()) {
+				approxMoves += moveApproximation(piece, findTopPieceName(adjPiece), isPinned);
 			}
 
-			//inherits moves of beetles on top of hive if not pinned
-			if (!isPinned) {
-				for (auto upper: piecePerimeterUpper.splitIntoBitboardContainers() ) {
-					if (stackHashTable[upper.hash()].top().second == PieceName::BEETLE)
-						approxMoves += moveApproximation(piece, PieceName::BEETLE, isPinned);
-				} 
-			}
 
 			return approxMoves;
 		}
@@ -575,7 +570,7 @@ int GameState::moveApproximation(BitboardContainer piece, PieceName name, bool i
 		}
 		case GRASSHOPPER:
 		{
-			//can jump over a piece that's beside them
+			//can jump over a piece that is beside them
 			piece = piece.getPerimeter();
 			return piece.count();
 		}
@@ -619,8 +614,10 @@ int GameState::moveApproximation(BitboardContainer piece, PieceName name, bool i
 		}
 }
 
-//only find the name of lower level pieces
-PieceName GameState::findPieceName(BitboardContainer piece) {
+PieceName GameState::findTopPieceName(BitboardContainer piece) {
+	if (upperLevelPieces.containsAny(piece) ) {
+		return stackHashTable[piece.hash()].top().second; 
+	}
 	for (auto name: possibleNames) {
 		if (getPieces(name) -> containsAny(piece)) return name;
 	}
@@ -629,7 +626,10 @@ PieceName GameState::findPieceName(BitboardContainer piece) {
 }
 
 //only finds the colors of lower level pieces
-PieceColor GameState::findPieceColor( BitboardContainer piece) {
+PieceColor GameState::findTopPieceColor( BitboardContainer piece) {
+	if (upperLevelPieces.containsAny(piece) ) {
+		return stackHashTable[piece.hash()].top().first; 
+	}
 	for (int i = 0 ; i < 2; i ++ )  {
 		if (getPieces((PieceColor)i) -> containsAny(piece) ) 
 			return	(PieceColor) i;
