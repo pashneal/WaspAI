@@ -1093,7 +1093,6 @@ void Test::PieceGraphTest::testFindAllPinnedPieces(){
 			pinned.print();
 		}
 	}
-
 };
 
 void Test::GameStateTest::testFastSpawnPiece(){
@@ -1533,7 +1532,6 @@ void Test::GameStateTest::testPsuedoRandom() {
 }
 
 int main() {
-
 	srand(2);
 	Test::BitboardTest::testShiftDirection();
 	Test::BitboardTest::testXorWith();

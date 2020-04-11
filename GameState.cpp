@@ -499,12 +499,16 @@ bool GameState::attemptMove(vector<movesCollection>& approxMovesPerPiece, int to
 		}
 		
 		BitboardContainer moves;
-		if (name == PieceName::MOSQUITO) {
-			moves = getMosquitoMoves(pieceBoard);
-		} else {
-			moveGenerator.setGeneratingName(&name);
-			moveGenerator.setGeneratingPieceBoard(&pieceBoard);
-			moves =  moveGenerator.getMoves();
+	
+		//generate moves if not pinned
+		if (!pinned.containsAny(pieceBoard)) { 
+			if (name == PieceName::MOSQUITO) {
+				moves = getMosquitoMoves(pieceBoard);
+			} else {
+				moveGenerator.setGeneratingName(&name);
+				moveGenerator.setGeneratingPieceBoard(&pieceBoard);
+				moves =  moveGenerator.getMoves();
+			}
 		}
 
 		int movesCount = moves.count();
