@@ -193,7 +193,12 @@ void GameState::movePiece(BitboardContainer& initialPiece,
 	int i = 0;
 	for (BitboardContainer piece: possibleFinalLocations.splitIntoBitboardContainers() ) {
 		if (moveSelect == i) {
-			PieceName name = findPieceName(initialPiece);
+
+			PieceName name;
+			if (upperLevelPieces.containsAny(piece))
+				name = stackHashTable[piece.hash()].top().second;
+			else 
+				name = findPieceName(initialPiece);
 
 			fastMovePiece(initialPiece, piece, name);
 			return;

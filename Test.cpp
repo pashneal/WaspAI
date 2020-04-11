@@ -798,6 +798,23 @@ void Test::MoveGeneratorTest::testBeetleMoves() {
 			if (moves.internalBoardCache.size() == 0) cout << "given boards empty " << endl;
 		}
 	}
+	BitboardContainer testBoard({{5, 865847986923967777u}});
+	BitboardContainer expectedBoard({{5, 203164672u}});
+	BitboardContainer upperLevelPieces({{5, 524288u}});
+	BitboardContainer givenPiece({{5, 524288u}});
+	name = PieceName::BEETLE;
+	unordered_map < int, stack < pair <PieceColor, PieceName>>> stackHashTable; 
+	stackHashTable[givenPiece.hash()].push({PieceColor::WHITE, PieceName::BEETLE});
+	ProblemNodeContainer problemNodeCont(&testBoard);
+	problemNodeCont.findAllProblemNodes();
+	MoveGenerator moveGenerator(&testBoard, &problemNodeCont);
+	moveGenerator.setUpperLevelPieces(&upperLevelPieces);
+	moveGenerator.setStackHashTable(&stackHashTable);
+	moveGenerator.setGeneratingPieceBoard(&givenPiece);
+	moveGenerator.setGeneratingName(&name);
+	Test::pass(moveGenerator.getMoves() == expectedBoard, " incorrect moves outputted for move "
+															"generation");
+
 }
 
 void Test::MoveGeneratorTest::testGrasshopperMoves() {
@@ -1486,7 +1503,7 @@ void Test::GameStateTest::testPsuedoRandom() {
 		c.makePsuedoRandomMove();
 		c.print();
 		if (c.allPieces.splitIntoConnectedComponents().size() != 1){
-			cout << "last move broke the hive" << endl;
+			Test::pass(false, "Last move violated one Hive Rule");
 			throw 42;
 		}
 		
@@ -1496,8 +1513,16 @@ void Test::GameStateTest::testPsuedoRandom() {
 			test.unionWith(t);
 		}
 		if (!(test == c.allPieces)) {
-			cout << "DFS failed" << endl;
+			Test::pass(false, "Not all pieces are represented by piece graph");
 			throw 77;
+		}
+		BitboardContainer allPiecesTest;
+		for (auto name: c.possibleNames) {
+			allPiecesTest.unionWith(*c.getPieces(name));	
+		}
+		if (!(allPiecesTest == c.allPieces)) {
+			Test::pass(false, "last move introduced a piece with no name" );
+			throw 76;
 		}
 	}
 
