@@ -195,8 +195,8 @@ void GameState::movePiece(BitboardContainer& initialPiece,
 		if (moveSelect == i) {
 
 			PieceName name;
-			if (upperLevelPieces.containsAny(piece))
-				name = stackHashTable[piece.hash()].top().second;
+			if (upperLevelPieces.containsAny(initialPiece))
+				name = stackHashTable[initialPiece.hash()].top().second;
 			else 
 				name = findPieceName(initialPiece);
 
