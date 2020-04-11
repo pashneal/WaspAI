@@ -1304,8 +1304,15 @@ void Test::GameStateTest::testPsuedoRandom() {
 		{BitboardContainer({{5, 134217728u}}), PieceName::BEETLE},
 	};
 	
+	bool color  = 0; 
 	for (auto p : initialPieces) {
 		gameState.fastSpawnPiece(p.first, p.second);	
+		color = !color;
+
+		if (gameState.turnColor != color) {
+			Test::pass(false, "color not updated after a move");
+			throw 74;
+		}
 	}
 
 	PieceName name;
@@ -1497,10 +1504,11 @@ void Test::GameStateTest::testPsuedoRandom() {
 
 	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 
+	color = gameState.turnColor;
 	for (int i = 0 ; i < 1000 ; i++ ) {
 		if (!(i % 100)) cout << i << " probably legal moves made" << endl;	
 		c.makePsuedoRandomMove();
-		cout << c.turnCounter << endl;
+		cout << " turnCounter: " << c.turnCounter << " turnColor: " << c.turnColor << endl;
 		if (c.allPieces.splitIntoConnectedComponents().size() != 1){
 			Test::pass(false, "Last move violated one Hive Rule");
 			throw 42;
@@ -1522,6 +1530,13 @@ void Test::GameStateTest::testPsuedoRandom() {
 		if (!(allPiecesTest == c.allPieces)) {
 			Test::pass(false, "last move introduced a piece with no name" );
 			throw 76;
+		}
+
+
+		color = !color;
+		if (c.turnColor != color) {
+			Test::pass(false, "color not updated after a move");
+			throw 74;
 		}
 	}
 
