@@ -161,36 +161,38 @@ int	 GameState::countSwaps(BitboardContainer& piece){
 	return swappableEmpty.first.count() * swappableEmpty.second.count();
 }
 
-int GameState::countPossibleSpawns(BitboardContainer& spawns) {
+int GameState::countTotalUnusedPieces() {
 	int colorInt = (int)turnColor;
 	int totalUnusedPieces = 0;
 	
 	for (auto pieceAmountMap: unusedPieces[colorInt]){
 		totalUnusedPieces += (bool)pieceAmountMap.second;
 	}
-	return totalUnusedPieces*spawns.count();
+	return totalUnusedPieces;
 }
-void GameState::spawnPiece(BitboardContainer& spawnLocations, int moveSelect) {
-	int colorInt = (int)turnColor;
-	int i = moveSelect;
-	for (auto pieceAmountMap: unusedPieces[colorInt]){
-		for (int j = 0; j < pieceAmountMap.second; j++) {
-			if ( i  == 0) {
-				i = moveSelect % spawnLocations.count();
-				for (auto spawnLocation: spawnLocations.splitIntoBitboardContainers() ) {
-					
-					if (i == 0) {
-						PieceName name = pieceAmountMap.first;
-						fastSpawnPiece(spawnLocation, name);
-						return;
-					}
-					i--;
-				}
+void GameState::randomSpawnPiece(BitboardContainer& spawnLocations) {
+	int totalUnusedPieces = countTotalUnusedPieces();
+	int pieceSelect = rand() % totalUnusedPieces;
+	int spawnLocationSelect = rand() % spawnLocations.count();
 
-			}
-			i = i/spawnLocations.count();
-		}
+	int i= 0;
+	PieceName name = PieceName::LENGTH;
+	for (auto pieceAmountMap: unusedPieces[(int)turnColor]){
+		if (pieceAmountMap.second) i++;
+		if (i - 1 == pieceSelect) {name = pieceAmountMap.first; break;}
 	}
+
+	i = 0;
+	BitboardContainer newPieceLocation;
+	for (BitboardContainer spawnLocation: spawnLocations.splitIntoBitboardContainers() ) {
+		if (i == spawnLocationSelect) {  
+			newPieceLocation = spawnLocation;
+			break;
+		}
+		i++;
+	}
+
+	fastSpawnPiece(newPieceLocation, name);
 }
 void GameState::swapPiece(BitboardContainer& swappable, BitboardContainer& empty, int moveSelect) {
 	int i = 0;
@@ -466,20 +468,30 @@ bool GameState::makePsuedoRandomMove() {
 		}
 	}
 
-	if(!attemptSpawn(total)) 
-		return attemptMove(movesPerPiece, total);
-	return true;
+	bool madeAMove = true;
+	if(!attemptSpawn(total)) {
+		if (!attemptMove(movesPerPiece, total)) {
+			//if all move approximations were incorrect
+			//attempt another spawn
+			madeAMove = attemptSpawn(0);
+		}
+	}
+
+	if (madeAMove) return true;
+	//if no move was made, pass a turn
+	changeTurnColor();
+	return false;
 }
 bool GameState::attemptSpawn(int totalApproxMoves) {
 	BitboardContainer spawns = getAllSpawnSpaces();
-	int spawnsCount = countPossibleSpawns(spawns);
+	int spawnsCount = spawns.count()*countTotalUnusedPieces();
 
 	//if there are no legal spawns 
 	if(spawnsCount == 0) return false;
 	int randInt = rand() % (totalApproxMoves + spawnsCount );
 
 	if (randInt >= totalApproxMoves) {
-		spawnPiece(spawns, rand() % spawnsCount );
+		randomSpawnPiece(spawns);
 		return true;
 	}
 	return false;

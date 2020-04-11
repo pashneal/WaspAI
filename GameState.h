@@ -66,9 +66,9 @@ class GameState {
 
 
 	int countSwaps(BitboardContainer&);
-	int countPossibleSpawns(BitboardContainer&);
+	int countTotalUnusedPieces();
 
-	void spawnPiece(BitboardContainer&, int);
+	void randomSpawnPiece(BitboardContainer&);
 	void swapPiece(BitboardContainer&, BitboardContainer&, int);
 	void movePiece(BitboardContainer&, BitboardContainer&, int);
 

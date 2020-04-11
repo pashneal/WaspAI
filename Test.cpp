@@ -1508,7 +1508,8 @@ void Test::GameStateTest::testPsuedoRandom() {
 	for (int i = 0 ; i < 1000 ; i++ ) {
 		if (!(i % 100)) cout << i << " probably legal moves made" << endl;	
 		c.makePsuedoRandomMove();
-		cout << " turnCounter: " << c.turnCounter << " turnColor: " << c.turnColor << endl;
+		//cout << " turnCounter: " << c.turnCounter << " turnColor: " << c.turnColor << endl;
+		/*
 		if (c.allPieces.splitIntoConnectedComponents().size() != 1){
 			Test::pass(false, "Last move violated one Hive Rule");
 			throw 42;
@@ -1538,6 +1539,7 @@ void Test::GameStateTest::testPsuedoRandom() {
 			Test::pass(false, "color not updated after a move");
 			throw 74;
 		}
+		*/
 	}
 
 	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
