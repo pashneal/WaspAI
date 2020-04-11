@@ -1210,7 +1210,6 @@ void Test::GameStateTest::testMovePiece(){
 	BitboardContainer queens({{5, 524288u}});
 	BitboardContainer mosquitoes({{5, 34359738368u}});
 	BitboardContainer beetles({{5, 34359738368u}});
-	BitboardContainer pinned({{5, 34493956096u}});
 	BitboardContainer immobile(finalBeetle);
 	auto stackCopy = gameState.stackHashTable[finalBeetle.hash()];
 	stack < pair < PieceColor , PieceName> >  stackCompare;
@@ -1230,7 +1229,6 @@ void Test::GameStateTest::testMovePiece(){
 	Test::pass(gameState.queens == queens , " queens produced incorrect results");
 	Test::pass(gameState.mosquitoes == mosquitoes , " mosquitoes produced incorrect results");
 	Test::pass(gameState.beetles == beetles , " beetles produced incorrect results");
-	Test::pass(gameState.pinned == pinned , " pinned produced incorrect results");
 	Test::pass(gameState.immobile == immobile , " immobile produced incorrect results");
 	Test::pass(gameState.whitePieces == whitePieces , " whitePieces produced incorrect results");
 	Test::pass(gameState.blackPieces == blackPieces , " blackPieces produced incorrect results");
@@ -1262,7 +1260,6 @@ void Test::GameStateTest::testMovePiece(){
 	Test::pass(gameState.mosquitoes == mosquitoes , " mosquitoes produced incorrect results");
 	Test::pass(gameState.beetles == beetles , " beetles produced incorrect results");
 	if (!silenced) {gameState.beetles.print();};
-	Test::pass(gameState.pinned == pinned , " pinned produced incorrect results");
 	Test::pass(gameState.immobile == immobile , " immobile produced incorrect results");
 	Test::pass(gameState.whitePieces == whitePieces , " whitePieces produced incorrect results");
 	Test::pass(gameState.blackPieces == blackPieces , " blackPieces produced incorrect results");
@@ -1482,14 +1479,23 @@ void Test::GameStateTest::testPsuedoRandom() {
 	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 
 	for (int i = 0 ; i < 1000 ; i++ ) {
-		c.makePsuedoRandomMove();
 		if (!(i % 100)) cout << i << " probably legal moves made" << endl;	
+		c.makePsuedoRandomMove();
 		c.print();
 		if (c.allPieces.splitIntoConnectedComponents().size() != 1){
 			cout << "last move broke the hive" << endl;
 			throw 42;
 		}
 		
+		BitboardContainer test;
+		for (auto i: c.pieceGraph.DFS() ){
+			BitboardContainer t({{i->boardIndex,i->location}});
+			test.unionWith(t);
+		}
+		if (!(test == c.allPieces)) {
+			cout << "DFS failed" << endl;
+			throw 77;
+		}
 	}
 
 	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();

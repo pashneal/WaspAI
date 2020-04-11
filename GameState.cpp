@@ -79,7 +79,6 @@ void GameState::fastInsertPiece(BitboardContainer& bitboard, PieceName& name) {
 	getPieces(name) -> unionWith(bitboard);
 	getPieces(turnColor) -> unionWith(bitboard);
 	immobile.initializeTo(bitboard);
-	findPinnedPieces();
 }
 
 MoveInfo GameState::movePiece(BitboardContainer& oldBitboard, BitboardContainer& newBitboard,
@@ -395,7 +394,7 @@ BitboardContainer GameState::getAllSpawnSpaces() {
 //but does not store in move information
 bool GameState::makePsuedoRandomMove() {
 	BitboardContainer notCovered(allPieces);
-
+	findPinnedPieces();
 	//remove covered pieces 
 	notCovered.notIntersectionWith(upperLevelPieces);
 	//remove any piece that might have been swapped
@@ -418,7 +417,8 @@ bool GameState::makePsuedoRandomMove() {
 
 		if (test.count()) {
 			for (BitboardContainer piece: test.splitIntoBitboardContainers() ) {
-				int numMoves = moveApproximation(piece, name);
+				bool isPinned = pinned.containsAny(piece);
+				int numMoves = moveApproximation(piece, name, isPinned);
 
 				if (numMoves == 0) continue;
 				movesPerPiece[name].push_back(make_pair(piece, numMoves));
@@ -433,7 +433,8 @@ bool GameState::makePsuedoRandomMove() {
 		if (stackHashTable[piece.hash()].top().first == turnColor) {
 			PieceName name = stackHashTable[piece.hash()].top().second;
 
-			int numMoves = moveApproximation(piece, PieceName::BEETLE);
+			// a piece that is on the upperLevel is not pinned
+			int numMoves = moveApproximation(piece, PieceName::BEETLE, false);
 			total += numMoves;
 			movesPerPiece[name].push_back(make_pair(piece, numMoves));
 		}
@@ -448,9 +449,10 @@ bool GameState::attemptSpawn(int totalApproxMoves) {
 	int spawnsCount = countPossibleSpawns(spawns);
 
 	//if there are no legal spawns 
-	int randInt = rand() % totalApproxMoves;
+	if(spawnsCount == 0) return false;
+	int randInt = rand() % (totalApproxMoves + spawnsCount );
 
-	if (randInt >= totalApproxMoves - spawnsCount ) {
+	if (randInt >= totalApproxMoves) {
 		spawnPiece(spawns, rand() % spawnsCount );
 		return true;
 	}
@@ -527,7 +529,8 @@ bool GameState::attemptMove(vector<movesCollection>& approxMovesPerPiece, int to
 	return false;
 }	
 
-int GameState::moveApproximation(BitboardContainer piece, PieceName name){
+int GameState::moveApproximation(BitboardContainer piece, PieceName name, bool isPinned){
+	if (isPinned) return 0;
 	switch (name) {
 		case MOSQUITO:
 		{
@@ -538,19 +541,25 @@ int GameState::moveApproximation(BitboardContainer piece, PieceName name){
 			piecePerimeter.notIntersectionWith(upperLevelPieces);
 			piecePerimeterUpper.intersectionWith(upperLevelPieces);
 
-			//inherits no moves from mosquito
+			//inherits no moves from adjacent mosquito
 			piecePerimeter.notIntersectionWith(*getPieces(PieceName::MOSQUITO));
+			
+			//if pinned, only inherits moves from adjacent pillbugs
+			if (isPinned) 
+				piecePerimeter.intersectionWith(*getPieces(PieceName::PILLBUG));
 
 			int approxMoves = 0;
 			//inherits moves of surrounding pieces
 			for (auto lower: piecePerimeter.splitIntoBitboardContainers()) {
-				approxMoves += moveApproximation(piece, findPieceName(lower));
+				approxMoves += moveApproximation(piece, findPieceName(lower), isPinned);
 			}
 
-			//inherits moves of beetles on top of hive
-			for (auto upper: piecePerimeterUpper.splitIntoBitboardContainers() ) {
-				if (stackHashTable[upper.hash()].top().second == PieceName::BEETLE)
-					approxMoves += moveApproximation(piece, PieceName::BEETLE);
+			//inherits moves of beetles on top of hive if not pinned
+			if (!isPinned) {
+				for (auto upper: piecePerimeterUpper.splitIntoBitboardContainers() ) {
+					if (stackHashTable[upper.hash()].top().second == PieceName::BEETLE)
+						approxMoves += moveApproximation(piece, PieceName::BEETLE, isPinned);
+				} 
 			}
 
 			return approxMoves;
@@ -623,7 +632,7 @@ PieceColor GameState::findPieceColor( BitboardContainer piece) {
 	return PieceColor::NONE;
 }
 
-void GameState::findPinnedPieces(){
+inline void GameState::findPinnedPieces(){
 	pinned = pieceGraph.getPinnedPieces();
 }
 

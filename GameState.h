@@ -97,7 +97,7 @@ class GameState {
 	bool attemptSpawn(int);
 	bool attemptMove(vector<movesCollection>& , int);
 
-	int moveApproximation(BitboardContainer, PieceName);
+	int moveApproximation(BitboardContainer, PieceName, bool);
 
 	void findPinnedPieces();
 

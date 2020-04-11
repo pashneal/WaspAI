@@ -59,7 +59,6 @@ void PieceGraph::getArticulationNodes(PieceNode * n, int& counter,
 	//initially assume that this node is the lowest link
 	n -> lowLink = n -> visitedNum;
 
-
 	for(auto neighbor: n -> neighbors){
 	
 		//if not yet visited
@@ -94,6 +93,7 @@ void PieceGraph::getArticulationNodes(PieceNode * n, int& counter,
 
 void PieceGraph::checkArticulationRoot(PieceNode * root) {
 	int children = 0;
+	if (root->boardIndex ==5 && root->location == 4398046511104u) cout << "adfslkkjfsadlkjfsdakjlfdaskjldfas" << endl;
 	for (auto potentialChild : root->neighbors){
 		if (potentialChild -> parent == root) {
 			children++;
