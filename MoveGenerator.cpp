@@ -364,7 +364,7 @@ BitboardContainer MoveGenerator::getInaccessibleNodes(vector <BitboardContainer>
 			BitboardContainer visited;
 			for (auto frontier = frontiers.begin(); frontier != frontiers.end(); frontier++) {
 
-				if (frontier -> internalBoardCache.size() == 0) {
+				if (frontier -> count() == 0) {
 					index = frontier - frontiers.begin();
 					if (searchResolved[index])
 						continue;
@@ -446,7 +446,7 @@ BitboardContainer MoveGenerator::getLegalClimb( BitboardContainer& board, Direct
 	
 	if (gate.count() == 2) {
 		int maxPieceHeight = 0;
-		if (upperLevelPieces -> containsAny(board)) {
+		if (upperLevelPieces -> containsAny(test)) {
 			maxPieceHeight = stackHashTable ->at(test.hash()).size(); 
 		}
 		if (upperLevelPieces -> containsAny(board) ) {

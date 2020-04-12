@@ -623,7 +623,7 @@ int GameState::moveApproximation(BitboardContainer piece, PieceName name, bool i
 		case ANT:
 		{
 			// The ant can usually go almost anywhere in the perimeter 
-			return (int) (allPieces.getPerimeter().count()*.9);
+			return (int) (allPieces.getPerimeter().count()*.95);
 		}
 		case SPIDER:
 		{

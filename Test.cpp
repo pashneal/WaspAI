@@ -83,16 +83,16 @@ void Test::BitboardTest::testShiftDirection(){
 		},
 
 		{
-			{3,609009639598005946u},
-			{4,826246961152u},
-			{5,1610618880u}
+			{0,609009639598005946u},
+			{1,826246961152u},
+			{2,1610618880u}
 		},
 
 		{
-			{3,2378943904679710u},
-			{4,3227527192u},
-			{5,6291480u},
-			{7,13402712491054596096u}
+			{0,2378943904679710u},
+			{1,3227527192u},
+			{2,6291480u},
+			{3,13402712491054596096u}
 		},
 
 		{
@@ -109,7 +109,7 @@ void Test::BitboardTest::testShiftDirection(){
 		},
 
 		{
-			{5,2258444583180296}
+			{4,2258444583180296}
 		}
 
 	};
@@ -133,17 +133,16 @@ void Test::BitboardTest::testShiftDirection(){
 		},
 
 		{
-			{3,2378943904679710u},
-			{4,3227527192u},
-			{5,6291480u},
-			{7,13402712491054596096u}
+			{0,2378943904679710u},
+			{1,3227527192u},
+			{2,6291480u},
+			{3,13402712491054596096u}
 		},
 
 		{
-			{3,609009639598005946u},
-			{4,826246961152u},
-			{5,1610618880u},
-			{7,0}
+			{0,609009639598005946u},
+			{1,826246961152u},
+			{2,1610618880u},
 		},
 
 		{
@@ -160,7 +159,7 @@ void Test::BitboardTest::testShiftDirection(){
 		},
 
 		{
-			{5, 4423901974552},{9,288230376151711744},{4, 2147483648}
+			{4, 4423901974552},{7,288230376151711744},{3, 2147483648}
 		}
 
 
@@ -172,16 +171,10 @@ void Test::BitboardTest::testShiftDirection(){
 
 		testBitboardContainer.initialize(bitboardList[i]);
 		testBitboardContainer.shiftDirection(shiftDirections[i]);
-		for (auto iter: expectedResults[i]){
-			int boardIndex = iter.first;
-			cout << "\tboard " << boardIndex << " ";
-
-			Test::pass(expectedResults[i][boardIndex] == testBitboardContainer.internalBoards[boardIndex],
+		BitboardContainer expectedResult(expectedResults[i]);
+			Test::pass(expectedResult == testBitboardContainer,
 					"Expected result incorrect for shiftDirection() ");
-			//cout << "\t\t Expected board:" <<  expectedResults[i][boardIndex] << endl;
-			//cout << "\t\t Given board:" << testBitboardContainer.internalBoards[boardIndex] << endl;
 		}
-	}
 
 	unordered_map <int, unsigned long long> test;
 	test[5] = 1;
@@ -193,7 +186,7 @@ void Test::BitboardTest::testShiftDirection(){
 	testBitboardContainer.shiftDirection(Direction::E);
 	testBitboardContainer.shiftDirection(Direction::NW);
 	cout << "Test " << shiftDirections.size() << ": ";
-	Test::pass(testBitboardContainer.internalBoards[5] == 1, "result incorrect");
+	Test::pass(testBitboardContainer[5] == 1, "result incorrect");
 
 	bool silenced = true;
 
@@ -245,7 +238,7 @@ void Test::BitboardTest::testXorWith() {
 		for (auto j : expectedResults[i]){
 				cout << "\t Board: " << j.first << " ";
 
-				Test::pass(test.internalBoards[j.first] == j.second, 
+				Test::pass(test[j.first] == j.second, 
 						"failed to get correct result for xorWith()");
 		}
 	}
@@ -319,7 +312,7 @@ void Test::BitboardTest::testUnionWith() {
 		for (auto j : expectedResults[i]){
 				cout << "\t Board: " << j.first << " ";
 
-				Test::pass(test.internalBoards[j.first] == j.second, 
+				Test::pass(test[j.first] == j.second, 
 						"failed to get correct result for UnionWith()");
 		}
 
@@ -361,19 +354,18 @@ void Test::BitboardTest::testContainsAny() {
 }
 
 void Test::BitboardTest::testFloodFillStep() {
-		
 	cout << "===================TestFloodFillStep===================" << endl;
 
 	vector <unordered_map <int, unsigned long long>> bitboardTraversableList = {
 		{{0,8831493474304u}},
-		{{0,49344u}, {1,1}, {4,13835058055282163712u}},
-		{{0,49344u}, {1,1}, {4,13835058055282163712u}}
+		{{0,49344u}, {1,1}, {3,13835058055282163712u}},
+		{{0,49344u}, {1,1}, {3,13835058055282163712u}}
 	};
 	vector <unordered_map <int, unsigned long long>> bitboardFrontierList =
 	{
 		{{0,134217728u}},
 		{{0,128}},
-		{{0,49216u}, {1,1}, {4,13835058055282163712u}}
+		{{0,49216u}, {1,1}, {3,13835058055282163712u}}
 	};
 
 	vector <unordered_map <int, unsigned long long >> bitboardVisitedList = {
@@ -386,12 +378,12 @@ void Test::BitboardTest::testFloodFillStep() {
 	vector <unordered_map <int, unsigned long long >> expectedVisitedList = {
 		{{0,134217728u}},
 		{{0,128}},
-		{{0,49344u}, {1,1}, {4,13835058055282163712u}}
+		{{0,49344u}, {1,1}, {3,13835058055282163712u}}
 	};
 
 	vector <unordered_map <int, unsigned long long >> expectedFrontierList = {
 		{{0,34695806976u}},
-		{{0,49216u}, {1,1}, {4,13835058055282163712u}},
+		{{0,49216u}, {1,1}, {3,13835058055282163712u}},
 		{{}}
 	};
 	BitboardContainer traversable, frontier, visited;
@@ -427,7 +419,7 @@ void Test::BitboardTest::testFloodFill() {
 	//I'm too lazy to add more tests but there is space if future me wants to
 
 	vector <unordered_map <int, unsigned long long>> bitboardTraversableList = {
-		{{0,144680354303193280u}, {1,396553u}, {4,4629806107761573888u}}
+		{{0,144680354303193280u}, {1,396553u}, {3,4629806107761573888u}}
 	};
 	vector <unordered_map <int, unsigned long long>> bitboardFrontierList =
 	{
@@ -435,7 +427,7 @@ void Test::BitboardTest::testFloodFill() {
 	};
 
 	vector <unordered_map <int, unsigned long long >> expectedFrontierList = {
-		{{0,144680354303193280u}, {1,396553u}, {4,4629806107761573888u}}
+		{{0,144680354303193280u}, {1,396553u}, {3,4629806107761573888u}}
 	};
 
 	BitboardContainer traversable, frontier ;
@@ -514,9 +506,9 @@ void Test::ProblemNodeContainerTest::testFindAllProblemNodes(){
 		{{0,17632004u}},
 		{{2,4484114285830u}},
 		{{4,36099441180057792u}, {5, 846645512438272u}},
-		{{12, 51708299278u}},
-		{{15, 2361380u}},
-		{{9, 1116741894656u}},
+		{{2, 51708299278u}},
+		{{5, 2361380u}},
+		{{8, 1116741894656u}},
 		{{6,549755813888u}, {7,16777216u}},
 		{{6, 806367232u}},
 		{{6, 2147516416u}, {7, 16908544u}}
@@ -526,9 +518,9 @@ void Test::ProblemNodeContainerTest::testFindAllProblemNodes(){
 		{{0, 33686536u}},
 		{{2, 8830520132096u}},
 		{{4, 141287244169216u}, {5, 1108135248128u}},
-		{{12,1792u}},
-		{{15,1586712u}},
-		{{9,2211908550912u}},
+		{{2,1792u}},
+		{{5,1586712u}},
+		{{8,2211908550912u}},
 		{{6,2147483648u}, {7, 4294967296u}},
 		{{6,6291456}},
 		{{6, 8388608u}, {7, 65536u}}
@@ -558,33 +550,33 @@ void Test::ProblemNodeContainerTest::testRemovePiece(bool noMessage){
 		{{0,17632004u}},
 		{{2,4484114285830u}},
 		{{4,36099441180057792u}, {5, 846645512438272u}},
-		{{12, 51708299278u}},
-		{{15, 2361380u}},
-		{{9, 1116741894656u}},
+		{{2, 51708299278u}},
+		{{5, 2361380u}},
+		{{8, 1116741894656u}},
 		{{6,549755813888u}, {7,16777216}},
-		{{9,50660096u} , {8,3225468928u}}
+		{{7,50660096u} , {6,3225468928u}}
 	};
 
 	vector <unordered_map <int, unsigned long long >> removePiece = {
 		{{0, 4}},
 		{{2, 1024}},
 		{{5, 16777216u}},
-		{{12,17179869184u}},
-		{{15, 2048u}},
-		{{9, 1099511627776u}},
+		{{2,17179869184u}},
+		{{5, 2048u}},
+		{{8, 1099511627776u}},
 		{{7,16777216}},
-		{{9,65536}}
+		{{7,65536}}
 	};
 
 	vector <unordered_map <int, unsigned long long >> expected= {
 		{{0, 33685504u}},
 		{{2, 8830520131584u}},
 		{{4, 141289391652864u}, {5, 1108118470912u}},
-		{{12, 17246979840u}},
-		{{15, 13824u}},
-		{{9, 393472u}},
+		{{2, 17246979840u}},
+		{{5, 13824u}},
+		{{8, 393472u}},
 		{{}},
-		{{8,8388608u}, {9,196608u}}
+		{{6,8388608u}, {7,196608u}}
 		
 	};
 
@@ -604,17 +596,12 @@ void Test::ProblemNodeContainerTest::testRemovePiece(bool noMessage){
 
 		if (!noMessage) {
 			cout << "given Board: " ;
-			for (int i : test.visibleProblemNodes.internalBoardCache) {
-				cout << "\n " << i << " " << test.visibleProblemNodes.internalBoards[i];
-			}
+			test.visibleProblemNodes.print();
 			
 			cout << endl;
 
 			cout << "expected Board: " ;
-			for (int i : expectedProblemNodes.internalBoardCache) {
-				cout << "\n " << i << " " << expectedProblemNodes.internalBoards[i];
-			}
-
+			expectedProblemNodes.print();
 			cout << endl <<endl ;
 		}
 	}
@@ -626,23 +613,23 @@ void Test::MoveGeneratorTest::testQueenMoves() {
 	bool silenced =true;
 
 	vector <unordered_map <int, unsigned long long>> test = {
-		{{9, 2258422653255680u}},
-		{{10, 103550550016u}},
-		{{13, 103550025728u}},
+		{{8, 2258422653255680u}},
+		{{0, 103550550016u}},
+		{{3, 103550025728u}},
 		{{5, 827595993088u}, {6, 16908544u}},
 		{{4,1621106688u}}
 	};
 
 	vector <unordered_map<int, unsigned long long>> piece = {
-		{{9,2251799813685248u}},
-		{{10, 134217728u}},
-		{{13, 134217728u}},
+		{{8,2251799813685248u}},
+		{{0, 134217728u}},
+		{{3, 134217728u}},
 		{{5 , 8388608u}},
 		{{4, 8388608u}}
 	};
 
 	vector <unordered_map <int, unsigned long long >> expected = {
-		{{9, 1134695999864832u}},
+		{{8, 1134695999864832u}},
 		{{}},
 		{{}},
 		{{5,1073758208u}},
@@ -668,11 +655,8 @@ void Test::MoveGeneratorTest::testQueenMoves() {
 				"incorrect moves outputted for move generation");
 
 		if (!silenced) {
-			for (int boardIndex: moves.internalBoardCache) {
-				cout << boardIndex << " ";
-				cout << moves.internalBoards[boardIndex] << endl;
-			} 
-			if (moves.internalBoardCache.size() == 0) cout << "given boards empty " << endl;
+			cout << "given moves" << endl;
+			moves.print();
 		}
 	}
 }
@@ -683,33 +667,33 @@ void Test::MoveGeneratorTest::testSpiderMoves() {
 	bool silenced =true;
 
 	vector <unordered_map <int, unsigned long long>> test = {
-		{{9, 68921589760u}},
-		{{10, 103550550016u}},
-		{{13, 103550025728u}},
+		{{4, 68921589760u}},
+		{{5, 103550550016u}},
+		{{8, 103550025728u}},
 		{{5, 827595993088u}, {6, 16908544u}},
 		{{4,1621106688u}},
 		//TODO: stop being lazy with this test 
-		{{14, 211381651554304u}, {15, 4479648768u}},
+		{{4, 211381651554304u}, {5, 4479648768u}},
 		{{3,1006910464u}}
 	};
 
 	vector <unordered_map<int, unsigned long long>> piece = {
-		{{9,68719476736u}},
-		{{10, 134217728u}},
-		{{13, 134217728u}},
+		{{4,68719476736u}},
+		{{5, 134217728u}},
+		{{8, 134217728u}},
 		{{5 , 8388608u}},
 		{{4, 8388608u}},
-		{{15,131072u}},
+		{{5,131072u}},
 		{{3, 536870912u}}
 	};
 
 	vector <unordered_map <int, unsigned long long >> expected = {
-		{{9, 33556480u}},
+		{{4, 33556480u}},
 		{{}},
 		{{}},
 		{{5, 1073758240u}, {6, 1}},
 		{{4, 274877907008u}},
-		{{14, 550829555712u} , {15, 51608291333u}},
+		{{4, 550829555712u} , {5, 51608291333u}},
 		{{3, 34359754752u}}
 	};
 
@@ -744,25 +728,25 @@ void Test::MoveGeneratorTest::testBeetleMoves() {
 	bool silenced = true;
 
 	vector <unordered_map <int, unsigned long long>> test = {
-		{{9, 2258422653255680u}},
-		{{10, 103550550016u}},
-		{{13, 103550025728u}},
+		{{8, 2258422653255680u}},
+		{{0, 103550550016u}},
+		{{3, 103550025728u}},
 		{{5, 827595993088u}, {6, 16908544u}},
 		{{4,1621106688u}}
 	};
 
 	vector <unordered_map<int, unsigned long long>> piece = {
-		{{9,2251799813685248u}},
-		{{10, 134217728u}},
-		{{13, 134217728u}},
+		{{4,2251799813685248u}},
+		{{5, 134217728u}},
+		{{8, 134217728u}},
 		{{5 , 8388608u}},
 		{{4, 8388608u}}
 	};
 
 	vector <unordered_map <int, unsigned long long >> expected = {
-		{{9, 1139094046375936u}},
-		{{10,103416332288u}},
-		{{13,103415808000u}},
+		{{4, 1139094046375936u}},
+		{{5,103416332288u}},
+		{{8,103415808000u}},
 		{{5, 3221274624u}},
 		{{4, 3225419776u}}
 	};
@@ -791,11 +775,9 @@ void Test::MoveGeneratorTest::testBeetleMoves() {
 				"incorrect moves outputted for move generation");
 
 		if (!silenced) {
-			for (int boardIndex: moves.internalBoardCache) {
-				cout << boardIndex << " ";
-				cout << moves.internalBoards[boardIndex] << endl;
-			} 
-			if (moves.internalBoardCache.size() == 0) cout << "given boards empty " << endl;
+			cout << "given moves" << endl;
+			moves.print();
+
 		}
 	}
 	BitboardContainer testBoard({{5, 865847986923967777u}});
@@ -856,11 +838,8 @@ void Test::MoveGeneratorTest::testGrasshopperMoves() {
 				"incorrect moves outputted for move generation");
 
 		if (!silenced) {
-			for (int boardIndex: moves.internalBoardCache) {
-				cout << boardIndex << " ";
-				cout << moves.internalBoards[boardIndex] << endl;
-			} 
-			if (moves.internalBoardCache.size() == 0) cout << "given boards empty " << endl;
+			cout << "given moves" << endl;
+			moves.print();
 		}
 	}
 }
@@ -871,27 +850,27 @@ void Test::MoveGeneratorTest::testLadybugMoves() {
 	bool silenced = true;
 
 	vector <unordered_map <int, unsigned long long>> test = {
-		{{9, 68921589760u}},
-		{{10, 103550550016u}},
-		{{13, 103550025728u}},
+		{{4, 68921589760u}},
+		{{5, 103550550016u}},
+		{{8, 103550025728u}},
 		{{5, 827595993088u}, {6, 16908544u}},
 		{{4,1621106688u}},
 		{{3,1006910464u}}
 	};
 
 	vector <unordered_map<int, unsigned long long>> piece = {
-		{{9,68719476736u}},
-		{{10, 134217728u}},
-		{{13, 134217728u}},
+		{{4,68719476736u}},
+		{{5, 134217728u}},
+		{{8, 134217728u}},
 		{{5 , 8388608u}},
 		{{4, 8388608u}},
 		{{3, 536870912u}}
 	};
 
 	vector <unordered_map <int, unsigned long long >> expected = {
-		{{9, 51574213632u}},
-		{{10, 30941517192192u}},
-		{{13, 30941517715456u}},
+		{{4, 51574213632u}},
+		{{5, 30941517192192u}},
+		{{8, 30941517715456u}},
 		{{5, 211107306274816u}, {6, 12918522371u}},
 		{{4, 412589490176u}},
 		{{3, 103080787968u}}
@@ -933,25 +912,25 @@ void Test::MoveGeneratorTest::testAntMoves() {
 	bool silenced = true;
 
 	vector <unordered_map <int, unsigned long long>> test = {
-		{{9, 68921589760u}},
-		{{10, 103550550016u}},
-		{{13, 103550025728u}},
+		{{4, 68921589760u}},
+		{{5, 103550550016u}},
+		{{8, 103550025728u}},
 		{{5, 827595993088u}, {6, 16908544u}},
 		{{4,1621106688u}},
 		{{3,1006910464u}}
 	};
 
 	vector <unordered_map<int, unsigned long long>> piece = {
-		{{9,68719476736u}},
-		{{10, 134217728u}},
-		{{13, 134217728u}},
+		{{4,68719476736u}},
+		{{5, 134217728u}},
+		{{8, 134217728u}},
 		{{5 , 8388608u}},
 		{{4, 8388608u}},
 		{{3, 536870912u}}
 	};
 
 	vector <unordered_map <int, unsigned long long >> expected = {
-		{{9, 51842780672u}},
+		{{4, 51842780672u}},
 		{{}},
 		{{}},
 		{{5, 246497975748848}, {6, 12918718979u}},
@@ -990,25 +969,25 @@ void Test::MoveGeneratorTest::testPillbugMoves() {
 	bool silenced = true;
 
 	vector <unordered_map <int, unsigned long long>> test = {
-		{{9, 68921589760u}},
-		{{10, 103550550016u}},
-		{{13, 103550025728u}},
+		{{4, 68921589760u}},
+		{{5, 103550550016u}},
+		{{8, 103550025728u}},
 		{{5, 827595993088u}, {6, 16908544u}},
 		{{4,1621106688u}},
 		{{3,1006910464u}}
 	};
 
 	vector <unordered_map<int, unsigned long long>> piece = {
-		{{9,68719476736u}},
-		{{10, 134217728u}},
-		{{13, 134217728u}},
+		{{4,68719476736u}},
+		{{5, 134217728u}},
+		{{8, 134217728u}},
 		{{5 , 8388608u}},
 		{{4, 8388608u}},
 		{{3, 536870912u}}
 	};
 
 	vector <unordered_map <int, unsigned long long >> expected = {
-		{{9, 34628173824u}},
+		{{4, 34628173824u}},
 		{{}},
 		{{}},
 		{{5,1073758208u}},
@@ -1045,16 +1024,16 @@ void Test::PieceGraphTest::testFindAllPinnedPieces(){
 	bool silenced = true;
 
 	vector <unordered_map <int, unsigned long long>> test = {
-		{{9, 68921589760u}},
-		{{10, 103550550016u}},
-		{{13, 103550025728u}},
+		{{4, 68921589760u}},
+		{{5, 103550550016u}},
+		{{8, 103550025728u}},
 		{{5, 827595993088u}, {6, 16908544u}},
 		{{4,1621106688u}},
 		{{3,1006910464u}}
 	};
 
 	vector <unordered_map <int, unsigned long long >> expected = {
-		{{9,134217728u}},
+		{{4,134217728u}},
 		{{}},
 		{{}},
 		{{5,827587563520u}},
@@ -1379,7 +1358,7 @@ void Test::GameStateTest::testPsuedoRandom() {
 	}
 
 	unordered_map <int, BitboardContainer> foundMoves;
-	for (int i = 0 ; i <  1000; i ++ ) {
+	for (int i = 0 ; i <  10000; i ++ ) {
 		if ((i % 100) == 0) cout << i << " moves Generated" << endl;
 
 		GameState testGameState(gameState);
@@ -1502,14 +1481,12 @@ void Test::GameStateTest::testPsuedoRandom() {
 	
 	GameState c(gameState);
 
-	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-
 	color = gameState.turnColor;
-	for (int i = 0 ; i < 1000 ; i++ ) {
+	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+	for (int i = 0 ; i < 10000 ; i++ ) {
 		if (!(i % 100)) cout << i << " probably legal moves made" << endl;	
 		c.makePsuedoRandomMove();
-		//cout << " turnCounter: " << c.turnCounter << " turnColor: " << c.turnColor << endl;
-		/*
+		/*cout << " turnCounter: " << c.turnCounter << " turnColor: " << c.turnColor << endl;
 		if (c.allPieces.splitIntoConnectedComponents().size() != 1){
 			Test::pass(false, "Last move violated one Hive Rule");
 			throw 42;
@@ -1538,8 +1515,7 @@ void Test::GameStateTest::testPsuedoRandom() {
 		if (c.turnColor != color) {
 			Test::pass(false, "color not updated after a move");
 			throw 74;
-		}
-		*/
+		}*/
 	}
 
 	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();

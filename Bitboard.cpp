@@ -30,8 +30,8 @@ unordered_map<Direction, Direction> oppositeDirection =
 unordered_map <Direction, vector<int>> parameters  = {
 	{Direction::E, {1, 1, 1}},
 	{Direction::W, {0, 1, -1}},
-	{Direction::S, {1, 8, 4}},
-	{Direction::N, {0, 8, -4}}
+	{Direction::S, {1, 8, BITBOARD_CONTAINER_ROWS}},
+	{Direction::N, {0, 8, -BITBOARD_CONTAINER_COLS}}
 };
 
 unordered_map <Direction, unsigned long long> overflowBitmask =
@@ -124,7 +124,7 @@ void BitboardContainer::shiftOrthogonalDirection(Direction dir, int numTimes){
 	//TODO: separate orthogonal and hexagonal directions
 
 
-	int overflowAmount = numTimes % 8;
+	int overflowAmount = numTimes % BITBOARD_WIDTH;
 	int newHighBoardIndex, newLowBoardIndex;
 	unsigned long long int overflowLow, overflowHigh, overflowLowMask, overflowHighMask;
 
@@ -538,3 +538,6 @@ int BitboardContainer::hash() {
 					     + (__builtin_clzll(pieces.back()) << 16);
 }
 
+int BitboardContainer::getRandomBoardIndex() {
+	return *(internalBoardCache.begin());
+}

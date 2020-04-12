@@ -18,7 +18,7 @@ unordered_map <Direction, unsigned long long> gateInDirection = {
 	};
 
 //gates are structures that create problemNodes
-//they are centered around 2,2 at board index 12
+//they are centered around 2,2 at board index lowerLeftGate
 BitboardContainer gates[] = {
 	BitboardContainer({{lowerLeftGate, 134479872u}}),
 	BitboardContainer({{lowerLeftGate, 264192u}}),
@@ -31,7 +31,7 @@ BitboardContainer gates[] = {
 
 //problemNodes are places in the board that do
 //not have the freedom to move along all edges
-//they are centered around 2,2 at board index 12
+//they are centered around 2,2 at board index lowerLeftGate 
 BitboardContainer potentialProblemNodes[] = {
 	BitboardContainer({{lowerLeftGate,67633152u}}),
 	BitboardContainer({{lowerLeftGate,525312u}}),
@@ -64,8 +64,6 @@ void ProblemNodeContainer::insert(BitboardContainer& problemNodes) {
 				throw 19;
 			}
 			//assigned the hash to a map for O(1) access
-			//cout << piece << " -> " <<  problemNodes.internalBoards[5] <<
-			//		" " << problemNodes.internalBoards[6] << endl;
 			locationHashTable[hashInt].push_front(problemNodes);
 		}
 	}	
@@ -108,7 +106,7 @@ void ProblemNodeContainer::removePiece( BitboardContainer & piece) {
 	testUpdate.unionWith(piece);
 	}
 
-	int boardIndex = *(piece.internalBoardCache.begin());
+	int boardIndex = piece.getRandomBoardIndex();
 
 	BitboardContainer pieceRemoved(*allPieces);
 	pieceRemoved.notIntersectionWith(piece);
@@ -117,7 +115,7 @@ void ProblemNodeContainer::removePiece( BitboardContainer & piece) {
 	
 
 	list <BitboardContainer> problemNodesCollection = getProblemNodesAtLocation(boardIndex, 
-			piece.internalBoards[boardIndex]);
+			piece[boardIndex]);
 
 	
 
@@ -154,8 +152,8 @@ void ProblemNodeContainer::findAllProblemNodes() {
 //TODO: test and remove pruneCache
 void ProblemNodeContainer::insertPiece(BitboardContainer & piece) {
 	piece.pruneCache();
-	int boardIndex = *(piece.internalBoardCache.begin());
-	unsigned long long board = piece.internalBoards[boardIndex];
+	int boardIndex = piece.getRandomBoardIndex();
+	unsigned long long board = piece[boardIndex];
 
 	BitboardContainer testUpdate;
 	for (auto problemNodes : getProblemNodesAtLocation(boardIndex, board)){
@@ -204,8 +202,8 @@ ProblemNodeContainer::getProblemNodesAtLocation(int boardIndex, unsigned long lo
 	list <BitboardContainer> retList;
 	int leadingZeroesCount = __builtin_clzll(piece);
 
-	int xShift = ((63) - leadingZeroesCount )% 8 - 2;
-	int yShift = ((63) - leadingZeroesCount )/ 8 - 2;
+	int xShift = ((63) - leadingZeroesCount )% BITBOARD_WIDTH - 2;
+	int yShift = ((63) - leadingZeroesCount )/ BITBOARD_HEIGHT - 2;
 
 	xShift += (BITBOARD_WIDTH * (boardIndex % BITBOARD_CONTAINER_COLS));
 	yShift += BITBOARD_HEIGHT * (BITBOARD_CONTAINER_ROWS - 1 - (boardIndex / BITBOARD_CONTAINER_ROWS));	

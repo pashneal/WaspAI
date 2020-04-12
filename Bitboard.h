@@ -10,12 +10,11 @@
 using namespace std;
 class BitboardContainer {
 
-  public:
 	//TODO: figure out shift direction O(n) sort so you can get rid of log(n) ordered set
 	set<int> internalBoardCache;
-	unsigned long long int internalBoards[16];
+	unsigned long long int internalBoards[BITBOARD_CONTAINER_SIZE];
 
-	//TODO: make internalBoardCache safe so we don't have to initialize
+  public:
 	BitboardContainer() {};
 	BitboardContainer(unordered_map<int, unsigned long long>);
 
@@ -62,18 +61,26 @@ class BitboardContainer {
 	void print();
 	int hash();
 	
+	int getRandomBoardIndex();
+
 	bool operator ==(BitboardContainer &other) {
 		return equals(other);
 	}
 
 
+	inline unsigned long long operator [](int index) {
+		if (internalBoardCache.find(index) != internalBoardCache.end()) 
+			return internalBoards[index];
+		return 0;
+	}
+
 	//overload the assigment operator to O(k) instead of O(n)
-	/*void operator = (const BitboardContainer& other) {
+	void operator = (const BitboardContainer& other) {
 		internalBoardCache = other.internalBoardCache;
 		for (int boardIndex : internalBoardCache) {
 			internalBoards[boardIndex] = other.internalBoards[boardIndex];
 		}
-	}*/
+	}	
 };
 
 
