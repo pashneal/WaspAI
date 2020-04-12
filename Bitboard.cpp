@@ -63,14 +63,11 @@ void BitboardContainer::initialize(unordered_map < int, unsigned long long> pred
 }
 
 void BitboardContainer::initializeTo(BitboardContainer &other) {
-
-	unordered_map <int , unsigned long long > otherMap;
 	clear();
 	for (int i: other.internalBoardCache){
-		otherMap[i] = other.internalBoards[i];
+		internalBoardCache.insert(i);
+		internalBoards[i] = other.internalBoards[i];
 	}
-
-	initialize(otherMap);
 }
 
 //TODO: make internalBoards private so you have to use this

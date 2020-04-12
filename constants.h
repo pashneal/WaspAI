@@ -54,9 +54,10 @@ const int ROW_SHIFT = 8;
 const int COLUMN_SHIFT = 1;
 const int BITBOARD_HEIGHT = 8;
 const int BITBOARD_WIDTH = 8;
-const int BITBOARD_CONTAINER_SIZE  = 16;
-const int BITBOARD_CONTAINER_ROWS = 4;
-const int BITBOARD_CONTAINER_COLS = 4;
+//might need to change this in case you run into weird errors
+const int BITBOARD_CONTAINER_SIZE  = 9;
+const int BITBOARD_CONTAINER_ROWS = 3;
+const int BITBOARD_CONTAINER_COLS = 3;
 const unsigned long long ODD_ROWS_BITMASK = 0xff00ff00ff00ff00u;
 
 // directions are set out like this

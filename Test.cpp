@@ -193,7 +193,7 @@ void Test::BitboardTest::testShiftDirection(){
 	cout << "Test " << shiftDirections.size() + 1 << ": ";
 
 	BitboardContainer testProblemNodes;
-	testProblemNodes.initialize({{12, 524800u}});
+	testProblemNodes.initialize({{6, 524800u}});
 	if (!silenced) {testProblemNodes.print(); cout << endl;}
 	testProblemNodes.shiftDirection(Direction::N, 15);
 	if (!silenced) {testProblemNodes.print(); cout << endl;}
@@ -201,7 +201,7 @@ void Test::BitboardTest::testShiftDirection(){
 	if (!silenced) {testProblemNodes.print(); cout << endl;}
 	testProblemNodes.convertToHexRepresentation(Direction::NE, 15);
 	if (!silenced) {testProblemNodes.print(); cout << endl;}
-	BitboardContainer result({{5,1026u}});
+	BitboardContainer result({{1,1026u}});
 	Test::pass(result == testProblemNodes, " result incorrect");
 }
 
@@ -277,6 +277,8 @@ void Test::BitboardTest::testIntersectionWith() {
 
 		Test::pass(test == results, 
 				"failed to get correct result for intersectionWith()");
+		test.print();
+		results.print();
 	}
 }
 
@@ -449,7 +451,7 @@ void Test::BitboardTest::testSplit() {
 	vector <unsigned long long> randomNums;
 
 	BitboardContainer testBitboard;
-	for (int i = 0; i < 16; i++) {
+	for (int i = 0; i < BITBOARD_CONTAINER_SIZE; i++) {
 		randomNums.push_back(rand() % (1 << 30));
 		testBitboard.setBoard(i, randomNums[i]);
 	}
@@ -474,15 +476,15 @@ void Test::BitboardTest::testSplitIntoConnectedComponents() {
 
 	unordered_map <int, unsigned long long> bitboardTraversable 
 		{{0,144680354236084224u}, {1,265481u},
-		 {4,4629806107769962496u}, {5, 216172782113849344u}};
+		 {3,4629806107769962496u}, {4, 216172782113849344u}};
 
 	vector <unordered_map <int, unsigned long long >> expectedComponentsList= {
 		{{0,144680354232401920u}},
 		{{0,3682304u}},
 		{{1,265224u}},
-		{{1,257}, {5,216172782113783808u}},
-		{{4,8388608u}, {5,65536u}},
-		{{4, 4629806107761573888u}}
+		{{1,257}, {4,216172782113783808u}},
+		{{3,8388608u}, {4,65536u}},
+		{{3, 4629806107761573888u}}
 	};
 
 	BitboardContainer traversable(bitboardTraversable);
@@ -728,9 +730,9 @@ void Test::MoveGeneratorTest::testBeetleMoves() {
 	bool silenced = true;
 
 	vector <unordered_map <int, unsigned long long>> test = {
-		{{8, 2258422653255680u}},
-		{{0, 103550550016u}},
-		{{3, 103550025728u}},
+		{{4, 2258422653255680u}},
+		{{5, 103550550016u}},
+		{{8, 103550025728u}},
 		{{5, 827595993088u}, {6, 16908544u}},
 		{{4,1621106688u}}
 	};

@@ -3,17 +3,19 @@
 #include <list>
 #include <vector>
 #include <unordered_map>
+#include <map>
 #include <iostream>
 #include <set>
 #include "constants.h"
 
+
 using namespace std;
 class BitboardContainer {
 
-	//TODO: figure out shift direction O(n) sort so you can get rid of log(n) ordered set
-	set<int> internalBoardCache;
-	unsigned long long int internalBoards[BITBOARD_CONTAINER_SIZE];
+//	map<int, unsigned long long> internalBoards;
 
+	set<int> internalBoardCache;
+	unsigned long long internalBoards[BITBOARD_CONTAINER_SIZE];
   public:
 	BitboardContainer() {};
 	BitboardContainer(unordered_map<int, unsigned long long>);
