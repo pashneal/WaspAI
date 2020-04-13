@@ -37,15 +37,14 @@ enum PieceColor {
 };
 
 extern int dxdy[6][2];  
-
 extern unordered_map <string, int> pieceNum; 
-
 extern unordered_map < string , vector<Direction> > directions;  
-
 extern list <Direction> hexagonalDirections ;
 
 Direction rotateClockWise(Direction dir);
 Direction rotateCounterClockWise(Direction dir);
+extern bool verticalCmp(int , int);
+
 unsigned modulo(int, unsigned);
 
 	

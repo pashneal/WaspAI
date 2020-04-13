@@ -72,3 +72,9 @@ vector < unordered_map <PieceName, int>> HivePLM =
 		{PieceName::SPIDER, 2}
 	}
 };
+
+// Takes in two values representing two bitboardLocations
+// returns which bitboard is located higher than the other
+bool verticalCmp(int a, int b) {
+	return a / BITBOARD_CONTAINER_ROWS  > b / BITBOARD_CONTAINER_COLS;
+}

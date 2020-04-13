@@ -110,7 +110,8 @@ void Test::BitboardTest::testShiftDirection(){
 
 		{
 			{4,2258444583180296}
-		}
+		},
+
 
 	};
 
@@ -122,7 +123,7 @@ void Test::BitboardTest::testShiftDirection(){
 		Direction::E,
 		Direction::NE,
 		Direction::SW,
-		Direction::SW
+		Direction::SW, 
 	};
 
 	vector <unordered_map <int, unsigned long long>> expectedResults = 
@@ -160,11 +161,34 @@ void Test::BitboardTest::testShiftDirection(){
 
 		{
 			{4, 4423901974552},{7,288230376151711744},{3, 2147483648}
-		}
-
-
+		},
 	};
 
+	BitboardContainer test1({{2, 1161928703996854528u}, {3, 65536u}, {8,2}, {0,1}});
+	BitboardContainer test2({{2, 9299950822706677761u}});
+	BitboardContainer test3({{0,10457518863889466753u}});
+	vector <BitboardContainer> tests = {test1, test2, test3};
+	for (BitboardContainer test : tests) {
+		BitboardContainer expectedBoard, testBoard;
+		for (Direction dir : hexagonalDirections) {
+			testBoard.initializeTo(test);
+			testBoard.shiftDirection(dir);
+			expectedBoard.initializeTo(test);
+			expectedBoard.shiftDirection(dir, 1);
+			Test::pass(expectedBoard == testBoard, 
+				"shiftDirection(dir) does not match shiftDirection(dir , 1)");
+				cout << endl;
+				cout << "[DIRECTION:] " << dir << endl;
+				cout << "=============orginal board=========================" << endl;
+				test.print();
+				cout << "=========shiftDirection(dir) output: ==============" << endl;
+				testBoard.print();
+				cout << "=========shiftDirection (dir , 1) output: =========" << endl;
+				expectedBoard.print();
+				cout << endl;	
+		}
+	}
+		
 	for (unsigned long long i = 0; i < shiftDirections.size(); ++i){
 		cout << "Test " << i <<
 			" direction: " << shiftDirections[i] << endl ;
@@ -174,7 +198,9 @@ void Test::BitboardTest::testShiftDirection(){
 		BitboardContainer expectedResult(expectedResults[i]);
 			Test::pass(expectedResult == testBitboardContainer,
 					"Expected result incorrect for shiftDirection() ");
-		}
+		testBitboardContainer.print();
+		expectedResult.print();
+	}
 
 	unordered_map <int, unsigned long long> test;
 	test[5] = 1;
@@ -1488,7 +1514,7 @@ void Test::GameStateTest::testPsuedoRandom() {
 	for (int i = 0 ; i < 10000 ; i++ ) {
 		if (!(i % 100)) cout << i << " probably legal moves made" << endl;	
 		c.makePsuedoRandomMove();
-		/*cout << " turnCounter: " << c.turnCounter << " turnColor: " << c.turnColor << endl;
+		cout << " turnCounter: " << c.turnCounter << " turnColor: " << c.turnColor << endl;
 		if (c.allPieces.splitIntoConnectedComponents().size() != 1){
 			Test::pass(false, "Last move violated one Hive Rule");
 			throw 42;
@@ -1517,7 +1543,7 @@ void Test::GameStateTest::testPsuedoRandom() {
 		if (c.turnColor != color) {
 			Test::pass(false, "color not updated after a move");
 			throw 74;
-		}*/
+		}
 	}
 
 	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();

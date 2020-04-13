@@ -220,14 +220,246 @@ void BitboardContainer::shiftDirection(Direction dir, int numTimes){
 	pruneCache();
 }
 
+//optimized (and ugly) code
+//I'm sorry world =(
 void BitboardContainer::shiftDirection(Direction dir) {
-	shiftDirection(dir, 1);
-	//TODO: optimize by storing possible overflow mask configs
+	//if going in a presorted direction
+	//do not need to copy to active boards
+	unsigned long long currentBoard;
+	vector <int> activeBoards(internalBoardCache.size());
+	std::copy(internalBoardCache.begin(), internalBoardCache.end(), activeBoards.begin());
+	int newHighBoardIndex;
+	unsigned long long newBoard, newHighBoard;
+	if (dir == W || dir == N || dir == NW ) {
+
+		for (int boardIndex: activeBoards) {
+
+			currentBoard = internalBoards[boardIndex];
+			if (dir != NW) {
+				switch( dir) {
+					case W:
+						{
+							newHighBoard= 0x101010101010101u & currentBoard;
+							newHighBoard <<= 7;
+
+							newBoard = 0xfefefefefefefefeu & currentBoard;
+							newBoard >>= 1;
+
+							newHighBoardIndex = (boardIndex) ? boardIndex - 1: 
+												BITBOARD_CONTAINER_SIZE - 1;
+							break;
+						}
+					case N:
+						{
+							newHighBoard = 0xff00000000000000u & currentBoard;
+							newHighBoard >>= 56;
+
+							newBoard = 0xffffffffffffffu;
+							newBoard &= currentBoard;
+							newBoard <<= 8;
+
+							newHighBoardIndex = modulo((boardIndex - BITBOARD_CONTAINER_COLS) ,
+											    BITBOARD_CONTAINER_SIZE);
+							break;
+						}
+					default:
+						return;
+				}
+
+				if (newHighBoard)
+					unionWith(newHighBoardIndex, newHighBoard);
+
+				replaceWith(boardIndex, newBoard);
+
+			} else {
+				unsigned long long newVerticalBoard, newHorizontalBoard, intermediate;
+				int newVerticalBoardIndex, newHorizontalBoardIndex;
+				//IF NW DIRECTION
+
+				newHorizontalBoard = 0xff00000000000000u & currentBoard;
+				newHorizontalBoard >>= 56;
+
+				newVerticalBoard = 0x1000100010001u & currentBoard;
+				newVerticalBoard <<= 15;
+
+				intermediate = 0xfe00fe00fe00feu & currentBoard;
+				newBoard = intermediate << 7;
+				intermediate = 0xff00ff00ff00u & currentBoard;
+				newBoard |= intermediate << 8;
+
+				newVerticalBoardIndex = (boardIndex) ? boardIndex - 1: 
+									BITBOARD_CONTAINER_SIZE - 1;
+				newHorizontalBoardIndex = modulo (boardIndex - BITBOARD_CONTAINER_COLS,
+										  BITBOARD_CONTAINER_SIZE);
+
+				if (newVerticalBoard) 
+					unionWith(newVerticalBoardIndex, newVerticalBoard);
+				if (newHorizontalBoard)
+					unionWith(newHorizontalBoardIndex, newHorizontalBoard);
+
+				replaceWith(boardIndex, newBoard);
+			}
+		}
+
+		return;
+	}
+
+	//do some shenanigans to make sure the update order is correct
+	if (dir == E || dir == SE || dir == NE) {	
+		//if shifting in east direction update left most board first
+		std::reverse(activeBoards.begin() , activeBoards.end());
+	}
+
+	if (dir == S || dir == SW || dir == SE) {
+		//if shifting in south direction update bottom most board first
+		//use unstable sort to preserve ordering from above operations
+		std::sort(activeBoards.begin(), activeBoards.end(), verticalCmp);
+	}
+
+	for (int boardIndex: activeBoards) 
+	{
+		currentBoard = internalBoards[boardIndex];
+		//if the direction is orthogonal, translation is simpler
+		if (dir == E || dir == S) {
+			unsigned long long newHighBoard;
+			if (dir == E) {
+				newHighBoard= 0x8080808080808080u & currentBoard;
+				newHighBoard >>= 7;
+
+				newBoard = 0x7f7f7f7f7f7f7f7fu & currentBoard;
+				newBoard <<= 1;
+
+				newHighBoardIndex = (boardIndex + 1) % BITBOARD_CONTAINER_SIZE;
+			} else {
+
+				newHighBoard= 0xff & currentBoard;
+				newHighBoard <<= 56;
+
+				newBoard = 0xffffffffffffff00u & currentBoard;
+				newBoard >>= 8;
+
+				newHighBoardIndex = (boardIndex + BITBOARD_CONTAINER_COLS) %
+									BITBOARD_CONTAINER_SIZE;
+
+			}
+
+			if (newHighBoard) 
+				unionWith(newHighBoardIndex, newHighBoard);
+
+			replaceWith(boardIndex, newBoard);
+		} else {
+			unsigned long long newVerticalBoard, newHorizontalBoard, newDiagBoard, intermediate;
+			int newVerticalBoardIndex, newHorizontalBoardIndex, newDiagBoardIndex;
+			switch (dir) {
+				case SW:
+						{
+							newDiagBoard = (1 & currentBoard)? 0x8000000000000000u: 0;
+
+							//vertical bitmask
+							newVerticalBoard = 0x1000100010000u & currentBoard;
+							newVerticalBoard >>= 1;
+
+							//horizontal bitmask
+							newHorizontalBoard = 254u & currentBoard;
+							newHorizontalBoard <<= 55;
+
+							intermediate = 0xfe00fe00fe0000u & currentBoard;
+							newBoard = (intermediate >> 9);
+							intermediate = 0xff00ff00ff00ff00u & currentBoard;
+							newBoard |= (intermediate >> 8);
+
+
+							newDiagBoardIndex = (boardIndex - 1 + BITBOARD_CONTAINER_COLS) %
+													BITBOARD_CONTAINER_SIZE;
+							newVerticalBoardIndex = (boardIndex) ? boardIndex - 1:
+													  BITBOARD_CONTAINER_SIZE - 1;
+							newHorizontalBoardIndex = (boardIndex + BITBOARD_CONTAINER_COLS) %
+													 BITBOARD_CONTAINER_SIZE;
+							break;
+						}
+
+				case NE:
+					{
+							newDiagBoard = (0x8000000000000000u & currentBoard)? 1: 0;
+
+							//vertical bitmask
+							newVerticalBoard = 0x800080008000u & currentBoard;
+							newVerticalBoard <<= 1;
+
+							//horizontal bitmask
+							newHorizontalBoard =0x7f00000000000000u & currentBoard;
+							newHorizontalBoard >>= 55;
+
+
+							intermediate = 0x7f007f007f00u & currentBoard;
+							newBoard = (intermediate << 9);
+							intermediate = 0xff00ff00ff00ffu & currentBoard;
+							newBoard |= (intermediate << 8);
+
+							newDiagBoardIndex = modulo (boardIndex + 1 - BITBOARD_CONTAINER_COLS, 
+													BITBOARD_CONTAINER_SIZE);
+							newVerticalBoardIndex = (boardIndex + 1) % BITBOARD_CONTAINER_SIZE;
+							newHorizontalBoardIndex = modulo(boardIndex - BITBOARD_CONTAINER_COLS,
+													 BITBOARD_CONTAINER_SIZE);
+							break;
+					}
+				case SE:
+					{
+							newDiagBoard = 0;
+
+							newHorizontalBoard = 0xff & currentBoard;
+							newHorizontalBoard <<= 56;
+
+							newVerticalBoard = 0x8000800080008000u & currentBoard;
+							newVerticalBoard >>= 15;
+
+							intermediate = 0x7f007f007f007f00u & currentBoard;
+							newBoard = intermediate >> 7;
+							intermediate = 0xff00ff00ff0000u & currentBoard;
+							newBoard |= intermediate >> 8;
+
+							newVerticalBoardIndex = (boardIndex + 1) % BITBOARD_CONTAINER_SIZE;
+							newHorizontalBoardIndex = (boardIndex + BITBOARD_CONTAINER_COLS) % 
+														BITBOARD_CONTAINER_SIZE;
+							break;
+
+					}
+				default:
+					return;
+			}
+
+			if(newDiagBoard)  
+				unionWith(newDiagBoardIndex, newHorizontalBoard);
+			if (newVerticalBoard) 
+				unionWith(newVerticalBoardIndex, newVerticalBoard);
+			if (newHorizontalBoard)
+				unionWith(newHorizontalBoardIndex, newHorizontalBoard);
+
+			replaceWith(boardIndex, newBoard);
+		}
+	}
 }
 
+void BitboardContainer::unionWith(int boardIndex, unsigned long long newBoard) {
+	if (internalBoardCache.find(boardIndex) == internalBoardCache.end()) {
+		internalBoardCache.insert(boardIndex);
+		internalBoards[boardIndex] = newBoard;
+	} else {
+		internalBoards[boardIndex] |= newBoard;
+	}
+}
+
+void BitboardContainer::replaceWith(int boardIndex, unsigned long long newBoard) {
+	if(newBoard){
+		internalBoardCache.insert(boardIndex);
+		internalBoards[boardIndex] = newBoard;
+	} else {
+		internalBoardCache.erase(boardIndex);
+	}
+}
 unsigned long long BitboardContainer::createLowOverflowMask(Direction dir, int overflowAmount) {
 
-	long long overflowLow;
+	long long overflowLow; 
 	//assumes orthogonal direction passed in
 
 	if (overflowAmount == 0) {

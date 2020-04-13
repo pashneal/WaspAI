@@ -16,6 +16,9 @@ class BitboardContainer {
 
 	set<int> internalBoardCache;
 	unsigned long long internalBoards[BITBOARD_CONTAINER_SIZE];
+
+	void unionWith(int , unsigned long long);
+	void replaceWith(int, unsigned long long);
   public:
 	BitboardContainer() {};
 	BitboardContainer(unordered_map<int, unsigned long long>);
