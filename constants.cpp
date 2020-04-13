@@ -1,5 +1,16 @@
 #include "constants.h"
 
+unordered_map<Direction, Direction> oppositeDirection = 
+{
+	{Direction::N, Direction::S},
+	{Direction::E, Direction::W},
+	{Direction::W, Direction::E},
+	{Direction::S, Direction::N},
+	{Direction::NW, Direction::SE},
+	{Direction::NE, Direction::SW},
+	{Direction::SW, Direction::NE},
+	{Direction::SE, Direction::NW}
+};
 Direction rotateClockWise(Direction dir) {
 	switch (dir) {
 		case NE: 
@@ -74,7 +85,13 @@ vector < unordered_map <PieceName, int>> HivePLM =
 };
 
 // Takes in two values representing two bitboardLocations
-// returns which bitboard is located higher than the other
+// returns true if bitboard a is located higher than the other
 bool verticalCmp(int a, int b) {
-	return a / BITBOARD_CONTAINER_ROWS  > b / BITBOARD_CONTAINER_COLS;
+	return a / BITBOARD_CONTAINER_COLS  > b / BITBOARD_CONTAINER_COLS;
+}
+
+// Takes in two values representing two bitboardLocations
+// returns true if bitboard a is located later than the other
+bool horizontalCmp(int a, int b){
+	return  a % BITBOARD_CONTAINER_ROWS > b % BITBOARD_CONTAINER_ROWS;
 }

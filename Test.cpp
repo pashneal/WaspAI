@@ -164,28 +164,40 @@ void Test::BitboardTest::testShiftDirection(){
 		},
 	};
 
-	BitboardContainer test1({{2, 1161928703996854528u}, {3, 65536u}, {8,2}, {0,1}});
-	BitboardContainer test2({{2, 9299950822706677761u}});
-	BitboardContainer test3({{0,10457518863889466753u}});
-	vector <BitboardContainer> tests = {test1, test2, test3};
-	for (BitboardContainer test : tests) {
-		BitboardContainer expectedBoard, testBoard;
+	for (auto test: bitboardList) {
+		BitboardContainer expectedBoard(test), testBoard(test);
 		for (Direction dir : hexagonalDirections) {
-			testBoard.initializeTo(test);
 			testBoard.shiftDirection(dir);
-			expectedBoard.initializeTo(test);
-			expectedBoard.shiftDirection(dir, 1);
-			Test::pass(expectedBoard == testBoard, 
-				"shiftDirection(dir) does not match shiftDirection(dir , 1)");
-				cout << endl;
-				cout << "[DIRECTION:] " << dir << endl;
-				cout << "=============orginal board=========================" << endl;
-				test.print();
-				cout << "=========shiftDirection(dir) output: ==============" << endl;
+		}
+
+
+		Test::pass(testBoard == expectedBoard, 
+				"did not return to original position after shifting");
+		if (!(testBoard == expectedBoard)) {
+			cout << endl;
+			cout << "=====testBoard=====" <<endl;
+			testBoard.print();
+			cout << "==expectedBoard====" << endl;
+			expectedBoard.print();
+			cout << endl;
+		}
+		for (Direction dir : hexagonalDirections) {
+			testBoard.initialize(test);
+			testBoard.shiftDirection(dir);
+			testBoard.shiftDirection(oppositeDirection[dir]);
+			Test::pass(testBoard == expectedBoard, " using oppositeDirections did not cancel out");
+			if (!(testBoard == expectedBoard)) {
+				cout << endl << "[DIRECTION] : " << dir << endl;
+				cout << "=====testBoard(shift 2)=====" <<endl;
 				testBoard.print();
-				cout << "=========shiftDirection (dir , 1) output: =========" << endl;
+				cout << "====testBoard(shift 1)==" << endl;
+				testBoard.initialize(test);
+				testBoard.shiftDirection(dir);
+				testBoard.print();
+				cout << "==expectedBoard====" << endl;
 				expectedBoard.print();
-				cout << endl;	
+				cout << endl;
+			}
 		}
 	}
 		
@@ -1510,11 +1522,10 @@ void Test::GameStateTest::testPsuedoRandom() {
 	GameState c(gameState);
 
 	color = gameState.turnColor;
-	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 	for (int i = 0 ; i < 10000 ; i++ ) {
 		if (!(i % 100)) cout << i << " probably legal moves made" << endl;	
 		c.makePsuedoRandomMove();
-		cout << " turnCounter: " << c.turnCounter << " turnColor: " << c.turnColor << endl;
+		//cout << " turnCounter: " << c.turnCounter << " turnColor: " << c.turnColor << endl;
 		if (c.allPieces.splitIntoConnectedComponents().size() != 1){
 			Test::pass(false, "Last move violated one Hive Rule");
 			throw 42;
@@ -1545,13 +1556,42 @@ void Test::GameStateTest::testPsuedoRandom() {
 			throw 74;
 		}
 	}
+}
+void perfTest() {
+	vector <pair <BitboardContainer , PieceName>> initialPieces = {
+		{BitboardContainer({{5,134217728u}}), PieceName::ANT},
+		{BitboardContainer({{5,34359738368u}}), PieceName::MOSQUITO},
+		{BitboardContainer({{5,1048576u}}), PieceName::ANT},
+		{BitboardContainer({{5, 4398046511104u}}), PieceName::ANT},
+		{BitboardContainer({{5, 524288u}}), PieceName::QUEEN},
+		{BitboardContainer({{5, 8796093022208u}}), PieceName::BEETLE},
+		{BitboardContainer({{5, 67108864u}}), PieceName::MOSQUITO},
+		{BitboardContainer({{5, 17592186044416u}}), PieceName::ANT},
+		{BitboardContainer({{5, 17179869184u}}), PieceName::LADYBUG},
+		{BitboardContainer({{5, 134217728u}}), PieceName::BEETLE},
+	};
+	
+	GameState c(HivePLM, PieceColor::WHITE);
+	bool color  = 0; 
+	for (auto p : initialPieces) {
+		c.fastSpawnPiece(p.first, p.second);	
+		color = !color;
 
+		if (c.turnColor != color) {
+			Test::pass(false, "color not updated after a move");
+			throw 74;
+		}
+	}
+
+	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+	for (int i = 0; i < 10000 ; i++ ) {
+		c.makePsuedoRandomMove();
+	}
 	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-	std::cout << "Time difference = " << 
+	std::cout << "10000 moves made in " << 
 	std::chrono::duration_cast<std::chrono::milliseconds>
 	(end - begin).count() << "[ms]" << std::endl;
 }
-
 int main() {
 	srand(2);
 	Test::BitboardTest::testShiftDirection();
@@ -1576,4 +1616,5 @@ int main() {
 	Test::GameStateTest::testFastSpawnPiece();
 	Test::GameStateTest::testMovePiece();
 	Test::GameStateTest::testPsuedoRandom();
+	perfTest();
 }

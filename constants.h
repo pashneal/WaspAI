@@ -40,10 +40,12 @@ extern int dxdy[6][2];
 extern unordered_map <string, int> pieceNum; 
 extern unordered_map < string , vector<Direction> > directions;  
 extern list <Direction> hexagonalDirections ;
+extern unordered_map <Direction, Direction>  oppositeDirection;
 
 Direction rotateClockWise(Direction dir);
 Direction rotateCounterClockWise(Direction dir);
 extern bool verticalCmp(int , int);
+extern bool horizontalCmp(int, int);
 
 unsigned modulo(int, unsigned);
 

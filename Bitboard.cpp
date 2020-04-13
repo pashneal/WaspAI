@@ -14,17 +14,6 @@ list <Direction> hexagonalDirections = {
 	Direction::W,
 	Direction::NW
 };
-unordered_map<Direction, Direction> oppositeDirection = 
-{
-	{Direction::N, Direction::S},
-	{Direction::E, Direction::W},
-	{Direction::W, Direction::E},
-	{Direction::S, Direction::N},
-	{Direction::NW, Direction::SE},
-	{Direction::NE, Direction::SW},
-	{Direction::SW, Direction::NE},
-	{Direction::SE, Direction::NW}
-};
 
 
 unordered_map <Direction, vector<int>> parameters  = {
@@ -223,242 +212,332 @@ void BitboardContainer::shiftDirection(Direction dir, int numTimes){
 //optimized (and ugly) code
 //I'm sorry world =(
 void BitboardContainer::shiftDirection(Direction dir) {
-	//if going in a presorted direction
-	//do not need to copy to active boards
 	unsigned long long currentBoard;
-	vector <int> activeBoards(internalBoardCache.size());
-	std::copy(internalBoardCache.begin(), internalBoardCache.end(), activeBoards.begin());
-	int newHighBoardIndex;
-	unsigned long long newBoard, newHighBoard;
-	if (dir == W || dir == N || dir == NW ) {
+	unsigned long long newBoard;
 
-		for (int boardIndex: activeBoards) {
+	unordered_map <int , unsigned long long > finalBoards;
+	for (int boardIndex: internalBoardCache) {
 
-			currentBoard = internalBoards[boardIndex];
-			if (dir != NW) {
-				switch( dir) {
-					case W:
-						{
-							newHighBoard= 0x101010101010101u & currentBoard;
-							newHighBoard <<= 7;
+		currentBoard = internalBoards[boardIndex];
 
-							newBoard = 0xfefefefefefefefeu & currentBoard;
-							newBoard >>= 1;
+		switch( dir) {
+			case W:
+				{
 
-							newHighBoardIndex = (boardIndex) ? boardIndex - 1: 
-												BITBOARD_CONTAINER_SIZE - 1;
-							break;
+					int newHighBoardIndex;
+					unsigned long long newHighBoard;
+					newHighBoard= 0x101010101010101u & currentBoard;
+					newHighBoard <<= 7;
+
+					newBoard = 0xfefefefefefefefeu & currentBoard;
+					newBoard >>= 1;
+
+
+					if (newHighBoard) {
+						newHighBoardIndex = (boardIndex) ? boardIndex - 1: 
+							BITBOARD_CONTAINER_SIZE - 1;
+						if (finalBoards.find(newHighBoardIndex) == finalBoards.end())
+							finalBoards[newHighBoardIndex] = newHighBoard;
+						else {
+							finalBoards[newHighBoardIndex] |= newHighBoard;
 						}
-					case N:
-						{
-							newHighBoard = 0xff00000000000000u & currentBoard;
-							newHighBoard >>= 56;
+					}
+					if (newBoard) {
+						if (finalBoards.find(boardIndex) == finalBoards.end() )
+							finalBoards[boardIndex] = newBoard;
+						else 
+							finalBoards[boardIndex] |= newBoard;
+					}
+					break;
+				}
+			case N:
+				{
+					int newHighBoardIndex;
+					unsigned long long newHighBoard;
+					newHighBoard = 0xff00000000000000u & currentBoard;
+					newHighBoard >>= 56;
 
-							newBoard = 0xffffffffffffffu;
-							newBoard &= currentBoard;
-							newBoard <<= 8;
+					newBoard = 0xffffffffffffffu;
+					newBoard &= currentBoard;
+					newBoard <<= 8;
 
-							newHighBoardIndex = modulo((boardIndex - BITBOARD_CONTAINER_COLS) ,
-											    BITBOARD_CONTAINER_SIZE);
-							break;
+					if (newHighBoard) {
+						newHighBoardIndex = modulo((boardIndex - BITBOARD_CONTAINER_COLS) ,
+								BITBOARD_CONTAINER_SIZE);
+						if (finalBoards.find(newHighBoardIndex) == finalBoards.end())
+							finalBoards[newHighBoardIndex] = newHighBoard;
+						else {
+							finalBoards[newHighBoardIndex] |= newHighBoard;
 						}
-					default:
-						return;
+					}
+					if (newBoard){
+						if (finalBoards.find(boardIndex) == finalBoards.end() )
+							finalBoards[boardIndex] = newBoard;
+						else 
+							finalBoards[boardIndex] |= newBoard;
+					}
+					break;
+				}
+			case E:
+				{
+					int newHighBoardIndex;
+					unsigned long long newHighBoard;
+					newHighBoard= 0x8080808080808080u & currentBoard;
+					newHighBoard >>= 7;
+
+					newBoard = 0x7f7f7f7f7f7f7f7fu & currentBoard;
+					newBoard <<= 1;
+
+					if (newHighBoard) {
+						newHighBoardIndex = (boardIndex + 1) % BITBOARD_CONTAINER_SIZE;
+						if (finalBoards.find(newHighBoardIndex) == finalBoards.end())
+							finalBoards[newHighBoardIndex] = newHighBoard;
+						else {
+							finalBoards[newHighBoardIndex] |= newHighBoard;
+						}
+					}
+					if (newBoard){
+						if (finalBoards.find(boardIndex) == finalBoards.end() )
+							finalBoards[boardIndex] = newBoard;
+						else 
+							finalBoards[boardIndex] |= newBoard;
+					}	
+					break;
+				} 
+			case S:
+				{
+					int newHighBoardIndex;
+					unsigned long long newHighBoard;
+					newHighBoard= 0xff & currentBoard;
+					newHighBoard <<= 56;
+
+					newBoard = 0xffffffffffffff00u & currentBoard;
+					newBoard >>= 8;
+
+					if (newHighBoard) {
+						newHighBoardIndex = (boardIndex + BITBOARD_CONTAINER_COLS) %
+							BITBOARD_CONTAINER_SIZE;
+						if (finalBoards.find(newHighBoardIndex) == finalBoards.end())
+							finalBoards[newHighBoardIndex] = newHighBoard;
+						else {
+							finalBoards[newHighBoardIndex] |= newHighBoard;
+						}
+					}
+					if (newBoard){
+						if (finalBoards.find(boardIndex) == finalBoards.end() )
+							finalBoards[boardIndex] = newBoard;
+						else 
+							finalBoards[boardIndex] |= newBoard;
+					}	
+					break;
+
 				}
 
-				if (newHighBoard)
-					unionWith(newHighBoardIndex, newHighBoard);
+			case NW: 
+				{
+					unsigned long long newVerticalBoard, newHorizontalBoard, intermediate;
+					int newVerticalBoardIndex, newHorizontalBoardIndex;
 
-				replaceWith(boardIndex, newBoard);
+					newHorizontalBoard = 0xff00000000000000u & currentBoard;
+					newHorizontalBoard >>= 56;
 
-			} else {
-				unsigned long long newVerticalBoard, newHorizontalBoard, intermediate;
-				int newVerticalBoardIndex, newHorizontalBoardIndex;
-				//IF NW DIRECTION
+					newVerticalBoard = 0x1000100010001u & currentBoard;
+					newVerticalBoard <<= 15;
 
-				newHorizontalBoard = 0xff00000000000000u & currentBoard;
-				newHorizontalBoard >>= 56;
+					intermediate = 0xfe00fe00fe00feu & currentBoard;
+					newBoard = intermediate << 7;
+					intermediate = 0xff00ff00ff00u & currentBoard;
+					newBoard |= intermediate << 8;
 
-				newVerticalBoard = 0x1000100010001u & currentBoard;
-				newVerticalBoard <<= 15;
-
-				intermediate = 0xfe00fe00fe00feu & currentBoard;
-				newBoard = intermediate << 7;
-				intermediate = 0xff00ff00ff00u & currentBoard;
-				newBoard |= intermediate << 8;
-
-				newVerticalBoardIndex = (boardIndex) ? boardIndex - 1: 
-									BITBOARD_CONTAINER_SIZE - 1;
-				newHorizontalBoardIndex = modulo (boardIndex - BITBOARD_CONTAINER_COLS,
-										  BITBOARD_CONTAINER_SIZE);
-
-				if (newVerticalBoard) 
-					unionWith(newVerticalBoardIndex, newVerticalBoard);
-				if (newHorizontalBoard)
-					unionWith(newHorizontalBoardIndex, newHorizontalBoard);
-
-				replaceWith(boardIndex, newBoard);
-			}
-		}
-
-		return;
-	}
-
-	//do some shenanigans to make sure the update order is correct
-	if (dir == E || dir == SE || dir == NE) {	
-		//if shifting in east direction update left most board first
-		std::reverse(activeBoards.begin() , activeBoards.end());
-	}
-
-	if (dir == S || dir == SW || dir == SE) {
-		//if shifting in south direction update bottom most board first
-		//use unstable sort to preserve ordering from above operations
-		std::sort(activeBoards.begin(), activeBoards.end(), verticalCmp);
-	}
-
-	for (int boardIndex: activeBoards) 
-	{
-		currentBoard = internalBoards[boardIndex];
-		//if the direction is orthogonal, translation is simpler
-		if (dir == E || dir == S) {
-			unsigned long long newHighBoard;
-			if (dir == E) {
-				newHighBoard= 0x8080808080808080u & currentBoard;
-				newHighBoard >>= 7;
-
-				newBoard = 0x7f7f7f7f7f7f7f7fu & currentBoard;
-				newBoard <<= 1;
-
-				newHighBoardIndex = (boardIndex + 1) % BITBOARD_CONTAINER_SIZE;
-			} else {
-
-				newHighBoard= 0xff & currentBoard;
-				newHighBoard <<= 56;
-
-				newBoard = 0xffffffffffffff00u & currentBoard;
-				newBoard >>= 8;
-
-				newHighBoardIndex = (boardIndex + BITBOARD_CONTAINER_COLS) %
-									BITBOARD_CONTAINER_SIZE;
-
-			}
-
-			if (newHighBoard) 
-				unionWith(newHighBoardIndex, newHighBoard);
-
-			replaceWith(boardIndex, newBoard);
-		} else {
-			unsigned long long newVerticalBoard, newHorizontalBoard, newDiagBoard, intermediate;
-			int newVerticalBoardIndex, newHorizontalBoardIndex, newDiagBoardIndex;
-			switch (dir) {
-				case SW:
-						{
-							newDiagBoard = (1 & currentBoard)? 0x8000000000000000u: 0;
-
-							//vertical bitmask
-							newVerticalBoard = 0x1000100010000u & currentBoard;
-							newVerticalBoard >>= 1;
-
-							//horizontal bitmask
-							newHorizontalBoard = 254u & currentBoard;
-							newHorizontalBoard <<= 55;
-
-							intermediate = 0xfe00fe00fe0000u & currentBoard;
-							newBoard = (intermediate >> 9);
-							intermediate = 0xff00ff00ff00ff00u & currentBoard;
-							newBoard |= (intermediate >> 8);
-
-
-							newDiagBoardIndex = (boardIndex - 1 + BITBOARD_CONTAINER_COLS) %
-													BITBOARD_CONTAINER_SIZE;
-							newVerticalBoardIndex = (boardIndex) ? boardIndex - 1:
-													  BITBOARD_CONTAINER_SIZE - 1;
-							newHorizontalBoardIndex = (boardIndex + BITBOARD_CONTAINER_COLS) %
-													 BITBOARD_CONTAINER_SIZE;
-							break;
+					if (newVerticalBoard) {
+						newVerticalBoardIndex = (boardIndex) ? boardIndex - 1: 
+							BITBOARD_CONTAINER_SIZE - 1;
+						if (finalBoards.find(newVerticalBoardIndex) == finalBoards.end())
+							finalBoards[newVerticalBoardIndex] = newVerticalBoard;
+						else {
+							finalBoards[newVerticalBoardIndex] |= newVerticalBoard;
 						}
-
-				case NE:
-					{
-							newDiagBoard = (0x8000000000000000u & currentBoard)? 1: 0;
-
-							//vertical bitmask
-							newVerticalBoard = 0x800080008000u & currentBoard;
-							newVerticalBoard <<= 1;
-
-							//horizontal bitmask
-							newHorizontalBoard =0x7f00000000000000u & currentBoard;
-							newHorizontalBoard >>= 55;
-
-
-							intermediate = 0x7f007f007f00u & currentBoard;
-							newBoard = (intermediate << 9);
-							intermediate = 0xff00ff00ff00ffu & currentBoard;
-							newBoard |= (intermediate << 8);
-
-							newDiagBoardIndex = modulo (boardIndex + 1 - BITBOARD_CONTAINER_COLS, 
-													BITBOARD_CONTAINER_SIZE);
-							newVerticalBoardIndex = (boardIndex + 1) % BITBOARD_CONTAINER_SIZE;
-							newHorizontalBoardIndex = modulo(boardIndex - BITBOARD_CONTAINER_COLS,
-													 BITBOARD_CONTAINER_SIZE);
-							break;
 					}
-				case SE:
-					{
-							newDiagBoard = 0;
 
-							newHorizontalBoard = 0xff & currentBoard;
-							newHorizontalBoard <<= 56;
 
-							newVerticalBoard = 0x8000800080008000u & currentBoard;
-							newVerticalBoard >>= 15;
-
-							intermediate = 0x7f007f007f007f00u & currentBoard;
-							newBoard = intermediate >> 7;
-							intermediate = 0xff00ff00ff0000u & currentBoard;
-							newBoard |= intermediate >> 8;
-
-							newVerticalBoardIndex = (boardIndex + 1) % BITBOARD_CONTAINER_SIZE;
-							newHorizontalBoardIndex = (boardIndex + BITBOARD_CONTAINER_COLS) % 
-														BITBOARD_CONTAINER_SIZE;
-							break;
-
+					if (newHorizontalBoard) {
+						newHorizontalBoardIndex = modulo (boardIndex - BITBOARD_CONTAINER_COLS,
+								BITBOARD_CONTAINER_SIZE);
+						if (finalBoards.find(newHorizontalBoardIndex) == finalBoards.end())
+							finalBoards[newHorizontalBoardIndex] = newHorizontalBoard;
+						else {
+							finalBoards[newHorizontalBoardIndex] |= newHorizontalBoard;
+						}
 					}
-				default:
-					return;
-			}
+					if (newBoard){
+						if (finalBoards.find(boardIndex) == finalBoards.end() )
+							finalBoards[boardIndex] = newBoard;
+						else 
+							finalBoards[boardIndex] |= newBoard;
+					}	
+					break;
+				}
+			case SW:
+				{
+					int newVerticalBoardIndex, newHorizontalBoardIndex, newDiagBoardIndex;
+					unsigned long long newVerticalBoard, newHorizontalBoard,
+								  intermediate, newDiagBoard;
+					newDiagBoard = (1 & currentBoard)? 0x8000000000000000u: 0;
 
-			if(newDiagBoard)  
-				unionWith(newDiagBoardIndex, newHorizontalBoard);
-			if (newVerticalBoard) 
-				unionWith(newVerticalBoardIndex, newVerticalBoard);
-			if (newHorizontalBoard)
-				unionWith(newHorizontalBoardIndex, newHorizontalBoard);
+					newVerticalBoard = 0x1000100010000u & currentBoard;
+					newVerticalBoard >>= 1;
 
-			replaceWith(boardIndex, newBoard);
+					newHorizontalBoard = 254u & currentBoard;
+					newHorizontalBoard <<= 55;
+
+					intermediate = 0xfe00fe00fe0000u & currentBoard;
+					newBoard = (intermediate >> 9);
+					intermediate = 0xff00ff00ff00ff00u & currentBoard;
+					newBoard |= (intermediate >> 8);
+
+
+					if (newDiagBoard) {
+						newDiagBoardIndex = (boardIndex - 1 + BITBOARD_CONTAINER_COLS) %
+							BITBOARD_CONTAINER_SIZE;
+						if (finalBoards.find(newDiagBoardIndex) == finalBoards.end())
+							finalBoards[newDiagBoardIndex] = newDiagBoard;
+						else {
+							finalBoards[newDiagBoardIndex] |= newDiagBoard;
+						}
+					}
+					if (newVerticalBoard) {
+						newVerticalBoardIndex = (boardIndex) ? boardIndex - 1:
+							BITBOARD_CONTAINER_SIZE - 1;
+						if (finalBoards.find(newVerticalBoardIndex) == finalBoards.end())
+							finalBoards[newVerticalBoardIndex] = newVerticalBoard;
+						else {
+							finalBoards[newVerticalBoardIndex] |= newVerticalBoard;
+						}
+					}
+					if (newHorizontalBoard) {
+						newHorizontalBoardIndex = (boardIndex + BITBOARD_CONTAINER_COLS) %
+							BITBOARD_CONTAINER_SIZE;
+						if (finalBoards.find(newHorizontalBoardIndex) == finalBoards.end())
+							finalBoards[newHorizontalBoardIndex] = newHorizontalBoard;
+						else {
+							finalBoards[newHorizontalBoardIndex] |= newHorizontalBoard;
+						}
+					}
+					if (newBoard){
+						if (finalBoards.find(boardIndex) == finalBoards.end() )
+							finalBoards[boardIndex] = newBoard;
+						else 
+							finalBoards[boardIndex] |= newBoard;
+					}	
+					break;
+				}
+
+			case NE:
+				{
+					unsigned long long newVerticalBoard, newHorizontalBoard,
+								  intermediate;
+					int newVerticalBoardIndex, newHorizontalBoardIndex, newDiagBoardIndex, 
+						newDiagBoard;
+					newDiagBoard = (0x8000000000000000u & currentBoard)? 1: 0;
+
+					newVerticalBoard = 0x800080008000u & currentBoard;
+					newVerticalBoard <<= 1;
+
+					newHorizontalBoard =0x7f00000000000000u & currentBoard;
+					newHorizontalBoard >>= 55;
+
+					intermediate = 0x7f007f007f00u & currentBoard;
+					newBoard = (intermediate << 9);
+					intermediate = 0xff00ff00ff00ffu & currentBoard;
+					newBoard |= (intermediate << 8);
+
+					if (newDiagBoard) {
+						newDiagBoardIndex = modulo (boardIndex + 1 - BITBOARD_CONTAINER_COLS, 
+								BITBOARD_CONTAINER_SIZE);
+						if (finalBoards.find(newDiagBoardIndex) == finalBoards.end())
+							finalBoards[newDiagBoardIndex] = newDiagBoard;
+						else {
+							finalBoards[newDiagBoardIndex] |= newDiagBoard;
+						}
+					}
+					if (newVerticalBoard) {
+						newVerticalBoardIndex = (boardIndex + 1) % BITBOARD_CONTAINER_SIZE;
+						if (finalBoards.find(newVerticalBoardIndex) == finalBoards.end())
+							finalBoards[newVerticalBoardIndex] = newVerticalBoard;
+						else {
+							finalBoards[newVerticalBoardIndex] |= newVerticalBoard;
+						}
+					}
+					if (newHorizontalBoard) {
+						newHorizontalBoardIndex = modulo(boardIndex - BITBOARD_CONTAINER_COLS,
+								BITBOARD_CONTAINER_SIZE);
+						if (finalBoards.find(newHorizontalBoardIndex) == finalBoards.end())
+							finalBoards[newHorizontalBoardIndex] = newHorizontalBoard;
+						else {
+							finalBoards[newHorizontalBoardIndex] |= newHorizontalBoard;
+						}
+					}
+					if (newBoard){
+						if (finalBoards.find(boardIndex) == finalBoards.end() )
+							finalBoards[boardIndex] = newBoard;
+						else 
+							finalBoards[boardIndex] |= newBoard;
+					}	
+					break;
+				}
+			case SE:
+				{
+					unsigned long long newVerticalBoard, newHorizontalBoard, intermediate;
+					int newVerticalBoardIndex, newHorizontalBoardIndex;
+
+					newHorizontalBoard = 0xff & currentBoard;
+					newHorizontalBoard <<= 56;
+
+					newVerticalBoard = 0x8000800080008000u & currentBoard;
+					newVerticalBoard >>= 15;
+
+					intermediate = 0x7f007f007f007f00u & currentBoard;
+					newBoard = intermediate >> 7;
+					intermediate = 0xff00ff00ff0000u & currentBoard;
+					newBoard |= intermediate >> 8;
+
+					if (newVerticalBoard) {
+						newVerticalBoardIndex = (boardIndex + 1) % BITBOARD_CONTAINER_SIZE;
+						if (finalBoards.find(newVerticalBoardIndex) == finalBoards.end())
+							finalBoards[newVerticalBoardIndex] = newVerticalBoard;
+						else {
+							finalBoards[newVerticalBoardIndex] |= newVerticalBoard;
+						}
+					}
+					if (newHorizontalBoard) {
+						newHorizontalBoardIndex = (boardIndex + BITBOARD_CONTAINER_COLS) % 
+							BITBOARD_CONTAINER_SIZE;
+						if (finalBoards.find(newHorizontalBoardIndex) == finalBoards.end())
+							finalBoards[newHorizontalBoardIndex] = newHorizontalBoard;
+						else {
+							finalBoards[newHorizontalBoardIndex] |= newHorizontalBoard;
+						}
+					}
+					if (newBoard){
+						if (finalBoards.find(boardIndex) == finalBoards.end() )
+							finalBoards[boardIndex] = newBoard;
+						else 
+							finalBoards[boardIndex] |= newBoard;
+					}	
+					break;
+
+				}
 		}
 	}
-}
 
-void BitboardContainer::unionWith(int boardIndex, unsigned long long newBoard) {
-	if (internalBoardCache.find(boardIndex) == internalBoardCache.end()) {
-		internalBoardCache.insert(boardIndex);
-		internalBoards[boardIndex] = newBoard;
-	} else {
-		internalBoards[boardIndex] |= newBoard;
+	internalBoardCache.clear();
+	for (auto iter: finalBoards) {
+		internalBoards[iter.first] = iter.second;
+		internalBoardCache.insert(iter.first);
 	}
 }
 
-void BitboardContainer::replaceWith(int boardIndex, unsigned long long newBoard) {
-	if(newBoard){
-		internalBoardCache.insert(boardIndex);
-		internalBoards[boardIndex] = newBoard;
-	} else {
-		internalBoardCache.erase(boardIndex);
-	}
-}
 unsigned long long BitboardContainer::createLowOverflowMask(Direction dir, int overflowAmount) {
-
 	long long overflowLow; 
 	//assumes orthogonal direction passed in
 
