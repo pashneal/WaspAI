@@ -128,6 +128,7 @@ void MoveGenerator::generateQueenMoves(){
 	moves.unionWith(frontier);
 }
 
+
 //TODO:optimize currently most expensive function
 void MoveGenerator::generateLadybugMoves(){
 	BitboardContainer frontier, path, visited, result;
@@ -389,7 +390,6 @@ BitboardContainer MoveGenerator::getInaccessibleNodes(vector <BitboardContainer>
 		for (unsigned long i = 0; i < frontiers.size(); i++) {
 		
 			frontiers[i].intersectionWith(*generatingPieceBoard);
-			frontiers[i].pruneCache();
 
 			if (!frontiers[i].equals(*generatingPieceBoard)){
 				//TODO: change clear to be a simple xor call

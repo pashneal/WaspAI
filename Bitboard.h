@@ -57,6 +57,7 @@ class BitboardContainer {
 	int count();
 
 	BitboardContainer getPerimeter();
+	BitboardContainer slowGetPerimeter();
 
 	unordered_map <int , vector <unsigned long long> > split();
 	list <BitboardContainer> splitIntoBitboardContainers();

@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include <vector>
 #include <list>
+#include <map>
 
 using namespace std;
 
@@ -48,7 +49,6 @@ extern bool verticalCmp(int , int);
 extern bool horizontalCmp(int, int);
 
 unsigned modulo(int, unsigned);
-
 	
 extern vector <unordered_map <PieceName, int>> HivePLM; 
 const int ROW_SHIFT = 8;
@@ -61,6 +61,8 @@ const int BITBOARD_CONTAINER_ROWS = 3;
 const int BITBOARD_CONTAINER_COLS = 3;
 const unsigned long long ODD_ROWS_BITMASK = 0xff00ff00ff00ff00u;
 
+extern vector <unordered_map<unsigned long long, unsigned long long[5]>> PERIMETER;
+extern int PERIMETER_SIZE;
 // directions are set out like this
 //
 // 

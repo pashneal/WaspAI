@@ -688,29 +688,24 @@ void BitboardContainer::xorWith( BitboardContainer &other) {
 
 void BitboardContainer::notIntersectionWith( BitboardContainer &other) {
 	for (auto i: other.internalBoardCache) {
-		if (other.internalBoardCache.find(i) != other.internalBoardCache.end())
-			internalBoards[i] &= ~other.internalBoards[i];
+		internalBoards[i] &= ~other.internalBoards[i];
 	}
-	pruneCache();
 }
 
 bool BitboardContainer::containsAny(BitboardContainer& other) {
-	bool any = 0;	
 	for (int i: other.internalBoardCache) { 
 		if (internalBoardCache.find(i) != internalBoardCache.end())
-			any |= (internalBoards[i] & other.internalBoards[i]);
+			if (internalBoards[i] & other.internalBoards[i]) 
+				return true;
 	}
-	return any;
+	return false;
 }
 
 void BitboardContainer::clear() {
 	internalBoardCache.clear();
 }
-//TODO optimize
-//TODO test
+
 void BitboardContainer::duplicateBoard(list <Direction> dirs){
-
-
 	BitboardContainer init;
 	BitboardContainer duplicated;
 	duplicated.initializeTo(*this);
@@ -727,7 +722,6 @@ void BitboardContainer::duplicateBoard(list <Direction> dirs){
 	initializeTo(duplicated);
 }
 
-
 int BitboardContainer::count(){
 	int total = 0;
 	for (int i: internalBoardCache) {
@@ -737,21 +731,124 @@ int BitboardContainer::count(){
 }
 
 
+// optimized so its ugly =[
 BitboardContainer  BitboardContainer::getPerimeter() {
 	BitboardContainer perimeter;
-	
-	perimeter.initializeTo(*this);
-	perimeter.duplicateBoard( hexagonalDirections);	
-	perimeter.xorWith(*this);
 
+	//use perimeterHashTable for small amount of set bits
+		for (auto boardIndex: internalBoardCache) {
+			unsigned long long currentBoard = internalBoards[boardIndex];
+			int count = __builtin_popcountll(currentBoard);
+			if (!count) continue;
+			if (count > PERIMETER_SIZE 
+				|| PERIMETER[count].find(currentBoard) == PERIMETER[count].end()){
+					count = 1;
+			}
+
+			//if did not find in hash table; default to 
+			//resolving bits indiviually
+			unsigned long long*  hashedBoards ;
+			unsigned long long leastSignificantBit;
+			while ( currentBoard) {
+				if (count == 1) {
+					leastSignificantBit = (currentBoard & -currentBoard);
+					currentBoard ^= leastSignificantBit;
+					hashedBoards = PERIMETER[count][leastSignificantBit];
+				} else {
+					hashedBoards = PERIMETER[count][currentBoard];
+					currentBoard = 0;
+				}
+
+				if (hashedBoards[0])
+					//assign the orginalBoard
+					perimeter.unionWith(boardIndex , hashedBoards[0]);
+
+				//if there is overflow
+				if (hashedBoards[4]) { 
+					switch( hashedBoards[4]) {
+						case 1:
+							//Upper and Right Boards are assigned
+
+							if (hashedBoards[1]) 
+								perimeter.unionWith(modulo((boardIndex - BITBOARD_CONTAINER_COLS),  
+											BITBOARD_CONTAINER_SIZE), hashedBoards[1]);
+							if (hashedBoards[2]) 
+								perimeter.unionWith((boardIndex + 1) % BITBOARD_CONTAINER_SIZE,
+										hashedBoards[2]);
+							if (hashedBoards[3]) 
+								perimeter.unionWith(modulo((boardIndex + 1 - BITBOARD_CONTAINER_COLS)
+											,BITBOARD_CONTAINER_SIZE), hashedBoards[3]);
+							break;
+
+						case 2:
+							//Lower and Right Boards are assigned
+							if (hashedBoards[1]) 
+								perimeter.unionWith((boardIndex + BITBOARD_CONTAINER_COLS) % 
+										BITBOARD_CONTAINER_SIZE, hashedBoards[1]);
+							if (hashedBoards[2]) 
+								perimeter.unionWith((boardIndex + 1) % BITBOARD_CONTAINER_SIZE,
+										hashedBoards[2]);
+							if (hashedBoards[3]) 
+								perimeter.unionWith((boardIndex + 1 + BITBOARD_CONTAINER_COLS)
+										% BITBOARD_CONTAINER_SIZE, hashedBoards[3]);
+							break;
+
+						case 3:
+							//Lower and Left Boards are assigned
+							if (hashedBoards[1]) 
+								perimeter.unionWith((boardIndex + BITBOARD_CONTAINER_COLS) % 
+										BITBOARD_CONTAINER_SIZE, hashedBoards[1]);
+							if (hashedBoards[2]) 
+								perimeter.unionWith(modulo((boardIndex - 1),BITBOARD_CONTAINER_SIZE),
+										hashedBoards[2]);
+							if (hashedBoards[3]) 
+								perimeter.unionWith((boardIndex - 1 + BITBOARD_CONTAINER_COLS)
+										% BITBOARD_CONTAINER_SIZE, hashedBoards[3]);
+							break;
+						case 4:
+							//Upper and Left Boards are assigned
+							if (hashedBoards[1]) 
+								perimeter.unionWith(modulo((boardIndex - BITBOARD_CONTAINER_COLS),  
+											BITBOARD_CONTAINER_SIZE), hashedBoards[1]);
+							if (hashedBoards[2]) 
+								perimeter.unionWith(modulo((boardIndex - 1),BITBOARD_CONTAINER_SIZE),
+										hashedBoards[2]);
+							if (hashedBoards[3]) 
+								perimeter.unionWith(modulo((boardIndex - 1 - BITBOARD_CONTAINER_COLS)
+											,BITBOARD_CONTAINER_SIZE), hashedBoards[3]);
+							break;
+
+						default:
+							cout << "unexpected value for PERIMETER hash table" << endl;
+							throw 69;
+					}
+				}
+			}
+		}
+	perimeter.notIntersectionWith(*this);
 	return perimeter;
 }
 
+BitboardContainer BitboardContainer::slowGetPerimeter(){
+	BitboardContainer perimeter;
+	perimeter.initializeTo(*this);
+	perimeter.duplicateBoard( hexagonalDirections);	
+	perimeter.xorWith(*this);
+	return perimeter;
+}
+
+void BitboardContainer::unionWith(int boardIndex, unsigned long long board) {
+	if (internalBoardCache.find(boardIndex) == internalBoardCache.end()) {
+		internalBoards[boardIndex] = board;
+		internalBoardCache.insert(boardIndex);
+	} else {
+		internalBoards[boardIndex] |= board;
+	}
+}
 /*
  * returns a map of all the bits that were set and which board it was set on
  */
 unordered_map< int, vector < unsigned long long >> BitboardContainer::split(){
-
 	unordered_map< int, vector <unsigned long long >> returnMap;
 
 	for (int i: internalBoardCache){

@@ -37,3 +37,7 @@ tags
 *.exe
 *.out
 *.app
+
+# Profiling Tools
+*.out.*
+

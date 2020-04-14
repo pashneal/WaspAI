@@ -19,6 +19,8 @@
 using namespace std;
 
 
+int PERIMETER_SIZE = 4;
+vector <unordered_map<unsigned long long, unsigned long long[5]>> PERIMETER = {{{}}};
  int dxdy[6][2] = {{1,1},
 				 {2,0},
 				 {1,-1},
@@ -1410,7 +1412,9 @@ void Test::GameStateTest::testPsuedoRandom() {
 			for ( auto adjBoard: testboard.splitIntoBitboardContainers() ) {
 				if (!testGameState.pieceGraph.checkBiDirectional(adjBoard, board)) {
 				Test::pass(false, "An edge given by pieceGraph was not bidirectional");
+				
 				testGameState.print();
+				throw 67;
 
 				}
 			}
@@ -1592,8 +1596,93 @@ void perfTest() {
 	std::chrono::duration_cast<std::chrono::milliseconds>
 	(end - begin).count() << "[ms]" << std::endl;
 }
+
+void createPerimeterHashTable(int maxNumber) {
+	//with a piece centered at original
+	//the boards that make up the 8 surrounding
+	//boards are listed here
+	vector <int> upperLower = {1,7};
+	vector <int> leftRight = {3, 5};
+	vector <int> diagonal = {0, 2, 6, 8};
+	int original = 4;
+
+	/*
+	 *
+	 *
+	 *   ------------------
+	 *   |       ||       |
+	 *   |upper  ||diagona|
+	 *   |lower  ||       |
+	 *   ------------------
+	 *   |       ||       |
+	 *   |origina||left   |
+	 *   |       ||right  |
+	 *   ------------------
+	 *
+	 *   This is the orientation for the first blocking masks
+	 *   Then it rotates  clockwise
+	 *
+	 */ 
+	
+	//we only want overflow on 3 boards MAX so block out possibilities
+	//that may give more
+	// blocking mask index 0 represents no overflow allowed
+	vector <unsigned long long> blockingMasks = {0xff818181818181ffu,
+												 0x1010101010101ffu,
+												 0xff01010101010101u,
+												 0xff80808080808080u,
+												 0x80808080808080ffu};
+
+	for (int count = 1; count <= maxNumber ; count++) {
+		unsigned long long t;
+		PERIMETER.push_back(unordered_map<unsigned long long, unsigned long long [5]>{{}});
+		unsigned long long blockingMasksIndex = 0;
+		for (auto block: blockingMasks) {
+			//current permutation = the smallest possible permutation with count # of bits
+			unsigned long long v = (1 << count) - 1;
+			//while the next permutation is still the same count as the last
+			while (__builtin_popcountll(v) == count) {
+				//while no piece is in blocking mask
+				if (__builtin_popcountll((v & ~block)) == count && 
+					// and v is not already in hash table
+					PERIMETER[count].find(v) == PERIMETER[count].end())
+				{
+
+
+					unsigned long long leftRightBoard= 0, upperLowerBoard= 0
+									, originalBoard= 0, diagonalBoard= 0;
+					BitboardContainer b({{original, v}});
+					b = b.slowGetPerimeter();
+					//search for possible overflows
+					for (auto j: upperLower)
+						upperLowerBoard |= b[j];
+					for (auto j: leftRight)
+						leftRightBoard |= b[j];
+					for (auto j: diagonal)
+						diagonalBoard |= b[j];
+					originalBoard = b[original];
+
+					//assign values to hash table
+					PERIMETER[count][v][0] = originalBoard;
+					PERIMETER[count][v][1] = upperLowerBoard;
+					PERIMETER[count][v][2] = leftRightBoard;
+					PERIMETER[count][v][3] = diagonalBoard;
+					PERIMETER[count][v][4] = blockingMasksIndex;
+				}
+
+				//next permutation
+				//this is a fast bit twiddling trick found online
+				t = v | (v - 1);
+				v = (t + 1) | (((~t & -~t) - 1) >> (__builtin_ctzll(v) + 1)); 
+			}
+			blockingMasksIndex++;
+		}
+	}
+}
 int main() {
 	srand(2);
+	cout << "Initializing..." << endl;
+	createPerimeterHashTable(PERIMETER_SIZE);
 	Test::BitboardTest::testShiftDirection();
 	Test::BitboardTest::testXorWith();
 	Test::BitboardTest::testIntersectionWith();
@@ -1617,4 +1706,5 @@ int main() {
 	Test::GameStateTest::testMovePiece();
 	Test::GameStateTest::testPsuedoRandom();
 	perfTest();
+
 }
