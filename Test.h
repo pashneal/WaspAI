@@ -39,6 +39,7 @@ class Test {
 				static void testFloodFill();
 				static void testSplit();
 				static void testSplitIntoConnectedComponents();
+				static void testFastPerimeter();
 		};
 
 		class ProblemNodeContainerTest {

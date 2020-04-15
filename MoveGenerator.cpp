@@ -24,9 +24,13 @@ BitboardContainer MoveGenerator::getMoves() {
 	perimeter = piecesExceptCurrent.getPerimeter();
 
 	//TODO: remove 
-	problemNodes -> removePiece(*generatingPieceBoard);
-	generateMoves();
-	problemNodes -> insertPiece(*generatingPieceBoard);
+	if (problemNodesEnabled) {
+		problemNodes -> removePiece(*generatingPieceBoard);
+		generateMoves();
+		problemNodes -> insertPiece(*generatingPieceBoard);
+	} else {
+		generateMoves();
+	}
 	
 	return moves;
 }
@@ -206,6 +210,7 @@ void MoveGenerator::generateBeetleMoves(){
 	//set neighbors to perimeter of neighbors
 	neighbors = neighbors.getPerimeter();
 
+	if (problemNodesEnabled) {
 	//if the piece is on a problematic node
 	if (!upperLevelPieces->containsAny(frontier) &&
 		problemNodes -> contains(*generatingPieceBoard)){
@@ -214,6 +219,9 @@ void MoveGenerator::generateBeetleMoves(){
 
 	} else { 
 		frontier = frontier.getPerimeter();
+	}
+	} else {
+		frontier = getLegalWalkPerimeter(frontier);
 	}
 
 	//maintain contact with at least one of the original neighbors
@@ -239,17 +247,26 @@ void MoveGenerator::generateBeetleMoves(){
 void MoveGenerator::generateAntMoves() {
 	//perform a flood fill step until it cannot anymore
 
-	BitboardContainer frontier(*generatingPieceBoard);
+	BitboardContainer frontiers;
 	BitboardContainer visited;
+	BitboardContainer newFrontiers(*generatingPieceBoard);
+	while(newFrontiers.count()) {
+		frontiers.initializeTo(newFrontiers);
+		newFrontiers.clear();
+		for (BitboardContainer frontier : frontiers.splitIntoBitboardContainers()) {
+			//perform a flood fill step with regard to problematic nodes
+			if (problemNodesEnabled) 
+				frontier = problemNodes -> getPerimeter(frontier);
+			else 
+				frontier = getLegalWalkPerimeter(frontier);
+			frontier.intersectionWith(perimeter);
+			frontier.notIntersectionWith(visited);
 
-	while(frontier.count()) {
-		//perform a flood fill step with regard to problematic nodes
-		frontier = problemNodes -> getPerimeter(frontier);
-		frontier.intersectionWith(perimeter);
-		frontier.notIntersectionWith(visited);
-
-		// store previously visited nodes
-		visited.unionWith(frontier);
+			// store previously visited nodes
+			visited.unionWith(frontier);
+			// store next locations to search
+			newFrontiers.unionWith(frontier);
+		}
 	}
 
 	moves.unionWith(visited);
@@ -290,28 +307,33 @@ void MoveGenerator::generateSpiderMoves(){
 			neighbors.intersectionWith(piecesExceptCurrent);
 
 
-			if (problemNodes -> contains(frontier)) {
+			if (problemNodesEnabled) {
+				if (problemNodes -> contains(frontier)) {
 
-				// add problematic nodes (if any) to visited
+					// add problematic nodes (if any) to visited
+					visited.unionWith(frontier);
+
+					// find the problematic perimeter
+					frontier = problemNodes -> getPerimeter(frontier);
+					frontier.notIntersectionWith(visited);
+
+
+				} else { 
+					// normal search along perimeter of hive
+					perimeter.floodFillStep(frontier, visited);
+				}
+
+			} else {
 				visited.unionWith(frontier);
-
-				// find the problematic perimeter
-				frontier = problemNodes -> getPerimeter(frontier);
+				frontier = getLegalWalkPerimeter(frontier);
+				frontier.intersectionWith(perimeter);
 				frontier.notIntersectionWith(visited);
-
-
-			} else { 
-				// normal search along perimeter of hive
-				perimeter.floodFillStep(frontier, visited);
 			}
-
 			// get the perimeter of original neighbors
 			neighbors = neighbors.getPerimeter();
 
 			// make sure to maintain contact with any of the original neighbors
 			frontier.intersectionWith(neighbors);
-
-
 
 			if (frontier.count()) {
 
@@ -324,10 +346,11 @@ void MoveGenerator::generateSpiderMoves(){
 					next.push_back(pairOfBoards);
 
 				}
-				
+
 			}
 
 		}
+
 		//get next set of frontiers and visited paths
 		frontierVisited = next;
 	}
@@ -427,7 +450,6 @@ BitboardContainer MoveGenerator::getInaccessibleNodes(BitboardContainer gates) {
 
 
 BitboardContainer MoveGenerator::getLegalClimb( BitboardContainer& board, Direction dir) {
-	
 	BitboardContainer test(board), gate, CWgate(board), CCWgate(board);
 
 	//TODO: optimize
@@ -465,4 +487,60 @@ BitboardContainer MoveGenerator::getLegalClimb( BitboardContainer& board, Direct
 
 	}
 	return test;
+}
+BitboardContainer MoveGenerator::getLegalWalkPerimeter(BitboardContainer board) {
+	if (board.count() != 1) {
+		cout << "CANNOT GET LEGAL WALK PERIMETER OF THIS BOARD" << endl;
+		cout << board.count() << endl;
+		throw 2;
+	}
+	pair<int, unsigned long long> LSB = board.getLeastSignificantBit();
+	Direction correction;
+	BitboardContainer testPerimeter(board);
+	testPerimeter = testPerimeter.getPerimeter();
+	testPerimeter.intersectionWith(piecesExceptCurrent);
+	if (LSB.second & 0x7e7e7e7e7e7e00u) {
+		testPerimeter.setBoard(LSB.first, GATES[__builtin_ctzll(LSB.second)]
+											   [testPerimeter[LSB.first]]);
+		return testPerimeter;
+	} else if (LSB.second & 0x1010101010100u) {
+		correction = Direction::W;
+		LSB.second <<= 1;
+	} else if (LSB.second & 0x7e00000000000000) {
+		correction = Direction::N;
+		LSB.second >>= 16;
+	} else if (LSB.second & 0x7e) {
+		correction = Direction::S;
+		LSB.second <<= 16;
+	} else if (LSB.second & 0x80808080808000u) {
+		correction = Direction::E;
+		LSB.second >>= 1;
+	} else {
+		int xShift, yShift;
+		xShift = __builtin_ctzll(LSB.second) % 8;
+		yShift = __builtin_ctzll(LSB.second) / 8;
+		xShift = 1-xShift;
+		yShift = 1-yShift;
+
+		testPerimeter.shiftDirection(Direction::N , yShift);
+		testPerimeter.shiftDirection(Direction::E, xShift);
+		testPerimeter.convertToHexRepresentation(Direction::NE, yShift);
+		
+		testPerimeter.setBoard(LSB.first, GATES[__builtin_ctzll(512u)][testPerimeter[LSB.first]]);
+
+		testPerimeter.shiftDirection(Direction::S , yShift);
+		testPerimeter.shiftDirection(Direction::W, xShift);
+		testPerimeter.convertToHexRepresentation(Direction::SW, yShift);
+		return testPerimeter;
+	}
+
+	testPerimeter.shiftDirection(oppositeDirection[correction]);
+	if (correction == N || correction == S)
+		testPerimeter.shiftDirection(oppositeDirection[correction]);
+	testPerimeter.setBoard(LSB.first, GATES[__builtin_ctzll(LSB.second)][testPerimeter[LSB.first]]);
+	testPerimeter.shiftDirection(correction);
+	if (correction == N || correction == S)
+		testPerimeter.shiftDirection(correction);
+
+	return testPerimeter;
 }

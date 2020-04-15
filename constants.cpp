@@ -1,5 +1,6 @@
 #include "constants.h"
 
+int missesVsHits[] = {0, 0};
 unordered_map<Direction, Direction> oppositeDirection = 
 {
 	{Direction::N, Direction::S},

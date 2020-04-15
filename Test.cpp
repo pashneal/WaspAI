@@ -21,6 +21,8 @@ using namespace std;
 
 int PERIMETER_SIZE = 4;
 vector <unordered_map<unsigned long long, unsigned long long[5]>> PERIMETER = {{{}}};
+unordered_map <unsigned long long , unsigned long long > GATES[64];
+
  int dxdy[6][2] = {{1,1},
 				 {2,0},
 				 {1,-1},
@@ -1575,19 +1577,15 @@ void perfTest() {
 		{BitboardContainer({{5, 134217728u}}), PieceName::BEETLE},
 	};
 	
-	GameState c(HivePLM, PieceColor::WHITE);
+	GameState gameState(HivePLM, PieceColor::WHITE);
 	bool color  = 0; 
 	for (auto p : initialPieces) {
-		c.fastSpawnPiece(p.first, p.second);	
+		gameState.fastSpawnPiece(p.first, p.second);	
 		color = !color;
-
-		if (c.turnColor != color) {
-			Test::pass(false, "color not updated after a move");
-			throw 74;
-		}
 	}
 
 	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+	GameState c(gameState);
 	for (int i = 0; i < 10000 ; i++ ) {
 		c.makePsuedoRandomMove();
 	}
@@ -1595,8 +1593,61 @@ void perfTest() {
 	std::cout << "10000 moves made in " << 
 	std::chrono::duration_cast<std::chrono::milliseconds>
 	(end - begin).count() << "[ms]" << std::endl;
+	begin = std::chrono::steady_clock::now();
+	GameState b(gameState);
+	for (int i = 0; i < 1000; i++ ) {
+		b.makePsuedoRandomMove();
+	}
+	end = std::chrono::steady_clock::now();
+	std::cout << "1000 moves made in " << 
+	std::chrono::duration_cast<std::chrono::milliseconds>
+	(end - begin).count() << "[ms]" << std::endl;
+
+	begin = std::chrono::steady_clock::now();
+	GameState a(gameState);
+	for (int i = 0; i < 500 ; i++ ) {
+		a.makePsuedoRandomMove();
+	}
+	end = std::chrono::steady_clock::now();
+	std::cout << "500 moves made in " << 
+	std::chrono::duration_cast<std::chrono::milliseconds>
+	(end - begin).count() << "[ms]" << std::endl;
+
+	begin = std::chrono::steady_clock::now();
+	GameState d(gameState);
+	for (int i = 0; i < 100 ; i++ ) {
+		d.makePsuedoRandomMove();
+	}
+	end = std::chrono::steady_clock::now();
+	std::cout << "100 moves made in " << 
+	std::chrono::duration_cast<std::chrono::milliseconds>
+	(end - begin).count() << "[ms]" << std::endl;
 }
 
+void Test::BitboardTest::testFastPerimeter(){
+	cout << "====================TestFastPerimeter()====================" << endl;
+	unsigned long long position = 1;
+	while(position) {
+		BitboardContainer test({{6, position}});
+		BitboardContainer expected(test);
+		test = test.getPerimeter();
+		expected = expected.slowGetPerimeter();
+		Test::pass(test == expected, "testFastPerimeter did not match slowGetPerimeter");
+		if (!(test == expected)) {
+			cout << "test" << endl; test.print();
+			cout << "expected" << endl; expected.print();
+			cout << endl;
+		}
+		
+		position <<= 1;
+	}
+}
+
+//creates a hashTable that stores the precomputed perimeter
+//of a given bitboard array
+//int maxNumber : the number of bits per board to precomputed
+//it seems setting this to 4 gives spectacular results (66% increase in speed)
+//memory requirement is O(64^n) where n = maxNumber
 void createPerimeterHashTable(int maxNumber) {
 	//with a piece centered at original
 	//the boards that make up the 8 surrounding
@@ -1638,11 +1689,11 @@ void createPerimeterHashTable(int maxNumber) {
 		PERIMETER.push_back(unordered_map<unsigned long long, unsigned long long [5]>{{}});
 		unsigned long long blockingMasksIndex = 0;
 		for (auto block: blockingMasks) {
-			//current permutation = the smallest possible permutation with count # of bits
+			//current permutation = the smallest possible bit permutation with count # of bits
 			unsigned long long v = (1 << count) - 1;
-			//while the next permutation is still the same count as the last
+			//while the next bit permutation is still the same count as the last
 			while (__builtin_popcountll(v) == count) {
-				//while no piece is in blocking mask
+				//while no bit is in blocking mask
 				if (__builtin_popcountll((v & ~block)) == count && 
 					// and v is not already in hash table
 					PERIMETER[count].find(v) == PERIMETER[count].end())
@@ -1670,7 +1721,7 @@ void createPerimeterHashTable(int maxNumber) {
 					PERIMETER[count][v][4] = blockingMasksIndex;
 				}
 
-				//next permutation
+				//next bit permutation
 				//this is a fast bit twiddling trick found online
 				t = v | (v - 1);
 				v = (t + 1) | (((~t & -~t) - 1) >> (__builtin_ctzll(v) + 1)); 
@@ -1679,15 +1730,80 @@ void createPerimeterHashTable(int maxNumber) {
 		}
 	}
 }
+
+void generateDirectionCombinations (unsigned int i, vector < vector <Direction>>& v) {
+	if ( i == hexagonalDirections.size() ) return;
+
+	vector <vector <Direction>> x;
+	for ( vector <Direction> w: v) {
+		w.push_back((Direction) i);
+		x.push_back(w);
+	}
+	for (vector <Direction> a: x) {
+		v.push_back(a);
+	}
+
+	generateDirectionCombinations(i+1, v);
+}
+bool checkLegalWalk(BitboardContainer allPieces, BitboardContainer board, Direction dir) {
+	BitboardContainer CW(board), CCW(board);
+	CW.shiftDirection(rotateClockWise(dir));
+	CCW.shiftDirection(rotateCounterClockWise(dir));
+	return  !(allPieces.containsAny(CW) && allPieces.containsAny(CCW));
+}
+BitboardContainer getLegalWalks(BitboardContainer board, BitboardContainer allPieces) {
+	BitboardContainer retBoard;
+	for (unsigned i = 0; i < hexagonalDirections.size(); i++) {
+		if (checkLegalWalk(allPieces, board, (Direction)i))
+		{
+			BitboardContainer test(board);
+			test.shiftDirection((Direction)i);
+			retBoard.unionWith(test);
+		}
+	}
+	return retBoard;
+}
+void createGateHashTable() {
+	unsigned long long notAllowed = 0xff818181818181ffu;
+	unsigned long long position = 1; 
+	int boardIndex = 6;
+	vector <vector <Direction>> v;
+	v.push_back({});
+	generateDirectionCombinations(0, v);
+	vector<unsigned long long> legalWalks;
+	while (position) {
+		if (position & ~notAllowed) {
+			for (vector <Direction> directions : v) {
+				BitboardContainer board({{boardIndex , position}});
+				BitboardContainer test;
+				BitboardContainer duplicated;
+				for ( Direction dir: directions) {
+					test.initializeTo(board);
+					test.shiftDirection(dir);
+					duplicated.unionWith(test);	
+				}
+				BitboardContainer walks = getLegalWalks(board, duplicated);
+				GATES[__builtin_ctzll(position)][duplicated[boardIndex]] = walks[boardIndex];
+			}
+		}
+		position <<= 1;
+	}
+}
+
 int main() {
 	srand(2);
 	cout << "Initializing..." << endl;
 	createPerimeterHashTable(PERIMETER_SIZE);
+	cout << "Finished initializing perimeters" << endl;
+	cout << "Intializing... " << endl;
+	createGateHashTable();
+	cout << "Finished initializing gates";
 	Test::BitboardTest::testShiftDirection();
 	Test::BitboardTest::testXorWith();
 	Test::BitboardTest::testIntersectionWith();
 	Test::BitboardTest::testUnionWith();
 	Test::BitboardTest::testContainsAny();
+	Test::BitboardTest::testFastPerimeter();
 	Test::BitboardTest::testFloodFillStep();
 	Test::BitboardTest::testFloodFill();
 	Test::BitboardTest::testSplit();
@@ -1706,5 +1822,6 @@ int main() {
 	Test::GameStateTest::testMovePiece();
 	Test::GameStateTest::testPsuedoRandom();
 	perfTest();
+	
 
 }

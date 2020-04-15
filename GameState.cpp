@@ -62,6 +62,7 @@ MoveInfo GameState::insertPiece(BitboardContainer& bitboard, PieceName& name) {
 	if (bitboard.count() == 0) return moveInfo;
 	fastInsertPiece(bitboard, name);
 	moveInfo.newPieceLocation.initializeTo(bitboard);
+	problemNodeContainer.insertPiece(bitboard);
 
 	return moveInfo;
 }
@@ -72,7 +73,6 @@ void GameState::fastInsertPiece(BitboardContainer& bitboard, PieceName& name) {
 		upperLevelPieces.unionWith(bitboard);
 	} else {
 		pieceGraph.insert(bitboard);
-		problemNodeContainer.insertPiece(bitboard);
 	}
 
 	allPieces.unionWith(bitboard);
@@ -88,6 +88,9 @@ MoveInfo GameState::movePiece(BitboardContainer& oldBitboard, BitboardContainer&
 	MoveInfo moveInfo = insertPiece(newBitboard, name);
 	fastMovePiece(oldBitboard, newBitboard, name);
 	moveInfo.oldPieceLocation.initializeTo(oldBitboard);
+	problemNodeContainer.removePiece(oldBitboard);
+	changeTurnColor();
+	turnCounter++;
 	return moveInfo;
 }
 
@@ -142,7 +145,6 @@ void GameState::fastRemovePiece(BitboardContainer& oldBitboard, PieceName& name)
 		}
 	} else {
 		//if not in stack, remove normally
-		problemNodeContainer.removePiece(oldBitboard);
 		pieceGraph.remove(oldBitboard);
 		allPieces.xorWith(oldBitboard);
 	}

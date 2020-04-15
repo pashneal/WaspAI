@@ -42,7 +42,6 @@ class MoveGenerator {
 
 		bool problemNodesEnabled = false;
 
-
 		ProblemNodeContainer *problemNodes;
 		BitboardContainer * allPieces;
 
@@ -62,7 +61,7 @@ class MoveGenerator {
 		BitboardContainer getInaccessibleNodes(BitboardContainer);
 		BitboardContainer getInaccessibleNodes(vector <BitboardContainer> *);
 		BitboardContainer getLegalClimb(BitboardContainer&, Direction);
-		BitboardContainer getLegalWalkPerimeter(BitboardContainer&);
+		BitboardContainer getLegalWalkPerimeter(BitboardContainer);
 
 		bool isLegalWalk(BitboardContainer&, Direction);
 };
