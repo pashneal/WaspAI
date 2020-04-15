@@ -597,8 +597,7 @@ void BitboardContainer::floodFillStep(BitboardContainer &frontier,  BitboardCont
 	frontier.initializeTo(perimeter);
 
 	//nodes in visited are not in frontier
-	frontier.unionWith(visited);
-	frontier.xorWith(visited);
+	frontier.notIntersectionWith(visited);
 }
 
 
@@ -926,7 +925,7 @@ void BitboardContainer::print() {
 }
 
 int BitboardContainer::hash() {
-	return *(internalBoardCache.begin()) + (__builtin_clzll(internalBoards[
+	return *(internalBoardCache.begin()) | (__builtin_clzll(internalBoards[
 				*(internalBoardCache.begin())]) << 8);
 
 }

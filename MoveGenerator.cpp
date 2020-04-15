@@ -24,14 +24,7 @@ BitboardContainer MoveGenerator::getMoves() {
 	perimeter = piecesExceptCurrent.getPerimeter();
 
 	//TODO: remove 
-	if (problemNodesEnabled) {
-		problemNodes -> removePiece(*generatingPieceBoard);
-		generateMoves();
-		problemNodes -> insertPiece(*generatingPieceBoard);
-	} else {
-		generateMoves();
-	}
-	
+	generateMoves();
 	return moves;
 }
 
@@ -74,8 +67,7 @@ void MoveGenerator::generateMoves() {
 	
 	//the initial location does not count as a move
 	//so delete
-	moves.unionWith(*generatingPieceBoard);
-	moves.xorWith(*generatingPieceBoard);
+	moves.notIntersectionWith(*generatingPieceBoard);
 }
 
 
@@ -116,15 +108,7 @@ void MoveGenerator::generateQueenMoves(){
 	neighbors.intersectionWith(*allPieces);
 	neighbors = neighbors.getPerimeter();
 
-	//if the piece is on a problematic node
-	if (problemNodes -> contains(*generatingPieceBoard)){
-		//get allowed directions to travel
-		frontier = problemNodes -> getPerimeter(frontier);
-
-	} else { 
-		//search all directions around frontier
-		frontier = frontier.getPerimeter();
-	}
+	frontier = getLegalWalkPerimeter(frontier);
 
 	//only keep nodes that are along the board perimeter
 	frontier.intersectionWith(perimeter);
@@ -213,19 +197,7 @@ void MoveGenerator::generateBeetleMoves(){
 	//set neighbors to perimeter of neighbors
 	neighbors = neighbors.getPerimeter();
 
-	if (problemNodesEnabled) {
-	//if the piece is on a problematic node
-	if (!upperLevelPieces->containsAny(frontier) &&
-		problemNodes -> contains(*generatingPieceBoard)){
-		//get allowed directions to travel
-		frontier = problemNodes -> getPerimeter(frontier);
-
-	} else { 
-		frontier = frontier.getPerimeter();
-	}
-	} else {
-		frontier = getLegalWalkPerimeter(frontier);
-	}
+	frontier = getLegalWalkPerimeter(frontier);
 
 	//maintain contact with at least one of the original neighbors
 	frontier.intersectionWith(neighbors);
@@ -258,10 +230,7 @@ void MoveGenerator::generateLegalAntMoves() {
 		newFrontiers.clear();
 		for (BitboardContainer frontier : frontiers.splitIntoBitboardContainers()) {
 			//perform a flood fill step with regard to problematic nodes
-			if (problemNodesEnabled) 
-				frontier = problemNodes -> getPerimeter(frontier);
-			else 
-				frontier = getLegalWalkPerimeter(frontier);
+			frontier = getLegalWalkPerimeter(frontier);
 			frontier.intersectionWith(perimeter);
 			frontier.notIntersectionWith(visited);
 
@@ -317,28 +286,10 @@ void MoveGenerator::generateSpiderMoves(){
 			neighbors.intersectionWith(piecesExceptCurrent);
 
 
-			if (problemNodesEnabled) {
-				if (problemNodes -> contains(frontier)) {
-
-					// add problematic nodes (if any) to visited
-					visited.unionWith(frontier);
-
-					// find the problematic perimeter
-					frontier = problemNodes -> getPerimeter(frontier);
-					frontier.notIntersectionWith(visited);
-
-
-				} else { 
-					// normal search along perimeter of hive
-					perimeter.floodFillStep(frontier, visited);
-				}
-
-			} else {
-				visited.unionWith(frontier);
-				frontier = getLegalWalkPerimeter(frontier);
-				frontier.intersectionWith(perimeter);
-				frontier.notIntersectionWith(visited);
-			}
+			visited.unionWith(frontier);
+			frontier = getLegalWalkPerimeter(frontier);
+			frontier.intersectionWith(perimeter);
+			frontier.notIntersectionWith(visited);
 			// get the perimeter of original neighbors
 			neighbors = neighbors.getPerimeter();
 

@@ -56,17 +56,6 @@ GameState::GameState (vector <unordered_map <PieceName, int>> unusedPiecesIn,
 	moveGenerator.setStackHashTable(&stackHashTable);
 }
 
-MoveInfo GameState::insertPiece(BitboardContainer& bitboard, PieceName name) {
-	MoveInfo moveInfo;
-	moveInfo.pieceName = name;
-	if (bitboard.count() == 0) return moveInfo;
-	fastInsertPiece(bitboard, name);
-	moveInfo.newPieceLocation.initializeTo(bitboard);
-	problemNodeContainer.insertPiece(bitboard);
-
-	return moveInfo;
-}
-
 void GameState::fastInsertPiece(BitboardContainer& bitboard, PieceName name) {
 	if (allPieces.containsAny(bitboard)) {
 		stackHashTable[bitboard.hash()].push({turnColor, name});
@@ -85,10 +74,15 @@ void GameState::fastInsertPiece(BitboardContainer& bitboard, PieceName name) {
 MoveInfo GameState::movePiece(BitboardContainer& oldBitboard, BitboardContainer& newBitboard,
 							  PieceName name) {
 
-	MoveInfo moveInfo = insertPiece(newBitboard, name);
-	fastMovePiece(oldBitboard, newBitboard, name);
+	MoveInfo moveInfo;
+	if (!oldBitboard.count()) 
+		fastSpawnPiece(newBitboard, name);
+	else
+		fastMovePiece(oldBitboard, newBitboard, name);
+	moveInfo.prevImmobile.initializeTo(immobile);
 	moveInfo.oldPieceLocation.initializeTo(oldBitboard);
-	problemNodeContainer.removePiece(oldBitboard);
+	moveInfo.prevTurnColor = turnColor;
+	moveInfo.pieceName = name;
 	changeTurnColor();
 	turnCounter++;
 	return moveInfo;
@@ -191,7 +185,6 @@ void GameState::randomSwapPiece(BitboardContainer swappable, BitboardContainer e
 	swappable = swappable.getRandom();
 	empty = empty.getRandom();
 	fastMovePiece(swappable, empty, findTopPieceName(swappable));
-	
 }
 
 void GameState::randomMovePiece(BitboardContainer& initialPiece,
@@ -200,16 +193,16 @@ void GameState::randomMovePiece(BitboardContainer& initialPiece,
 
 	possibleFinalLocations = possibleFinalLocations.getRandom();
 	fastMovePiece(initialPiece, possibleFinalLocations, name);
-
-	
 }
 
 void GameState::undoMove(MoveInfo moveInfo) {
-
-	//TODO: ADD LOGIC TO UNDO A SPAWN
-	changeTurnColor();
-	movePiece(moveInfo.newPieceLocation, moveInfo.oldPieceLocation,
-			  moveInfo.pieceName);
+	if (!(moveInfo.oldPieceLocation.count())) {
+		unusedPieces[turnColor][findTopPieceName(moveInfo.newPieceLocation)]++;
+	}
+	turnColor = moveInfo.prevTurnColor;
+	turnCounter--;
+	fastRemovePiece(moveInfo.newPieceLocation, moveInfo.pieceName);
+	fastInsertPiece(moveInfo.oldPieceLocation, moveInfo.pieceName);
 }
 
 PieceColor GameState::checkVictory() {
@@ -290,32 +283,60 @@ void GameState::destroy() {
 }
 
 //assumes game is not over
-void GameState::getAllMoves(list <PieceName> names) {
+void GameState::getAllMoves() {
+	pieceSpawns = getAllSpawnSpaces();	
+	spawnNames = possibleNames;
+	bool canMove = true;
 	if (turnCounter < 2) {
-		return;
+		canMove = false;
+		if (turnCounter == 1) {
+			pieceSpawns = BitboardContainer({{5, 34359738368u}});
+			pieceSpawns = pieceSpawns.getPerimeter();
+
+		} else {
+			pieceSpawns = BitboardContainer({{5, 34359738368u}});
+		}
+
+		spawnNames.clear();
+		for (PieceName name: possibleNames) {
+			if (name != PieceName::QUEEN)
+				spawnNames.push_front(name);
+		}
+	} else if ( turnCounter < 8)  {
+		if (!(getPieces(turnColor)->containsAny(*getPieces(PieceName::QUEEN)))) {
+			canMove = false;
+			if (turnCounter >= 6) {
+				spawnNames.clear();
+				spawnNames.push_front(PieceName::QUEEN);
+			}
+		}
 	}
 
-	if (turnCounter < 8)  {
-		BitboardContainer test(*getPieces(PieceName::QUEEN));
-		test.intersectionWith(*getPieces(turnColor));
-		if (!test.count()) return;
-	}
+	if (!canMove) return;
+	BitboardContainer test(*getPieces(turnColor));
+	swappableEmpty.clear(); 
+	pieceMoves.clear();
 
-	BitboardContainer test;
-	for (PieceName name: names) {
-		moveGenerator.setGeneratingName(&name);
+	for ( BitboardContainer piece : test.splitIntoBitboardContainers() ) { 
+		PieceName name = findTopPieceName(piece);
 
-		//get turnColor pieces of a certain name
-		test.initializeTo(*getPieces(name));
-		test.intersectionWith(*getPieces(turnColor));	
-
-		for ( BitboardContainer piece : test.splitIntoBitboardContainers() ) { 
-
+		//if covered by another piece
+		if (findTopPieceColor(piece) != turnColor)
+			continue;
+		//check for swaps if mosquito
+		if (name == PieceName::MOSQUITO) {
+			if (getMosquitoPillbug().containsAny(piece)) {
+				swappableEmpty.push_back(getSwapSpaces(piece));	
+			}
+		}
+		if (name == PieceName::PILLBUG ) { 
+			swappableEmpty.push_back(getSwapSpaces(piece));	
+		}
+		if (upperLevelPieces.containsAny(piece) || !pinned.containsAny(piece)) {
 			if (name == PieceName::MOSQUITO) {
 				getMosquitoMoves(piece);
 				continue;
 			}
-
 			moveGenerator.setGeneratingPieceBoard(&piece);
 			BitboardContainer moves = moveGenerator.getMoves();
 			pieceMoves.push_front(pair <BitboardContainer , BitboardContainer> {piece, moves});
