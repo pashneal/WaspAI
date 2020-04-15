@@ -22,7 +22,7 @@ using namespace std;
 std::mt19937_64 e2(rd());
 std::uniform_int_distribution<unsigned long long int> dist(1,18446744073709551615u);
 
-int PERIMETER_SIZE = 4;
+int PERIMETER_SIZE = 2;
 vector <unordered_map<unsigned long long, unsigned long long[5]>> PERIMETER = {{{}}};
 unordered_map <unsigned long long , unsigned long long > GATES[64];
 

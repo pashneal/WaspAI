@@ -926,26 +926,9 @@ void BitboardContainer::print() {
 }
 
 int BitboardContainer::hash() {
-	//TODO:implement a hash for greater than 2 pieces
-	int maxBoardIndex = -1;
-	list <unsigned long long> pieces ;
-	
+	return *(internalBoardCache.begin()) + (__builtin_clzll(internalBoards[
+				*(internalBoardCache.begin())]) << 8);
 
-	for (auto map: split()){
-		maxBoardIndex = (maxBoardIndex < map.first) ? map.first : maxBoardIndex;
-
-		for (auto piece: map.second){
-			if (pieces.size() == 0 || pieces.front() < piece) 
-				pieces.push_front(piece);
-			else 
-				pieces.push_back(piece);
-		}
-	}
-
-	if (pieces.size() == 1) return maxBoardIndex + (__builtin_clzll(pieces.front()) << 8);
-
-	return maxBoardIndex + (__builtin_clzll(pieces.front()) << 8)
-					     + (__builtin_clzll(pieces.back()) << 16);
 }
 
 int BitboardContainer::getRandomBoardIndex() {
