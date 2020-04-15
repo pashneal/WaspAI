@@ -56,21 +56,21 @@ class GameState {
 	PieceGraph pieceGraph;
 	MoveGenerator moveGenerator;
 
-	MoveInfo insertPiece(BitboardContainer&, PieceName&);
-	MoveInfo movePiece(BitboardContainer&, BitboardContainer&, PieceName&);
+	MoveInfo insertPiece(BitboardContainer&, PieceName);
+	MoveInfo movePiece(BitboardContainer&, BitboardContainer&, PieceName);
 
-	void fastInsertPiece(BitboardContainer&, PieceName&);
-	void fastMovePiece(BitboardContainer&, BitboardContainer&, PieceName&);
-	void fastRemovePiece(BitboardContainer&, PieceName&);
-	void fastSpawnPiece(BitboardContainer&, PieceName&);
+	void fastInsertPiece(BitboardContainer&, PieceName);
+	void fastMovePiece(BitboardContainer&, BitboardContainer&, PieceName);
+	void fastRemovePiece(BitboardContainer&, PieceName);
+	void fastSpawnPiece(BitboardContainer&, PieceName);
 
 
 	int countSwaps(BitboardContainer&);
 	int countTotalUnusedPieces();
 
 	void randomSpawnPiece(BitboardContainer&);
-	void swapPiece(BitboardContainer&, BitboardContainer&, int);
-	void movePiece(BitboardContainer&, BitboardContainer&, int);
+	void randomSwapPiece(BitboardContainer, BitboardContainer);
+	void randomMovePiece(BitboardContainer&, BitboardContainer&, PieceName name);
 
 	PieceName findTopPieceName(BitboardContainer);
 	PieceColor findTopPieceColor(BitboardContainer);

@@ -57,7 +57,10 @@ void MoveGenerator::generateMoves() {
 			generateBeetleMoves();
 			break;
 		case ANT:
-			generateAntMoves();
+			if (approximate)
+				generateApproxAntMoves();
+			else 
+				generateLegalAntMoves();
 			break;
 		case SPIDER:
 			generateSpiderMoves();
@@ -244,7 +247,7 @@ void MoveGenerator::generateBeetleMoves(){
 }  
 
 //TODO: this is so slowwww
-void MoveGenerator::generateAntMoves() {
+void MoveGenerator::generateLegalAntMoves() {
 	//perform a flood fill step until it cannot anymore
 
 	BitboardContainer frontiers;
@@ -271,6 +274,13 @@ void MoveGenerator::generateAntMoves() {
 
 	moves.unionWith(visited);
 }
+
+void MoveGenerator::generateApproxAntMoves() {
+	
+	moves.unionWith(perimeter);
+	moves.notIntersectionWith(*generatingPieceBoard);
+}
+
 /*
 TODO: make this work when you have time for optimization
 void MoveGenerator::generateAntMoves(){

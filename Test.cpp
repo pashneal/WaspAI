@@ -6,6 +6,7 @@
 #include <set>
 #include <unordered_map>
 #include <iostream>
+#include <random>
 #include "constants.h"
 #include "Bitboard.h"
 #include "MoveGenerator.h"
@@ -18,6 +19,8 @@
 
 using namespace std;
 
+std::mt19937_64 e2(rd());
+std::uniform_int_distribution<unsigned long long int> dist(1,18446744073709551615u);
 
 int PERIMETER_SIZE = 4;
 vector <unordered_map<unsigned long long, unsigned long long[5]>> PERIMETER = {{{}}};
@@ -997,6 +1000,7 @@ void Test::MoveGeneratorTest::testAntMoves() {
 		moveGen.setGeneratingName(&name);
 		moveGen.setGeneratingPieceBoard(&pieceBoard);
 	
+		moveGen.approximate =false;
 		BitboardContainer moves = moveGen.getMoves();
 		Test::pass( moves == expectedBoard, 
 				"incorrect moves outputted for move generation");
@@ -1822,6 +1826,4 @@ int main() {
 	Test::GameStateTest::testMovePiece();
 	Test::GameStateTest::testPsuedoRandom();
 	perfTest();
-	
-
 }

@@ -1,5 +1,6 @@
 #pragma once
 #include <unordered_set> 
+#include <random>
 #include <list>
 #include <vector>
 #include <unordered_map>
@@ -68,6 +69,7 @@ class BitboardContainer {
 	int hash();
 	
 	int getRandomBoardIndex();
+	BitboardContainer getRandom();
 
 	bool operator ==(BitboardContainer &other) {
 		return equals(other);

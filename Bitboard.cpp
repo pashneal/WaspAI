@@ -1,9 +1,14 @@
+#include <iterator>
 #include <list>
 #include <set>
 #include <algorithm>
 #include "constants.h"
 #include "Bitboard.h"
+std::random_device rd;     //Get a random seed from the OS entropy device, or whatever
+std::mt19937_64 eng(rd()); //Use the 64-bit Mersenne Twister 19937 generator
+                             //and seed it with entropy.
 
+std::uniform_int_distribution<unsigned long long> distr;
 using namespace std;
 
 list <Direction> hexagonalDirections = {
@@ -944,5 +949,26 @@ int BitboardContainer::hash() {
 }
 
 int BitboardContainer::getRandomBoardIndex() {
-	return *(internalBoardCache.begin());
+
+	int total = count();
+	total = std::rand() % total;
+	int boardSelect = 0;
+	for (int i : internalBoardCache) {	
+		boardSelect += __builtin_popcountll(internalBoards[i]);
+		if (boardSelect > total) return i;
+	}
+	return -1000;
+}
+
+BitboardContainer BitboardContainer::getRandom() {
+	int randomBoardIndex = getRandomBoardIndex();
+	unsigned long long s = internalBoards[randomBoardIndex];
+	unsigned long long t;
+	//get a random bit from given bitboard
+	while( (s & (s - 1))) {
+		t = s & dist(e2);
+		s = (t) ? t : s;
+	}
+
+	return BitboardContainer({{randomBoardIndex, s}});
 }

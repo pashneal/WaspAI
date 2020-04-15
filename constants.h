@@ -1,4 +1,5 @@
 #pragma once
+#include <random>
 #include <iostream>
 #include <unordered_map>
 #include <vector>
@@ -42,7 +43,9 @@ extern unordered_map <string, int> pieceNum;
 extern unordered_map < string , vector<Direction> > directions;  
 extern list <Direction> hexagonalDirections ;
 extern unordered_map <Direction, Direction>  oppositeDirection;
-
+extern std::random_device rd;
+extern std::mt19937_64 e2;
+extern std::uniform_int_distribution<unsigned long long int> dist;
 Direction rotateClockWise(Direction dir);
 Direction rotateCounterClockWise(Direction dir);
 

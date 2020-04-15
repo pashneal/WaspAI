@@ -33,14 +33,17 @@ class MoveGenerator {
 		void generatePillbugMoves(); 
 		void generateMosquitoMoves();
 		void generateBeetleMoves();  
-		void generateAntMoves();     
 		void generateSpiderMoves();  	
 		
 		BitboardContainer piecesExceptCurrent;
 
 	public:
 
+		void generateLegalAntMoves();     
+		void generateApproxAntMoves();
+
 		bool problemNodesEnabled = false;
+		bool approximate = false;
 
 		ProblemNodeContainer *problemNodes;
 		BitboardContainer * allPieces;
