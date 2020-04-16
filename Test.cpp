@@ -20,7 +20,7 @@
 using namespace std;
 
 std::mt19937_64 e2(rd());
-std::uniform_int_distribution<unsigned long long int> dist(1,18446744073709551615u);
+std::uniform_int_distribution<unsigned long long int> dist(0,18446744073709551615u);
 
 int PERIMETER_SIZE = 2;
 vector <unordered_map<unsigned long long, unsigned long long[5]>> PERIMETER = {{{}}};
@@ -1647,6 +1647,27 @@ void Test::BitboardTest::testFastPerimeter(){
 	}
 }
 
+void Test::GameStateTest::testPlayout() {
+	int numMoves = 0;
+	long ms = 0;
+	int firstPlayerWins = 0;
+	int secondPlayerWins =0 ;
+	int count = 500;
+	int limit = 500;
+	for (int i = 0; i < count; i++) {
+		GameState newGame(HivePLM, PieceColor::WHITE);
+		auto begin = chrono::steady_clock::now();
+		int j = newGame.playout(limit); 
+		auto end = chrono::steady_clock::now();
+		numMoves += j;
+		ms += (end - begin).count();
+	}
+	cout << " avg moves: " << (float)numMoves/count << " average ms " << (float)ms/count << endl;
+	cout << firstPlayerWins << " " << secondPlayerWins;
+}
+
+
+
 //creates a hashTable that stores the precomputed perimeter
 //of a given bitboard array
 //int maxNumber : the number of bits per board to precomputed
@@ -1734,7 +1755,6 @@ void createPerimeterHashTable(int maxNumber) {
 		}
 	}
 }
-
 void generateDirectionCombinations (unsigned int i, vector < vector <Direction>>& v) {
 	if ( i == hexagonalDirections.size() ) return;
 
@@ -1825,6 +1845,7 @@ int main() {
 	Test::PieceGraphTest::testFindAllPinnedPieces();
 	Test::GameStateTest::testFastSpawnPiece();
 	Test::GameStateTest::testMovePiece();
-	Test::GameStateTest::testPsuedoRandom();
-	perfTest();
+	//Test::GameStateTest::testPsuedoRandom();
+	//perfTest();
+	Test::GameStateTest::testPlayout();
 }

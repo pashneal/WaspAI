@@ -59,10 +59,11 @@ void MoveGenerator::generateMoves() {
 			generateSpiderMoves();
 			break;
 		default:
+		{
 			cout << "error 11";
 			cout << " if you have reached here may god help you";
-			throw 11;
-			break;
+			throw 'a';
+		}
 	}
 	
 	//the initial location does not count as a move

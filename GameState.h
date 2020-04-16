@@ -97,6 +97,7 @@ class GameState {
 
 	void changeTurnColor();
 
+	bool makeTrueRandomMove();
 	bool makePsuedoRandomMove();
 	bool attemptSpawn(int);
 	bool attemptMove(vector<movesCollection>& , int);
@@ -106,7 +107,7 @@ class GameState {
 	void findPinnedPieces();
 
 
-	void playout(int);
+	int playout(int);
 	void print();
 
 };

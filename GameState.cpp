@@ -218,7 +218,7 @@ PieceColor GameState::checkVictory() {
 
 	queenCheck.initializeTo(queens);
 	//check black queen
-	queenCheck.intersectionWith(whitePieces);
+	queenCheck.intersectionWith(blackPieces);
 	queenCheck = queenCheck.getPerimeter();
 	queenCheck.intersectionWith(allPieces);
 	if (queenCheck.count() == 6) return PieceColor::WHITE;
@@ -227,7 +227,6 @@ PieceColor GameState::checkVictory() {
 }
 
 bool GameState::checkDraw() {
-	//TODO: draw by repetition OUTSIDE of GameState
 	BitboardContainer queenCheck(queens);
 	queenCheck = queenCheck.getPerimeter();
 	queenCheck.intersectionWith(allPieces);
@@ -312,14 +311,13 @@ void GameState::getAllMoves() {
 		}
 	}
 
-	if (!canMove) return;
-	BitboardContainer test(*getPieces(turnColor));
 	swappableEmpty.clear(); 
 	pieceMoves.clear();
+	if (!canMove) return;
 
+	BitboardContainer test(*getPieces(turnColor));
 	for ( BitboardContainer piece : test.splitIntoBitboardContainers() ) { 
 		PieceName name = findTopPieceName(piece);
-
 		//if covered by another piece
 		if (findTopPieceColor(piece) != turnColor)
 			continue;
@@ -338,6 +336,7 @@ void GameState::getAllMoves() {
 				continue;
 			}
 			moveGenerator.setGeneratingPieceBoard(&piece);
+			moveGenerator.setGeneratingName(&name);
 			BitboardContainer moves = moveGenerator.getMoves();
 			pieceMoves.push_front(pair <BitboardContainer , BitboardContainer> {piece, moves});
 		}
@@ -421,6 +420,9 @@ BitboardContainer GameState::getAllSpawnSpaces() {
 //faster than random
 //but does not store in move information
 bool GameState::makePsuedoRandomMove() {
+	if (turnCounter < 8) {
+			return makeTrueRandomMove();
+	}
 	BitboardContainer notCovered(allPieces);
 	//remove covered pieces 
 	notCovered.notIntersectionWith(upperLevelPieces);
@@ -480,6 +482,43 @@ bool GameState::makePsuedoRandomMove() {
 	//if no move was made, pass a turn
 	changeTurnColor();
 	return false;
+}
+
+bool GameState::makeTrueRandomMove() {
+	getAllMoves();
+	int total = 0;
+	for (auto pieceMove: pieceMoves) {
+		total += pieceMove.second.count();
+	}
+	for (auto se: swappableEmpty) {
+		total += se.first.count() * se.second.count();
+	}
+	total += spawnNames.size() * pieceSpawns.count();
+	if (!total) {changeTurnColor(); return false;}
+
+	total = dist(e2) % total;
+
+	int moveSelect =0 ;
+	for (auto pieceMove: pieceMoves) {
+		moveSelect += pieceMove.second.count();
+		if (moveSelect > total) {
+			BitboardContainer random = pieceMove.second.getRandom();
+			fastMovePiece(pieceMove.first, random, findTopPieceName(pieceMove.first));
+			return true;
+		}
+	}
+	for (auto se: swappableEmpty) {
+		moveSelect += se.first.count() * se.second.count();
+		if (moveSelect > total) {
+			BitboardContainer random = se.first.getRandom();
+			BitboardContainer randomEmpty = se.second.getRandom();
+			fastMovePiece(random,  randomEmpty, findTopPieceName(random));
+			return true;
+		}
+	}
+	BitboardContainer random = pieceSpawns.getRandom();
+	randomSpawnPiece(random);
+	return true;
 }
 bool GameState::attemptSpawn(int totalApproxMoves) {
 	BitboardContainer spawns = getAllSpawnSpaces();
@@ -700,15 +739,20 @@ pair <BitboardContainer, BitboardContainer> GameState::getSwapSpaces(BitboardCon
 	return pair <BitboardContainer, BitboardContainer> {swappable, empty};
 }
 
-void GameState::playout(int limitMoves) {
-	if (limitMoves == 0)
-		return;
-	if (checkVictory() != PieceColor::NONE)
-		return;
-	if (checkDraw())
-		return;
-	makePsuedoRandomMove();
-	limitMoves--;
+int GameState::playout(int limitMoves) {
+	for (int i = 0; i < limitMoves; i++) {
+		if (limitMoves == 0)
+			return i;
+		if (checkDraw())
+			return i;
+		if (checkVictory() != PieceColor::NONE)
+			return i;
+		//in case both sides cannot move (very rare)
+		if (!makePsuedoRandomMove()) 
+			if (!makePsuedoRandomMove()) 
+				return i;
+	}
+	return limitMoves;
 }
 
 void GameState::print() {
