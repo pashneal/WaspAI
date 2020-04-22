@@ -1652,27 +1652,39 @@ void Test::GameStateTest::testPlayout() {
 	long ms = 0;
 	int firstPlayerWins = 0;
 	int secondPlayerWins =0 ;
+	int draws = 0;
 	int count = 500;
 	int limit = 500;
+	auto totalBegin = chrono::steady_clock::now();
 	for (int i = 0; i < count; i++) {
 		GameState newGame(HivePLM, PieceColor::WHITE);
 		auto begin = chrono::steady_clock::now();
 		int j = newGame.playout(limit); 
 		auto end = chrono::steady_clock::now();
 		numMoves += j;
-		ms += (end - begin).count();
+		ms += chrono::duration_cast<chrono::milliseconds>(end - begin).count();
+		if (newGame.checkVictory() != PieceColor::NONE) {
+			if (newGame.checkVictory() == PieceColor::WHITE) {
+				firstPlayerWins++;
+			} else if (newGame.checkVictory() == PieceColor::BLACK) {
+				secondPlayerWins++;
+			} else if (newGame.checkDraw()) 
+				draws++;
+		}
 	}
+	auto totalEnd = chrono::steady_clock::now();
+	double totalElapsed = chrono::duration_cast<chrono::milliseconds>(totalEnd -totalBegin).count();
 	cout << " avg moves: " << (float)numMoves/count << " average ms " << (float)ms/count << endl;
-	cout << firstPlayerWins << " " << secondPlayerWins;
+	cout << " firstPlayerWins " << firstPlayerWins << " secondPlayerWins " 
+		 << secondPlayerWins << " draws " << draws << endl;
+	cout << "total elapsed: " << totalElapsed << "[ms]" << endl;
 }
-
-
 
 //creates a hashTable that stores the precomputed perimeter
 //of a given bitboard array
 //int maxNumber : the number of bits per board to precomputed
 //it seems setting this to 4 gives spectacular results (66% increase in speed)
-//memory requirement is O(64^n) where n = maxNumber
+//memory requirement is O(64^(maxNumber)) bits
 void createPerimeterHashTable(int maxNumber) {
 	//with a piece centered at original
 	//the boards that make up the 8 surrounding
@@ -1755,6 +1767,7 @@ void createPerimeterHashTable(int maxNumber) {
 		}
 	}
 }
+//  returns a vector containing all combinations of directions
 void generateDirectionCombinations (unsigned int i, vector < vector <Direction>>& v) {
 	if ( i == hexagonalDirections.size() ) return;
 
@@ -1769,12 +1782,15 @@ void generateDirectionCombinations (unsigned int i, vector < vector <Direction>>
 
 	generateDirectionCombinations(i+1, v);
 }
+// if a given piece complies with the Hive sliding rule, return true
 bool checkLegalWalk(BitboardContainer allPieces, BitboardContainer board, Direction dir) {
 	BitboardContainer CW(board), CCW(board);
 	CW.shiftDirection(rotateClockWise(dir));
 	CCW.shiftDirection(rotateCounterClockWise(dir));
 	return  !(allPieces.containsAny(CW) && allPieces.containsAny(CCW));
 }
+//  return a bitboard representing all directions a piece can slide to
+//  does not comply with the one hive rule
 BitboardContainer getLegalWalks(BitboardContainer board, BitboardContainer allPieces) {
 	BitboardContainer retBoard;
 	for (unsigned i = 0; i < hexagonalDirections.size(); i++) {
@@ -1787,6 +1803,7 @@ BitboardContainer getLegalWalks(BitboardContainer board, BitboardContainer allPi
 	}
 	return retBoard;
 }
+
 void createGateHashTable() {
 	unsigned long long notAllowed = 0xff818181818181ffu;
 	unsigned long long position = 1; 
@@ -1845,7 +1862,7 @@ int main() {
 	Test::PieceGraphTest::testFindAllPinnedPieces();
 	Test::GameStateTest::testFastSpawnPiece();
 	Test::GameStateTest::testMovePiece();
-	//Test::GameStateTest::testPsuedoRandom();
-	//perfTest();
+	Test::GameStateTest::testPsuedoRandom();
+	perfTest();
 	Test::GameStateTest::testPlayout();
 }

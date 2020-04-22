@@ -21,6 +21,7 @@ BitboardContainer MoveGenerator::getMoves() {
 	//remove generatingPiece
 	piecesExceptCurrent.xorWith(*generatingPieceBoard);
 
+
 	perimeter = piecesExceptCurrent.getPerimeter();
 
 	//TODO: remove 

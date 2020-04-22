@@ -3,6 +3,7 @@
 #include <random>
 #include <vector>
 #include <set>
+#include <cmath>
 
 using namespace std;
 
@@ -44,7 +45,7 @@ GameState::GameState( GameState& other) {
 GameState::GameState (vector <unordered_map <PieceName, int>> unusedPiecesIn, 
 					  PieceColor turnColorIn) {
 	for (auto element: unusedPiecesIn[0]) {
-		possibleNames.push_front(element.first);
+		possibleNames.insert(element.first);
 	}
 	turnColor = turnColorIn;
 	unusedPieces = unusedPiecesIn;
@@ -299,14 +300,14 @@ void GameState::getAllMoves() {
 		spawnNames.clear();
 		for (PieceName name: possibleNames) {
 			if (name != PieceName::QUEEN)
-				spawnNames.push_front(name);
+				spawnNames.insert(name);
 		}
 	} else if ( turnCounter < 8)  {
 		if (!(getPieces(turnColor)->containsAny(*getPieces(PieceName::QUEEN)))) {
 			canMove = false;
 			if (turnCounter >= 6) {
 				spawnNames.clear();
-				spawnNames.push_front(PieceName::QUEEN);
+				spawnNames.insert(PieceName::QUEEN);
 			}
 		}
 	}
@@ -446,10 +447,10 @@ bool GameState::makePsuedoRandomMove() {
 
 		if (test.count()) {
 			for (BitboardContainer piece: test.splitIntoBitboardContainers() ) {
-				bool isPinned = pinned.containsAny(piece);
-				int numMoves = moveApproximation(piece, name, isPinned);
-
-				if (numMoves == 0) continue;
+				int numMoves = 1;
+				//bool isPinned = pinned.containsAny(piece);
+				//int numMoves = moveApproximation(piece, name, isPinned);
+				//if (numMoves == 0) continue;
 				movesPerPiece[name].push_back(make_pair(piece, numMoves));
 				total += numMoves;
 				prevTotal = total;
@@ -463,7 +464,8 @@ bool GameState::makePsuedoRandomMove() {
 			PieceName name = stackHashTable[piece.hash()].top().second;
 
 			// a piece that is on the upperLevel is not pinned
-			int numMoves = moveApproximation(piece, PieceName::BEETLE, false);
+			//int numMoves = moveApproximation(piece, PieceName::BEETLE, false);
+			int numMoves = 1;
 			total += numMoves;
 			movesPerPiece[name].push_back(make_pair(piece, numMoves));
 		}
@@ -493,9 +495,19 @@ bool GameState::makeTrueRandomMove() {
 	for (auto se: swappableEmpty) {
 		total += se.first.count() * se.second.count();
 	}
-	total += spawnNames.size() * pieceSpawns.count();
-	if (!total) {changeTurnColor(); return false;}
 
+
+	int colorInt = (int)turnColor;
+	int totalUnusedPieces = 0;
+	
+	for (auto pieceAmountMap: unusedPieces[colorInt]){
+		if (spawnNames.find(pieceAmountMap.first) != spawnNames.end())
+			totalUnusedPieces += (bool)pieceAmountMap.second;
+	}
+
+	total += pieceSpawns.count() * totalUnusedPieces;
+
+	if (!total) {changeTurnColor(); return false;}
 	total = dist(e2) % total;
 
 	int moveSelect =0 ;
@@ -507,22 +519,42 @@ bool GameState::makeTrueRandomMove() {
 			return true;
 		}
 	}
+
 	for (auto se: swappableEmpty) {
 		moveSelect += se.first.count() * se.second.count();
 		if (moveSelect > total) {
+			PieceColor tmp = turnColor;
+
 			BitboardContainer random = se.first.getRandom();
+			turnColor = findTopPieceColor(random);
 			BitboardContainer randomEmpty = se.second.getRandom();
 			fastMovePiece(random,  randomEmpty, findTopPieceName(random));
+			turnColor = tmp;
+			changeTurnColor();
+
 			return true;
 		}
 	}
+
 	BitboardContainer random = pieceSpawns.getRandom();
-	randomSpawnPiece(random);
+	int pieceSelect = rand() % totalUnusedPieces;
+
+	int i = 0;
+	PieceName name = PieceName::LENGTH;
+	for (auto pieceAmountMap: unusedPieces[(int)turnColor]){
+		if (spawnNames.find(pieceAmountMap.first) != spawnNames.end()) {
+			if (pieceAmountMap.second) i++;
+			if (i - 1 == pieceSelect) {name = pieceAmountMap.first; break;}
+		}
+	}
+
+	fastSpawnPiece(random, name);
 	return true;
 }
 bool GameState::attemptSpawn(int totalApproxMoves) {
 	BitboardContainer spawns = getAllSpawnSpaces();
-	int spawnsCount = spawns.count()*countTotalUnusedPieces();
+	int spawnsCount = countTotalUnusedPieces();
+	if (spawns.count() == 0) return false;
 
 	//if there are no legal spawns 
 	if(spawnsCount == 0) return false;
@@ -662,7 +694,12 @@ int GameState::moveApproximation(BitboardContainer piece, PieceName name, bool i
 		case ANT:
 		{
 			// The ant can usually go almost anywhere in the perimeter 
-			return (int) (allPieces.getPerimeter().count()*.95);
+			// But most of the ant moves are terrible
+			// Increase for more random results
+			int max = .1*sqrt(allPieces.getPerimeter().count());
+			cout << allPieces.getPerimeter().count() << endl;
+			if (max == 0) max = 1;
+			return max;
 		}
 		case SPIDER:
 		{
@@ -739,6 +776,7 @@ pair <BitboardContainer, BitboardContainer> GameState::getSwapSpaces(BitboardCon
 	return pair <BitboardContainer, BitboardContainer> {swappable, empty};
 }
 
+//returns a negative number if an error occured
 int GameState::playout(int limitMoves) {
 	for (int i = 0; i < limitMoves; i++) {
 		if (limitMoves == 0)
@@ -749,8 +787,9 @@ int GameState::playout(int limitMoves) {
 			return i;
 		//in case both sides cannot move (very rare)
 		if (!makePsuedoRandomMove()) 
-			if (!makePsuedoRandomMove()) 
-				return i;
+				if (!makePsuedoRandomMove()) 
+					return i;
+
 	}
 	return limitMoves;
 }

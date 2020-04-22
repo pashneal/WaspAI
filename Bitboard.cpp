@@ -637,7 +637,8 @@ bool BitboardContainer::equals(BitboardContainer& other){
 	return true;
 }
 
-pair <int , unsigned long long > BitboardContainer::getLeastSignificantBit () {
+const pair <const int , const unsigned long long >
+BitboardContainer::getLeastSignificantBit () const {
 	pair <int, unsigned long long> LSB;
 	int min = 40;
 	for (int i: internalBoardCache) 

@@ -21,6 +21,26 @@ struct MoveInfo {
 	BitboardContainer prevImmobile;
 	PieceName pieceName = PieceName::LENGTH;
 	PieceColor prevTurnColor = PieceColor::NONE;
+	bool operator==(const MoveInfo& other) const {
+		return ( other.oldPieceLocation == oldPieceLocation &&
+				 other.newPieceLocation == newPieceLocation && 
+				 other.pieceName == pieceName );
+	}
+	const string toString(string prefix) const {
+		auto LSB1 = newPieceLocation.getLeastSignificantBit();
+		auto LSB2 = oldPieceLocation.getLeastSignificantBit();
+		return prefix + to_string(LSB1.first)+ "\t" + to_string(LSB1.second)+ "\n" +
+			   prefix + to_string(LSB2.first)+ "\t" + to_string(LSB2.second)+ "\n";
+	}
+};
+
+template <>
+struct std::hash<MoveInfo> {
+	std::size_t operator()(const MoveInfo& m)const {
+		auto LSB1 = m.newPieceLocation.getLeastSignificantBit();
+		auto LSB2 = m.oldPieceLocation.getLeastSignificantBit();
+		return ((__builtin_ctzll(LSB1.second) << 8) + __builtin_ctzll(LSB2.second));
+	}
 };
 
 class GameState {
@@ -50,11 +70,11 @@ class GameState {
 	vector <unordered_map <PieceName, int>> unusedPieces;
 
 	BitboardContainer pieceSpawns;
-	list <PieceName> spawnNames;
+	set <PieceName> spawnNames;
 	vector <pair<BitboardContainer, BitboardContainer>> swappableEmpty;
 
 	list < pair <BitboardContainer , BitboardContainer > > pieceMoves;
-	list <PieceName> possibleNames;
+	set <PieceName> possibleNames;
 
 	unordered_map < int , stack < pair < PieceColor , PieceName > > > stackHashTable;
 

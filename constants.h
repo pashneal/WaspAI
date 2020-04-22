@@ -7,7 +7,10 @@
 #include <map>
 
 using namespace std;
-
+enum Complexity {
+	RANDOM=0,
+	SIMPLE=1,
+};
 enum PieceName{
 	GRASSHOPPER=0,
 	QUEEN=1,
@@ -37,6 +40,9 @@ enum PieceColor {
 	BLACK = 1,
 	NONE = 2
 };
+
+
+extern int MonteCarloSimulations;
 
 extern int dxdy[6][2];  
 extern unordered_map <string, int> pieceNum; 

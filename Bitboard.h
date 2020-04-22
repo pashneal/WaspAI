@@ -40,7 +40,7 @@ class BitboardContainer {
 	void floodFillStep(BitboardContainer&, BitboardContainer&);
 	void floodFill(BitboardContainer&);
 
-	pair <int , unsigned long long> getLeastSignificantBit();
+	const pair <const int , const unsigned long long> getLeastSignificantBit() const;
 
 	void pruneCache();
 	void clear();
@@ -89,6 +89,24 @@ class BitboardContainer {
 			internalBoards[boardIndex] = other.internalBoards[boardIndex];
 		}
 	}	
+
+	bool operator == (const BitboardContainer& other) const {
+		set <int> combined;
+		for (auto i: internalBoards) {
+			if (internalBoards[i] != 0) combined.insert(i);
+		}
+		for (auto i: other.internalBoards) {
+			if (other.internalBoards[i] != 0) combined.insert(i);
+		}
+		if (other.internalBoardCache.size() != combined.size() ||
+			other.internalBoardCache.size() != combined.size())
+			return false;
+		for (int i: combined) {
+			if (other.internalBoards[i] != internalBoards[i])
+				return false;
+		}
+		return true;
+	}
 };
 
 

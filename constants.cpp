@@ -1,6 +1,5 @@
 #include "constants.h"
 
-int missesVsHits[] = {0, 0};
 unordered_map<Direction, Direction> oppositeDirection = 
 {
 	{Direction::N, Direction::S},
@@ -84,15 +83,3 @@ vector < unordered_map <PieceName, int>> HivePLM =
 		{PieceName::SPIDER, 2}
 	}
 };
-
-// Takes in two values representing two bitboardLocations
-// returns true if bitboard a is located higher than the other
-bool verticalCmp(int a, int b) {
-	return a / BITBOARD_CONTAINER_COLS  > b / BITBOARD_CONTAINER_COLS;
-}
-
-// Takes in two values representing two bitboardLocations
-// returns true if bitboard a is located later than the other
-bool horizontalCmp(int a, int b){
-	return  a % BITBOARD_CONTAINER_ROWS > b % BITBOARD_CONTAINER_ROWS;
-}
