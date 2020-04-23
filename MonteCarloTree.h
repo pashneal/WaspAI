@@ -3,7 +3,8 @@
 #include "MonteCarloNode.h"
 
 int numCores = 1;
-int MonteCarloSimulations = 0;
+int MonteCarloSimulations = 100;
+int MonteCarloSimulationsCutoff = 500;
 double explorationFactor = 1.41;
 double heuristicFactor = .5;
 
@@ -18,6 +19,7 @@ class MonteCarloTree {
 		std::shared_ptr<MonteCarloNode> root;
 		std::shared_ptr<MonteCarloNode> currentParentNode;
 		Heuristic& currentHeuristic;
+		vector <MoveInfo> potentialMoves;
 		double minWeightScores;
 		double maxWeightScores;
 	
@@ -26,10 +28,11 @@ class MonteCarloTree {
 		MonteCarloTree(MonteCarloNode* r, Heuristic& h)
 			:root(shared_ptr<MonteCarloNode>(r)),currentHeuristic(h){};
 		void select();
-		void expand(); 
-		void simulate();
-		void backPropagate(); 
-		void search();
+		bool expand(int); 
+		double simulate() const;
+		void backPropagate(double); 
+		MoveInfo search();
+		void train();
 		double selectionFunction(MoveInfo);
 
 

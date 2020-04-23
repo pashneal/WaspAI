@@ -82,7 +82,6 @@ MoveInfo GameState::movePiece(BitboardContainer& oldBitboard, BitboardContainer&
 		fastMovePiece(oldBitboard, newBitboard, name);
 	moveInfo.prevImmobile.initializeTo(immobile);
 	moveInfo.oldPieceLocation.initializeTo(oldBitboard);
-	moveInfo.prevTurnColor = turnColor;
 	moveInfo.pieceName = name;
 	changeTurnColor();
 	turnCounter++;
@@ -200,7 +199,7 @@ void GameState::undoMove(MoveInfo moveInfo) {
 	if (!(moveInfo.oldPieceLocation.count())) {
 		unusedPieces[turnColor][findTopPieceName(moveInfo.newPieceLocation)]++;
 	}
-	turnColor = moveInfo.prevTurnColor;
+	changeTurnColor();
 	turnCounter--;
 	fastRemovePiece(moveInfo.newPieceLocation, moveInfo.pieceName);
 	fastInsertPiece(moveInfo.oldPieceLocation, moveInfo.pieceName);

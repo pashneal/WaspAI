@@ -100,4 +100,6 @@ class MonteCarloNode{
 			return retString;
 		}
 
+		double playout(Heuristic& h);
+
 };

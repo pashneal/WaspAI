@@ -20,7 +20,6 @@ struct MoveInfo {
 	BitboardContainer newPieceLocation;
 	BitboardContainer prevImmobile;
 	PieceName pieceName = PieceName::LENGTH;
-	PieceColor prevTurnColor = PieceColor::NONE;
 	bool operator==(const MoveInfo& other) const {
 		return ( other.oldPieceLocation == oldPieceLocation &&
 				 other.newPieceLocation == newPieceLocation && 
