@@ -7,8 +7,11 @@
 
 using namespace std;
 
-//TEST
+
 GameState::GameState( GameState& other) {
+	*this = other;
+}
+void GameState::operator=( GameState& other) {
 	turnColor =			other.turnColor;
 	turnCounter =		other.turnCounter;
 	allPieces =         other.allPieces;
@@ -195,14 +198,34 @@ void GameState::randomMovePiece(BitboardContainer& initialPiece,
 	fastMovePiece(initialPiece, possibleFinalLocations, name);
 }
 
+void GameState::replayMove(MoveInfo moveInfo) {
+	PieceColor oldTurnColor = turnColor;
+	changeTurnColor();
+	turnCounter++;
+	//if an empty move
+	if (moveInfo == MoveInfo()) return;
+	//if move is spawning a piece
+	if(!(moveInfo.oldPieceLocation.count())) 
+		//update reserve count
+		unusedPieces[oldTurnColor][findTopPieceName(moveInfo.oldPieceLocation)]--;
+	fastRemovePiece(moveInfo.oldPieceLocation, moveInfo.pieceName);
+	fastInsertPiece(moveInfo.newPieceLocation, moveInfo.pieceName);
+}
 void GameState::undoMove(MoveInfo moveInfo) {
-	if (!(moveInfo.oldPieceLocation.count())) {
-		unusedPieces[turnColor][findTopPieceName(moveInfo.newPieceLocation)]++;
-	}
+	PieceColor oldTurnColor = turnColor;
 	changeTurnColor();
 	turnCounter--;
+	//if an empty move
+	if (moveInfo == MoveInfo() ) return;
+	//if last move was spawning a piece
+	if (!(moveInfo.oldPieceLocation.count())) {
+		//update reserve count
+		unusedPieces[oldTurnColor][findTopPieceName(moveInfo.newPieceLocation)]++;
+	}
 	fastRemovePiece(moveInfo.newPieceLocation, moveInfo.pieceName);
 	fastInsertPiece(moveInfo.oldPieceLocation, moveInfo.pieceName);
+	//correct immobile piece assumption
+	immobile = moveInfo.prevImmobile;
 }
 
 PieceColor GameState::checkVictory() {
@@ -316,6 +339,8 @@ void GameState::getAllMoves() {
 	if (!canMove) return;
 
 	BitboardContainer test(*getPieces(turnColor));
+	test.notIntersectionWith(immobile);
+
 	for ( BitboardContainer piece : test.splitIntoBitboardContainers() ) { 
 		PieceName name = findTopPieceName(piece);
 		//if covered by another piece
@@ -341,6 +366,16 @@ void GameState::getAllMoves() {
 			pieceMoves.push_front(pair <BitboardContainer , BitboardContainer> {piece, moves});
 		}
 	}
+}
+
+int GameState::getAllMovesCount() {
+	getAllMoves();
+	int total = 0;
+	for (auto iter: pieceMoves) {
+		total += iter.second.count();
+	}
+	total += pieceSpawns.count();
+	return total;
 }
 
 BitboardContainer GameState::getMosquitoMoves(BitboardContainer piece) {

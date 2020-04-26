@@ -4,18 +4,12 @@
 #include "Weight.h"
 class Heuristic {
 		int depth = 0;
-		GameState * rootGameState;
 	public:
-		static int NUMWEIGHTS;
 		vector <Weight> weights;
-		vector <double> evaluations;
+		GameState parentGameState;
 
-		Heuristic (GameState* r, Complexity c, set<char> expansionPieces):rootGameState(r){};
+		Heuristic (Complexity, set<char>);
 		void loadWeights(string);
 		void saveWeights(string);
-		void replayMove(MoveInfo);
-		void undoMove();
-		vector <MoveInfo> generateNewGameStates();
-		void evaluate();
-		void reset(){depth = 0;};
+		vector<double> evaluate(GameState&);
 };

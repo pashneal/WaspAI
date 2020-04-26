@@ -3,6 +3,7 @@
 #include "GameState.h"
 #include  "Heuristic.h"
 
+#define nodePtr shared_ptr<MonteCarloNode>
 //step size for error correction
 double LEARNING_RATE = 1.0;
 
@@ -10,31 +11,30 @@ class MonteCarloNode{
 		vector <double> heuristicEvals;
 	public:
 		int numVisited = 0;
-		double initialWeightScores;
-		double playoutScores;
-
-		shared_ptr<MonteCarloNode> parent;
-		unordered_map <MoveInfo , shared_ptr<MonteCarloNode>> children;
+		double heuristicScore;
+		double playoutScore;
+		double maxChildScore;
+		double minChildScore;
+		bool proven = false;
+		nodePtr parent;
+		unordered_map <MoveInfo, nodePtr> children;
 	
 		void createChild(MoveInfo m) {
 			MonteCarloNode child;
-			child.parent = shared_ptr<MonteCarloNode>(this);
-			auto childPtr = shared_ptr<MonteCarloNode>(&child);
+			child.parent = nodePtr(this);
+			auto childPtr = nodePtr(&child);
 			children[m] = childPtr;
 		}
 
 		//Heuristic must already have gameState updated to this node
-		inline void evaluate(Heuristic& h){
-			h.evaluate();
-			heuristicEvals = h.evaluations;
+		inline void evaluate(Heuristic& h, GameState& gameState){
+			heuristicEvals = h.evaluate(gameState);
 		}
 
 		//Heuristic must already have gameState updated to this node
-		void evaluateAllChildren(Heuristic& h) {
+		void evaluateAllChildren(Heuristic& h,GameState& gameState) {
 			for (auto child: children) {
-				h.replayMove(child.first);
-				child.second->evaluate(h);
-				h.undoMove();
+				child.second->evaluate(h,gameState);
 			}
 		}
 
@@ -52,7 +52,7 @@ class MonteCarloNode{
 		// maxAvgScore = max {sumOfScore/numVisited} for all sibling nodes
 		// returns a vector of double representing Weight adjustments
 		vector <double> train(double maxExpectedScore , double minExpectedScore,
-									  double maxAvgScore) {
+								double maxAvgScore) {
 
 			//proportion of times this node or its siblings have been expanded
 			double  confidence = ((double)parent->numVisited)/ MonteCarloSimulations;
@@ -101,5 +101,4 @@ class MonteCarloNode{
 		}
 
 		double playout(Heuristic& h);
-
 };

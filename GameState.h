@@ -44,7 +44,8 @@ struct std::hash<MoveInfo> {
 
 class GameState {
   public:
-	GameState( vector <unordered_map <PieceName, int>>, PieceColor);
+	GameState(){};
+	GameState (vector <unordered_map <PieceName, int>> , PieceColor);
 	GameState(GameState&);
 	~GameState() { destroy();}
 
@@ -100,6 +101,7 @@ class GameState {
 
 	PieceName findTopPieceName(BitboardContainer);
 	PieceColor findTopPieceColor(BitboardContainer);
+	void replayMove(MoveInfo);
 	void undoMove(MoveInfo);
 
 	PieceColor checkVictory();
@@ -111,6 +113,7 @@ class GameState {
 	BitboardContainer * getPieces(PieceColor);
 
 	void getAllMoves();
+	int	 getAllMovesCount();
 	BitboardContainer getMosquitoMoves(BitboardContainer);
 	BitboardContainer getMosquitoPillbug();
 
@@ -125,9 +128,9 @@ class GameState {
 
 	void findPinnedPieces();
 
-
 	int playout(int);
 	void print();
 
+	void operator=(GameState& other);
 };
 
