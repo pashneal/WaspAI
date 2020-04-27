@@ -49,6 +49,7 @@ class MonteCarloNode{
 		}
 
 		void clearParent() {
+			parent.reset();
 			for (auto child: parent->children) 
 				if( child.second != nodePtr(this)) 
 					child.second -> clearChildren();

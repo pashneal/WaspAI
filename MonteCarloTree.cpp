@@ -93,8 +93,7 @@ queue <MoveInfo> MonteCarloTree::traverseToLeaf(nodePtr& parent, set<nodePtr> di
 }
 
 bool MonteCarloTree::expand(nodePtr leafPtr, GameState& leafGameState) {
-	
-
+	vector<MoveInfo> moves = leafGameState.generateAllMoves();
 }
 void MonteCarloTree::backPropagate(double result) {
 	//

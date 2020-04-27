@@ -114,6 +114,8 @@ class GameState {
 
 	void getAllMoves();
 	int	 getAllMovesCount();
+	vector<MoveInfo> generateAllMoves();
+
 	BitboardContainer getMosquitoMoves(BitboardContainer);
 	BitboardContainer getMosquitoPillbug();
 

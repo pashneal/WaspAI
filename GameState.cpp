@@ -378,6 +378,51 @@ int GameState::getAllMovesCount() {
 	return total;
 }
 
+vector<MoveInfo> GameState::generateAllMoves() {
+	vector<MoveInfo> moves;
+	MoveInfo templateMove = MoveInfo();
+	templateMove.prevImmobile = immobile;
+	getAllMoves();
+	//TODO: make findTopPieceName unneccessary;
+	/* ----------------- SPAWNS --------------------------*/
+	for (auto emptySquare: pieceSpawns.splitIntoBitboardContainers()) {
+		for (auto pieceAmountMap: unusedPieces[(int)turnColor]){
+			if (spawnNames.find(pieceAmountMap.first) != spawnNames.end()) {
+				if (pieceAmountMap.second) {
+					MoveInfo newMove = templateMove;
+					newMove.newPieceLocation = emptySquare;
+					newMove.pieceName = pieceAmountMap.first;
+					moves.push_back(newMove);
+				}
+			}
+		}
+	}
+	/* ----------------- MOVES  --------------------------*/
+	for (auto pieceMove: pieceMoves)  {
+		for (auto move : pieceMove.second.splitIntoBitboardContainers()) {
+			MoveInfo newMove = templateMove;
+			newMove.oldPieceLocation = pieceMove.first;
+			newMove.pieceName = findTopPieceName(pieceMove.first);
+			newMove.newPieceLocation = move;
+			moves.push_back(newMove);
+		}
+	}
+	
+	/* ----------------- SWAPS  --------------------------*/
+	for (auto se: swappableEmpty) {
+		for (auto swappable: se.first.splitIntoBitboardContainers()) {
+			for (auto empty: se.second.splitIntoBitboardContainers()) {
+				MoveInfo newMove = templateMove;
+				newMove.oldPieceLocation = swappable;
+				newMove.newPieceLocation = empty;
+				newMove.pieceName = findTopPieceName(swappable);
+				moves.push_back(newMove);
+			}
+		}
+	}
+	return moves;
+}
+
 BitboardContainer GameState::getMosquitoMoves(BitboardContainer piece) {
 	BitboardContainer moves, generated;
 	PieceName beetle = PieceName::BEETLE;
