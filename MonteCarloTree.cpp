@@ -91,6 +91,11 @@ queue <MoveInfo> MonteCarloTree::traverseToLeaf(nodePtr& parent, set<nodePtr> di
 	}
 	return moveHistory;
 }
+
+bool MonteCarloTree::expand(nodePtr leafPtr, GameState& leafGameState) {
+	
+
+}
 void MonteCarloTree::backPropagate(double result) {
 	//
 }

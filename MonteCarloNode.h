@@ -19,16 +19,18 @@ class MonteCarloNode{
 		nodePtr parent;
 		unordered_map <MoveInfo, nodePtr> children;
 	
+		
 		void createChild(MoveInfo m) {
 			MonteCarloNode child;
 			child.parent = nodePtr(this);
-			auto childPtr = nodePtr(&child);
-			children[m] = childPtr;
+			children[m] = nodePtr(&child);
 		}
 
 		//Heuristic must already have gameState updated to this node
-		inline void evaluate(Heuristic& h, GameState& gameState){
+		inline void evaluate(Heuristic& h, GameState& gameState, MoveInfo m){
+			gameState.replayMove(m);
 			heuristicEvals = h.evaluate(gameState);
+			gameState.undoMove(m);
 			heuristicScore = 0;
 			for (double score: heuristicEvals) {
 				heuristicScore += score;
@@ -40,10 +42,16 @@ class MonteCarloNode{
 			maxChildScore = -1;
 			minChildScore = HUGE_VAL;
 			for (auto child: children) {
-				child.second->evaluate(h,gameState);
+				child.second->evaluate(h,gameState,child.first);
 				maxChildScore = std::max(maxChildScore, child.second->heuristicScore);
 				minChildScore = std::min(minChildScore, child.second->heuristicScore);
 			}
+		}
+
+		void clearParent() {
+			for (auto child: parent->children) 
+				if( child.second != nodePtr(this)) 
+					child.second -> clearChildren();
 		}
 
 		void clearChildren() {
