@@ -8,10 +8,10 @@
 using namespace std;
 
 
-GameState::GameState( GameState& other) {
+GameState::GameState(const GameState& other) {
 	*this = other;
 }
-void GameState::operator=( GameState& other) {
+void GameState::operator=( const GameState& other){
 	turnColor =			other.turnColor;
 	turnCounter =		other.turnCounter;
 	allPieces =         other.allPieces;

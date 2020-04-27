@@ -46,7 +46,7 @@ class GameState {
   public:
 	GameState(){};
 	GameState (vector <unordered_map <PieceName, int>> , PieceColor);
-	GameState(GameState&);
+	GameState(const GameState&);
 	~GameState() { destroy();}
 
 	PieceColor turnColor;
@@ -135,6 +135,6 @@ class GameState {
 	int playout(int);
 	void print();
 
-	void operator=(GameState& other);
+	void operator=(const GameState& other);
 };
 
