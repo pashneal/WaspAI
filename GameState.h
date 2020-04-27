@@ -106,6 +106,8 @@ class GameState {
 
 	PieceColor checkVictory();
 	bool checkDraw();
+	double approximateEndResult();
+
 	void destroy();
 	
 	BitboardContainer * getPieces();

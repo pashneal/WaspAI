@@ -258,6 +258,10 @@ bool GameState::checkDraw() {
 	return (queenCheck == originalQueenPerimeter && queens.count() == 2);
 }
 
+double GameState::approximateEndResult() {
+	return .5;
+}
+
 inline BitboardContainer * GameState::getPieces() { 
 	return &allPieces;
 }

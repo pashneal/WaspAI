@@ -105,7 +105,15 @@ MoveInfo MonteCarloTree::expand(nodePtr leafPtr, GameState& leafGameState) {
 	return traverseToLeaf(leafPtr, {}).front();
 }
 
-double simulate();
+double simulate(GameState gameState){
+	PieceColor initialTurnColor = gameState.turnColor;
+	gameState.playout(MonteCarloSimulationsCutoff);
+	if (gameState.checkDraw())
+		return .5;
+	else if (gameState.checkVictory() != PieceColor::NONE) 
+		return 1*(gameState.checkVictory() == initialTurnColor);
+	return gameState.approximateEndResult();
+};
 void MonteCarloTree::backPropagate(double result) {
 	//
 }
