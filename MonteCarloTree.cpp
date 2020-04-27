@@ -132,9 +132,64 @@ void MonteCarloTree::backPropagate(nodePtr leafPtr, double result){
 
 //assumes rootGameState is already up-to-date
 MoveInfo MonteCarloTree::search(GameState& initialGameState){
-	//reset the tree
+	//delete the old tree
 	root->clearChildren();		
 	root.reset();
+
+	//create the new tree
+	root = nodePtr(new MonteCarloNode);
+}
+
+
+vector <double> MonteCarloTree::train(nodePtr node, int depth, set<nodePtr>& visited){
+	vector<double> corrections;
+	//lock all other threads when checking visited	
+	mtx.lock();
+	if (visited.find(node) != visited.end() ) return corrections;
+	mtx.unlock();
+
+	if (depth > maxLearningDepth) 
+		return corrections;
+
+	if (node != root) {
+		if (node->parent->numVisited / MonteCarloSimulations < minLearningFraction) 
+			return corrections;
+
+		//if the maxAvgScore is unitilialized, calculate it
+		if (node->parent->maxAvgScore == -1) {
+			double max = -1;
+			for (auto child: node->parent->children) {
+				max = std::max(child.second->playoutScore / child.second->numVisited, max);
+			}
+			//lock threads to prevent race condition
+			mtx.lock();
+			node->parent->maxAvgScore = max;
+			mtx.unlock();
+		}
+		corrections = node->train(node->parent->maxChildScore, 
+								  node->parent->minChildScore,
+								  node->parent->maxAvgScore);
+	}
+	//traverse the children in a random order to minimize collision
+	//with other threads
+	vector <nodePtr> shuffled;
+	for (auto keyValue: node->children) shuffled.push_back(keyValue.second);
+	std::random_shuffle(shuffled.begin(), shuffled.end());
+
+	//perform a DFS on all nodes in the tree and train using results
+	for (auto child: shuffled) {
+		vector<double> childCorrections = train(child, depth + 1, visited);
+		for (unsigned i = 0; i < childCorrections.size(); i++) {
+			corrections[i] += childCorrections[i];
+		}
+	}
+
+	//lock all other threads when updating visited
+	mtx.lock();
+	visited.insert(node);
+	mtx.unlock();
+
+	return corrections;
 }
 
 // math formula for calculating the score of a move 

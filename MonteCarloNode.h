@@ -15,6 +15,7 @@ class MonteCarloNode{
 		double playoutScore;
 		double maxChildScore;
 		double minChildScore;
+		double maxAvgScore = -1;
 		bool proven = false;
 		nodePtr parent;
 		unordered_map <MoveInfo, nodePtr> children;

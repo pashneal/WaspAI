@@ -1,4 +1,5 @@
 #pragma once
+#include <mutex>
 #include <queue>
 #include <memory>
 #include "MonteCarloNode.h"
@@ -20,6 +21,7 @@ int maxLearningDepth = 10;
 class MonteCarloTree {
 		nodePtr root;
 		Heuristic& currentHeuristic;
+		std::mutex mtx;
 
 	public:
 		MonteCarloTree(MonteCarloNode* r, Heuristic& h)
@@ -31,7 +33,7 @@ class MonteCarloTree {
 		MoveInfo expand(nodePtr, GameState&); 
 		double simulate() const;
 		void backPropagate(nodePtr, double); 
-		void train();
+		vector<double> train(nodePtr, int, set<nodePtr>&);
 		double selectionFunction(MoveInfo, nodePtr); 
 		MoveInfo search(GameState&);
 };
