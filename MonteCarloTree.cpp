@@ -93,8 +93,8 @@ queue <MoveInfo> MonteCarloTree::traverseToLeaf(nodePtr& parent, set<nodePtr> di
 }
 
 //Expands a node by looking at all its moves and
-//returns the best one
-MoveInfo MonteCarloTree::expand(nodePtr leafPtr, GameState& leafGameState) {
+//mutates input MoveInfo the best one found
+void MonteCarloTree::expand(nodePtr leafPtr, GameState leafGameState, MoveInfo& bestMove) {
 	vector<MoveInfo> moves = leafGameState.generateAllMoves();
 
 	//if moves were found expand the node
@@ -105,11 +105,11 @@ MoveInfo MonteCarloTree::expand(nodePtr leafPtr, GameState& leafGameState) {
 		moves.push_back(MoveInfo());
 
 	leafPtr->evaluateAllChildren(currentHeuristic, leafGameState);
-	return traverseToLeaf(leafPtr, {}).front();
+	bestMove = traverseToLeaf(leafPtr, {}).front();
 }
 
 //Plays out games until a match resolution or a set limit of moves (whichever is first)
-//If the game is decisive, update with 0, 1, or .5
+//If the game is decisive, update with 0, 1, or .5 for loss, win or draw
 //If the game is not decisive, approximate with values [0-1)
 double simulate(GameState gameState){
 	PieceColor initialTurnColor = gameState.turnColor;
@@ -123,8 +123,9 @@ double simulate(GameState gameState){
 		return 1*(gameState.checkVictory() == initialTurnColor);
 	return gameState.approximateEndResult();
 };
+
 //Goes up the tree and updates the node augmentations
-//Assumes leafPtr is pointing to lowest node
+//Assumes leafPtr is pointing to the leaf where simulate() was called
 void MonteCarloTree::backPropagate(nodePtr leafPtr, double result){
 	int maxScore = 1;
 	while (leafPtr != root) {
@@ -144,11 +145,32 @@ MoveInfo MonteCarloTree::search(GameState& initialGameState){
 
 	//create a new tree
 	root = nodePtr(new MonteCarloNode);
-	expand(root, initialGameState);
+	MoveInfo empty;
+	expand(root, initialGameState, empty);
+
 	//if only one move allowed, return it
 	if (root -> children.size() == 1) return root->children.begin()->first;
 	int numTrials = MonteCarloSimulations;
-	while (numTrials) {
+
+	while (numTrials--) {
+		nodeMap leafNodes = selectBestLeaves(numCores, initialGameState);
+			
+		vector<MoveInfo> bestMoves;
+
+		for (auto leafNode: leafNodes)
+			bestMoves.push_back(MoveInfo());
+		vector<std::thread> threads;
+		int i = 0;
+		for (auto leafNode: leafNodes) {
+			nodePtr leaf = leafNode.first;
+			GameState g = leafNode.second;
+			i++;
+			threads.push_back(
+					std::thread(&MonteCarloTree::expand, this, leaf, g, std::ref(bestMoves[i])));
+		}
+			
+		for (int i = numCores;i--;)
+			threads[i].join();
 	}
 
 	//train the heuristic model
@@ -156,10 +178,12 @@ MoveInfo MonteCarloTree::search(GameState& initialGameState){
 	set<nodePtr> visited;
 	vector<std::thread> threads;
 	for (int i = numCores;i--;)
-		threads.push_back(std::thread(&MonteCarloNode::train, this, root,
+		threads.push_back(std::thread(&MonteCarloTree::train, this, root,
 						  std::ref(visited), std::ref(corrections)));
 	for (int i = numCores;i--;)
 		threads[i].join();
+	currentHeuristic.train(corrections);
+
 
 
 	//choose and return best move
@@ -180,10 +204,9 @@ void MonteCarloTree::train(nodePtr node, set<nodePtr>& visited, vector<double>&c
 	//if possible children already visited
 	if (visited.find(node) != visited.end() ) return;
 
-	//traverse the children in a random order to minimize collision
-	//with other threads
-	if (node->numVisited / MonteCarloSimulations > minLearningFraction)  {
-
+	if (node->numVisited / MonteCarloSimulations >= minLearningFraction)  {
+		//traverse the children in a random order to minimize collision
+		//with other threads
 		vector <nodePtr> shuffled;
 		for (auto keyValue: node->children) shuffled.push_back(keyValue.second);
 		std::random_shuffle(shuffled.begin(), shuffled.end());
@@ -228,7 +251,7 @@ void MonteCarloTree::train(nodePtr node, set<nodePtr>& visited, vector<double>&c
 }
 
 // math formula for calculating the score of a move 
-// tweaked to include a weights guided by heurisitics
+// tweaked to include weights guided by heuristics
 double MonteCarloTree::selectionFunction(MoveInfo m, nodePtr currentParent) {
 	const auto child = currentParent-> children[m];
 	double heuristicEstimation = (child->heuristicScore - 

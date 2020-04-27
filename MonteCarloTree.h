@@ -24,11 +24,10 @@ class MonteCarloTree {
 	public:
 		MonteCarloTree(MonteCarloNode* r, Heuristic& h)
 			:root(nodePtr(r)),currentHeuristic(h){};
-		void select();
 		nodeMap selectBestLeaves(int, GameState&);
 		//TODO: optimize by storing leaves in ordered map
 		queue<MoveInfo> traverseToLeaf(nodePtr&, set<nodePtr>);
-		MoveInfo expand(nodePtr, GameState&); 
+		void expand(nodePtr, GameState, MoveInfo&); 
 		double simulate() const;
 		void backPropagate(nodePtr, double); 
 		void train(nodePtr, set<nodePtr>&, vector<double>&);

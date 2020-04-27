@@ -11,6 +11,10 @@ class Heuristic {
 
 		Heuristic (Complexity, set<char>);
 		void loadWeights(string);
+		void load();
 		void saveWeights(string);
-		vector<double> evaluate(GameState&);
+		void save();
+		void train(vector<double>);
+		void setGameState(GameState&);
+		vector<double> evaluate(MoveInfo);
 };
