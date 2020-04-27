@@ -111,17 +111,17 @@ void MonteCarloTree::expand(nodePtr leafPtr, GameState leafGameState, MoveInfo& 
 //Plays out games until a match resolution or a set limit of moves (whichever is first)
 //If the game is decisive, update with 0, 1, or .5 for loss, win or draw
 //If the game is not decisive, approximate with values [0-1)
-double simulate(GameState gameState){
+void MonteCarloTree::simulate(GameState gameState, double& result){
 	PieceColor initialTurnColor = gameState.turnColor;
 
-	if (gameState.checkDraw() || gameState.checkVictory() == PieceColor::NONE)
+	if (!gameState.checkDraw() && gameState.checkVictory() == PieceColor::NONE)
 		gameState.playout(MonteCarloSimulationsCutoff);
 
 	if (gameState.checkDraw())
-		return .5;
+		result = .5;
 	else if (gameState.checkVictory() != PieceColor::NONE) 
-		return 1*(gameState.checkVictory() == initialTurnColor);
-	return gameState.approximateEndResult();
+		result =  1*(gameState.checkVictory() == initialTurnColor);
+	result = gameState.approximateEndResult();
 };
 
 //Goes up the tree and updates the node augmentations
@@ -152,11 +152,11 @@ MoveInfo MonteCarloTree::search(GameState& initialGameState){
 	if (root -> children.size() == 1) return root->children.begin()->first;
 	int numTrials = MonteCarloSimulations;
 
-	while (numTrials--) {
+	while (numTrials>0) {
 		nodeMap leafNodes = selectBestLeaves(numCores, initialGameState);
-			
 		vector<MoveInfo> bestMoves;
 
+		//use multithreading to expand nodes
 		for (auto leafNode: leafNodes)
 			bestMoves.push_back(MoveInfo());
 		vector<std::thread> threads;
@@ -168,9 +168,33 @@ MoveInfo MonteCarloTree::search(GameState& initialGameState){
 			threads.push_back(
 					std::thread(&MonteCarloTree::expand, this, leaf, g, std::ref(bestMoves[i])));
 		}
-			
-		for (int i = numCores;i--;)
+
+		for (int i = threads.size();i--;)
 			threads[i].join();
+
+		//use multithreading to perform game simulations
+		vector<double> results(0,leafNodes.size());
+		threads.clear();
+		i = 0;
+		for (auto leafNode: leafNodes){
+			GameState g = leafNode.second;
+			g.replayMove(bestMoves[i]);
+			threads.push_back(
+					std::thread(&MonteCarloTree::simulate, this, g, std::ref(results[i])));
+			i++;
+		}
+			
+		for (int i = threads.size();i--;)
+			threads[i].join();
+
+		//backPropagate for each result
+		i = 0;
+		for (auto leafNode: leafNodes) {
+			backPropagate(leafNode.first,results[i]);
+			i++;
+		}
+
+		numTrials -= leafNodes.size();
 	}
 
 	//train the heuristic model

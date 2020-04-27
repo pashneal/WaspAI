@@ -28,7 +28,7 @@ class MonteCarloTree {
 		//TODO: optimize by storing leaves in ordered map
 		queue<MoveInfo> traverseToLeaf(nodePtr&, set<nodePtr>);
 		void expand(nodePtr, GameState, MoveInfo&); 
-		double simulate() const;
+		void simulate(GameState, double&);
 		void backPropagate(nodePtr, double); 
 		void train(nodePtr, set<nodePtr>&, vector<double>&);
 		double selectionFunction(MoveInfo, nodePtr); 
