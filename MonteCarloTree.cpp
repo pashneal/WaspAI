@@ -92,13 +92,23 @@ queue <MoveInfo> MonteCarloTree::traverseToLeaf(nodePtr& parent, set<nodePtr> di
 	return moveHistory;
 }
 
-bool MonteCarloTree::expand(nodePtr leafPtr, GameState& leafGameState) {
+//Expands a node by looking at all its moves and
+//returns the best one
+MoveInfo MonteCarloTree::expand(nodePtr leafPtr, GameState& leafGameState) {
 	vector<MoveInfo> moves = leafGameState.generateAllMoves();
+	if (moves.size()) 
+		for (MoveInfo m: moves) 
+			leafPtr->createChild(m);
+	else 
+		moves.push_back(MoveInfo());
+	leafPtr->evaluateAllChildren(currentHeuristic, leafGameState);
+	return traverseToLeaf(leafPtr, {}).front();
 }
+
+double simulate();
 void MonteCarloTree::backPropagate(double result) {
 	//
 }
-
 
 //assumes rootGameState is already up-to-date
 MoveInfo MonteCarloTree::search(GameState& initialGameState){
