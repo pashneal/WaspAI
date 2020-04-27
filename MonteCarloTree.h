@@ -1,6 +1,9 @@
 #pragma once
+#include <queue>
 #include <memory>
 #include "MonteCarloNode.h"
+
+#define nodeMap unordered_map<nodePtr, GameState>
 
 int numCores = 1;
 int MonteCarloSimulations = 100;
@@ -15,25 +18,20 @@ double minLearningFraction = .1;
 // a depth <= to this 
 int maxLearningDepth = 10;
 class MonteCarloTree {
-
-		std::shared_ptr<MonteCarloNode> root;
-		std::shared_ptr<MonteCarloNode> currentParentNode;
+		nodePtr root;
 		Heuristic& currentHeuristic;
-		vector <MoveInfo> potentialMoves;
-		double minWeightScores;
-		double maxWeightScores;
-	
 
 	public:
 		MonteCarloTree(MonteCarloNode* r, Heuristic& h)
-			:root(shared_ptr<MonteCarloNode>(r)),currentHeuristic(h){};
+			:root(nodePtr(r)),currentHeuristic(h){};
 		void select();
+		nodeMap selectBestLeaves(int, GameState&);
+		//TODO: optimize by storing leaves in ordered map
+		queue<MoveInfo> traverseToLeaf(nodePtr&, set<nodePtr>);
 		bool expand(int); 
 		double simulate() const;
 		void backPropagate(double); 
-		MoveInfo search();
 		void train();
-		double selectionFunction(MoveInfo);
-
-
+		double selectionFunction(MoveInfo, nodePtr);
+		MoveInfo search(GameState&);
 };

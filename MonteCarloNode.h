@@ -29,12 +29,20 @@ class MonteCarloNode{
 		//Heuristic must already have gameState updated to this node
 		inline void evaluate(Heuristic& h, GameState& gameState){
 			heuristicEvals = h.evaluate(gameState);
+			heuristicScore = 0;
+			for (double score: heuristicEvals) {
+				heuristicScore += score;
+			}
 		}
 
 		//Heuristic must already have gameState updated to this node
 		void evaluateAllChildren(Heuristic& h,GameState& gameState) {
+			maxChildScore = -1;
+			minChildScore = HUGE_VAL;
 			for (auto child: children) {
 				child.second->evaluate(h,gameState);
+				maxChildScore = std::max(maxChildScore, child.second->heuristicScore);
+				minChildScore = std::min(minChildScore, child.second->heuristicScore);
 			}
 		}
 
@@ -62,12 +70,12 @@ class MonteCarloNode{
 			if (minExpectedScore == maxExpectedScore)
 				expectedResults = 1;
 			else 
-				expectedResults = (initialWeightScores - minExpectedScore) / 
+				expectedResults = (heuristicScore - minExpectedScore) / 
 								  (maxExpectedScore - minExpectedScore);
 
 			// score produced by playouts normalized by best sibling playout score
 			// this way expectedResults approximate best move within given options
-			double actualResults = (numVisited) ? ((playoutScores)/numVisited)/maxAvgScore : 0;
+			double actualResults = (numVisited) ? ((playoutScore)/numVisited)/maxAvgScore : 0;
 			vector <double> corrections;
 
 			for (double score: heuristicEvals) {
@@ -84,10 +92,10 @@ class MonteCarloNode{
 			for (auto i : heuristicEvals) {
 				retString += to_string(i) + " ";	
 			}
-			retString += prefix + "initialWeightScores: ";
-			retString += to_string(initialWeightScores);
+			retString += prefix + "heurisiticScore: ";
+			retString += to_string(heuristicScore);
 			retString += "\n" + prefix + "playoutScores: ";
-			retString += to_string(playoutScores);
+			retString += to_string(playoutScore);
 			retString += "\n" + prefix + "numVisited: ";
 			retString += to_string(numVisited);
 			retString += "\n";
@@ -99,6 +107,4 @@ class MonteCarloNode{
 			}
 			return retString;
 		}
-
-		double playout(Heuristic& h);
 };
