@@ -30,8 +30,8 @@ class MonteCarloTree {
 		queue<MoveInfo> traverseToLeaf(nodePtr&, set<nodePtr>);
 		MoveInfo expand(nodePtr, GameState&); 
 		double simulate() const;
-		void backPropagate(double); 
+		void backPropagate(nodePtr, double); 
 		void train();
-		double selectionFunction(MoveInfo, nodePtr);
+		double selectionFunction(MoveInfo, nodePtr); 
 		MoveInfo search(GameState&);
 };

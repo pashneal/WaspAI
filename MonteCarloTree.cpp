@@ -105,6 +105,9 @@ MoveInfo MonteCarloTree::expand(nodePtr leafPtr, GameState& leafGameState) {
 	return traverseToLeaf(leafPtr, {}).front();
 }
 
+//Plays out games until a match resolution or a set limit of moves (whichever is first)
+//If the game is decisive, update with 0, 1, or .5
+//If the game is not decisive, approximate with values [0-1)
 double simulate(GameState gameState){
 	PieceColor initialTurnColor = gameState.turnColor;
 	gameState.playout(MonteCarloSimulationsCutoff);
@@ -114,8 +117,17 @@ double simulate(GameState gameState){
 		return 1*(gameState.checkVictory() == initialTurnColor);
 	return gameState.approximateEndResult();
 };
-void MonteCarloTree::backPropagate(double result) {
-	//
+//Goes up the tree and updates the node augmentations
+//Assumes leafPtr is pointing to lowest node
+void MonteCarloTree::backPropagate(nodePtr leafPtr, double result){
+	int maxScore = 1;
+	while (leafPtr != root) {
+		leafPtr->numVisited++;
+		leafPtr->playoutScore += result;
+		result = maxScore-result;
+		leafPtr  = leafPtr->parent;
+	}
+	root->numVisited++;
 }
 
 //assumes rootGameState is already up-to-date
