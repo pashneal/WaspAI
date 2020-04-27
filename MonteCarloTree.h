@@ -1,4 +1,5 @@
 #pragma once
+#include <thread>
 #include <mutex>
 #include <queue>
 #include <memory>
@@ -15,9 +16,6 @@ double heuristicFactor = .5;
 // don't bother attempting to learn from nodes unless 
 // its parent has been visited this proportion of times
 double minLearningFraction = .1;
-// don't bother attempting to learn from nodes unless it has
-// a depth <= to this 
-int maxLearningDepth = 10;
 class MonteCarloTree {
 		nodePtr root;
 		Heuristic& currentHeuristic;
@@ -33,7 +31,7 @@ class MonteCarloTree {
 		MoveInfo expand(nodePtr, GameState&); 
 		double simulate() const;
 		void backPropagate(nodePtr, double); 
-		vector<double> train(nodePtr, int, set<nodePtr>&);
+		void train(nodePtr, set<nodePtr>&, vector<double>&);
 		double selectionFunction(MoveInfo, nodePtr); 
 		MoveInfo search(GameState&);
 };
