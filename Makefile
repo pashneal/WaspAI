@@ -11,7 +11,6 @@ DEPENDENCIES=Bitboard.o\
 	MonteCarloTree.o\
 	MoveGenerator.o\
 	PieceGraph.o\
-	Piece.o\
 	PieceNode.o\
 	ProblemNode.o\
 	Test.o
@@ -19,8 +18,9 @@ DEPENDENCIES=Bitboard.o\
 debug: $(DEPENDENCIES)
 	$(CXX) $(CXXFLAGSDEBUG) $(DEPENDENCIES) $(DEBUG)
 
+# relink and compile with optimization flags
 all: $(DEPENDENCIES)
-	$(CXX) $(CXXFLAGSRELEASE) $(DEPENDENCIES) $(DEBUG)
+	$(CXX) $(CXXFLAGSRELEASE) *.cpp $(RELEASE)
 
 Bitboard.o: Bitboard.cpp Bitboard.h constants.h
 
@@ -42,4 +42,8 @@ MoveGenerator.o: ProblemNode.h Bitboard.h MoveGenerator.h MoveGenerator.cpp cons
 PieceNode.o: Bitboard.h PieceNode.h PieceNode.cpp constants.h
 
 Test.o: Test.cpp\
-	Test.h\
+	Test.h
+
+clean:
+	rm -f *.o
+

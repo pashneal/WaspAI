@@ -10,7 +10,6 @@
 #include "constants.h"
 #include "Bitboard.h"
 #include "MoveGenerator.h"
-#include "Piece.h"
 #include "PieceNode.h"
 #include "ProblemNode.h"
 #include "PieceGraph.h"
