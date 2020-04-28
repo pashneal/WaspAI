@@ -39,8 +39,6 @@ ProblemNode.o: Bitboard.h ProblemNode.h ProblemNode.cpp constants.h
 
 MoveGenerator.o: ProblemNode.h Bitboard.h MoveGenerator.h MoveGenerator.cpp constants.h
 
-Piece.o: Piece.h Piece.cpp constants.h
-
 PieceNode.o: Bitboard.h PieceNode.h PieceNode.cpp constants.h
 
 Test.o: Test.cpp\
