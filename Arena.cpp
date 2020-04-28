@@ -8,15 +8,11 @@ unordered_map <PieceColor, string> colorNotation {
 	{PieceColor::WHITE, "w"},
 	{PieceColor::BLACK, "b"},
 };
-unordered_map <string, Direction> dirNotationReverse {
-	{"\\",Direction::NW },
-	{"/",Direction::NE },
-	{"/",Direction::SW },
-	{"\\",Direction::SE },
-	{"-",Direction::W  },
-	{"-",Direction::E  },
+unordered_map <char, vector<Direction,Direction>> dirNotationReverse{
+	{'\\', {SE,NW}},
+	{'-',  {NE,SW}},
+	{'/',  {E, W }}
 };
-
 unordered_map <Direction, string> dirNotation {
 	{Direction::NW ,"\\"},
 	{Direction::NE ,"/"},
@@ -67,22 +63,31 @@ void Arena::setPlayer(int playerNum, Heuristic& playerHeuristic) {
 	}
 }
 
-//assumes that Arena::currentGameState has already made the 
+//assumes that Arena::currentGameState has not yet made the 
 //specified move
 string Arena::convertToNotation(MoveInfo move){
 		
 	//first create the notation of the current piece
-	PieceColor newColor = currentGameState.findTopPieceColor(move.newPieceLocation);
-	PieceName newName = currentGameState.findTopPieceName(move.newPieceLocation);
-	string notation = colorNotation[newColor] + nameNotation[newName];
-	notation += findTopPieceOrder(move.newPieceLocation);
+	PieceColor oldColor = currentGameState.findTopPieceColor(move.oldPieceLocation);
+	PieceName oldName = move.pieceName;
+	string notation = colorNotation[oldColor] + nameNotation[oldName];
+	notation += findTopPieceOrder(move.oldPieceLocation);
 	BitboardContainer test;
+	
+	// if landing on top of another piece, use that in the notation
+	if (currentGameState.upperLevelPieces.containsAny(move.newPieceLocation)){
+		test.initializeTo(move.newPieceLocation);
+		notation += colorNotation[currentGameState.findTopPieceColor(test)];
+		notation += nameNotation[currentGameState.findTopPieceName(test)];
+		notation += findTopPieceOrder(test);
+		return notation;
+	}
 
 	//find a relative direction to connect to (if applicable)
 	for (auto direction: hexagonalDirections) {
 		test.initializeTo(move.newPieceLocation);
 		test.shiftDirection(direction);
-		if (currentGameState.allPieces.containsAny(test))
+		if (currentGameState.allPieces.containsAny(test)) 
 			notation += " ";
 			if (westernDirection.find(direction) != westernDirection.end())
 				notation += dirNotation[direction];
@@ -102,23 +107,80 @@ MoveInfo Arena::convertFromNotation(string notation) {
 	string newLocation = "";
 	MoveInfo move;
 
+	string * ptr = &pieceIdentifier;
+	//split into strings delimited by space
 	for (unsigned i = 0 ; i < notation.size() ; i++) {
-		if (notation[i] == ' ')
-			asdf;
+		if (notation[i] == ' '){
+			ptr = &newLocation;
+			continue;
+		}
+		*ptr += notation[i];
 	}
-	if (newLocation.size() == 0 ) move.newPieceLocation = startSpawnBoard;
-	else {
+
+	move.pieceName = nameNotationReverse[to_string(pieceIdentifier[1])];
+	PieceColor color = colorNotationReverse[to_string(pieceIdentifier[0])];
+	string pieceOrderString = "";
+	if (pieceIdentifier.size() > 2) {
+		pieceOrderString = pieceIdentifier[2];
+	}
+
+	BitboardContainer foundPiece(*currentGameState.getPieces(move.pieceName));
+	foundPiece.intersectionWith(*currentGameState.getPieces(color));
+	int p = 0;
+	if (pieceOrderString.size()) p = stoi(pieceOrderString);
+	foundPiece.intersectionWith(pieceOrder[p]);
+	move.oldPieceLocation = foundPiece;
+
+	if (newLocation.size() == 0 )  {
+		move.newPieceLocation = startSpawnBoard;
+	} else {
+
+		set<char> symbols {'\\','/','-'};
+		bool isWesternDirection = symbols.find(newLocation[0]) != symbols.end();
+
+		string newNameString = to_string(pieceIdentifier[1 + isWesternDirection]);
+		PieceName newName = nameNotationReverse[newNameString];
+		string newColorString = to_string(pieceIdentifier[0 + isWesternDirection]);
+		PieceColor newColor = colorNotationReverse[newColorString];
+
+		foundPiece.initializeTo(*currentGameState.getPieces(newColor));
+		foundPiece.intersectionWith(*currentGameState.getPieces(newName));
+
+		string pieceOrderString = "";
+		bool containsDirection = false;
+		char dir;
+		for (char c: symbols) 
+			if (newLocation.find(c) != string::npos)  {
+				containsDirection = true;
+				dir = c;
+				break;
+			}
+			
+		if (newLocation.size() > (2 + containsDirection)) {
+			pieceOrderString = newLocation[2 + isWesternDirection];
+		}
+
+		int p = 0;
+		if (pieceOrderString.size()) p = stoi(pieceOrderString);
+		foundPiece.intersectionWith(pieceOrder[p]);
+
+		if (containsDirection) {
+			Direction direction = dirNotationReverse[dir][isWesternDirection];
+			foundPiece.shiftDirection(direction);
+		}
+
+		move.newPieceLocation = foundPiece;
+
 	}
 }
 string Arena::findTopPieceOrder(BitboardContainer piece) {
 	if( pieceOrderStack.find(piece) != pieceOrderStack.end() ) {
 		return to_string(pieceOrderStack[piece].top());
 	}
-	int i = 1;
-	for (BitboardContainer pieceLocations: pieceOrder) {
-		if (pieceLocations.containsAny(piece))
+	for (unsigned i= 1; i < pieceOrder.size(); i++) {
+		if (pieceOrder[i].containsAny(piece))
 			return to_string(i);
-		i++;
 	}
+
 	return "";
 }
