@@ -93,7 +93,7 @@ queue <MoveInfo> MonteCarloTree::traverseToLeaf(nodePtr& parent, set<nodePtr> di
 }
 
 //Expands a node by looking at all its moves and
-//mutates input MoveInfo the best one found
+//mutates input MoveInfo to the best move found
 void MonteCarloTree::expand(nodePtr leafPtr, GameState leafGameState, MoveInfo& bestMove) {
 	vector<MoveInfo> moves = leafGameState.generateAllMoves();
 

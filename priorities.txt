@@ -1,0 +1,22 @@
+Arena can parse commands and spit out moves made
+Arena mode for self-play and different heuristics select
+Need to implement overlapping Weight calculations
+.
+Opening theory-specific Weights
+.
+.
+.
+Interface with Mzinga Hive viewer
+Spit out strings compatible with Bugs AI
+.
+.
+.
+Minimax player
+Neural Network for weights
+Informed rollouts
+Policy and Value NN
+.
+.
+.
+Hybrid alphaBeta and MonteCarlo
+
