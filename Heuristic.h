@@ -7,7 +7,7 @@ class Heuristic {
 	public:
 		vector <Weight> weights;
 		GameState parentGameState;
-		static int NUMWEIGHTS;
+		int NUMWEIGHTS;
 
 		Heuristic (Complexity, set<char>);
 		void loadWeights(string);

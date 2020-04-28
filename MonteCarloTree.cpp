@@ -1,6 +1,5 @@
 #include <algorithm>
 #include "MonteCarloTree.h"
-
 /*
  *
  * Search from the specified MonteCarloTree::root position for best leaf weights
@@ -202,7 +201,7 @@ MoveInfo MonteCarloTree::search(GameState& initialGameState){
 
 	//train the heuristic model
 	if (trainingMode) {
-		vector <double> corrections(0, Heuristic::NUMWEIGHTS);
+		vector <double> corrections(0, currentHeuristic.NUMWEIGHTS);
 		set<nodePtr> visited;
 		vector<std::thread> threads;
 		for (int i = numCores;i--;)

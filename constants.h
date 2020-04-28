@@ -41,6 +41,8 @@ enum PieceColor {
 	NONE = 2
 };
 
+extern int MonteCarloSimulations;
+extern int MonteCarloSimulationsCutoff;
 extern int dxdy[6][2];  
 extern unordered_map <string, int> pieceNum; 
 extern unordered_map < string , vector<Direction> > directions;  

@@ -27,23 +27,21 @@ class MonteCarloNode{
 			children[m] = nodePtr(&child);
 		}
 
-		//Heuristic must already have gameState updated to this node
-		inline void evaluate(Heuristic& h, GameState& gameState, MoveInfo m){
-			gameState.replayMove(m);
-			heuristicEvals = h.evaluate(gameState);
-			gameState.undoMove(m);
+		//Heuristic must already have gameState updated to parent of this node
+		inline void evaluate(Heuristic& h, MoveInfo m){
+			heuristicEvals = h.evaluate(m);
 			heuristicScore = 0;
 			for (double score: heuristicEvals) {
 				heuristicScore += score;
 			}
 		}
 
-		//Heuristic must already have gameState updated to this node
 		void evaluateAllChildren(Heuristic& h,GameState& gameState) {
 			maxChildScore = -1;
 			minChildScore = HUGE_VAL;
+			h.setGameState(gameState);
 			for (auto child: children) {
-				child.second->evaluate(h,gameState,child.first);
+				child.second->evaluate(h,child.first);
 				maxChildScore = std::max(maxChildScore, child.second->heuristicScore);
 				minChildScore = std::min(minChildScore, child.second->heuristicScore);
 			}

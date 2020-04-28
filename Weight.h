@@ -13,7 +13,7 @@ class Weight {
 		virtual void initialize(GameState&g){parentGameState = g;};
 		//after intializing to a parent node, 
 		//see what things to tweak in order to update heuristics
-		virtual double evaluate(MoveInfo);
+		virtual double evaluate(MoveInfo){return 0;};
 };
 
 
