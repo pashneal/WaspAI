@@ -12,6 +12,7 @@
 
 #define movesCollection vector<pair<BitboardContainer,int>>
 
+extern BitboardContainer startSpawnBoard;
 using namespace std;
 
 struct MoveInfo {

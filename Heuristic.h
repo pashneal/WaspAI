@@ -9,6 +9,7 @@ class Heuristic {
 		GameState parentGameState;
 		int NUMWEIGHTS;
 
+		Heuristic(){};
 		Heuristic (Complexity, set<char>);
 		void loadWeights(string);
 		void load();

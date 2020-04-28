@@ -6,7 +6,7 @@
 #include <cmath>
 
 using namespace std;
-
+BitboardContainer startSpawnBoard = BitboardContainer({{5, 34359738368u}});
 
 GameState::GameState(const GameState& other) {
 	*this = other;
@@ -316,11 +316,11 @@ void GameState::getAllMoves() {
 	if (turnCounter < 2) {
 		canMove = false;
 		if (turnCounter == 1) {
-			pieceSpawns = BitboardContainer({{5, 34359738368u}});
+			pieceSpawns = startSpawnBoard; 
 			pieceSpawns = pieceSpawns.getPerimeter();
 
 		} else {
-			pieceSpawns = BitboardContainer({{5, 34359738368u}});
+			pieceSpawns = startSpawnBoard; 
 		}
 
 		spawnNames.clear();
