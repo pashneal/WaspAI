@@ -137,7 +137,10 @@ void MonteCarloTree::backPropagate(nodePtr leafPtr, double result){
 	root->numVisited++;
 }
 
-//assumes rootGameState is already up-to-date
+//Given a position, apply MCTS to attempt to find the best move and return it
+//If no moves exist from this position, return empty move
+//supports multithreading based on numCores variable
+//supports training mode based on trainingMode variable
 MoveInfo MonteCarloTree::search(GameState& initialGameState){
 	//delete the old tree
 	root->clearChildren();		
@@ -198,17 +201,17 @@ MoveInfo MonteCarloTree::search(GameState& initialGameState){
 	}
 
 	//train the heuristic model
-	vector <double> corrections(0, Heuristic::NUMWEIGHTS);
-	set<nodePtr> visited;
-	vector<std::thread> threads;
-	for (int i = numCores;i--;)
-		threads.push_back(std::thread(&MonteCarloTree::train, this, root,
-						  std::ref(visited), std::ref(corrections)));
-	for (int i = numCores;i--;)
-		threads[i].join();
-	currentHeuristic.train(corrections);
-
-
+	if (trainingMode) {
+		vector <double> corrections(0, Heuristic::NUMWEIGHTS);
+		set<nodePtr> visited;
+		vector<std::thread> threads;
+		for (int i = numCores;i--;)
+			threads.push_back(std::thread(&MonteCarloTree::train, this, root,
+							  std::ref(visited), std::ref(corrections)));
+		for (int i = numCores;i--;)
+			threads[i].join();
+		currentHeuristic.train(corrections);
+	}
 
 	//choose and return best move
 	double max = -1;
@@ -222,9 +225,9 @@ MoveInfo MonteCarloTree::search(GameState& initialGameState){
 	return bestMove;
 }
 
-
+//calculate the corrections needed for every weight in each node
+//past a certain depth, corrections are negligible so ignore those nodes
 void MonteCarloTree::train(nodePtr node, set<nodePtr>& visited, vector<double>&corrections){
-
 	//if possible children already visited
 	if (visited.find(node) != visited.end() ) return;
 

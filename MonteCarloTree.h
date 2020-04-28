@@ -16,12 +16,15 @@ double heuristicFactor = .5;
 // don't bother attempting to learn from nodes unless 
 // its parent has been visited this proportion of times
 double minLearningFraction = .1;
+
+//TODO: background search while opponent's turn
 class MonteCarloTree {
 		nodePtr root;
 		Heuristic& currentHeuristic;
 		std::mutex mtx;
 
 	public:
+		bool trainingMode = false;
 		MonteCarloTree(MonteCarloNode* r, Heuristic& h)
 			:root(nodePtr(r)),currentHeuristic(h){};
 		nodeMap selectBestLeaves(int, GameState&);
