@@ -5,7 +5,7 @@
 #include "ProblemNode.h"
 
 int numDirections = 6;
-int lowerLeftGate = (BITBOARD_CONTAINER_ROWS - 1)*BITBOARD_CONTAINER_COLS;
+int lowerLeftGate = (BITBOARD_ROWS - 1)*BITBOARD_COLS;
 
 //TODO: CHECK THESE IF ANY ERROR IN BEETLE MOVE
 unordered_map <Direction, unsigned long long> gateInDirection = {
@@ -19,36 +19,36 @@ unordered_map <Direction, unsigned long long> gateInDirection = {
 
 //gates are structures that create problemNodes
 //they are centered around 2,2 at board index lowerLeftGate
-BitboardContainer gates[] = {
-	BitboardContainer({{lowerLeftGate, 134479872u}}),
-	BitboardContainer({{lowerLeftGate, 264192u}}),
-	BitboardContainer({{lowerLeftGate, 262148u}}),
-	BitboardContainer({{lowerLeftGate, 262400u}}),
-	BitboardContainer({{lowerLeftGate, 17039360u}}),
-	BitboardContainer({{lowerLeftGate, 17180131328u}})
+Bitboard gates[] = {
+	Bitboard({{lowerLeftGate, 134479872u}}),
+	Bitboard({{lowerLeftGate, 264192u}}),
+	Bitboard({{lowerLeftGate, 262148u}}),
+	Bitboard({{lowerLeftGate, 262400u}}),
+	Bitboard({{lowerLeftGate, 17039360u}}),
+	Bitboard({{lowerLeftGate, 17180131328u}})
 };
 
 
 //problemNodes are places in the board that do
 //not have the freedom to move along all edges
 //they are centered around 2,2 at board index lowerLeftGate 
-BitboardContainer potentialProblemNodes[] = {
-	BitboardContainer({{lowerLeftGate,67633152u}}),
-	BitboardContainer({{lowerLeftGate,525312u}}),
-	BitboardContainer({{lowerLeftGate,1536u}}),
-	BitboardContainer({{lowerLeftGate,131584u}}),
-	BitboardContainer({{lowerLeftGate,33685504u}}),
-	BitboardContainer({{lowerLeftGate,100663296u}})
+Bitboard potentialProblemNodes[] = {
+	Bitboard({{lowerLeftGate,67633152u}}),
+	Bitboard({{lowerLeftGate,525312u}}),
+	Bitboard({{lowerLeftGate,1536u}}),
+	Bitboard({{lowerLeftGate,131584u}}),
+	Bitboard({{lowerLeftGate,33685504u}}),
+	Bitboard({{lowerLeftGate,100663296u}})
 };
 
 using namespace std;
 
 
-ProblemNodeContainer::ProblemNodeContainer(BitboardContainer * pieces) {
+ProblemNodeContainer::ProblemNodeContainer(Bitboard * pieces) {
 	allPieces = pieces;
 }
 
-void ProblemNodeContainer::insert(BitboardContainer& problemNodes) {
+void ProblemNodeContainer::insert(Bitboard& problemNodes) {
 	int problemNodeHash = problemNodes.hash();
 
 	if (problemNodeExists(problemNodes)) return;
@@ -70,7 +70,7 @@ void ProblemNodeContainer::insert(BitboardContainer& problemNodes) {
 }
 
 
-bool ProblemNodeContainer::problemNodeExists(BitboardContainer& problemNode) {
+bool ProblemNodeContainer::problemNodeExists(Bitboard& problemNode) {
 	return problemNodeHashes.find(problemNode.hash()) != problemNodeHashes.end();
 }
 void ProblemNodeContainer::clear() {
@@ -84,10 +84,10 @@ int ProblemNodeContainer::hash(int boardIndex, unsigned long long piece) {
 }
 
 
-void ProblemNodeContainer::remove(BitboardContainer & problemNodes) {
+void ProblemNodeContainer::remove(Bitboard & problemNodes) {
 	problemNodeHashes.erase(problemNodes.hash());
 }
-void ProblemNodeContainer::removePiece( BitboardContainer & piece) {
+void ProblemNodeContainer::removePiece( Bitboard & piece) {
 	if (piece.count() != 1) {
 		cout << "Attempting to remove incorrectly sized piece" << endl;
 		throw 14;
@@ -98,7 +98,7 @@ void ProblemNodeContainer::removePiece( BitboardContainer & piece) {
 
 	int pieceHash = piece.hash();
 
-	BitboardContainer testUpdate;
+	Bitboard testUpdate;
 	if (locationHashTable.find(pieceHash) != locationHashTable.end()) {
 		for (auto board: locationHashTable[pieceHash]){
 			testUpdate.unionWith(board);
@@ -108,13 +108,13 @@ void ProblemNodeContainer::removePiece( BitboardContainer & piece) {
 
 	int boardIndex = piece.getRandomBoardIndex();
 
-	BitboardContainer pieceRemoved(*allPieces);
+	Bitboard pieceRemoved(*allPieces);
 	pieceRemoved.notIntersectionWith(piece);
-	BitboardContainer * temp = allPieces;
+	Bitboard * temp = allPieces;
 
 	
 
-	list <BitboardContainer> problemNodesCollection = getProblemNodesAtLocation(boardIndex, 
+	list <Bitboard> problemNodesCollection = getProblemNodesAtLocation(boardIndex, 
 			piece[boardIndex]);
 
 	
@@ -137,7 +137,7 @@ void ProblemNodeContainer::removePiece( BitboardContainer & piece) {
 //call this only once! very slow and inefficient
 //TODO: programatically enforce above rule
 void ProblemNodeContainer::findAllProblemNodes() {
-	BitboardContainer testUpdate;
+	Bitboard testUpdate;
 	for (auto map: allPieces -> split() ) {
 		for (unsigned long long board: map.second) {
 			for (auto problemNodes: getProblemNodesAtLocation(map.first, board)){
@@ -150,12 +150,12 @@ void ProblemNodeContainer::findAllProblemNodes() {
 }
 
 //TODO: test and remove pruneCache
-void ProblemNodeContainer::insertPiece(BitboardContainer & piece) {
+void ProblemNodeContainer::insertPiece(Bitboard & piece) {
 	piece.pruneCache();
 	int boardIndex = piece.getRandomBoardIndex();
 	unsigned long long board = piece[boardIndex];
 
-	BitboardContainer testUpdate;
+	Bitboard testUpdate;
 	for (auto problemNodes : getProblemNodesAtLocation(boardIndex, board)){
 		insert(problemNodes);
 		testUpdate.unionWith(problemNodes);
@@ -163,19 +163,19 @@ void ProblemNodeContainer::insertPiece(BitboardContainer & piece) {
 	updateVisible(testUpdate);
 }
 
-void ProblemNodeContainer::updateVisible(BitboardContainer& locations) {
+void ProblemNodeContainer::updateVisible(Bitboard& locations) {
 	//finds out whether the location on the bit board should be
 	//set in problemNodes
 	visibleProblemNodes.unionWith(locations);
 	visibleProblemNodes.xorWith(locations);
 
-	for (auto location: locations.splitIntoBitboardContainers()){
+	for (auto location: locations.splitIntoBitboards()){
 		int hashInt = location.hash();
 
 		auto problemNodes = locationHashTable[hashInt].begin();
 
 		while (problemNodes != locationHashTable[hashInt].end()) {
-			BitboardContainer testProblemNodes(*problemNodes);
+			Bitboard testProblemNodes(*problemNodes);
 			testProblemNodes.notIntersectionWith(*allPieces);
 
 			if (testProblemNodes.count() == 2) {
@@ -194,22 +194,22 @@ void ProblemNodeContainer::updateVisible(BitboardContainer& locations) {
 	}
 }
 
-list <BitboardContainer>
+list <Bitboard>
 ProblemNodeContainer::getProblemNodesAtLocation(int boardIndex, unsigned long long
 														   piece){	
 
 												
-	list <BitboardContainer> retList;
+	list <Bitboard> retList;
 	int leadingZeroesCount = __builtin_clzll(piece);
 
 	int xShift = ((63) - leadingZeroesCount )% BITBOARD_WIDTH - 2;
 	int yShift = ((63) - leadingZeroesCount )/ BITBOARD_HEIGHT - 2;
 
-	xShift += (BITBOARD_WIDTH * (boardIndex % BITBOARD_CONTAINER_COLS));
-	yShift += BITBOARD_HEIGHT * (BITBOARD_CONTAINER_ROWS - 1 - (boardIndex / BITBOARD_CONTAINER_ROWS));	
+	xShift += (BITBOARD_WIDTH * (boardIndex % BITBOARD_COLS));
+	yShift += BITBOARD_HEIGHT * (BITBOARD_ROWS - 1 - (boardIndex / BITBOARD_ROWS));	
 
-	BitboardContainer testGate;
-	BitboardContainer testProblemNodes;
+	Bitboard testGate;
+	Bitboard testProblemNodes;
 	for( int i = 0; i < numDirections; i++){
 
 		
@@ -240,13 +240,13 @@ ProblemNodeContainer::getProblemNodesAtLocation(int boardIndex, unsigned long lo
 	return retList;
 }
 
-BitboardContainer ProblemNodeContainer::getPerimeter(BitboardContainer& pieces) {
-	BitboardContainer perimeter;
+Bitboard ProblemNodeContainer::getPerimeter(Bitboard& pieces) {
+	Bitboard perimeter;
 
 	//first assume every direction is in perimeter
 	perimeter = pieces.getPerimeter();
 
-	for (auto piece: pieces.splitIntoBitboardContainers()) {
+	for (auto piece: pieces.splitIntoBitboards()) {
 		for (auto restrictedNodes: locationHashTable[piece.hash()]) {
 			//remove every restriction found
 			perimeter.notIntersectionWith(restrictedNodes);
@@ -255,7 +255,7 @@ BitboardContainer ProblemNodeContainer::getPerimeter(BitboardContainer& pieces) 
 	return perimeter;
 }
 
-bool ProblemNodeContainer::contains(BitboardContainer& piece){
+bool ProblemNodeContainer::contains(Bitboard& piece){
 	return (locationHashTable.find(piece.hash()) != locationHashTable.end());
 }
 

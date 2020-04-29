@@ -79,7 +79,7 @@ void Test::pass(bool testPassed, string message){
 void Test::BitboardTest::testShiftDirection(){
 	cout << "==========Test::Bitboard::shiftDirection()=======" << endl;
 
-	BitboardContainer testBitboardContainer;
+	Bitboard testBitboard;
 	//thanks to http://cinnamonchess.altervista.org/bitboard_calculator/Calc.html for allowing me to create these tests more easily
 	vector <unordered_map <int, unsigned long long>> bitboardList =
 	{
@@ -171,7 +171,7 @@ void Test::BitboardTest::testShiftDirection(){
 	};
 
 	for (auto test: bitboardList) {
-		BitboardContainer expectedBoard(test), testBoard(test);
+		Bitboard expectedBoard(test), testBoard(test);
 		for (Direction dir : hexagonalDirections) {
 			testBoard.shiftDirection(dir);
 		}
@@ -211,32 +211,32 @@ void Test::BitboardTest::testShiftDirection(){
 		cout << "Test " << i <<
 			" direction: " << shiftDirections[i] << endl ;
 
-		testBitboardContainer.initialize(bitboardList[i]);
-		testBitboardContainer.shiftDirection(shiftDirections[i]);
-		BitboardContainer expectedResult(expectedResults[i]);
-			Test::pass(expectedResult == testBitboardContainer,
+		testBitboard.initialize(bitboardList[i]);
+		testBitboard.shiftDirection(shiftDirections[i]);
+		Bitboard expectedResult(expectedResults[i]);
+			Test::pass(expectedResult == testBitboard,
 					"Expected result incorrect for shiftDirection() ");
-		testBitboardContainer.print();
+		testBitboard.print();
 		expectedResult.print();
 	}
 
 	unordered_map <int, unsigned long long> test;
 	test[5] = 1;
-	testBitboardContainer.initialize(test);
-	testBitboardContainer.shiftDirection(Direction::NE);
-	testBitboardContainer.shiftDirection(Direction::W);
-	testBitboardContainer.shiftDirection(Direction::SW);
-	testBitboardContainer.shiftDirection(Direction::SE);
-	testBitboardContainer.shiftDirection(Direction::E);
-	testBitboardContainer.shiftDirection(Direction::NW);
+	testBitboard.initialize(test);
+	testBitboard.shiftDirection(Direction::NE);
+	testBitboard.shiftDirection(Direction::W);
+	testBitboard.shiftDirection(Direction::SW);
+	testBitboard.shiftDirection(Direction::SE);
+	testBitboard.shiftDirection(Direction::E);
+	testBitboard.shiftDirection(Direction::NW);
 	cout << "Test " << shiftDirections.size() << ": ";
-	Test::pass(testBitboardContainer[5] == 1, "result incorrect");
+	Test::pass(testBitboard[5] == 1, "result incorrect");
 
 	bool silenced = true;
 
 	cout << "Test " << shiftDirections.size() + 1 << ": ";
 
-	BitboardContainer testProblemNodes;
+	Bitboard testProblemNodes;
 	testProblemNodes.initialize({{6, 524800u}});
 	if (!silenced) {testProblemNodes.print(); cout << endl;}
 	testProblemNodes.shiftDirection(Direction::N, 15);
@@ -245,7 +245,7 @@ void Test::BitboardTest::testShiftDirection(){
 	if (!silenced) {testProblemNodes.print(); cout << endl;}
 	testProblemNodes.convertToHexRepresentation(Direction::NE, 15);
 	if (!silenced) {testProblemNodes.print(); cout << endl;}
-	BitboardContainer result({{1,1026u}});
+	Bitboard result({{1,1026u}});
 	Test::pass(result == testProblemNodes, " result incorrect");
 }
 
@@ -272,7 +272,7 @@ void Test::BitboardTest::testXorWith() {
 		{3,2026862587613u}}
 	};
 
-	BitboardContainer test, compare;
+	Bitboard test, compare;
 	for (unsigned long long i = 0; i < expectedResults.size(); ++i){
 		cout << "Test " << i << endl;
 		
@@ -310,14 +310,14 @@ void Test::BitboardTest::testIntersectionWith() {
 	};
 
 
-	BitboardContainer test, compare;
+	Bitboard test, compare;
 	for (unsigned long long i = 0; i < expectedResults.size(); ++i){
 		cout << "Test " << i << endl;
 
 		test.initialize(bitboardInitialList[i]);
 		compare.initialize(bitboardCompList[i]);
 		test.intersectionWith(compare);
-		BitboardContainer results(expectedResults[i]);
+		Bitboard results(expectedResults[i]);
 
 		Test::pass(test == results, 
 				"failed to get correct result for intersectionWith()");
@@ -348,7 +348,7 @@ void Test::BitboardTest::testUnionWith() {
 	};
 
 
-	BitboardContainer test, compare;
+	Bitboard test, compare;
 	for (unsigned long long i = 0; i < expectedResults.size(); ++i){
 		cout << "Test " << i << endl;
 		
@@ -384,7 +384,7 @@ void Test::BitboardTest::testContainsAny() {
 	{1,0};
 
 
-	BitboardContainer test, compare;
+	Bitboard test, compare;
 	for (unsigned long long i = 0; i < expectedResults.size(); ++i){
 		cout << "Test " << i << endl;
 
@@ -432,7 +432,7 @@ void Test::BitboardTest::testFloodFillStep() {
 		{{0,49216u}, {1,1}, {3,13835058055282163712u}},
 		{{}}
 	};
-	BitboardContainer traversable, frontier, visited;
+	Bitboard traversable, frontier, visited;
 	for (unsigned long long i = 0; i < expectedFrontierList.size(); ++i){
 		cout << "Test " << i << endl;
 		
@@ -442,8 +442,8 @@ void Test::BitboardTest::testFloodFillStep() {
 
 		traversable.floodFillStep(frontier, visited);
 
-		BitboardContainer compVisited(expectedVisitedList[i]);
-		BitboardContainer compFrontier(expectedFrontierList[i]);
+		Bitboard compVisited(expectedVisitedList[i]);
+		Bitboard compFrontier(expectedFrontierList[i]);
 
 		visited.pruneCache();
 		frontier.pruneCache();
@@ -476,13 +476,13 @@ void Test::BitboardTest::testFloodFill() {
 		{{0,144680354303193280u}, {1,396553u}, {3,4629806107761573888u}}
 	};
 
-	BitboardContainer traversable, frontier ;
+	Bitboard traversable, frontier ;
 	for (unsigned long long i = 0; i < expectedFrontierList.size(); ++i){
 		cout << "Test " << i << endl;
 		traversable.initialize(bitboardTraversableList[i]);
 		frontier.initialize(bitboardFrontierList[i]);
 		traversable.floodFill(frontier);
-		BitboardContainer compFrontier(expectedFrontierList[i]);
+		Bitboard compFrontier(expectedFrontierList[i]);
 		frontier.pruneCache();
 		compFrontier.pruneCache();
 		cout << "\t" ;
@@ -494,8 +494,8 @@ void Test::BitboardTest::testFloodFill() {
 void Test::BitboardTest::testSplit() {
 	vector <unsigned long long> randomNums;
 
-	BitboardContainer testBitboard;
-	for (int i = 0; i < BITBOARD_CONTAINER_SIZE; i++) {
+	Bitboard testBitboard;
+	for (int i = 0; i < BITBOARD_SIZE; i++) {
 		randomNums.push_back(rand() % (1 << 30));
 		testBitboard.setBoard(i, randomNums[i]);
 	}
@@ -531,13 +531,13 @@ void Test::BitboardTest::testSplitIntoConnectedComponents() {
 		{{3, 4629806107761573888u}}
 	};
 
-	BitboardContainer traversable(bitboardTraversable);
+	Bitboard traversable(bitboardTraversable);
 	int testNum = 0;
 
-	for (BitboardContainer result: traversable.splitIntoConnectedComponents()) {
+	for (Bitboard result: traversable.splitIntoConnectedComponents()) {
 		cout << "Test " << testNum << endl << "\t";
 		bool flag = 0;
-		for (BitboardContainer test: expectedComponentsList){ 
+		for (Bitboard test: expectedComponentsList){ 
 			flag |= test.equals(result);
 		}
 		Test::pass(flag, "expectedComponentsList test failed");
@@ -573,8 +573,8 @@ void Test::ProblemNodeContainerTest::testFindAllProblemNodes(){
 	};
 	for (unsigned int i = 0; i < expected.size(); i++ ){
 		cout << "Test" << i << ": ";
-		BitboardContainer gateTest(gatesTest[i]);
-		BitboardContainer expectedProblemNodes(expected[i]);
+		Bitboard gateTest(gatesTest[i]);
+		Bitboard expectedProblemNodes(expected[i]);
 		ProblemNodeContainer test(&gateTest);
 	
 		test.findAllProblemNodes();
@@ -629,10 +629,10 @@ void Test::ProblemNodeContainerTest::testRemovePiece(bool noMessage){
 	for (unsigned int i = 0; i < gatesTest.size(); i++) {
 		cout << "Test " << i << ": ";
 		
-		BitboardContainer initialBoard(gatesTest[i]);
-		BitboardContainer removePieceBoard(removePiece[i]);
+		Bitboard initialBoard(gatesTest[i]);
+		Bitboard removePieceBoard(removePiece[i]);
 		ProblemNodeContainer test(&initialBoard);
-		BitboardContainer expectedProblemNodes(expected[i]);
+		Bitboard expectedProblemNodes(expected[i]);
 
 		test.findAllProblemNodes();
 		test.removePiece(removePieceBoard);
@@ -685,9 +685,9 @@ void Test::MoveGeneratorTest::testQueenMoves() {
 
 	for (unsigned long long i = 0; i < expected.size(); i++ ) {
 		cout << "Test " << i << ": ";
-		BitboardContainer testBoard(test[i]);
-		BitboardContainer expectedBoard(expected[i]);
-		BitboardContainer pieceBoard(piece[i]);
+		Bitboard testBoard(test[i]);
+		Bitboard expectedBoard(expected[i]);
+		Bitboard pieceBoard(piece[i]);
 
 		ProblemNodeContainer problemNodeCont(&testBoard);
 		problemNodeCont.findAllProblemNodes();
@@ -696,7 +696,7 @@ void Test::MoveGeneratorTest::testQueenMoves() {
 		moveGen.setGeneratingName(&name);
 		moveGen.setGeneratingPieceBoard(&pieceBoard);
 	
-		BitboardContainer moves = moveGen.getMoves();
+		Bitboard moves = moveGen.getMoves();
 		Test::pass( moves == expectedBoard, 
 				"incorrect moves outputted for move generation");
 
@@ -747,9 +747,9 @@ void Test::MoveGeneratorTest::testSpiderMoves() {
 	for (unsigned long long i = 0; i < expected.size(); i++ ) {
 		if (!silenced) cout << endl;
 		cout << "Test " << i << ": ";
-		BitboardContainer testBoard(test[i]);
-		BitboardContainer expectedBoard(expected[i]);
-		BitboardContainer pieceBoard(piece[i]);
+		Bitboard testBoard(test[i]);
+		Bitboard expectedBoard(expected[i]);
+		Bitboard pieceBoard(piece[i]);
 
 		ProblemNodeContainer problemNodeCont(&testBoard);
 		problemNodeCont.findAllProblemNodes();
@@ -758,7 +758,7 @@ void Test::MoveGeneratorTest::testSpiderMoves() {
 		moveGen.setGeneratingName(&name);
 		moveGen.setGeneratingPieceBoard(&pieceBoard);
 	
-		BitboardContainer moves = moveGen.getMoves();
+		Bitboard moves = moveGen.getMoves();
 		Test::pass( moves == expectedBoard, 
 				"incorrect moves outputted for move generation");
 
@@ -800,9 +800,9 @@ void Test::MoveGeneratorTest::testBeetleMoves() {
 
 	for (unsigned long long i = 0; i < expected.size(); i++ ) {
 		cout << "Test " << i << ": ";
-		BitboardContainer testBoard(test[i]);
-		BitboardContainer expectedBoard(expected[i]);
-		BitboardContainer pieceBoard(piece[i]);
+		Bitboard testBoard(test[i]);
+		Bitboard expectedBoard(expected[i]);
+		Bitboard pieceBoard(piece[i]);
 
 		ProblemNodeContainer problemNodeCont(&testBoard);
 		problemNodeCont.findAllProblemNodes();
@@ -812,11 +812,11 @@ void Test::MoveGeneratorTest::testBeetleMoves() {
 		moveGen.setGeneratingPieceBoard(&pieceBoard);
 	
 		unordered_map <int, stack < pair < PieceColor, PieceName>>> m;
-		BitboardContainer upperLevelPieces;
+		Bitboard upperLevelPieces;
 
 		moveGen.setStackHashTable(&m);
 		moveGen.setUpperLevelPieces(&upperLevelPieces);
-		BitboardContainer moves = moveGen.getMoves();
+		Bitboard moves = moveGen.getMoves();
 		Test::pass( moves == expectedBoard, 
 				"incorrect moves outputted for move generation");
 
@@ -826,10 +826,10 @@ void Test::MoveGeneratorTest::testBeetleMoves() {
 
 		}
 	}
-	BitboardContainer testBoard({{5, 865847986923967777u}});
-	BitboardContainer expectedBoard({{5, 203164672u}});
-	BitboardContainer upperLevelPieces({{5, 524288u}});
-	BitboardContainer givenPiece({{5, 524288u}});
+	Bitboard testBoard({{5, 865847986923967777u}});
+	Bitboard expectedBoard({{5, 203164672u}});
+	Bitboard upperLevelPieces({{5, 524288u}});
+	Bitboard givenPiece({{5, 524288u}});
 	name = PieceName::BEETLE;
 	unordered_map < int, stack < pair <PieceColor, PieceName>>> stackHashTable; 
 	stackHashTable[givenPiece.hash()].push({PieceColor::WHITE, PieceName::BEETLE});
@@ -868,9 +868,9 @@ void Test::MoveGeneratorTest::testGrasshopperMoves() {
 
 	for (unsigned long long i = 0; i < expected.size(); i++ ) {
 		cout << "Test " << i << ": ";
-		BitboardContainer testBoard(test[i]);
-		BitboardContainer expectedBoard(expected[i]);
-		BitboardContainer pieceBoard(piece[i]);
+		Bitboard testBoard(test[i]);
+		Bitboard expectedBoard(expected[i]);
+		Bitboard pieceBoard(piece[i]);
 
 		ProblemNodeContainer problemNodeCont(&testBoard);
 		problemNodeCont.findAllProblemNodes();
@@ -879,7 +879,7 @@ void Test::MoveGeneratorTest::testGrasshopperMoves() {
 		moveGen.setGeneratingName(&name);
 		moveGen.setGeneratingPieceBoard(&pieceBoard);
 	
-		BitboardContainer moves = moveGen.getMoves();
+		Bitboard moves = moveGen.getMoves();
 		Test::pass( moves == expectedBoard, 
 				"incorrect moves outputted for move generation");
 
@@ -926,14 +926,14 @@ void Test::MoveGeneratorTest::testLadybugMoves() {
 	for (unsigned long long i = 0; i < expected.size(); i++ ) {
 		if (!silenced) cout << endl;
 		cout << "Test " << i << ": ";
-		BitboardContainer testBoard(test[i]);
-		BitboardContainer expectedBoard(expected[i]);
-		BitboardContainer pieceBoard(piece[i]);
+		Bitboard testBoard(test[i]);
+		Bitboard expectedBoard(expected[i]);
+		Bitboard pieceBoard(piece[i]);
 
 		ProblemNodeContainer problemNodeCont(&testBoard);
 		problemNodeCont.findAllProblemNodes();
 		unordered_map <int, stack < pair < PieceColor, PieceName>>> m;
-		BitboardContainer upperLevelPieces;
+		Bitboard upperLevelPieces;
 
 
 		MoveGenerator moveGen(&testBoard, &problemNodeCont);
@@ -942,7 +942,7 @@ void Test::MoveGeneratorTest::testLadybugMoves() {
 		moveGen.setStackHashTable(&m);
 		moveGen.setUpperLevelPieces(&upperLevelPieces);
 	
-		BitboardContainer moves = moveGen.getMoves();
+		Bitboard moves = moveGen.getMoves();
 		Test::pass( moves == expectedBoard, 
 				"incorrect moves outputted for move generation");
 
@@ -988,9 +988,9 @@ void Test::MoveGeneratorTest::testAntMoves() {
 	for (unsigned long long i = 0; i < expected.size(); i++ ) {
 		if (!silenced) cout << endl;
 		cout << "Test " << i << ": ";
-		BitboardContainer testBoard(test[i]);
-		BitboardContainer expectedBoard(expected[i]);
-		BitboardContainer pieceBoard(piece[i]);
+		Bitboard testBoard(test[i]);
+		Bitboard expectedBoard(expected[i]);
+		Bitboard pieceBoard(piece[i]);
 
 		ProblemNodeContainer problemNodeCont(&testBoard);
 		problemNodeCont.findAllProblemNodes();
@@ -1000,7 +1000,7 @@ void Test::MoveGeneratorTest::testAntMoves() {
 		moveGen.setGeneratingPieceBoard(&pieceBoard);
 	
 		moveGen.approximate =false;
-		BitboardContainer moves = moveGen.getMoves();
+		Bitboard moves = moveGen.getMoves();
 		Test::pass( moves == expectedBoard, 
 				"incorrect moves outputted for move generation");
 
@@ -1045,9 +1045,9 @@ void Test::MoveGeneratorTest::testPillbugMoves() {
 	for (unsigned long long i = 0; i < expected.size(); i++ ) {
 		if (!silenced) cout << endl;
 		cout << "Test " << i << ": ";
-		BitboardContainer testBoard(test[i]);
-		BitboardContainer expectedBoard(expected[i]);
-		BitboardContainer pieceBoard(piece[i]);
+		Bitboard testBoard(test[i]);
+		Bitboard expectedBoard(expected[i]);
+		Bitboard pieceBoard(piece[i]);
 
 		ProblemNodeContainer problemNodeCont(&testBoard);
 		problemNodeCont.findAllProblemNodes();
@@ -1056,7 +1056,7 @@ void Test::MoveGeneratorTest::testPillbugMoves() {
 		moveGen.setGeneratingName(&name);
 		moveGen.setGeneratingPieceBoard(&pieceBoard);
 	
-		BitboardContainer moves = moveGen.getMoves();
+		Bitboard moves = moveGen.getMoves();
 		Test::pass( moves == expectedBoard, 
 				"incorrect moves outputted for move generation");
 
@@ -1092,25 +1092,25 @@ void Test::PieceGraphTest::testFindAllPinnedPieces(){
 	for (unsigned long long i = 0; i < expected.size(); i++ ) {
 		if (!silenced) cout << endl;
 		cout << "Test " << i << ": ";
-		BitboardContainer allPieces(test[i]);
-		BitboardContainer expectedBoard(expected[i]);
+		Bitboard allPieces(test[i]);
+		Bitboard expectedBoard(expected[i]);
 		
 		PieceGraph pieceGraph;
 
-		for (auto board: allPieces.splitIntoBitboardContainers()) 
+		for (auto board: allPieces.splitIntoBitboards()) 
 			pieceGraph.insert(board);
 
-		for (auto board: allPieces.splitIntoBitboardContainers()) {
-			BitboardContainer testboard = board.getPerimeter();
+		for (auto board: allPieces.splitIntoBitboards()) {
+			Bitboard testboard = board.getPerimeter();
 			testboard.intersectionWith(allPieces);
-			for ( auto adjBoard: testboard.splitIntoBitboardContainers() ) {
+			for ( auto adjBoard: testboard.splitIntoBitboards() ) {
 				Test::pass(pieceGraph.checkBiDirectional(adjBoard, board), "An edge given by "
 						"pieceGraph was not bidirectional");
 			}
 		}
 
 
-		BitboardContainer pinned = pieceGraph.getPinnedPieces();
+		Bitboard pinned = pieceGraph.getPinnedPieces();
 
 		Test::pass( pinned == expectedBoard, 
 				"incorrect pinned pieces");
@@ -1125,19 +1125,19 @@ void Test::GameStateTest::testFastSpawnPiece(){
 	bool silenced = true;
 
 	GameState gameState(HivePLM, PieceColor::WHITE);
-	vector <pair <BitboardContainer, PieceName> > initialPieces;
+	vector <pair <Bitboard, PieceName> > initialPieces;
 	initialPieces = {
-		{BitboardContainer({{5,134217728u}}), PieceName::ANT},
-		{BitboardContainer({{5,34359738368u}}), PieceName::ANT},
-		{BitboardContainer({{5,1048576u}}), PieceName::ANT},
-		{BitboardContainer({{5, 4398046511104u}}), PieceName::ANT},
-		{BitboardContainer({{5, 524288u}}), PieceName::QUEEN},
+		{Bitboard({{5,134217728u}}), PieceName::ANT},
+		{Bitboard({{5,34359738368u}}), PieceName::ANT},
+		{Bitboard({{5,1048576u}}), PieceName::ANT},
+		{Bitboard({{5, 4398046511104u}}), PieceName::ANT},
+		{Bitboard({{5, 524288u}}), PieceName::QUEEN},
 	};
 
-	BitboardContainer finalBoard;
+	Bitboard finalBoard;
 
 	bool color = (bool)PieceColor::WHITE;
-	vector <BitboardContainer> whiteBlackPieces(2);
+	vector <Bitboard> whiteBlackPieces(2);
 	for (auto p : initialPieces) {
 
 		whiteBlackPieces[color].unionWith(p.first);
@@ -1157,9 +1157,9 @@ void Test::GameStateTest::testFastSpawnPiece(){
 
 	unordered_set <PieceNode*> s = gameState.pieceGraph.DFS();
 
-	BitboardContainer pieceGraphBoard;
+	Bitboard pieceGraphBoard;
 	for (PieceNode* n: s) {
-		BitboardContainer temp({{n -> boardIndex , n -> location}});
+		Bitboard temp({{n -> boardIndex , n -> location}});
 		pieceGraphBoard.unionWith(temp);
 	}
 
@@ -1170,8 +1170,8 @@ void Test::GameStateTest::testFastSpawnPiece(){
 	Test::pass( gameState.allPieces == finalBoard , "allPieces not updated correctly");
 	if (!silenced) {cout << "allpiece" << endl; gameState.allPieces.print();}
 
-	BitboardContainer ants(finalBoard);
-	BitboardContainer queen({{5, 524288u}});
+	Bitboard ants(finalBoard);
+	Bitboard queen({{5, 524288u}});
 	ants.notIntersectionWith(queen);
 
 	Test::pass( gameState.ants == ants, "ants not updated correctly");
@@ -1180,7 +1180,7 @@ void Test::GameStateTest::testFastSpawnPiece(){
 	Test::pass( gameState.queens == queen, "queens not updated correctly");
 	if (!silenced) {cout << "queens" << endl; gameState.queens.print();}
 
-	BitboardContainer empty;
+	Bitboard empty;
 
 	for (int i = 0 ; i <= PieceName::SPIDER; i++) {
 		if (i == PieceName::ANT || i == PieceName::QUEEN) continue;
@@ -1191,7 +1191,7 @@ void Test::GameStateTest::testFastSpawnPiece(){
 	Test::pass( gameState.immobile == queen, " immobile not updated correctly");
 	if (!silenced) {cout << "immobile" << endl; gameState.immobile.print();}
 	
-	BitboardContainer pinned({{5, 34493956096u}});
+	Bitboard pinned({{5, 34493956096u}});
 	Test::pass( gameState.pinned == pinned, " pinned not updated correctly");
 	if (!silenced) {cout << "pinned" << endl; pinned.print();}
 
@@ -1208,25 +1208,25 @@ void Test::GameStateTest::testFastSpawnPiece(){
 
 void Test::GameStateTest::testMovePiece(){
 	GameState gameState(HivePLM, PieceColor::WHITE);
-	vector <pair <BitboardContainer, PieceName> > initialPieces;
+	vector <pair <Bitboard, PieceName> > initialPieces;
 	cout << "====================TestMovePiece====================" << endl;
 	initialPieces = {
-		{BitboardContainer({{5,134217728u}}), PieceName::ANT},
-		{BitboardContainer({{5,34359738368u}}), PieceName::ANT},
-		{BitboardContainer({{5,1048576u}}), PieceName::ANT},
-		{BitboardContainer({{5, 4398046511104u}}), PieceName::ANT},
-		{BitboardContainer({{5, 524288u}}), PieceName::QUEEN},
-		{BitboardContainer({{5, 8796093022208u}}), PieceName::BEETLE},
-		{BitboardContainer({{5, 67108864u}}), PieceName::MOSQUITO},
+		{Bitboard({{5,134217728u}}), PieceName::ANT},
+		{Bitboard({{5,34359738368u}}), PieceName::ANT},
+		{Bitboard({{5,1048576u}}), PieceName::ANT},
+		{Bitboard({{5, 4398046511104u}}), PieceName::ANT},
+		{Bitboard({{5, 524288u}}), PieceName::QUEEN},
+		{Bitboard({{5, 8796093022208u}}), PieceName::BEETLE},
+		{Bitboard({{5, 67108864u}}), PieceName::MOSQUITO},
 	};
 	
 
-	BitboardContainer testAnt({{5, 4398046511104u}});
-	BitboardContainer testBeetle({{5, 8796093022208u}});
-	BitboardContainer testMosquito({{5, 67108864u}});
-	BitboardContainer finalBeetle({{5, 34359738368u}});
-	BitboardContainer finalMosquito({{5, 34359738368u}});
-	BitboardContainer finalAnt({{5, 17179869184u}});
+	Bitboard testAnt({{5, 4398046511104u}});
+	Bitboard testBeetle({{5, 8796093022208u}});
+	Bitboard testMosquito({{5, 67108864u}});
+	Bitboard finalBeetle({{5, 34359738368u}});
+	Bitboard finalMosquito({{5, 34359738368u}});
+	Bitboard finalAnt({{5, 17179869184u}});
 
 	bool color = (bool)PieceColor::WHITE;
 	for (auto p : initialPieces) {
@@ -1245,15 +1245,15 @@ void Test::GameStateTest::testMovePiece(){
 	
 	color = !color;
 	int turnCounter = 10;
-	BitboardContainer blackPieces({{5, 51539607552u}});
-	BitboardContainer whitePieces({{5, 34495528960u}});
-	BitboardContainer finalBoard({{5, 51675398144u}});
-	BitboardContainer ants({{5, 51674873856u}});
-	BitboardContainer queens({{5, 524288u}});
-	BitboardContainer mosquitoes({{5, 34359738368u}});
-	BitboardContainer beetles({{5, 34359738368u}});
-	BitboardContainer pinned({{5, 34493956096u}});
-	BitboardContainer immobile(finalBeetle);
+	Bitboard blackPieces({{5, 51539607552u}});
+	Bitboard whitePieces({{5, 34495528960u}});
+	Bitboard finalBoard({{5, 51675398144u}});
+	Bitboard ants({{5, 51674873856u}});
+	Bitboard queens({{5, 524288u}});
+	Bitboard mosquitoes({{5, 34359738368u}});
+	Bitboard beetles({{5, 34359738368u}});
+	Bitboard pinned({{5, 34493956096u}});
+	Bitboard immobile(finalBeetle);
 	auto stackCopy = gameState.stackHashTable[finalBeetle.hash()];
 	stack < pair < PieceColor , PieceName> >  stackCompare;
 
@@ -1315,19 +1315,19 @@ void Test::GameStateTest::testMovePiece(){
 
 void Test::GameStateTest::testPsuedoRandom() {
 	GameState gameState(HivePLM, PieceColor::WHITE);
-	vector <pair <BitboardContainer, PieceName> > initialPieces;
+	vector <pair <Bitboard, PieceName> > initialPieces;
 	cout << "====================TestRandomMove====================" << endl;
 	initialPieces = {
-		{BitboardContainer({{5,134217728u}}), PieceName::ANT},
-		{BitboardContainer({{5,34359738368u}}), PieceName::MOSQUITO},
-		{BitboardContainer({{5,1048576u}}), PieceName::ANT},
-		{BitboardContainer({{5, 4398046511104u}}), PieceName::ANT},
-		{BitboardContainer({{5, 524288u}}), PieceName::QUEEN},
-		{BitboardContainer({{5, 8796093022208u}}), PieceName::BEETLE},
-		{BitboardContainer({{5, 67108864u}}), PieceName::MOSQUITO},
-		{BitboardContainer({{5, 17592186044416u}}), PieceName::ANT},
-		{BitboardContainer({{5, 17179869184u}}), PieceName::LADYBUG},
-		{BitboardContainer({{5, 134217728u}}), PieceName::BEETLE},
+		{Bitboard({{5,134217728u}}), PieceName::ANT},
+		{Bitboard({{5,34359738368u}}), PieceName::MOSQUITO},
+		{Bitboard({{5,1048576u}}), PieceName::ANT},
+		{Bitboard({{5, 4398046511104u}}), PieceName::ANT},
+		{Bitboard({{5, 524288u}}), PieceName::QUEEN},
+		{Bitboard({{5, 8796093022208u}}), PieceName::BEETLE},
+		{Bitboard({{5, 67108864u}}), PieceName::MOSQUITO},
+		{Bitboard({{5, 17592186044416u}}), PieceName::ANT},
+		{Bitboard({{5, 17179869184u}}), PieceName::LADYBUG},
+		{Bitboard({{5, 134217728u}}), PieceName::BEETLE},
 	};
 	
 	bool color  = 0; 
@@ -1343,13 +1343,13 @@ void Test::GameStateTest::testPsuedoRandom() {
 
 	PieceName name;
 
-	BitboardContainer ant({{5,1048576u}});
-	BitboardContainer queen({{5, 524288u}});
-	BitboardContainer whiteMosquito({{5, 67108864u}});
-	BitboardContainer ladybug({{5, 17179869184u}});
+	Bitboard ant({{5,1048576u}});
+	Bitboard queen({{5, 524288u}});
+	Bitboard whiteMosquito({{5, 67108864u}});
+	Bitboard ladybug({{5, 17179869184u}});
 
 	MoveGenerator moveGenerator(&gameState.allPieces, &gameState.problemNodeContainer);
-	BitboardContainer antMoves, queenMoves, ladybugMoves, whiteMosquitoMoves;
+	Bitboard antMoves, queenMoves, ladybugMoves, whiteMosquitoMoves;
 
 	moveGenerator.setStackHashTable(&gameState.stackHashTable);
 	moveGenerator.setUpperLevelPieces(&gameState.upperLevelPieces);
@@ -1372,30 +1372,30 @@ void Test::GameStateTest::testPsuedoRandom() {
 	moveGenerator.setGeneratingPieceBoard(&whiteMosquito);
 	whiteMosquitoMoves = moveGenerator.getMoves();
 
-	BitboardContainer fauxBeetleMoves(whiteMosquito);
+	Bitboard fauxBeetleMoves(whiteMosquito);
 	fauxBeetleMoves = fauxBeetleMoves.getPerimeter();
 	fauxBeetleMoves.intersectionWith(gameState.allPieces);
 	whiteMosquitoMoves.unionWith(fauxBeetleMoves);
 
 	name = PieceName::QUEEN;
-	BitboardContainer fauxQueenMoves = moveGenerator.getMoves();
+	Bitboard fauxQueenMoves = moveGenerator.getMoves();
 	whiteMosquitoMoves.unionWith(fauxQueenMoves);
 	
-	unordered_map <int, BitboardContainer> expectedMoves  = {
+	unordered_map <int, Bitboard> expectedMoves  = {
 		{ant.hash(), antMoves},
 		{queen.hash(), queenMoves},
 		{ladybug.hash(), ladybugMoves},
 		{whiteMosquito.hash(), whiteMosquitoMoves},
 	};
 
-	BitboardContainer expectedSpawns({{5,8625855488u}});
-	BitboardContainer immobilePieces({{5,30820819533824u}});
+	Bitboard expectedSpawns({{5,8625855488u}});
+	Bitboard immobilePieces({{5,30820819533824u}});
 
 
 	unordered_map < int , unordered_map <PieceName, bool> > foundSpawns;
 
 
-	for (auto board: expectedSpawns.splitIntoBitboardContainers() ) {
+	for (auto board: expectedSpawns.splitIntoBitboards() ) {
 		for ( auto element: gameState.unusedPieces[PieceColor::WHITE]) {
 			if (element.second > 0) {
 				foundSpawns[board.hash()][element.first] = false;
@@ -1404,17 +1404,17 @@ void Test::GameStateTest::testPsuedoRandom() {
 		}
 	}
 
-	unordered_map <int, BitboardContainer> foundMoves;
+	unordered_map <int, Bitboard> foundMoves;
 	for (int i = 0 ; i <  10000; i ++ ) {
 		if ((i % 100) == 0) cout << i << " moves Generated" << endl;
 
 		GameState testGameState(gameState);
 		testGameState.makePsuedoRandomMove();
 
-		for (BitboardContainer board: testGameState.allPieces.splitIntoBitboardContainers()) {
-			BitboardContainer testboard = board.getPerimeter();
+		for (Bitboard board: testGameState.allPieces.splitIntoBitboards()) {
+			Bitboard testboard = board.getPerimeter();
 			testboard.intersectionWith(testGameState.allPieces);
-			for ( auto adjBoard: testboard.splitIntoBitboardContainers() ) {
+			for ( auto adjBoard: testboard.splitIntoBitboards() ) {
 				if (!testGameState.pieceGraph.checkBiDirectional(adjBoard, board)) {
 				Test::pass(false, "An edge given by pieceGraph was not bidirectional");
 				
@@ -1431,7 +1431,7 @@ void Test::GameStateTest::testPsuedoRandom() {
 			if ( testGameState.allPieces.containsAny(whiteMosquito)) {
 				//if the white mosquito didn't move
 				Test::pass(false, "made illegal move involving mosquito");
-				BitboardContainer diff(testGameState.allPieces);
+				Bitboard diff(testGameState.allPieces);
 				diff.xorWith(gameState.allPieces);
 				testGameState.print();
 				cout << "difference of boards" << endl;
@@ -1440,7 +1440,7 @@ void Test::GameStateTest::testPsuedoRandom() {
 			}
 		}
 
-		BitboardContainer testIllegal(immobilePieces);
+		Bitboard testIllegal(immobilePieces);
 		testIllegal.intersectionWith(testGameState.allPieces);
 		if (!(testIllegal == immobilePieces)) {
 			Test::pass(false, "Moved a black Piece");
@@ -1504,7 +1504,7 @@ void Test::GameStateTest::testPsuedoRandom() {
 	}
 
 	for (auto element: expectedMoves) {
-		BitboardContainer intersection;
+		Bitboard intersection;
 		if (foundMoves.find(element.first) != foundMoves.end() ){
 			intersection.initializeTo(foundMoves[element.first]);
 		}
@@ -1540,16 +1540,16 @@ void Test::GameStateTest::testPsuedoRandom() {
 			throw 42;
 		}
 		
-		BitboardContainer test;
+		Bitboard test;
 		for (auto i: c.pieceGraph.DFS() ){
-			BitboardContainer t({{i->boardIndex,i->location}});
+			Bitboard t({{i->boardIndex,i->location}});
 			test.unionWith(t);
 		}
 		if (!(test == c.allPieces)) {
 			Test::pass(false, "Not all pieces are represented by piece graph");
 			throw 77;
 		}
-		BitboardContainer allPiecesTest;
+		Bitboard allPiecesTest;
 		for (auto name: c.possibleNames) {
 			allPiecesTest.unionWith(*c.getPieces(name));	
 		}
@@ -1567,17 +1567,17 @@ void Test::GameStateTest::testPsuedoRandom() {
 	}
 }
 void perfTest() {
-	vector <pair <BitboardContainer , PieceName>> initialPieces = {
-		{BitboardContainer({{5,134217728u}}), PieceName::ANT},
-		{BitboardContainer({{5,34359738368u}}), PieceName::MOSQUITO},
-		{BitboardContainer({{5,1048576u}}), PieceName::ANT},
-		{BitboardContainer({{5, 4398046511104u}}), PieceName::ANT},
-		{BitboardContainer({{5, 524288u}}), PieceName::QUEEN},
-		{BitboardContainer({{5, 8796093022208u}}), PieceName::BEETLE},
-		{BitboardContainer({{5, 67108864u}}), PieceName::MOSQUITO},
-		{BitboardContainer({{5, 17592186044416u}}), PieceName::ANT},
-		{BitboardContainer({{5, 17179869184u}}), PieceName::LADYBUG},
-		{BitboardContainer({{5, 134217728u}}), PieceName::BEETLE},
+	vector <pair <Bitboard , PieceName>> initialPieces = {
+		{Bitboard({{5,134217728u}}), PieceName::ANT},
+		{Bitboard({{5,34359738368u}}), PieceName::MOSQUITO},
+		{Bitboard({{5,1048576u}}), PieceName::ANT},
+		{Bitboard({{5, 4398046511104u}}), PieceName::ANT},
+		{Bitboard({{5, 524288u}}), PieceName::QUEEN},
+		{Bitboard({{5, 8796093022208u}}), PieceName::BEETLE},
+		{Bitboard({{5, 67108864u}}), PieceName::MOSQUITO},
+		{Bitboard({{5, 17592186044416u}}), PieceName::ANT},
+		{Bitboard({{5, 17179869184u}}), PieceName::LADYBUG},
+		{Bitboard({{5, 134217728u}}), PieceName::BEETLE},
 	};
 	
 	GameState gameState(HivePLM, PieceColor::WHITE);
@@ -1631,8 +1631,8 @@ void Test::BitboardTest::testFastPerimeter(){
 	cout << "====================TestFastPerimeter()====================" << endl;
 	unsigned long long position = 1;
 	while(position) {
-		BitboardContainer test({{6, position}});
-		BitboardContainer expected(test);
+		Bitboard test({{6, position}});
+		Bitboard expected(test);
 		test = test.getPerimeter();
 		expected = expected.slowGetPerimeter();
 		Test::pass(test == expected, "testFastPerimeter did not match slowGetPerimeter");
@@ -1738,7 +1738,7 @@ void createPerimeterHashTable(int maxNumber) {
 
 					unsigned long long leftRightBoard= 0, upperLowerBoard= 0
 									, originalBoard= 0, diagonalBoard= 0;
-					BitboardContainer b({{original, v}});
+					Bitboard b({{original, v}});
 					b = b.slowGetPerimeter();
 					//search for possible overflows
 					for (auto j: upperLower)
@@ -1782,20 +1782,20 @@ void generateDirectionCombinations (unsigned int i, vector < vector <Direction>>
 	generateDirectionCombinations(i+1, v);
 }
 // if a given piece complies with the Hive sliding rule, return true
-bool checkLegalWalk(BitboardContainer allPieces, BitboardContainer board, Direction dir) {
-	BitboardContainer CW(board), CCW(board);
+bool checkLegalWalk(Bitboard allPieces, Bitboard board, Direction dir) {
+	Bitboard CW(board), CCW(board);
 	CW.shiftDirection(rotateClockWise(dir));
 	CCW.shiftDirection(rotateCounterClockWise(dir));
 	return  !(allPieces.containsAny(CW) && allPieces.containsAny(CCW));
 }
 //  return a bitboard representing all directions a piece can slide to
 //  does not comply with the one hive rule
-BitboardContainer getLegalWalks(BitboardContainer board, BitboardContainer allPieces) {
-	BitboardContainer retBoard;
+Bitboard getLegalWalks(Bitboard board, Bitboard allPieces) {
+	Bitboard retBoard;
 	for (unsigned i = 0; i < hexagonalDirections.size(); i++) {
 		if (checkLegalWalk(allPieces, board, (Direction)i))
 		{
-			BitboardContainer test(board);
+			Bitboard test(board);
 			test.shiftDirection((Direction)i);
 			retBoard.unionWith(test);
 		}
@@ -1814,15 +1814,15 @@ void createGateHashTable() {
 	while (position) {
 		if (position & ~notAllowed) {
 			for (vector <Direction> directions : v) {
-				BitboardContainer board({{boardIndex , position}});
-				BitboardContainer test;
-				BitboardContainer duplicated;
+				Bitboard board({{boardIndex , position}});
+				Bitboard test;
+				Bitboard duplicated;
 				for ( Direction dir: directions) {
 					test.initializeTo(board);
 					test.shiftDirection(dir);
 					duplicated.unionWith(test);	
 				}
-				BitboardContainer walks = getLegalWalks(board, duplicated);
+				Bitboard walks = getLegalWalks(board, duplicated);
 				GATES[__builtin_ctzll(position)][duplicated[boardIndex]] = walks[boardIndex];
 			}
 		}

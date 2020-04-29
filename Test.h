@@ -62,6 +62,10 @@ class Test {
 				static void testPlayout();
 		};
 
+		class Arena {
+			public:
+				static void testArenaNotation();
+		};
 		static void pass(bool, string);
 };
 

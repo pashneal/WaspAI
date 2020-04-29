@@ -13,7 +13,7 @@ class PieceGraph {
 		set <PieceNode*> articulationNodes;
 
 		//assumes that this is updated before every insert or remove operation
-		BitboardContainer allPieces;
+		Bitboard allPieces;
 
 		unordered_map <int, PieceNode*> bitboardHashTable;
 		//no adjecency list needed; it is stored within the nodes themselves
@@ -23,24 +23,24 @@ class PieceGraph {
 
 		~PieceGraph() { destroy();}
 
-		void insert(BitboardContainer&);
-		void remove(BitboardContainer&);
-		void reposition(BitboardContainer&, BitboardContainer&);
+		void insert(Bitboard&);
+		void remove(Bitboard&);
+		void reposition(Bitboard&, Bitboard&);
 
 		void getArticulationNodes(PieceNode*, int&, unordered_set<PieceNode*>&);
 		void checkArticulationRoot(PieceNode*);
 
-		bool checkBiDirectional(BitboardContainer, BitboardContainer);
+		bool checkBiDirectional(Bitboard, Bitboard);
 
 		bool isTopOfStack();
 
-		BitboardContainer getPinnedPieces();
+		Bitboard getPinnedPieces();
 
 		void destroy();
 
 		void operator = (const PieceGraph& other) {
 			for (auto element: other.bitboardHashTable) {
-				BitboardContainer bitboard({{element.second -> boardIndex, 
+				Bitboard bitboard({{element.second -> boardIndex, 
 											 element.second -> location}});
 				insert(bitboard);
 			}

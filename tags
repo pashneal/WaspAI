@@ -1,47 +1,47 @@
 ANT	constants.h	16
 BEETLE	constants.h	15
-BITBOARD_CONTAINER_COLS	constants.h	55
-BITBOARD_CONTAINER_ROWS	constants.h	54
-BITBOARD_CONTAINER_SIZE	constants.h	53
+BITBOARD_COLS	constants.h	55
+BITBOARD_ROWS	constants.h	54
+BITBOARD_SIZE	constants.h	53
 BITBOARD_HEIGHT	constants.h	51
 BITBOARD_WIDTH	constants.h	52
 BLACK	constants.h	34
-BitboardContainer	Bitboard.h	10
-BitboardContainer::BitboardContainer	Bitboard.cpp	/^BitboardContainer::BitboardContainer(unordered_map/
-BitboardContainer::BitboardContainer	Bitboard.h	/^	BitboardContainer() {};$/
-BitboardContainer::adjustOverflowMask	Bitboard.cpp	/^unsigned long long BitboardContainer::adjustOverfl/
-BitboardContainer::clear	Bitboard.cpp	/^void BitboardContainer::clear() {$/
-BitboardContainer::containsAny	Bitboard.cpp	/^bool BitboardContainer::containsAny(BitboardContai/
-BitboardContainer::convertToHexRepresentation	Bitboard.cpp	/^void BitboardContainer::convertToHexRepresentation/
-BitboardContainer::count	Bitboard.cpp	/^int BitboardContainer::count(){$/
-BitboardContainer::createLowOverflowMask	Bitboard.cpp	/^unsigned long long BitboardContainer::createLowOve/
-BitboardContainer::duplicateBoard	Bitboard.cpp	/^void BitboardContainer::duplicateBoard(list <Direc/
-BitboardContainer::equals	Bitboard.cpp	/^bool BitboardContainer::equals(BitboardContainer& /
-BitboardContainer::floodFill	Bitboard.cpp	/^void BitboardContainer::floodFill(BitboardContaine/
-BitboardContainer::floodFillStep	Bitboard.cpp	/^void BitboardContainer::floodFillStep(BitboardCont/
-BitboardContainer::getLeastSignificantBit	Bitboard.cpp	/^pair <int , unsigned long long > BitboardContainer/
-BitboardContainer::getPerimeter	Bitboard.cpp	/^BitboardContainer  BitboardContainer::getPerimeter/
-BitboardContainer::hash	Bitboard.cpp	/^int BitboardContainer::hash() {$/
-BitboardContainer::initialize	Bitboard.cpp	/^void BitboardContainer::initialize(unordered_map </
-BitboardContainer::initializeTo	Bitboard.cpp	/^void BitboardContainer::initializeTo(BitboardConta/
-BitboardContainer::internalBoardCache	Bitboard.h	14
-BitboardContainer::internalBoards	Bitboard.h	17
-BitboardContainer::intersectionWith	Bitboard.cpp	/^void BitboardContainer::intersectionWith( Bitboard/
-BitboardContainer::notIntersectionWith	Bitboard.cpp	/^void BitboardContainer::notIntersectionWith( Bitbo/
-BitboardContainer::operator ==	Bitboard.h	/^	bool operator ==(BitboardContainer &other) {$/
-BitboardContainer::pair	Bitboard.h	39
-BitboardContainer::print	Bitboard.cpp	/^void BitboardContainer::print() {$/
-BitboardContainer::pruneCache	Bitboard.cpp	/^void BitboardContainer::pruneCache(){$/
-BitboardContainer::setBoard	Bitboard.cpp	/^void BitboardContainer::setBoard(int boardIndex, u/
-BitboardContainer::shiftDirection	Bitboard.cpp	/^void BitboardContainer::shiftDirection(Direction d/
-BitboardContainer::shiftDirection	Bitboard.cpp	/^void BitboardContainer::shiftDirection(Direction d/
-BitboardContainer::shiftOrthogonalDirection	Bitboard.cpp	/^void BitboardContainer::shiftOrthogonalDirection(D/
-BitboardContainer::split	Bitboard.cpp	/^unordered_map< int, vector < unsigned long long >>/
-BitboardContainer::splitIntoBitboardContainers	Bitboard.cpp	/^list <BitboardContainer> BitboardContainer::splitI/
-BitboardContainer::splitIntoConnectedComponents	Bitboard.cpp	/^vector <BitboardContainer> BitboardContainer::spli/
-BitboardContainer::unionWith	Bitboard.cpp	/^void BitboardContainer::unionWith( BitboardContain/
-BitboardContainer::unordered_map	Bitboard.h	58
-BitboardContainer::xorWith	Bitboard.cpp	/^void BitboardContainer::xorWith( BitboardContainer/
+Bitboard	Bitboard.h	10
+Bitboard::Bitboard	Bitboard.cpp	/^Bitboard::Bitboard(unordered_map/
+Bitboard::Bitboard	Bitboard.h	/^	Bitboard() {};$/
+Bitboard::adjustOverflowMask	Bitboard.cpp	/^unsigned long long Bitboard::adjustOverfl/
+Bitboard::clear	Bitboard.cpp	/^void Bitboard::clear() {$/
+Bitboard::containsAny	Bitboard.cpp	/^bool Bitboard::containsAny(BitboardContai/
+Bitboard::convertToHexRepresentation	Bitboard.cpp	/^void Bitboard::convertToHexRepresentation/
+Bitboard::count	Bitboard.cpp	/^int Bitboard::count(){$/
+Bitboard::createLowOverflowMask	Bitboard.cpp	/^unsigned long long Bitboard::createLowOve/
+Bitboard::duplicateBoard	Bitboard.cpp	/^void Bitboard::duplicateBoard(list <Direc/
+Bitboard::equals	Bitboard.cpp	/^bool Bitboard::equals(Bitboard& /
+Bitboard::floodFill	Bitboard.cpp	/^void Bitboard::floodFill(BitboardContaine/
+Bitboard::floodFillStep	Bitboard.cpp	/^void Bitboard::floodFillStep(BitboardCont/
+Bitboard::getLeastSignificantBit	Bitboard.cpp	/^pair <int , unsigned long long > Bitboard/
+Bitboard::getPerimeter	Bitboard.cpp	/^Bitboard  Bitboard::getPerimeter/
+Bitboard::hash	Bitboard.cpp	/^int Bitboard::hash() {$/
+Bitboard::initialize	Bitboard.cpp	/^void Bitboard::initialize(unordered_map </
+Bitboard::initializeTo	Bitboard.cpp	/^void Bitboard::initializeTo(BitboardConta/
+Bitboard::internalBoardCache	Bitboard.h	14
+Bitboard::internalBoards	Bitboard.h	17
+Bitboard::intersectionWith	Bitboard.cpp	/^void Bitboard::intersectionWith( Bitboard/
+Bitboard::notIntersectionWith	Bitboard.cpp	/^void Bitboard::notIntersectionWith( Bitbo/
+Bitboard::operator ==	Bitboard.h	/^	bool operator ==(Bitboard &other) {$/
+Bitboard::pair	Bitboard.h	39
+Bitboard::print	Bitboard.cpp	/^void Bitboard::print() {$/
+Bitboard::pruneCache	Bitboard.cpp	/^void Bitboard::pruneCache(){$/
+Bitboard::setBoard	Bitboard.cpp	/^void Bitboard::setBoard(int boardIndex, u/
+Bitboard::shiftDirection	Bitboard.cpp	/^void Bitboard::shiftDirection(Direction d/
+Bitboard::shiftDirection	Bitboard.cpp	/^void Bitboard::shiftDirection(Direction d/
+Bitboard::shiftOrthogonalDirection	Bitboard.cpp	/^void Bitboard::shiftOrthogonalDirection(D/
+Bitboard::split	Bitboard.cpp	/^unordered_map< int, vector < unsigned long long >>/
+Bitboard::splitIntoBitboards	Bitboard.cpp	/^list <Bitboard> Bitboard::splitI/
+Bitboard::splitIntoConnectedComponents	Bitboard.cpp	/^vector <Bitboard> Bitboard::spli/
+Bitboard::unionWith	Bitboard.cpp	/^void Bitboard::unionWith( BitboardContain/
+Bitboard::unordered_map	Bitboard.h	58
+Bitboard::xorWith	Bitboard.cpp	/^void Bitboard::xorWith( Bitboard/
 COLUMN_SHIFT	constants.h	50
 Direction	constants.h	20
 E	constants.h	22
@@ -61,12 +61,12 @@ GameState::checkVictory	3	/^PieceColor GameState::checkVictory() {$/
 GameState::checkVictory	GameState.cpp	/^PieceColor GameState::checkVictory() {$/
 GameState::destroy	3	/^void GameState::destroy() {$/
 GameState::destroy	GameState.cpp	/^void GameState::destroy() {$/
-GameState::fastInsertPiece	3	/^void GameState::fastInsertPiece(BitboardContainer&/
-GameState::fastInsertPiece	GameState.cpp	/^void GameState::fastInsertPiece(BitboardContainer&/
-GameState::fastMovePiece	3	/^void GameState::fastMovePiece(BitboardContainer& o/
-GameState::fastMovePiece	GameState.cpp	/^void GameState::fastMovePiece(BitboardContainer& o/
-GameState::fastRemovePiece	3	/^void GameState::fastRemovePiece(BitboardContainer&/
-GameState::fastRemovePiece	GameState.cpp	/^void GameState::fastRemovePiece(BitboardContainer&/
+GameState::fastInsertPiece	3	/^void GameState::fastInsertPiece(Bitboard&/
+GameState::fastInsertPiece	GameState.cpp	/^void GameState::fastInsertPiece(Bitboard&/
+GameState::fastMovePiece	3	/^void GameState::fastMovePiece(Bitboard& o/
+GameState::fastMovePiece	GameState.cpp	/^void GameState::fastMovePiece(Bitboard& o/
+GameState::fastRemovePiece	3	/^void GameState::fastRemovePiece(Bitboard&/
+GameState::fastRemovePiece	GameState.cpp	/^void GameState::fastRemovePiece(Bitboard&/
 GameState::findPieceName	3	/^PieceName GameState::findPieceName(BitboardContain/
 GameState::findPieceName	GameState.cpp	/^PieceName GameState::findPieceName(BitboardContain/
 GameState::findPinnedPieces	3	/^void GameState::findPinnedPieces(){$/
@@ -74,32 +74,32 @@ GameState::findPinnedPieces	GameState.cpp	/^void GameState::findPinnedPieces(){$
 GameState::firstPieces	GameState.h	40
 GameState::getAllMoves	3	/^void GameState::getAllMoves(list <PieceName> names/
 GameState::getAllMoves	GameState.cpp	/^void GameState::getAllMoves(list <PieceName> names/
-GameState::getAllSpawnSpaces	3	/^BitboardContainer GameState::getAllSpawnSpaces() {/
-GameState::getAllSpawnSpaces	GameState.cpp	/^BitboardContainer GameState::getAllSpawnSpaces() {/
-GameState::getMosquitoMoves	3	/^void GameState::getMosquitoMoves(BitboardContainer/
-GameState::getMosquitoMoves	GameState.cpp	/^BitboardContainer GameState::getMosquitoMoves(Bitb/
-GameState::getPieces	3	/^inline BitboardContainer * GameState::getPieces() /
-GameState::getPieces	3	/^BitboardContainer * GameState::getPieces(PieceName/
-GameState::getPieces	3	/^BitboardContainer * GameState::getPieces(PieceColo/
-GameState::getPieces	GameState.cpp	/^inline BitboardContainer * GameState::getPieces() /
-GameState::getPieces	GameState.cpp	/^BitboardContainer * GameState::getPieces(PieceName/
-GameState::getPieces	GameState.cpp	/^BitboardContainer * GameState::getPieces(PieceColo/
-GameState::getSwapSpaces	3	/^pair <BitboardContainer, BitboardContainer> GameSt/
-GameState::getSwapSpaces	GameState.cpp	/^pair <BitboardContainer, BitboardContainer> GameSt/
+GameState::getAllSpawnSpaces	3	/^Bitboard GameState::getAllSpawnSpaces() {/
+GameState::getAllSpawnSpaces	GameState.cpp	/^Bitboard GameState::getAllSpawnSpaces() {/
+GameState::getMosquitoMoves	3	/^void GameState::getMosquitoMoves(Bitboard/
+GameState::getMosquitoMoves	GameState.cpp	/^Bitboard GameState::getMosquitoMoves(Bitb/
+GameState::getPieces	3	/^inline Bitboard * GameState::getPieces() /
+GameState::getPieces	3	/^Bitboard * GameState::getPieces(PieceName/
+GameState::getPieces	3	/^Bitboard * GameState::getPieces(PieceColo/
+GameState::getPieces	GameState.cpp	/^inline Bitboard * GameState::getPieces() /
+GameState::getPieces	GameState.cpp	/^Bitboard * GameState::getPieces(PieceName/
+GameState::getPieces	GameState.cpp	/^Bitboard * GameState::getPieces(PieceColo/
+GameState::getSwapSpaces	3	/^pair <Bitboard, Bitboard> GameSt/
+GameState::getSwapSpaces	GameState.cpp	/^pair <Bitboard, Bitboard> GameSt/
 GameState::grasshoppers	GameState.h	39
 GameState::immobile	GameState.h	42
-GameState::insertPiece	3	/^MoveInfo GameState::insertPiece(BitboardContainer&/
-GameState::insertPiece	GameState.cpp	/^MoveInfo GameState::insertPiece(BitboardContainer&/
+GameState::insertPiece	3	/^MoveInfo GameState::insertPiece(Bitboard&/
+GameState::insertPiece	GameState.cpp	/^MoveInfo GameState::insertPiece(Bitboard&/
 GameState::ladybugs	GameState.h	35
 GameState::list	GameState.h	46
 GameState::makePsuedoRandomMove	3	/^void GameState::makePsuedoRandomMove() {$/
 GameState::makePsuedoRandomMove	GameState.cpp	/^void GameState::makePsuedoRandomMove() {$/
 GameState::mosquitoes	GameState.h	37
-GameState::moveApproximation	3	/^int GameState::moveApproximation(BitboardContainer/
-GameState::moveApproximation	GameState.cpp	/^int GameState::moveApproximation(BitboardContainer/
+GameState::moveApproximation	3	/^int GameState::moveApproximation(Bitboard/
+GameState::moveApproximation	GameState.cpp	/^int GameState::moveApproximation(Bitboard/
 GameState::moveGenerator	GameState.h	55
-GameState::movePiece	3	/^MoveInfo GameState::movePiece(BitboardContainer& o/
-GameState::movePiece	GameState.cpp	/^MoveInfo GameState::movePiece(BitboardContainer& o/
+GameState::movePiece	3	/^MoveInfo GameState::movePiece(Bitboard& o/
+GameState::movePiece	GameState.cpp	/^MoveInfo GameState::movePiece(Bitboard& o/
 GameState::numberMoves	GameState.h	47
 GameState::pair	GameState.h	90
 GameState::pieceGraph	GameState.h	54
@@ -111,7 +111,7 @@ GameState::problemNodeContainer	GameState.h	53
 GameState::queens	GameState.h	36
 GameState::spiders	GameState.h	34
 GameState::stackHashTable	GameState.h	51
-GameState::swapPiece	GameState.cpp	/^void GameState::swapPiece(BitboardContainer& swapp/
+GameState::swapPiece	GameState.cpp	/^void GameState::swapPiece(Bitboard& swapp/
 GameState::totalPossibleMoves	GameState.h	49
 GameState::turnColor	GameState.h	28
 GameState::turnCounter	GameState.h	44
@@ -138,8 +138,8 @@ LADYBUG	constants.h	12
 MOSQUITO	constants.h	14
 MTest.cpp	Test.cpp	/^int main() {$/
 MoveGenerator	MoveGenerator.h	12
-MoveGenerator::MoveGenerator	'	/^MoveGenerator::MoveGenerator(BitboardContainer * a/
-MoveGenerator::MoveGenerator	MoveGenerator.cpp	/^MoveGenerator::MoveGenerator(BitboardContainer * a/
+MoveGenerator::MoveGenerator	'	/^MoveGenerator::MoveGenerator(Bitboard * a/
+MoveGenerator::MoveGenerator	MoveGenerator.cpp	/^MoveGenerator::MoveGenerator(Bitboard * a/
 MoveGenerator::MoveGenerator	MoveGenerator.h	/^		MoveGenerator(){};$/
 MoveGenerator::NUM_SPIDER_MOVES	MoveGenerator.h	47
 MoveGenerator::allPieces	MoveGenerator.h	45
@@ -164,16 +164,16 @@ MoveGenerator::generateSpiderMoves	'	/^void MoveGenerator::generateSpiderMoves()
 MoveGenerator::generateSpiderMoves	MoveGenerator.cpp	/^void MoveGenerator::generateSpiderMoves(){$/
 MoveGenerator::generatingPieceBoard	MoveGenerator.h	21
 MoveGenerator::generatingPieceName	MoveGenerator.h	14
-MoveGenerator::getInaccessibleNodes	'	/^BitboardContainer MoveGenerator::getInaccessibleNo/
-MoveGenerator::getInaccessibleNodes	'	/^BitboardContainer MoveGenerator::getInaccessibleNo/
-MoveGenerator::getInaccessibleNodes	MoveGenerator.cpp	/^BitboardContainer MoveGenerator::getInaccessibleNo/
-MoveGenerator::getInaccessibleNodes	MoveGenerator.cpp	/^BitboardContainer MoveGenerator::getInaccessibleNo/
-MoveGenerator::getLegalClimb	'	/^BitboardContainer MoveGenerator::getLegalClimb( Bi/
-MoveGenerator::getLegalClimb	MoveGenerator.cpp	/^BitboardContainer MoveGenerator::getLegalClimb( Bi/
-MoveGenerator::getMoves	'	/^BitboardContainer MoveGenerator::getMoves() {	$/
-MoveGenerator::getMoves	MoveGenerator.cpp	/^BitboardContainer MoveGenerator::getMoves() {	$/
-MoveGenerator::getPillbugSwapSpaces	MoveGenerator.cpp	/^BitboardContainer MoveGenerator::getPillbugSwapSpa/
-MoveGenerator::ladybugStep	MoveGenerator.cpp	/^void MoveGenerator::ladybugStep(BitboardContainer&/
+MoveGenerator::getInaccessibleNodes	'	/^Bitboard MoveGenerator::getInaccessibleNo/
+MoveGenerator::getInaccessibleNodes	'	/^Bitboard MoveGenerator::getInaccessibleNo/
+MoveGenerator::getInaccessibleNodes	MoveGenerator.cpp	/^Bitboard MoveGenerator::getInaccessibleNo/
+MoveGenerator::getInaccessibleNodes	MoveGenerator.cpp	/^Bitboard MoveGenerator::getInaccessibleNo/
+MoveGenerator::getLegalClimb	'	/^Bitboard MoveGenerator::getLegalClimb( Bi/
+MoveGenerator::getLegalClimb	MoveGenerator.cpp	/^Bitboard MoveGenerator::getLegalClimb( Bi/
+MoveGenerator::getMoves	'	/^Bitboard MoveGenerator::getMoves() {	$/
+MoveGenerator::getMoves	MoveGenerator.cpp	/^Bitboard MoveGenerator::getMoves() {	$/
+MoveGenerator::getPillbugSwapSpaces	MoveGenerator.cpp	/^Bitboard MoveGenerator::getPillbugSwapSpa/
+MoveGenerator::ladybugStep	MoveGenerator.cpp	/^void MoveGenerator::ladybugStep(Bitboard&/
 MoveGenerator::moves	MoveGenerator.h	25
 MoveGenerator::perimeter	MoveGenerator.h	26
 MoveGenerator::piecesExceptCurrent	MoveGenerator.h	40
@@ -215,10 +215,10 @@ PieceGraph::bitboardHashTable	PieceGraph.h	18
 PieceGraph::checkArticulationRoot	PieceGraph.cpp	/^void PieceGraph::checkArticulationRoot(PieceNode */
 PieceGraph::destroy	PieceGraph.cpp	/^void PieceGraph::destroy() {$/
 PieceGraph::getArticulationNodes	PieceGraph.cpp	/^void PieceGraph::getArticulationNodes(PieceNode * /
-PieceGraph::getPinnedPieces	PieceGraph.cpp	/^BitboardContainer PieceGraph::getPinnedPieces() {$/
-PieceGraph::insert	PieceGraph.cpp	/^void PieceGraph::insert(BitboardContainer& newBitb/
-PieceGraph::remove	PieceGraph.cpp	/^void PieceGraph::remove(BitboardContainer& oldBitb/
-PieceGraph::reposition	PieceGraph.cpp	/^void PieceGraph::reposition(BitboardContainer& old/
+PieceGraph::getPinnedPieces	PieceGraph.cpp	/^Bitboard PieceGraph::getPinnedPieces() {$/
+PieceGraph::insert	PieceGraph.cpp	/^void PieceGraph::insert(Bitboard& newBitb/
+PieceGraph::remove	PieceGraph.cpp	/^void PieceGraph::remove(Bitboard& oldBitb/
+PieceGraph::reposition	PieceGraph.cpp	/^void PieceGraph::reposition(Bitboard& old/
 PieceGraph::unordered_map	PieceGraph.h	18
 PieceGraph::~PieceGraph	PieceGraph.h	/^		~PieceGraph() { destroy();}$/
 PieceName	constants.h	9
@@ -243,8 +243,8 @@ ProblemNodeContainer::allPieces	ProblemNode.h	32
 ProblemNodeContainer::clear	ProblemNode.cpp	/^void ProblemNodeContainer::clear() {$/
 ProblemNodeContainer::contains	ProblemNode.cpp	/^bool ProblemNodeContainer::contains(BitboardContai/
 ProblemNodeContainer::findAllProblemNodes	ProblemNode.cpp	/^void ProblemNodeContainer::findAllProblemNodes() {/
-ProblemNodeContainer::getLegalClimbs	ProblemNode.cpp	/^BitboardContainer ProblemNodeContainer::getLegalCl/
-ProblemNodeContainer::getPerimeter	ProblemNode.cpp	/^BitboardContainer ProblemNodeContainer::getPerimet/
+ProblemNodeContainer::getLegalClimbs	ProblemNode.cpp	/^Bitboard ProblemNodeContainer::getLegalCl/
+ProblemNodeContainer::getPerimeter	ProblemNode.cpp	/^Bitboard ProblemNodeContainer::getPerimet/
 ProblemNodeContainer::getProblemNodesAtLocation	ProblemNode.cpp	/^ProblemNodeContainer::getProblemNodesAtLocation(in/
 ProblemNodeContainer::hash	ProblemNode.cpp	/^int ProblemNodeContainer::hash(int boardIndex, uns/
 ProblemNodeContainer::insert	ProblemNode.cpp	/^void ProblemNodeContainer::insert(BitboardContaine/

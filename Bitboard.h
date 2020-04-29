@@ -11,21 +11,21 @@
 
 
 using namespace std;
-class BitboardContainer {
+class Bitboard {
 
 //	map<int, unsigned long long> internalBoards;
 
 	set<int> internalBoardCache;
-	unsigned long long internalBoards[BITBOARD_CONTAINER_SIZE];
+	unsigned long long internalBoards[BITBOARD_SIZE];
 
 	void unionWith(int , unsigned long long);
 	void replaceWith(int, unsigned long long);
   public:
-	BitboardContainer() {};
-	BitboardContainer(unordered_map<int, unsigned long long>);
+	Bitboard() {};
+	Bitboard(unordered_map<int, unsigned long long>);
 
 	void initialize(unordered_map <int, unsigned long long>);
-	void initializeTo(BitboardContainer&);
+	void initializeTo(Bitboard&);
 	void setBoard(int , unsigned long long);
 
 	void convertToHexRepresentation(Direction, int);
@@ -37,41 +37,41 @@ class BitboardContainer {
 	unsigned long long adjustOverflowMask(Direction, int, bool, unsigned long long);
 
 
-	void floodFillStep(BitboardContainer&, BitboardContainer&);
-	void floodFill(BitboardContainer&);
+	void floodFillStep(Bitboard&, Bitboard&);
+	void floodFill(Bitboard&);
 
 	const pair <const int , const unsigned long long> getLeastSignificantBit() const;
 
 	void pruneCache();
 	void clear();
 
-	void unionWith(BitboardContainer&);
-	void intersectionWith(BitboardContainer&);
-	void xorWith(BitboardContainer&);
-	void notIntersectionWith(BitboardContainer&);
-	bool containsAny(BitboardContainer&);
+	void unionWith(Bitboard&);
+	void intersectionWith(Bitboard&);
+	void xorWith(Bitboard&);
+	void notIntersectionWith(Bitboard&);
+	bool containsAny(Bitboard&);
 
-	bool equals(BitboardContainer&);
+	bool equals(Bitboard&);
 
 	void duplicateBoard(list<Direction>);
 
 	int count();
 
-	BitboardContainer getPerimeter();
-	BitboardContainer slowGetPerimeter();
+	Bitboard getPerimeter();
+	Bitboard slowGetPerimeter();
 
 	unordered_map <int , vector <unsigned long long> > split();
-	list <BitboardContainer> splitIntoBitboardContainers();
+	list <Bitboard> splitIntoBitboards();
 
-	vector <BitboardContainer> splitIntoConnectedComponents();
+	vector <Bitboard> splitIntoConnectedComponents();
 
 	void print();
 	int hash();
 	
 	int getRandomBoardIndex();
-	BitboardContainer getRandom();
+	Bitboard getRandom();
 
-	bool operator ==(BitboardContainer &other) {
+	bool operator ==(Bitboard &other) {
 		return equals(other);
 	}
 
@@ -83,14 +83,14 @@ class BitboardContainer {
 	}
 
 	//overload the assigment operator to O(k) instead of O(n)
-	void operator = (const BitboardContainer& other) {
+	void operator = (const Bitboard& other) {
 		internalBoardCache = other.internalBoardCache;
 		for (int boardIndex : internalBoardCache) {
 			internalBoards[boardIndex] = other.internalBoards[boardIndex];
 		}
 	}	
 
-	bool operator == (const BitboardContainer& other) const {
+	bool operator == (const Bitboard& other) const {
 		set <int> combined;
 		for (auto i: internalBoards) {
 			if (internalBoards[i] != 0) combined.insert(i);

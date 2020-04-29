@@ -21,8 +21,8 @@ class PieceNode {
 		PieceNode(){};
 		void shiftDirection(Direction, int);
 		void shiftDirection(Direction);
-		void reposition(list<PieceNode*>&, BitboardContainer&);
-		void insert(list<PieceNode*>&, BitboardContainer&);
+		void reposition(list<PieceNode*>&, Bitboard&);
+		void insert(list<PieceNode*>&, Bitboard&);
 		void remove();
 		void print();
 		

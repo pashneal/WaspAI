@@ -8,10 +8,10 @@ unordered_map <PieceColor, string> colorNotation {
 	{PieceColor::WHITE, "w"},
 	{PieceColor::BLACK, "b"},
 };
-unordered_map <char, vector<Direction,Direction>> dirNotationReverse{
-	{'\\', {SE,NW}},
-	{'-',  {NE,SW}},
-	{'/',  {E, W }}
+unordered_map <char, vector<Direction>> dirNotationReverse{
+	{'\\', {Direction::SE,Direction::NW}},
+	{'-',  {Direction::NE,Direction::SW}},
+	{'/',  {Direction::E, Direction::W }}
 };
 unordered_map <Direction, string> dirNotation {
 	{Direction::NW ,"\\"},
@@ -44,11 +44,12 @@ unordered_map<PieceName, string> nameNotation{
 	{PieceName::SPIDER,  	 "S"},
 };
 
-vector<PieceName> singlePieces = {MOSQUITO, QUEEN, LADYBUG, PILLBUG};
+set<PieceName> singlePieces = {MOSQUITO, QUEEN, LADYBUG, PILLBUG};
 set<Direction> westernDirection = {NW, SW, W};
+
 /*
- *Use this to set player to a cpu
- *Initialized to human player by default
+ *Use this to set a player to a cpu
+ *Initialized to human players by default
  */
 void Arena::setPlayer(int playerNum, Heuristic& playerHeuristic) {
 	if (playerNum == 1) {
@@ -72,7 +73,7 @@ string Arena::convertToNotation(MoveInfo move){
 	PieceName oldName = move.pieceName;
 	string notation = colorNotation[oldColor] + nameNotation[oldName];
 	notation += findTopPieceOrder(move.oldPieceLocation);
-	BitboardContainer test;
+	Bitboard test;
 	
 	// if landing on top of another piece, use that in the notation
 	if (currentGameState.upperLevelPieces.containsAny(move.newPieceLocation)){
@@ -117,6 +118,7 @@ MoveInfo Arena::convertFromNotation(string notation) {
 		*ptr += notation[i];
 	}
 
+	//interpret the first half of the string
 	move.pieceName = nameNotationReverse[to_string(pieceIdentifier[1])];
 	PieceColor color = colorNotationReverse[to_string(pieceIdentifier[0])];
 	string pieceOrderString = "";
@@ -124,28 +126,40 @@ MoveInfo Arena::convertFromNotation(string notation) {
 		pieceOrderString = pieceIdentifier[2];
 	}
 
-	BitboardContainer foundPiece(*currentGameState.getPieces(move.pieceName));
+	//determine which piece the string corresponds to 
+	Bitboard foundPiece(*currentGameState.getPieces(move.pieceName));
 	foundPiece.intersectionWith(*currentGameState.getPieces(color));
 	int p = 0;
 	if (pieceOrderString.size()) p = stoi(pieceOrderString);
-	foundPiece.intersectionWith(pieceOrder[p]);
+	// since many pieces of a given name and color
+	// can be placed in the hive, determine which one it is
+	for (auto piece: foundPiece.splitIntoBitboards()) {
+		string s = pieceOrderStack[piece.hash()].top();
+		if (s == pieceOrderString)  {
+			foundPiece = piece;
+			break;
+		}
+	}
 	move.oldPieceLocation = foundPiece;
 
+	//if the second half of the string exists
 	if (newLocation.size() == 0 )  {
 		move.newPieceLocation = startSpawnBoard;
 	} else {
-
 		set<char> symbols {'\\','/','-'};
 		bool isWesternDirection = symbols.find(newLocation[0]) != symbols.end();
 
+		//interpret the second half of the string
 		string newNameString = to_string(pieceIdentifier[1 + isWesternDirection]);
 		PieceName newName = nameNotationReverse[newNameString];
 		string newColorString = to_string(pieceIdentifier[0 + isWesternDirection]);
 		PieceColor newColor = colorNotationReverse[newColorString];
 
+		//determine possible pieces
 		foundPiece.initializeTo(*currentGameState.getPieces(newColor));
 		foundPiece.intersectionWith(*currentGameState.getPieces(newName));
 
+		//determine whether it is a directional move or a climb
 		string pieceOrderString = "";
 		bool containsDirection = false;
 		char dir;
@@ -160,10 +174,17 @@ MoveInfo Arena::convertFromNotation(string notation) {
 			pieceOrderString = newLocation[2 + isWesternDirection];
 		}
 
-		int p = 0;
-		if (pieceOrderString.size()) p = stoi(pieceOrderString);
-		foundPiece.intersectionWith(pieceOrder[p]);
+		// since many pieces of a given name and color
+		// can be placed in the hive, determine which one it is
+		for (auto piece: foundPiece.splitIntoBitboards()) {
+			string s = pieceOrderStack[piece.hash()].top();
+			if (s == pieceOrderString)  {
+				foundPiece = piece;
+				break;
+			}
+		}
 
+		//follow the instruction given in notation
 		if (containsDirection) {
 			Direction direction = dirNotationReverse[dir][isWesternDirection];
 			foundPiece.shiftDirection(direction);
@@ -172,15 +193,48 @@ MoveInfo Arena::convertFromNotation(string notation) {
 		move.newPieceLocation = foundPiece;
 
 	}
+	return move;
 }
-string Arena::findTopPieceOrder(BitboardContainer piece) {
-	if( pieceOrderStack.find(piece) != pieceOrderStack.end() ) {
-		return to_string(pieceOrderStack[piece].top());
-	}
-	for (unsigned i= 1; i < pieceOrder.size(); i++) {
-		if (pieceOrder[i].containsAny(piece))
-			return to_string(i);
-	}
 
-	return "";
-}
+
+//Assumes that specified move is legal
+void Arena::makeMove(string move){
+	MoveInfo moveInfo = convertFromNotation(move);
+	makeMove(moveInfo);
+};
+
+//Assumes that move is legal
+void Arena::makeMove(MoveInfo move){
+	Bitboard movingPiece = move.oldPieceLocation;
+	Bitboard newLocation = move.newPieceLocation;
+	string pieceOrderString = "";
+
+	//if spawning a piece
+	if (movingPiece.count() == 0) {	
+
+		//find certain pieces that do not occur more than once
+		if (singlePieces.find(move.pieceName) == singlePieces.end()){
+			//find all identical pieces and add 1 to the count
+			PieceColor color = currentGameState.findTopPieceColor(move.oldPieceLocation);
+			PieceName name = move.pieceName;
+			Bitboard identicalPieces = *currentGameState.getPieces(name);
+			identicalPieces.intersectionWith(*currentGameState.getPieces(color));
+			pieceOrderString = to_string(identicalPieces.count() + 1);
+		}
+		//update the pieceOrderStack
+		pieceOrderStack[movingPiece.hash()].push(pieceOrderString);
+	}
+	
+	//remove from old location, insert into new
+	pieceOrderString = findTopPieceOrder(movingPiece);
+	pieceOrderStack[movingPiece.hash()].pop();
+	pieceOrderStack[newLocation.hash()].push(pieceOrderString);
+	//update 
+	moveHistory.push(move);
+	currentGameState.replayMove(move);
+};
+
+//Assumes that the piece is already in the hive
+string Arena::findTopPieceOrder(Bitboard piece){
+	return pieceOrderStack[piece.hash()].top();
+};

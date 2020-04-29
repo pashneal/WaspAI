@@ -61,9 +61,9 @@ const int ROW_SHIFT = 8;
 const int COLUMN_SHIFT = 1;
 const int BITBOARD_HEIGHT = 8;
 const int BITBOARD_WIDTH = 8;
-const int BITBOARD_CONTAINER_SIZE  = 9;
-const int BITBOARD_CONTAINER_ROWS = 3;
-const int BITBOARD_CONTAINER_COLS = 3;
+const int BITBOARD_SIZE  = 9;
+const int BITBOARD_ROWS = 3;
+const int BITBOARD_COLS = 3;
 const unsigned long long ODD_ROWS_BITMASK = 0xff00ff00ff00ff00u;
 
 extern vector <unordered_map<unsigned long long, unsigned long long[5]>> PERIMETER;

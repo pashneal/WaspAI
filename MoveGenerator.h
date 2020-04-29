@@ -17,25 +17,25 @@ class MoveGenerator {
 		//decided on by game engine
 		//TODO: make these read-only pointers
 		//TODO: change everything that is generatingPieceBoard to generatingPiece
-		BitboardContainer * generatingPieceBoard;
+		Bitboard * generatingPieceBoard;
 		unordered_map < int, stack < pair < PieceColor , PieceName> > > * stackHashTable;
-		BitboardContainer * upperLevelPieces;
+		Bitboard * upperLevelPieces;
 
-		BitboardContainer moves;
-		BitboardContainer perimeter;
+		Bitboard moves;
+		Bitboard perimeter;
 	
 		void generateMoves();
 
 		void generateGrasshopperMoves();
 		void generateQueenMoves();   
 		void generateLadybugMoves(); 
-		void ladybugStep(BitboardContainer&, BitboardContainer&, BitboardContainer&, int);
+		void ladybugStep(Bitboard&, Bitboard&, Bitboard&, int);
 		void generatePillbugMoves(); 
 		void generateMosquitoMoves();
 		void generateBeetleMoves();  
 		void generateSpiderMoves();  	
 		
-		BitboardContainer piecesExceptCurrent;
+		Bitboard piecesExceptCurrent;
 
 	public:
 
@@ -46,25 +46,25 @@ class MoveGenerator {
 		bool approximate = false;
 
 		ProblemNodeContainer *problemNodes;
-		BitboardContainer * allPieces;
+		Bitboard * allPieces;
 
 		const int NUM_SPIDER_MOVES = 3;
 
 		MoveGenerator(){};
-		MoveGenerator(BitboardContainer *, ProblemNodeContainer *);
+		MoveGenerator(Bitboard *, ProblemNodeContainer *);
 
-		BitboardContainer getMoves();
+		Bitboard getMoves();
 
 		void setGeneratingName(PieceName *);
-		void setGeneratingPieceBoard(BitboardContainer *);
-		void setUpperLevelPieces(BitboardContainer *);
+		void setGeneratingPieceBoard(Bitboard *);
+		void setUpperLevelPieces(Bitboard *);
 		void setStackHashTable(unordered_map <int , stack <pair < PieceColor , PieceName >>> * );
-		BitboardContainer getPillbugSwapSpaces();
+		Bitboard getPillbugSwapSpaces();
 
-		BitboardContainer getInaccessibleNodes(BitboardContainer);
-		BitboardContainer getInaccessibleNodes(vector <BitboardContainer> *);
-		BitboardContainer getLegalClimb(BitboardContainer&, Direction);
-		BitboardContainer getLegalWalkPerimeter(BitboardContainer);
+		Bitboard getInaccessibleNodes(Bitboard);
+		Bitboard getInaccessibleNodes(vector <Bitboard> *);
+		Bitboard getLegalClimb(Bitboard&, Direction);
+		Bitboard getLegalWalkPerimeter(Bitboard);
 
-		bool isLegalWalk(BitboardContainer&, Direction);
+		bool isLegalWalk(Bitboard&, Direction);
 };

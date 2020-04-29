@@ -24,8 +24,8 @@ list <Direction> hexagonalDirections = {
 unordered_map <Direction, vector<int>> parameters  = {
 	{Direction::E, {1, 1, 1}},
 	{Direction::W, {0, 1, -1}},
-	{Direction::S, {1, 8, BITBOARD_CONTAINER_ROWS}},
-	{Direction::N, {0, 8, -BITBOARD_CONTAINER_COLS}}
+	{Direction::S, {1, 8, BITBOARD_ROWS}},
+	{Direction::N, {0, 8, -BITBOARD_COLS}}
 };
 
 unordered_map <Direction, unsigned long long> overflowBitmask =
@@ -43,11 +43,11 @@ unordered_map <Direction, vector<int>> overflowLocation =
 	{Direction::N, {0,1,2,3,0,1,2,3,4,5,6,7,8,9,10,11}}
 };
 
-BitboardContainer::BitboardContainer(unordered_map<int, unsigned long long > predefinedBoards){
+Bitboard::Bitboard(unordered_map<int, unsigned long long > predefinedBoards){
 	initialize(predefinedBoards);
 }
 
-void BitboardContainer::initialize(unordered_map < int, unsigned long long> predefinedBoards) {
+void Bitboard::initialize(unordered_map < int, unsigned long long> predefinedBoards) {
 	clear();
 	//iterate through the map and update board internals
 	for (auto keyValueList : predefinedBoards) {
@@ -56,7 +56,7 @@ void BitboardContainer::initialize(unordered_map < int, unsigned long long> pred
 	}
 }
 
-void BitboardContainer::initializeTo(BitboardContainer &other) {
+void Bitboard::initializeTo(Bitboard &other) {
 	clear();
 	for (int i: other.internalBoardCache){
 		internalBoardCache.insert(i);
@@ -65,12 +65,12 @@ void BitboardContainer::initializeTo(BitboardContainer &other) {
 }
 
 //TODO: make internalBoards private so you have to use this
-void BitboardContainer::setBoard(int boardIndex, unsigned long long board) {
+void Bitboard::setBoard(int boardIndex, unsigned long long board) {
 	internalBoards[boardIndex] = board;
 	internalBoardCache.insert(boardIndex);
 }
  
-void BitboardContainer::convertToHexRepresentation (
+void Bitboard::convertToHexRepresentation (
 		Direction lastMovedDir , int lastMovedTimes) {
 
 	unsigned long long changedBoards;
@@ -86,31 +86,31 @@ void BitboardContainer::convertToHexRepresentation (
 		else
 			changedBoards = ODD_ROWS_BITMASK;
 
-		BitboardContainer changedBitboardContainer;
-		BitboardContainer unchangedBitboardContainer;
+		Bitboard changedBitboard;
+		Bitboard unchangedBitboard;
 
 		for (int i : internalBoardCache) {
 
-			changedBitboardContainer.setBoard(i, changedBoards &  internalBoards[i]);
-			unchangedBitboardContainer.setBoard(i, ~changedBoards &  internalBoards[i]);
+			changedBitboard.setBoard(i, changedBoards &  internalBoards[i]);
+			unchangedBitboard.setBoard(i, ~changedBoards &  internalBoards[i]);
 			
 		}
 
 
 		if (changedBoards == ~ODD_ROWS_BITMASK) {
-			changedBitboardContainer.shiftDirection(Direction::E);
-			changedBitboardContainer.unionWith(unchangedBitboardContainer);
+			changedBitboard.shiftDirection(Direction::E);
+			changedBitboard.unionWith(unchangedBitboard);
 		} else {
-			changedBitboardContainer.shiftDirection(Direction::W);
-			changedBitboardContainer.unionWith(unchangedBitboardContainer);
+			changedBitboard.shiftDirection(Direction::W);
+			changedBitboard.unionWith(unchangedBitboard);
 		}
 
-		initializeTo(changedBitboardContainer);
+		initializeTo(changedBitboard);
 	}
 }
 
 //make this private
-void BitboardContainer::shiftOrthogonalDirection(Direction dir, int numTimes){
+void Bitboard::shiftOrthogonalDirection(Direction dir, int numTimes){
 	//assumes that dir is orthogonal
 	//TODO: separate orthogonal and hexagonal directions
 
@@ -152,8 +152,8 @@ void BitboardContainer::shiftOrthogonalDirection(Direction dir, int numTimes){
 		}
 
 		//wrap the board around to a legalBoard
-		newHighBoardIndex = modulo(newHighBoardIndex, BITBOARD_CONTAINER_SIZE);
-		newLowBoardIndex = modulo(newLowBoardIndex, BITBOARD_CONTAINER_SIZE);
+		newHighBoardIndex = modulo(newHighBoardIndex, BITBOARD_SIZE);
+		newLowBoardIndex = modulo(newLowBoardIndex, BITBOARD_SIZE);
 
 		if (numTimes >= BITBOARD_HEIGHT) {
 			internalBoardCache.erase(initialBoardIndex);
@@ -182,7 +182,7 @@ void BitboardContainer::shiftOrthogonalDirection(Direction dir, int numTimes){
 }
 
 
-void BitboardContainer::shiftDirection(Direction dir, int numTimes){
+void Bitboard::shiftDirection(Direction dir, int numTimes){
 	if (numTimes < 0) {
 		dir = oppositeDirection[dir];
 		numTimes = -numTimes;
@@ -216,7 +216,7 @@ void BitboardContainer::shiftDirection(Direction dir, int numTimes){
 
 //optimized (and ugly) code
 //I'm sorry world =(
-void BitboardContainer::shiftDirection(Direction dir) {
+void Bitboard::shiftDirection(Direction dir) {
 	unsigned long long currentBoard;
 	unsigned long long newBoard;
 
@@ -240,7 +240,7 @@ void BitboardContainer::shiftDirection(Direction dir) {
 
 					if (newHighBoard) {
 						newHighBoardIndex = (boardIndex) ? boardIndex - 1: 
-							BITBOARD_CONTAINER_SIZE - 1;
+							BITBOARD_SIZE - 1;
 						if (finalBoards.find(newHighBoardIndex) == finalBoards.end())
 							finalBoards[newHighBoardIndex] = newHighBoard;
 						else {
@@ -267,8 +267,8 @@ void BitboardContainer::shiftDirection(Direction dir) {
 					newBoard <<= 8;
 
 					if (newHighBoard) {
-						newHighBoardIndex = modulo((boardIndex - BITBOARD_CONTAINER_COLS) ,
-								BITBOARD_CONTAINER_SIZE);
+						newHighBoardIndex = modulo((boardIndex - BITBOARD_COLS) ,
+								BITBOARD_SIZE);
 						if (finalBoards.find(newHighBoardIndex) == finalBoards.end())
 							finalBoards[newHighBoardIndex] = newHighBoard;
 						else {
@@ -294,7 +294,7 @@ void BitboardContainer::shiftDirection(Direction dir) {
 					newBoard <<= 1;
 
 					if (newHighBoard) {
-						newHighBoardIndex = (boardIndex + 1) % BITBOARD_CONTAINER_SIZE;
+						newHighBoardIndex = (boardIndex + 1) % BITBOARD_SIZE;
 						if (finalBoards.find(newHighBoardIndex) == finalBoards.end())
 							finalBoards[newHighBoardIndex] = newHighBoard;
 						else {
@@ -320,8 +320,8 @@ void BitboardContainer::shiftDirection(Direction dir) {
 					newBoard >>= 8;
 
 					if (newHighBoard) {
-						newHighBoardIndex = (boardIndex + BITBOARD_CONTAINER_COLS) %
-							BITBOARD_CONTAINER_SIZE;
+						newHighBoardIndex = (boardIndex + BITBOARD_COLS) %
+							BITBOARD_SIZE;
 						if (finalBoards.find(newHighBoardIndex) == finalBoards.end())
 							finalBoards[newHighBoardIndex] = newHighBoard;
 						else {
@@ -356,7 +356,7 @@ void BitboardContainer::shiftDirection(Direction dir) {
 
 					if (newVerticalBoard) {
 						newVerticalBoardIndex = (boardIndex) ? boardIndex - 1: 
-							BITBOARD_CONTAINER_SIZE - 1;
+							BITBOARD_SIZE - 1;
 						if (finalBoards.find(newVerticalBoardIndex) == finalBoards.end())
 							finalBoards[newVerticalBoardIndex] = newVerticalBoard;
 						else {
@@ -366,8 +366,8 @@ void BitboardContainer::shiftDirection(Direction dir) {
 
 
 					if (newHorizontalBoard) {
-						newHorizontalBoardIndex = modulo (boardIndex - BITBOARD_CONTAINER_COLS,
-								BITBOARD_CONTAINER_SIZE);
+						newHorizontalBoardIndex = modulo (boardIndex - BITBOARD_COLS,
+								BITBOARD_SIZE);
 						if (finalBoards.find(newHorizontalBoardIndex) == finalBoards.end())
 							finalBoards[newHorizontalBoardIndex] = newHorizontalBoard;
 						else {
@@ -402,8 +402,8 @@ void BitboardContainer::shiftDirection(Direction dir) {
 
 
 					if (newDiagBoard) {
-						newDiagBoardIndex = (boardIndex - 1 + BITBOARD_CONTAINER_COLS) %
-							BITBOARD_CONTAINER_SIZE;
+						newDiagBoardIndex = (boardIndex - 1 + BITBOARD_COLS) %
+							BITBOARD_SIZE;
 						if (finalBoards.find(newDiagBoardIndex) == finalBoards.end())
 							finalBoards[newDiagBoardIndex] = newDiagBoard;
 						else {
@@ -412,7 +412,7 @@ void BitboardContainer::shiftDirection(Direction dir) {
 					}
 					if (newVerticalBoard) {
 						newVerticalBoardIndex = (boardIndex) ? boardIndex - 1:
-							BITBOARD_CONTAINER_SIZE - 1;
+							BITBOARD_SIZE - 1;
 						if (finalBoards.find(newVerticalBoardIndex) == finalBoards.end())
 							finalBoards[newVerticalBoardIndex] = newVerticalBoard;
 						else {
@@ -420,8 +420,8 @@ void BitboardContainer::shiftDirection(Direction dir) {
 						}
 					}
 					if (newHorizontalBoard) {
-						newHorizontalBoardIndex = (boardIndex + BITBOARD_CONTAINER_COLS) %
-							BITBOARD_CONTAINER_SIZE;
+						newHorizontalBoardIndex = (boardIndex + BITBOARD_COLS) %
+							BITBOARD_SIZE;
 						if (finalBoards.find(newHorizontalBoardIndex) == finalBoards.end())
 							finalBoards[newHorizontalBoardIndex] = newHorizontalBoard;
 						else {
@@ -457,8 +457,8 @@ void BitboardContainer::shiftDirection(Direction dir) {
 					newBoard |= (intermediate << 8);
 
 					if (newDiagBoard) {
-						newDiagBoardIndex = modulo (boardIndex + 1 - BITBOARD_CONTAINER_COLS, 
-								BITBOARD_CONTAINER_SIZE);
+						newDiagBoardIndex = modulo (boardIndex + 1 - BITBOARD_COLS, 
+								BITBOARD_SIZE);
 						if (finalBoards.find(newDiagBoardIndex) == finalBoards.end())
 							finalBoards[newDiagBoardIndex] = newDiagBoard;
 						else {
@@ -466,7 +466,7 @@ void BitboardContainer::shiftDirection(Direction dir) {
 						}
 					}
 					if (newVerticalBoard) {
-						newVerticalBoardIndex = (boardIndex + 1) % BITBOARD_CONTAINER_SIZE;
+						newVerticalBoardIndex = (boardIndex + 1) % BITBOARD_SIZE;
 						if (finalBoards.find(newVerticalBoardIndex) == finalBoards.end())
 							finalBoards[newVerticalBoardIndex] = newVerticalBoard;
 						else {
@@ -474,8 +474,8 @@ void BitboardContainer::shiftDirection(Direction dir) {
 						}
 					}
 					if (newHorizontalBoard) {
-						newHorizontalBoardIndex = modulo(boardIndex - BITBOARD_CONTAINER_COLS,
-								BITBOARD_CONTAINER_SIZE);
+						newHorizontalBoardIndex = modulo(boardIndex - BITBOARD_COLS,
+								BITBOARD_SIZE);
 						if (finalBoards.find(newHorizontalBoardIndex) == finalBoards.end())
 							finalBoards[newHorizontalBoardIndex] = newHorizontalBoard;
 						else {
@@ -507,7 +507,7 @@ void BitboardContainer::shiftDirection(Direction dir) {
 					newBoard |= intermediate >> 8;
 
 					if (newVerticalBoard) {
-						newVerticalBoardIndex = (boardIndex + 1) % BITBOARD_CONTAINER_SIZE;
+						newVerticalBoardIndex = (boardIndex + 1) % BITBOARD_SIZE;
 						if (finalBoards.find(newVerticalBoardIndex) == finalBoards.end())
 							finalBoards[newVerticalBoardIndex] = newVerticalBoard;
 						else {
@@ -515,8 +515,8 @@ void BitboardContainer::shiftDirection(Direction dir) {
 						}
 					}
 					if (newHorizontalBoard) {
-						newHorizontalBoardIndex = (boardIndex + BITBOARD_CONTAINER_COLS) % 
-							BITBOARD_CONTAINER_SIZE;
+						newHorizontalBoardIndex = (boardIndex + BITBOARD_COLS) % 
+							BITBOARD_SIZE;
 						if (finalBoards.find(newHorizontalBoardIndex) == finalBoards.end())
 							finalBoards[newHorizontalBoardIndex] = newHorizontalBoard;
 						else {
@@ -542,7 +542,7 @@ void BitboardContainer::shiftDirection(Direction dir) {
 	}
 }
 
-unsigned long long BitboardContainer::createLowOverflowMask(Direction dir, int overflowAmount) {
+unsigned long long Bitboard::createLowOverflowMask(Direction dir, int overflowAmount) {
 	long long overflowLow; 
 	//assumes orthogonal direction passed in
 
@@ -565,7 +565,7 @@ unsigned long long BitboardContainer::createLowOverflowMask(Direction dir, int o
 	return overflowLow;	
 }
 
-unsigned long long BitboardContainer::adjustOverflowMask(
+unsigned long long Bitboard::adjustOverflowMask(
 		Direction dir, int overflowAmount, bool low, unsigned long long overflowMask) {
 
 	int shiftMultiplier = parameters[dir][1];
@@ -583,14 +583,14 @@ unsigned long long BitboardContainer::adjustOverflowMask(
 	
 	return overflowMask;
 }
-void BitboardContainer::floodFillStep(BitboardContainer &frontier,  BitboardContainer &visited){
+void Bitboard::floodFillStep(Bitboard &frontier,  Bitboard &visited){
 	//assumes that everything in frontier is a legal node
 
 	//visited = legal nodes that have already been traversed
 	visited.unionWith(frontier);
 
 	//get connecting nodes
-	BitboardContainer perimeter = frontier.getPerimeter();
+	Bitboard perimeter = frontier.getPerimeter();
 
 	//keep only traversable nodes
 	perimeter.intersectionWith(*this);
@@ -602,11 +602,11 @@ void BitboardContainer::floodFillStep(BitboardContainer &frontier,  BitboardCont
 
 
 
-void BitboardContainer::floodFill(BitboardContainer &frontier){
+void Bitboard::floodFill(Bitboard &frontier){
 
 	//assumes frontier is a legal node
 
-	BitboardContainer visited;
+	Bitboard visited;
 	while (frontier.internalBoardCache.size()) {
 		floodFillStep(frontier, visited);
 		frontier.pruneCache();
@@ -616,7 +616,7 @@ void BitboardContainer::floodFill(BitboardContainer &frontier){
 	frontier.initializeTo(visited);
 }
 
-bool BitboardContainer::equals(BitboardContainer& other){
+bool Bitboard::equals(Bitboard& other){
 	//TODO: fix prunce cache leaks
 	other.pruneCache();
 	pruneCache();
@@ -638,7 +638,7 @@ bool BitboardContainer::equals(BitboardContainer& other){
 }
 
 const pair <const int , const unsigned long long >
-BitboardContainer::getLeastSignificantBit () const {
+Bitboard::getLeastSignificantBit () const {
 	pair <int, unsigned long long> LSB;
 	int min = 40;
 	for (int i: internalBoardCache) 
@@ -649,7 +649,7 @@ BitboardContainer::getLeastSignificantBit () const {
 	return LSB;
 }
 
-void BitboardContainer::pruneCache(){
+void Bitboard::pruneCache(){
 	list <int> emptyBoards;
 
 	for (int i: internalBoardCache){
@@ -663,7 +663,7 @@ void BitboardContainer::pruneCache(){
 	}
 }
 
-void BitboardContainer::unionWith( BitboardContainer &other){
+void Bitboard::unionWith( Bitboard &other){
 	for (auto i: other.internalBoardCache){
 		if (internalBoardCache.find(i) == internalBoardCache.end()) internalBoards[i] = 0;
 		internalBoardCache.insert(i);
@@ -671,7 +671,7 @@ void BitboardContainer::unionWith( BitboardContainer &other){
 	}
 }
 
-void BitboardContainer::intersectionWith( BitboardContainer &other) {
+void Bitboard::intersectionWith( Bitboard &other) {
 	for (auto i: internalBoardCache){
 		if (other.internalBoardCache.find(i) != other.internalBoardCache.end())
 			internalBoards[i] &= other.internalBoards[i];
@@ -682,7 +682,7 @@ void BitboardContainer::intersectionWith( BitboardContainer &other) {
 	pruneCache();
 }
 
-void BitboardContainer::xorWith( BitboardContainer &other) {
+void Bitboard::xorWith( Bitboard &other) {
 	for (auto i: other.internalBoardCache) {
 		if (internalBoardCache.find(i) == internalBoardCache.end()) internalBoards[i] = 0;
 		internalBoards[i] ^= other.internalBoards[i];
@@ -691,13 +691,13 @@ void BitboardContainer::xorWith( BitboardContainer &other) {
 	pruneCache();
 }
 
-void BitboardContainer::notIntersectionWith( BitboardContainer &other) {
+void Bitboard::notIntersectionWith( Bitboard &other) {
 	for (auto i: other.internalBoardCache) {
 		internalBoards[i] &= ~other.internalBoards[i];
 	}
 }
 
-bool BitboardContainer::containsAny(BitboardContainer& other) {
+bool Bitboard::containsAny(Bitboard& other) {
 	for (int i: other.internalBoardCache) { 
 		if (internalBoardCache.find(i) != internalBoardCache.end())
 			if (internalBoards[i] & other.internalBoards[i]) 
@@ -706,13 +706,13 @@ bool BitboardContainer::containsAny(BitboardContainer& other) {
 	return false;
 }
 
-void BitboardContainer::clear() {
+void Bitboard::clear() {
 	internalBoardCache.clear();
 }
 
-void BitboardContainer::duplicateBoard(list <Direction> dirs){
-	BitboardContainer init;
-	BitboardContainer duplicated;
+void Bitboard::duplicateBoard(list <Direction> dirs){
+	Bitboard init;
+	Bitboard duplicated;
 	duplicated.initializeTo(*this);
 
 
@@ -727,7 +727,7 @@ void BitboardContainer::duplicateBoard(list <Direction> dirs){
 	initializeTo(duplicated);
 }
 
-int BitboardContainer::count(){
+int Bitboard::count(){
 	int total = 0;
 	for (int i: internalBoardCache) {
 		total += __builtin_popcountll(internalBoards[i]);
@@ -737,8 +737,8 @@ int BitboardContainer::count(){
 
 
 // optimized so its ugly =[
-BitboardContainer  BitboardContainer::getPerimeter() {
-	BitboardContainer perimeter;
+Bitboard  Bitboard::getPerimeter() {
+	Bitboard perimeter;
 
 	for (auto boardIndex: internalBoardCache) {
 		unsigned long long currentBoard = internalBoards[boardIndex];
@@ -775,52 +775,52 @@ BitboardContainer  BitboardContainer::getPerimeter() {
 						//Upper and Right Boards are assigned
 
 						if (hashedBoards[1]) 
-							perimeter.unionWith(modulo((boardIndex - BITBOARD_CONTAINER_COLS),  
-										BITBOARD_CONTAINER_SIZE), hashedBoards[1]);
+							perimeter.unionWith(modulo((boardIndex - BITBOARD_COLS),  
+										BITBOARD_SIZE), hashedBoards[1]);
 						if (hashedBoards[2]) 
-							perimeter.unionWith((boardIndex + 1) % BITBOARD_CONTAINER_SIZE,
+							perimeter.unionWith((boardIndex + 1) % BITBOARD_SIZE,
 									hashedBoards[2]);
 						if (hashedBoards[3]) 
-							perimeter.unionWith(modulo((boardIndex + 1 - BITBOARD_CONTAINER_COLS)
-										,BITBOARD_CONTAINER_SIZE), hashedBoards[3]);
+							perimeter.unionWith(modulo((boardIndex + 1 - BITBOARD_COLS)
+										,BITBOARD_SIZE), hashedBoards[3]);
 						break;
 
 					case 2:
 						//Lower and Right Boards are assigned
 						if (hashedBoards[1]) 
-							perimeter.unionWith((boardIndex + BITBOARD_CONTAINER_COLS) % 
-									BITBOARD_CONTAINER_SIZE, hashedBoards[1]);
+							perimeter.unionWith((boardIndex + BITBOARD_COLS) % 
+									BITBOARD_SIZE, hashedBoards[1]);
 						if (hashedBoards[2]) 
-							perimeter.unionWith((boardIndex + 1) % BITBOARD_CONTAINER_SIZE,
+							perimeter.unionWith((boardIndex + 1) % BITBOARD_SIZE,
 									hashedBoards[2]);
 						if (hashedBoards[3]) 
-							perimeter.unionWith((boardIndex + 1 + BITBOARD_CONTAINER_COLS)
-									% BITBOARD_CONTAINER_SIZE, hashedBoards[3]);
+							perimeter.unionWith((boardIndex + 1 + BITBOARD_COLS)
+									% BITBOARD_SIZE, hashedBoards[3]);
 						break;
 
 					case 3:
 						//Lower and Left Boards are assigned
 						if (hashedBoards[1]) 
-							perimeter.unionWith((boardIndex + BITBOARD_CONTAINER_COLS) % 
-									BITBOARD_CONTAINER_SIZE, hashedBoards[1]);
+							perimeter.unionWith((boardIndex + BITBOARD_COLS) % 
+									BITBOARD_SIZE, hashedBoards[1]);
 						if (hashedBoards[2]) 
-							perimeter.unionWith(modulo((boardIndex - 1),BITBOARD_CONTAINER_SIZE),
+							perimeter.unionWith(modulo((boardIndex - 1),BITBOARD_SIZE),
 									hashedBoards[2]);
 						if (hashedBoards[3]) 
-							perimeter.unionWith((boardIndex - 1 + BITBOARD_CONTAINER_COLS)
-									% BITBOARD_CONTAINER_SIZE, hashedBoards[3]);
+							perimeter.unionWith((boardIndex - 1 + BITBOARD_COLS)
+									% BITBOARD_SIZE, hashedBoards[3]);
 						break;
 					case 4:
 						//Upper and Left Boards are assigned
 						if (hashedBoards[1]) 
-							perimeter.unionWith(modulo((boardIndex - BITBOARD_CONTAINER_COLS),  
-										BITBOARD_CONTAINER_SIZE), hashedBoards[1]);
+							perimeter.unionWith(modulo((boardIndex - BITBOARD_COLS),  
+										BITBOARD_SIZE), hashedBoards[1]);
 						if (hashedBoards[2]) 
-							perimeter.unionWith(modulo((boardIndex - 1),BITBOARD_CONTAINER_SIZE),
+							perimeter.unionWith(modulo((boardIndex - 1),BITBOARD_SIZE),
 									hashedBoards[2]);
 						if (hashedBoards[3]) 
-							perimeter.unionWith(modulo((boardIndex - 1 - BITBOARD_CONTAINER_COLS)
-										,BITBOARD_CONTAINER_SIZE), hashedBoards[3]);
+							perimeter.unionWith(modulo((boardIndex - 1 - BITBOARD_COLS)
+										,BITBOARD_SIZE), hashedBoards[3]);
 						break;
 
 					default:
@@ -834,15 +834,15 @@ BitboardContainer  BitboardContainer::getPerimeter() {
 	return perimeter;
 }
 
-BitboardContainer BitboardContainer::slowGetPerimeter(){
-	BitboardContainer perimeter;
+Bitboard Bitboard::slowGetPerimeter(){
+	Bitboard perimeter;
 	perimeter.initializeTo(*this);
 	perimeter.duplicateBoard( hexagonalDirections);	
 	perimeter.xorWith(*this);
 	return perimeter;
 }
 
-void BitboardContainer::unionWith(int boardIndex, unsigned long long board) {
+void Bitboard::unionWith(int boardIndex, unsigned long long board) {
 	if (internalBoardCache.find(boardIndex) == internalBoardCache.end()) {
 		internalBoards[boardIndex] = board;
 		internalBoardCache.insert(boardIndex);
@@ -853,7 +853,7 @@ void BitboardContainer::unionWith(int boardIndex, unsigned long long board) {
 /*
  * returns a map of all the bits that were set and which board it was set on
  */
-unordered_map< int, vector < unsigned long long >> BitboardContainer::split(){
+unordered_map< int, vector < unsigned long long >> Bitboard::split(){
 	unordered_map< int, vector <unsigned long long >> returnMap;
 
 	unsigned long long board, leastSignificantBit;
@@ -868,25 +868,25 @@ unordered_map< int, vector < unsigned long long >> BitboardContainer::split(){
 	return returnMap;
 }
 
-list <BitboardContainer> BitboardContainer::splitIntoBitboardContainers() {
-	list <BitboardContainer> returnList;
+list <Bitboard> Bitboard::splitIntoBitboards() {
+	list <Bitboard> returnList;
 	for (int i: internalBoardCache){
 		unsigned long long board = internalBoards[i];
 		while(board) {
 			unsigned long long leastSignificantBit = board & -board;
 			board ^= leastSignificantBit; // remove least significant bit
 
-			BitboardContainer splitted({{i,leastSignificantBit}});
+			Bitboard splitted({{i,leastSignificantBit}});
 			returnList.push_front(splitted);
 		}		
 	}
 	return returnList;
 }
 
-vector <BitboardContainer> BitboardContainer::splitIntoConnectedComponents(){
-	vector <BitboardContainer> components;
+vector <Bitboard> Bitboard::splitIntoConnectedComponents(){
+	vector <Bitboard> components;
 
-	BitboardContainer boards;
+	Bitboard boards;
 	boards.initializeTo(*this);
 
 	while (boards.internalBoardCache.size() != 0) {
@@ -898,7 +898,7 @@ vector <BitboardContainer> BitboardContainer::splitIntoConnectedComponents(){
 
 			//pick some starting node
 			unsigned long long leastSignificantBit = *currentBoard & -*currentBoard;
-			BitboardContainer returnBitboard({{boardIndex, leastSignificantBit}});
+			Bitboard returnBitboard({{boardIndex, leastSignificantBit}});
 
 			//BFS starting at that node
 			boards.floodFill(returnBitboard);
@@ -917,7 +917,7 @@ vector <BitboardContainer> BitboardContainer::splitIntoConnectedComponents(){
 	return components;
 }
 
-void BitboardContainer::print() {
+void Bitboard::print() {
 	for (int i: internalBoardCache) {
 		cout << i << "\t"  << internalBoards[i] << endl;
 	}	
@@ -925,13 +925,13 @@ void BitboardContainer::print() {
 	if (!internalBoardCache.size())  cout << "empty" << endl;
 }
 
-int BitboardContainer::hash() {
+int Bitboard::hash() {
 	return *(internalBoardCache.begin()) | (__builtin_clzll(internalBoards[
 				*(internalBoardCache.begin())]) << 8);
 
 }
 
-int BitboardContainer::getRandomBoardIndex() {
+int Bitboard::getRandomBoardIndex() {
 
 	int total = count();
 	total = std::rand() % total;
@@ -943,7 +943,7 @@ int BitboardContainer::getRandomBoardIndex() {
 	return -1000;
 }
 
-BitboardContainer BitboardContainer::getRandom() {
+Bitboard Bitboard::getRandom() {
 	int randomBoardIndex = getRandomBoardIndex();
 	unsigned long long s = internalBoards[randomBoardIndex];
 	unsigned long long t;
@@ -953,5 +953,5 @@ BitboardContainer BitboardContainer::getRandom() {
 		s = (t) ? t : s;
 	}
 
-	return BitboardContainer({{randomBoardIndex, s}});
+	return Bitboard({{randomBoardIndex, s}});
 }

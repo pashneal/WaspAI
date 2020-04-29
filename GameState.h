@@ -10,15 +10,15 @@
 #include <vector>
 #include <string>
 
-#define movesCollection vector<pair<BitboardContainer,int>>
+#define movesCollection vector<pair<Bitboard,int>>
 
-extern BitboardContainer startSpawnBoard;
+extern Bitboard startSpawnBoard;
 using namespace std;
 
 struct MoveInfo {
-	BitboardContainer oldPieceLocation;
-	BitboardContainer newPieceLocation;
-	BitboardContainer prevImmobile;
+	Bitboard oldPieceLocation;
+	Bitboard newPieceLocation;
+	Bitboard prevImmobile;
 	PieceName pieceName = PieceName::LENGTH;
 	bool operator==(const MoveInfo& other) const {
 		return ( other.oldPieceLocation == oldPieceLocation &&
@@ -52,28 +52,28 @@ class GameState {
 	PieceColor turnColor;
 	int turnCounter = 0;
 
-	BitboardContainer allPieces;
-	BitboardContainer whitePieces;
-	BitboardContainer blackPieces;
-	BitboardContainer ants;
-	BitboardContainer beetles;
-	BitboardContainer spiders;
-	BitboardContainer ladybugs;
-	BitboardContainer queens;
-	BitboardContainer mosquitoes;
-	BitboardContainer pillbugs;
-	BitboardContainer grasshoppers;
-	BitboardContainer upperLevelPieces;
-	BitboardContainer immobile;
-	BitboardContainer pinned;    
+	Bitboard allPieces;
+	Bitboard whitePieces;
+	Bitboard blackPieces;
+	Bitboard ants;
+	Bitboard beetles;
+	Bitboard spiders;
+	Bitboard ladybugs;
+	Bitboard queens;
+	Bitboard mosquitoes;
+	Bitboard pillbugs;
+	Bitboard grasshoppers;
+	Bitboard upperLevelPieces;
+	Bitboard immobile;
+	Bitboard pinned;    
 
 	vector <unordered_map <PieceName, int>> unusedPieces;
 
-	BitboardContainer pieceSpawns;
+	Bitboard pieceSpawns;
 	set <PieceName> spawnNames;
-	vector <pair<BitboardContainer, BitboardContainer>> swappableEmpty;
+	vector <pair<Bitboard, Bitboard>> swappableEmpty;
 
-	list < pair <BitboardContainer , BitboardContainer > > pieceMoves;
+	list < pair <Bitboard , Bitboard > > pieceMoves;
 	set <PieceName> possibleNames;
 
 	unordered_map < int , stack < pair < PieceColor , PieceName > > > stackHashTable;
@@ -82,25 +82,26 @@ class GameState {
 	PieceGraph pieceGraph;
 	MoveGenerator moveGenerator;
 
-	MoveInfo movePiece(BitboardContainer&, BitboardContainer&, PieceName);
+	MoveInfo movePiece(Bitboard&, Bitboard&, PieceName);
 
-	void fastMovePiece(BitboardContainer&, BitboardContainer&, PieceName);
-	void fastInsertPiece(BitboardContainer&, PieceName);
-	void fastRemovePiece(BitboardContainer&, PieceName);
-	void fastSpawnPiece(BitboardContainer&, PieceName);
+	void fastSwapPiece(Bitboard&, Bitboard&, PieceName);
+	void fastMovePiece(Bitboard&, Bitboard&, PieceName);
+	void fastInsertPiece(Bitboard&, PieceName);
+	void fastRemovePiece(Bitboard&, PieceName);
+	void fastSpawnPiece(Bitboard&, PieceName);
 
-	int countSwaps(BitboardContainer&);
+	int countSwaps(Bitboard&);
 	int countTotalUnusedPieces();
 
-	void randomSpawnPiece(BitboardContainer&);
-	void randomSwapPiece(BitboardContainer, BitboardContainer);
-	void randomMovePiece(BitboardContainer&, BitboardContainer&, PieceName name);
+	void randomSpawnPiece(Bitboard&);
+	void randomSwapPiece(Bitboard, Bitboard);
+	void randomMovePiece(Bitboard&, Bitboard&, PieceName name);
 
-	BitboardContainer getAllSpawnSpaces();
-	pair <BitboardContainer, BitboardContainer> getSwapSpaces(BitboardContainer);
+	Bitboard getAllSpawnSpaces();
+	pair <Bitboard, Bitboard> getSwapSpaces(Bitboard);
 
-	PieceName findTopPieceName(BitboardContainer);
-	PieceColor findTopPieceColor(BitboardContainer);
+	PieceName findTopPieceName(Bitboard);
+	PieceColor findTopPieceColor(Bitboard);
 	void replayMove(MoveInfo);
 	void undoMove(MoveInfo);
 
@@ -110,16 +111,16 @@ class GameState {
 
 	void destroy();
 	
-	BitboardContainer * getPieces();
-	BitboardContainer * getPieces(PieceName);
-	BitboardContainer * getPieces(PieceColor);
+	Bitboard * getPieces();
+	Bitboard * getPieces(PieceName);
+	Bitboard * getPieces(PieceColor);
 
 	void getAllMoves();
 	int	 getAllMovesCount();
 	vector<MoveInfo> generateAllMoves();
 
-	BitboardContainer getMosquitoMoves(BitboardContainer);
-	BitboardContainer getMosquitoPillbug();
+	Bitboard getMosquitoMoves(Bitboard);
+	Bitboard getMosquitoPillbug();
 
 	void changeTurnColor();
 
@@ -128,7 +129,7 @@ class GameState {
 	bool attemptSpawn(int);
 	bool attemptMove(vector<movesCollection>& , int);
 
-	int moveApproximation(BitboardContainer, PieceName, bool);
+	int moveApproximation(Bitboard, PieceName, bool);
 
 	void findPinnedPieces();
 

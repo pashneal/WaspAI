@@ -6,17 +6,17 @@
 
 
 
-void PieceGraph::insert(BitboardContainer& newBitboard) {
+void PieceGraph::insert(Bitboard& newBitboard) {
 
 	if (!(allPieces.containsAny(newBitboard))) {
 
 		PieceNode * newPieceNode = new PieceNode();
-		BitboardContainer perimeter = newBitboard.getPerimeter();
+		Bitboard perimeter = newBitboard.getPerimeter();
 
 		perimeter.intersectionWith(allPieces);
 
 		list <PieceNode*> neighbors;
-		for (auto bitboard: perimeter.splitIntoBitboardContainers()){
+		for (auto bitboard: perimeter.splitIntoBitboards()){
 			neighbors.push_front(bitboardHashTable[bitboard.hash()]);
 		}
 
@@ -30,7 +30,7 @@ void PieceGraph::insert(BitboardContainer& newBitboard) {
 
 }
 
-void PieceGraph::remove(BitboardContainer& oldBitboard) {
+void PieceGraph::remove(Bitboard& oldBitboard) {
 	if (bitboardHashTable.find(oldBitboard.hash() ) == bitboardHashTable.end()) {
 		cout << "attempting to remove piece that does exist in piece graph" << endl;
 		oldBitboard.print();
@@ -44,7 +44,7 @@ void PieceGraph::remove(BitboardContainer& oldBitboard) {
 	//TODO: xor is faster but not as safe?
 }
 
-void PieceGraph::reposition(BitboardContainer& oldBitboard, BitboardContainer& newBitboard) {
+void PieceGraph::reposition(Bitboard& oldBitboard, Bitboard& newBitboard) {
 	remove(oldBitboard);
 	insert(newBitboard);
 }
@@ -103,10 +103,10 @@ void PieceGraph::checkArticulationRoot(PieceNode * root) {
 }
 
 //TODO: optimize (recalculate O(k) for inserted leaves)
-BitboardContainer PieceGraph::getPinnedPieces() {
+Bitboard PieceGraph::getPinnedPieces() {
 	articulationNodes.clear();
 	int counter  = 0;
-	if (bitboardHashTable.size() == 0) return BitboardContainer();
+	if (bitboardHashTable.size() == 0) return Bitboard();
 	PieceNode * firstPieceNode = bitboardHashTable.begin() -> second;
 
 	unordered_set<PieceNode*> visited;
@@ -114,8 +114,8 @@ BitboardContainer PieceGraph::getPinnedPieces() {
 	checkArticulationRoot(firstPieceNode);
 	
 
-	BitboardContainer pinned;
-	BitboardContainer nextPiece;
+	Bitboard pinned;
+	Bitboard nextPiece;
 	for (auto pinnedPiece: articulationNodes) {
 		nextPiece.initialize({{pinnedPiece->boardIndex, pinnedPiece->location}});
 		pinned.unionWith(nextPiece);
@@ -155,7 +155,7 @@ unordered_set <PieceNode*> PieceGraph::DFS() {
 }
 
 
-bool PieceGraph::checkBiDirectional(BitboardContainer a, BitboardContainer b) {
+bool PieceGraph::checkBiDirectional(Bitboard a, Bitboard b) {
 	if (bitboardHashTable.find(a.hash()) == bitboardHashTable.end() ||
 		bitboardHashTable.find(b.hash()) == bitboardHashTable.end())
 	{

@@ -5,12 +5,12 @@
 
 
 
-void PieceNode::reposition(list <PieceNode*> &newNeighbors, BitboardContainer &newBitboard){
+void PieceNode::reposition(list <PieceNode*> &newNeighbors, Bitboard &newBitboard){
 	remove();
 	insert(newNeighbors, newBitboard);
 }
 
-void PieceNode::insert( list <PieceNode*> &newNeighbors, BitboardContainer &newBitboard) {
+void PieceNode::insert( list <PieceNode*> &newNeighbors, Bitboard &newBitboard) {
 	for (auto otherNode: newNeighbors) {
 		otherNode -> neighbors.push_front(this);	
 		neighbors.push_front(otherNode);

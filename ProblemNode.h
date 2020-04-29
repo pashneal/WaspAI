@@ -9,40 +9,40 @@ using namespace std;
 
 class ProblemNodeContainer {
 		//TODO: this might be an optimization worth trying
-		//unordered_map <int, list<BitboardContainer>> perimeterHashTable;
+		//unordered_map <int, list<Bitboard>> perimeterHashTable;
 		
-		unordered_map <int, list<BitboardContainer>> locationHashTable;
+		unordered_map <int, list<Bitboard>> locationHashTable;
 
 		unordered_set <int> problemNodeHashes;
 
-		list <BitboardContainer> getProblemNodesAtLocation(int,unsigned long long);
+		list <Bitboard> getProblemNodesAtLocation(int,unsigned long long);
 
 		int hash(int, unsigned long long);
 
-		void updateVisible(BitboardContainer&);
-		void remove(BitboardContainer&);
+		void updateVisible(Bitboard&);
+		void remove(Bitboard&);
 		//requires that currentPiece is actally in *allPieces? (maybe?)
-		void insert(BitboardContainer&);
+		void insert(Bitboard&);
 
 	public:
 
-		BitboardContainer *allPieces;
-		BitboardContainer visibleProblemNodes;
+		Bitboard *allPieces;
+		Bitboard visibleProblemNodes;
 
 		ProblemNodeContainer(){};
-		ProblemNodeContainer(BitboardContainer*);
+		ProblemNodeContainer(Bitboard*);
 
-		bool problemNodeExists(BitboardContainer&);
+		bool problemNodeExists(Bitboard&);
 
-		void insertPiece(BitboardContainer&);
-		void removePiece(BitboardContainer&);
+		void insertPiece(Bitboard&);
+		void removePiece(Bitboard&);
 
 		void clear();
 
 		void findAllProblemNodes();
 
-		BitboardContainer getPerimeter(BitboardContainer&);
+		Bitboard getPerimeter(Bitboard&);
 
-		bool contains(BitboardContainer&);
+		bool contains(Bitboard&);
 };
 
