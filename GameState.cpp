@@ -32,7 +32,7 @@ void GameState::operator=( const GameState& other){
 	unusedPieces=       other.unusedPieces;
 	pieceMoves=         other.pieceMoves;
 	possibleNames=      other.possibleNames;
-	stackHashTable=     other.stackHashTable;     
+	pieceStacks=        other.pieceStacks;     
 
 	problemNodeContainer = other.problemNodeContainer;
 	problemNodeContainer.allPieces = &allPieces;
@@ -42,7 +42,7 @@ void GameState::operator=( const GameState& other){
 	moveGenerator.problemNodes = &problemNodeContainer;
 
 	moveGenerator.setUpperLevelPieces(&upperLevelPieces);
-	moveGenerator.setStackHashTable(&stackHashTable);
+	moveGenerator.setPieceStacks(&pieceStacks);
 }
 
 GameState::GameState (vector <unordered_map <PieceName, int>> unusedPiecesIn, 
@@ -57,17 +57,17 @@ GameState::GameState (vector <unordered_map <PieceName, int>> unusedPiecesIn,
 	moveGenerator.problemNodes = &problemNodeContainer;
 
 	moveGenerator.setUpperLevelPieces(&upperLevelPieces);
-	moveGenerator.setStackHashTable(&stackHashTable);
+	moveGenerator.setPieceStacks(&pieceStacks);
 }
 
 void GameState::fastInsertPiece(Bitboard& bitboard, PieceName name) {
 	if (allPieces.containsAny(bitboard)) {
-		stackHashTable[bitboard.hash()].push({turnColor, name});
 		upperLevelPieces.unionWith(bitboard);
 	} else {
 		pieceGraph.insert(bitboard);
 	}
 
+	pieceStacks[bitboard.hash()].push({turnColor, name});
 	allPieces.unionWith(bitboard);
 	getPieces(name) -> unionWith(bitboard);
 	getPieces(turnColor) -> unionWith(bitboard);
@@ -76,8 +76,7 @@ void GameState::fastInsertPiece(Bitboard& bitboard, PieceName name) {
 }
 
 MoveInfo GameState::movePiece(Bitboard& oldBitboard, Bitboard& newBitboard,
-							  PieceName name) {
-
+							  PieceName name) { 
 	MoveInfo moveInfo;
 	if (!oldBitboard.count()) 
 		fastSpawnPiece(newBitboard, name);
@@ -91,15 +90,6 @@ MoveInfo GameState::movePiece(Bitboard& oldBitboard, Bitboard& newBitboard,
 	return moveInfo;
 }
 
-void GameState::fastSwapPiece(Bitboard& oldBitboard, Bitboard& newBitboard,
-							  PieceName name){
-
-	PieceColor tmp = turnColor;
-	turnColor = findTopPieceColor(oldBitboard);
-	fastMovePiece(oldBitboard,  newBitboard, name);
-	turnColor = tmp;
-	changeTurnColor();
-}
 void GameState::fastMovePiece(Bitboard& oldBitboard, Bitboard& newBitboard,
 							  PieceName name) {
 	fastRemovePiece(oldBitboard, name);
@@ -117,42 +107,23 @@ void GameState::fastRemovePiece(Bitboard& oldBitboard, PieceName name){
 
 	getPieces(name) -> xorWith(oldBitboard);
 	getPieces(turnColor) -> xorWith(oldBitboard);
+	pieceStacks[bitHash].pop();
 
-	// if currently in a stack
-	if (stackHashTable.find(bitHash) != stackHashTable.end()) { 
-
-		//if on top of the stack 
-		if ( stackHashTable[bitHash].top().first == turnColor &&
-			 stackHashTable[bitHash].top().second == name) 
-		{
-
-			stackHashTable[bitHash].pop();
-
-			if (!(stackHashTable[bitHash].size())) {
-				//if only piece in stack, remove
-				stackHashTable.erase(bitHash);
-				upperLevelPieces.xorWith(oldBitboard);
-			}
-
-			
-			PieceName newName = findTopPieceName(oldBitboard);
-			PieceColor newColor = findTopPieceColor(oldBitboard);
-
-			//if a compenent was not found that means it was overwritten
-			//by above xor operations
-			if (newName == PieceName::LENGTH)
-				newName = name;
-			if (newColor == PieceColor::NONE)
-				newColor = turnColor;
-
-			//update allPieces with piece underneath
-			getPieces(newName) ->unionWith(oldBitboard);
-			getPieces(newColor) -> unionWith(oldBitboard);
-		}
-	} else {
-		//if not in stack, remove normally
+	if (!(pieceStacks[bitHash].size())) {
+		//if was only piece in stack, remove completely
+		pieceStacks.erase(bitHash);
 		pieceGraph.remove(oldBitboard);
 		allPieces.xorWith(oldBitboard);
+	} else {
+		if (pieceStacks[bitHash].size()==1 ) {
+			//was on top of the hive
+			upperLevelPieces.xorWith(oldBitboard);
+		}
+		//update gameState with stack underneath
+		PieceColor newColor = pieceStacks[bitHash].top().first;
+		getPieces(newColor) -> unionWith(oldBitboard);
+		PieceName name = pieceStacks[bitHash].top().second;
+		getPieces(name) -> unionWith(oldBitboard);
 	}
 }
 
@@ -196,7 +167,7 @@ void GameState::randomSpawnPiece(Bitboard& spawnLocations) {
 void GameState::randomSwapPiece(Bitboard swappable, Bitboard empty) {
 	swappable = swappable.getRandom();
 	empty = empty.getRandom();
-	fastSwapPiece(swappable, empty, findTopPieceName(swappable));
+	fastMovePiece(swappable, empty, findTopPieceName(swappable));
 }
 
 void GameState::randomMovePiece(Bitboard& initialPiece,
@@ -208,38 +179,32 @@ void GameState::randomMovePiece(Bitboard& initialPiece,
 }
 
 void GameState::replayMove(MoveInfo moveInfo) {
-	PieceColor oldTurnColor = turnColor;
 	//if an empty move
 	if (moveInfo == MoveInfo()) return;
 	//if move is spawning a piece
 	if(!(moveInfo.oldPieceLocation.count())) {
 		//update reserve count
-		unusedPieces[oldTurnColor][moveInfo.pieceName]--;
+		unusedPieces[turnColor][moveInfo.pieceName]--;
 	} else {
-		turnColor = findTopPieceColor(moveInfo.oldPieceLocation);
 		fastRemovePiece(moveInfo.oldPieceLocation, moveInfo.pieceName);
 	}
 	fastInsertPiece(moveInfo.newPieceLocation, moveInfo.pieceName);
 	turnCounter++;
-	turnColor = oldTurnColor;
 	changeTurnColor();
 }
 void GameState::undoMove(MoveInfo moveInfo) {
-	PieceColor oldTurnColor = turnColor;
 	//if an empty move
 	if (moveInfo == MoveInfo() ) return;
 	//if last move was spawning a piece
 	if (!(moveInfo.oldPieceLocation.count())) {
 		//update reserve count
-		unusedPieces[oldTurnColor][moveInfo.pieceName]++;
+		unusedPieces[turnColor][moveInfo.pieceName]++;
 	} else {
-		turnColor = findTopPieceColor(moveInfo.oldPieceLocation);
 		fastInsertPiece(moveInfo.oldPieceLocation, moveInfo.pieceName);
 	}
 	//correct immobile piece assumption
 	immobile = moveInfo.prevImmobile;
 	fastRemovePiece(moveInfo.newPieceLocation, moveInfo.pieceName);
-	turnColor = oldTurnColor;
 	changeTurnColor();
 	turnCounter--;
 }
@@ -463,7 +428,7 @@ Bitboard GameState::getMosquitoMoves(Bitboard piece) {
 	testUpperLevel.intersectionWith(piecePerimeter);
 
 	for (Bitboard test: testUpperLevel.splitIntoBitboards()) {
-		if(stackHashTable[test.hash()].top().second == PieceName::BEETLE) {
+		if(pieceStacks[test.hash()].top().second == PieceName::BEETLE) {
 			generated = moveGenerator.getMoves();
 			moves.unionWith(generated);
 		}
@@ -490,7 +455,7 @@ Bitboard GameState::getMosquitoPillbug() {
 	mosquitoPillbug.intersectionWith(*getPieces(PieceName::MOSQUITO));
 
 	//make sure mosquito is not apart of a stack of pieces
-	if (stackHashTable.find(mosquitoPillbug.hash()) != stackHashTable.end()) 
+	if (upperLevelPieces.containsAny(mosquitoPillbug)) 
 		mosquitoPillbug.clear();
 	return mosquitoPillbug;
 }
@@ -508,7 +473,7 @@ Bitboard GameState::getAllSpawnSpaces() {
 
 	//convert pieces to top most colors 
 	for (auto piece: upperLevelPieces.splitIntoBitboards()) {
-		if (stackHashTable[piece.hash()].top().first == turnColor) {
+		if (pieceStacks[piece.hash()].top().first == turnColor) {
 			oppositePiecePerimeter.notIntersectionWith(piece);
 		}
 	}
@@ -559,8 +524,8 @@ bool GameState::makePsuedoRandomMove() {
 
 	//deal with upperLevelPieces
 	for (Bitboard piece: upperLevelPieces.splitIntoBitboards()) {
-		if (stackHashTable[piece.hash()].top().first == turnColor) {
-			PieceName name = stackHashTable[piece.hash()].top().second;
+		if (pieceStacks[piece.hash()].top().first == turnColor) {
+			PieceName name = pieceStacks[piece.hash()].top().second;
 
 			// a piece that is on the upperLevel is not pinned
 			//int numMoves = moveApproximation(piece, PieceName::BEETLE, false);
@@ -624,7 +589,7 @@ bool GameState::makeTrueRandomMove() {
 		if (moveSelect > total) {
 			Bitboard random = se.first.getRandom();
 			Bitboard randomEmpty = se.second.getRandom();
-			fastSwapPiece(random, randomEmpty, findTopPieceName(random));
+			fastMovePiece(random, randomEmpty, findTopPieceName(random));
 			return true;
 		}
 	}
@@ -817,26 +782,12 @@ int GameState::moveApproximation(Bitboard piece, PieceName name, bool isPinned){
 }
 
 PieceName GameState::findTopPieceName(Bitboard piece) {
-	if (upperLevelPieces.containsAny(piece)) {
-		return stackHashTable[piece.hash()].top().second; 
-	}
-	for (auto name: possibleNames) {
-		if (getPieces(name) -> containsAny(piece)) return name;
-	}
-
-	return PieceName::LENGTH;
+	return pieceStacks[piece.hash()].top().second; 
 }
 
 //only finds the colors of lower level pieces
 PieceColor GameState::findTopPieceColor( Bitboard piece) {
-	if (upperLevelPieces.containsAny(piece)) {
-		return stackHashTable[piece.hash()].top().first; 
-	}
-	for (int i = 0 ; i < 2; i ++ )  {
-		if (getPieces((PieceColor)i) -> containsAny(piece) ) 
-			return	(PieceColor)i;
-	}
-	return PieceColor::NONE;
+	return pieceStacks[piece.hash()].top().first; 
 }
 
 inline void GameState::findPinnedPieces(){

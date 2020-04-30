@@ -401,8 +401,8 @@ void MoveGenerator::setGeneratingPieceBoard(Bitboard * b) {
 void MoveGenerator::setUpperLevelPieces(Bitboard * in) {
 	upperLevelPieces = in;
 }
-void MoveGenerator::setStackHashTable(unordered_map <int , stack <pair < PieceColor , PieceName >>> * in) {
-	stackHashTable = in;
+void MoveGenerator::setPieceStacks(unordered_map <int , stack <pair < PieceColor , PieceName >>> * in) {
+	pieceStacks = in;
 }
 
 //Optimize TODO
@@ -414,8 +414,6 @@ Bitboard MoveGenerator::getInaccessibleNodes(Bitboard gates) {
 
 Bitboard MoveGenerator::getLegalClimb( Bitboard& board, Direction dir) {
 	Bitboard test(board), gate, CWgate(board), CCWgate(board);
-
-	//TODO: optimize
 
 	Direction CW = rotateClockWise(dir);
 	CWgate.shiftDirection(CW);
@@ -430,18 +428,18 @@ Bitboard MoveGenerator::getLegalClimb( Bitboard& board, Direction dir) {
 	test.shiftDirection(dir);
 	
 	if (gate.count() == 2) {
-		int maxPieceHeight = 0;
+		int maxPieceHeight = 1;
 		if (upperLevelPieces -> containsAny(test)) {
-			maxPieceHeight = stackHashTable ->at(test.hash()).size(); 
+			maxPieceHeight =  pieceStacks->at(test.hash()).size(); 
 		}
 		if (upperLevelPieces -> containsAny(board) ) {
-			int max = stackHashTable ->at(board.hash()).size();
+			int max = pieceStacks ->at(board.hash()).size();
 			maxPieceHeight = (max > maxPieceHeight) ? max : maxPieceHeight;
 		}
 
 		int minGateHeight = 100;
-		int gateCWHeight = stackHashTable ->at(CWgate.hash() ).size();
-		int gateCCWHeight = stackHashTable ->at(CCWgate.hash() ).size();
+		int gateCWHeight = pieceStacks ->at(CWgate.hash() ).size();
+		int gateCCWHeight = pieceStacks ->at(CCWgate.hash() ).size();
 
 		minGateHeight = (gateCWHeight < gateCCWHeight) ? gateCWHeight : gateCCWHeight;
 		if (minGateHeight <= maxPieceHeight) {

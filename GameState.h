@@ -81,7 +81,7 @@ class GameState {
 	list < pair <Bitboard , Bitboard > > pieceMoves;
 	set <PieceName> possibleNames;
 
-	unordered_map < int , stack < pair < PieceColor , PieceName > > > stackHashTable;
+	unordered_map < int , stack < pair < PieceColor , PieceName > > > pieceStacks;
 
 	ProblemNodeContainer problemNodeContainer;
 	PieceGraph pieceGraph;
@@ -89,7 +89,6 @@ class GameState {
 
 	MoveInfo movePiece(Bitboard&, Bitboard&, PieceName);
 
-	void fastSwapPiece(Bitboard&, Bitboard&, PieceName);
 	void fastMovePiece(Bitboard&, Bitboard&, PieceName);
 	void fastInsertPiece(Bitboard&, PieceName);
 	void fastRemovePiece(Bitboard&, PieceName);

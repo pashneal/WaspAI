@@ -816,7 +816,7 @@ void Test::MoveGeneratorTest::testBeetleMoves() {
 		unordered_map <int, stack < pair < PieceColor, PieceName>>> m;
 		Bitboard upperLevelPieces;
 
-		moveGen.setStackHashTable(&m);
+		moveGen.setPieceStacks(&m);
 		moveGen.setUpperLevelPieces(&upperLevelPieces);
 		Bitboard moves = moveGen.getMoves();
 		Test::pass( moves == expectedBoard, 
@@ -833,13 +833,13 @@ void Test::MoveGeneratorTest::testBeetleMoves() {
 	Bitboard upperLevelPieces({{5, 524288u}});
 	Bitboard givenPiece({{5, 524288u}});
 	name = PieceName::BEETLE;
-	unordered_map < int, stack < pair <PieceColor, PieceName>>> stackHashTable; 
-	stackHashTable[givenPiece.hash()].push({PieceColor::WHITE, PieceName::BEETLE});
+	unordered_map < int, stack < pair <PieceColor, PieceName>>> pieceStacks; 
+	pieceStacks[givenPiece.hash()].push({PieceColor::WHITE, PieceName::BEETLE});
 	ProblemNodeContainer problemNodeCont(&testBoard);
 	problemNodeCont.findAllProblemNodes();
 	MoveGenerator moveGenerator(&testBoard, &problemNodeCont);
 	moveGenerator.setUpperLevelPieces(&upperLevelPieces);
-	moveGenerator.setStackHashTable(&stackHashTable);
+	moveGenerator.setPieceStacks(&pieceStacks);
 	moveGenerator.setGeneratingPieceBoard(&givenPiece);
 	moveGenerator.setGeneratingName(&name);
 	Test::pass(moveGenerator.getMoves() == expectedBoard, " incorrect moves outputted for move "
@@ -941,7 +941,7 @@ void Test::MoveGeneratorTest::testLadybugMoves() {
 		MoveGenerator moveGen(&testBoard, &problemNodeCont);
 		moveGen.setGeneratingName(&name);
 		moveGen.setGeneratingPieceBoard(&pieceBoard);
-		moveGen.setStackHashTable(&m);
+		moveGen.setPieceStacks(&m);
 		moveGen.setUpperLevelPieces(&upperLevelPieces);
 	
 		Bitboard moves = moveGen.getMoves();
@@ -1256,15 +1256,16 @@ void Test::GameStateTest::testMovePiece(){
 	Bitboard beetles({{5, 34359738368u}});
 	Bitboard pinned({{5, 34493956096u}});
 	Bitboard immobile(finalBeetle);
-	auto stackCopy = gameState.stackHashTable[finalBeetle.hash()];
+	auto stackCopy = gameState.pieceStacks[finalBeetle.hash()];
 	stack < pair < PieceColor , PieceName> >  stackCompare;
 
+	stackCompare.push({PieceColor::BLACK, PieceName::ANT});
 	stackCompare.push({PieceColor::WHITE, PieceName::MOSQUITO});
 	stackCompare.push({PieceColor::BLACK, PieceName::BEETLE});
 	
 	while (!stackCompare.empty() ) {
 		Test::pass(stackCompare.top() == stackCopy.top(),
-				"stackHashTable produced unexpected results");
+				"pieceStacks produced unexpected results");
 		stackCompare.pop(); stackCopy.pop();
 	}
 
@@ -1290,13 +1291,14 @@ void Test::GameStateTest::testMovePiece(){
 	beetles.initializeTo(testBeetle);
 	turnCounter++;
 
-	stackCopy = gameState.stackHashTable[finalBeetle.hash()];
+	stackCopy = gameState.pieceStacks[finalBeetle.hash()];
+	stackCompare.push({PieceColor::BLACK, PieceName::ANT});
 	stackCompare.push({PieceColor::WHITE, PieceName::MOSQUITO}); 
 
 	cout << "-----------------------------" << endl;
 	while (!stackCompare.empty() ) {
 		Test::pass(stackCompare.top() == stackCopy.top(),
-				"stackHashTable produced unexpected results");
+				"pieceStacks produced unexpected results");
 		stackCompare.pop(); stackCopy.pop();
 	}
 
@@ -1353,7 +1355,7 @@ void Test::GameStateTest::testPsuedoRandom() {
 	MoveGenerator moveGenerator(&gameState.allPieces, &gameState.problemNodeContainer);
 	Bitboard antMoves, queenMoves, ladybugMoves, whiteMosquitoMoves;
 
-	moveGenerator.setStackHashTable(&gameState.stackHashTable);
+	moveGenerator.setPieceStacks(&gameState.pieceStacks);
 	moveGenerator.setUpperLevelPieces(&gameState.upperLevelPieces);
 	moveGenerator.setGeneratingName(&name);
 

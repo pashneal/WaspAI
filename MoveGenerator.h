@@ -18,7 +18,7 @@ class MoveGenerator {
 		//TODO: make these read-only pointers
 		//TODO: change everything that is generatingPieceBoard to generatingPiece
 		Bitboard * generatingPieceBoard;
-		unordered_map < int, stack < pair < PieceColor , PieceName> > > * stackHashTable;
+		unordered_map < int, stack < pair < PieceColor , PieceName> > > * pieceStacks; 
 		Bitboard * upperLevelPieces;
 
 		Bitboard moves;
@@ -58,7 +58,7 @@ class MoveGenerator {
 		void setGeneratingName(PieceName *);
 		void setGeneratingPieceBoard(Bitboard *);
 		void setUpperLevelPieces(Bitboard *);
-		void setStackHashTable(unordered_map <int , stack <pair < PieceColor , PieceName >>> * );
+		void setPieceStacks(unordered_map <int , stack <pair < PieceColor , PieceName >>> * );
 		Bitboard getPillbugSwapSpaces();
 
 		Bitboard getInaccessibleNodes(Bitboard);
