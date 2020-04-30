@@ -42,8 +42,22 @@ MoveGenerator.o: ProblemNode.h Bitboard.h MoveGenerator.h MoveGenerator.cpp cons
 
 PieceNode.o: Bitboard.h PieceNode.h PieceNode.cpp constants.h
 
-Test.o: Test.cpp Test.h Bitboard.h
-
+Test.o: Test.cpp\
+	Test.h\
+	Bitboard.h\
+	Arena.h\
+	Bitboard.h\
+	constants.h\
+	GameState.h\
+	Heuristic.h\
+	MonteCarloNode.h\
+	MonteCarloTree.h\
+	MoveGenerator.h\
+	PieceGraph.h\
+	PieceNode.h\
+	ProblemNode.h\
+	Weight.h
+	
 Arena.o: Arena.h Arena.cpp constants.h Heuristic.h 
 
 clean:

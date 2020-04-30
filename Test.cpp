@@ -1683,8 +1683,8 @@ void Test::GameStateTest::testPlayout() {
 
 void Test::ArenaTest::testArenaNotation() {
 	Arena arena(GameState(HivePLM, PieceColor::WHITE));
-	int count = 1;
-	while (arena.currentGameState.checkVictory() == PieceColor::NONE && count--) {
+	int c = 1;
+	while (arena.currentGameState.checkVictory() == PieceColor::NONE && c--) {
 		vector<MoveInfo> moves = arena.currentGameState.generateAllMoves();
 		for (auto move: moves){ 
 			//make sure the conversion is transitive
@@ -1696,7 +1696,7 @@ void Test::ArenaTest::testArenaNotation() {
 				cout << "MoveInfo" << endl << m.toString("") << endl;
 			}
 		}
-		if (moves.size() == 0 ) moves.push_back(MoveInfo());
+		if (moves.size() == 0) moves.push_back(MoveInfo());
 		arena.makeMove(moves[0]);
 	}
 }
