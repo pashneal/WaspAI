@@ -1696,9 +1696,15 @@ void Test::ArenaTest::testArenaNotation() {
 			if (!(m==move)){
 				Test::pass(m==move,"conversion to notation produced unexpected results");
 				cout << s << endl;
-				cout << "converted MoveInfo" << endl << m.toString("") << endl;
-				cout << "original MoveInfo" << endl << move.toString("") << endl;
 				arena.currentGameState.print();
+				cout << "original MoveInfo" << endl;
+				move.oldPieceLocation.print();
+				move.newPieceLocation.print();
+				cout << move.pieceName << endl;
+				cout << "converted MoveInfo" << endl;
+				m.oldPieceLocation.print();
+				m.newPieceLocation.print();
+				cout << m.pieceName << endl;
 				throw 118;
 			}
 

@@ -81,11 +81,12 @@ string Arena::convertToNotation(MoveInfo move){
 	
 	string notation = colorNotation[oldColor] + nameNotation[oldName];
 	//if not spawning
-	if (move.oldPieceLocation.count() == 1)
+	if (move.oldPieceLocation.count() == 1){
 		notation += findTopPieceOrder(move.oldPieceLocation);
-	else 
+	} else {
 		if (singlePieces.find(oldName) == singlePieces.end())
 			notation += to_string(countPieces(oldColor, oldName) + 1);
+	}
 
 	Bitboard test;
 	
@@ -156,8 +157,10 @@ MoveInfo Arena::convertFromNotation(string notation) {
 	// can be placed in the hive, determine which one it is
 	Bitboard foundPiece;
 	for (auto piece: foundPieces.splitIntoBitboards()) {
-		string s = pieceOrderStack[piece.hash()].top();
-		if (s == pieceOrderString)  {
+		auto description = pieceOrders[piece.hash()].back(); 
+		if (std::get<0>(description) == move.pieceName &&
+			std::get<1>(description) == color &&
+			std::get<2>(description) == pieceOrderString)  {
 			foundPiece = piece;
 		}
 	}
@@ -177,9 +180,8 @@ MoveInfo Arena::convertFromNotation(string notation) {
 		PieceColor newColor = colorNotationReverse[newColorString];
 
 		//determine possible pieces
-		foundPiece.initializeTo(*currentGameState.getPieces(newColor));
-		foundPiece.intersectionWith(*currentGameState.getPieces(newName));
-
+		foundPieces.initializeTo(*currentGameState.getPieces(newColor));
+		foundPieces.intersectionWith(*currentGameState.getPieces(newName));
 		//determine whether it is a directional move or a climb
 		string pieceOrderString = "";
 		bool containsDirection = false;
@@ -190,18 +192,19 @@ MoveInfo Arena::convertFromNotation(string notation) {
 				dir = c;
 				break;
 			}
-			
+
 		if (newLocation.size() > (2 + containsDirection)) {
 			pieceOrderString = newLocation[2 + isWesternDirection];
 		}
-
 		// since many pieces of a given name and color
 		// can be placed in the hive, determine which one it is
-		for (auto piece: foundPiece.splitIntoBitboards()) {
-			string s = pieceOrderStack[piece.hash()].top();
-			if (s == pieceOrderString)  {
+		foundPiece.clear();
+		for (auto piece: foundPieces.splitIntoBitboards()) {
+			auto description = pieceOrders[piece.hash()].back(); 
+			if (std::get<0>(description) == newName &&
+				std::get<1>(description) == newColor &&
+				std::get<2>(description) == pieceOrderString)  {
 				foundPiece = piece;
-				break;
 			}
 		}
 
@@ -210,7 +213,6 @@ MoveInfo Arena::convertFromNotation(string notation) {
 			Direction direction = dirNotationReverse[dir][isWesternDirection];
 			foundPiece.shiftDirection(direction);
 		}
-
 		move.newPieceLocation = foundPiece;
 
 	}
@@ -231,27 +233,30 @@ void Arena::makeMove(MoveInfo move){
 	Bitboard movingPiece = move.oldPieceLocation;
 	Bitboard newLocation = move.newPieceLocation;
 	string pieceOrderString = "";
-
+	
+	PieceColor color;
+	PieceName name = move.pieceName;
 	//if spawning a piece
 	if (movingPiece.count() == 0) {	
+		color = currentGameState.turnColor;
 
 		//find certain pieces that do not occur more than once
 		if (singlePieces.find(move.pieceName) == singlePieces.end()){
 			//find all identical pieces and add 1 to the count
-			PieceColor color = currentGameState.turnColor;
-			PieceName name = move.pieceName;
 			int num = countPieces(color, name);
 			pieceOrderString = to_string(num + 1);
 
 		}
-		//update the pieceOrderStack
-		pieceOrderStack[movingPiece.hash()].push(pieceOrderString);
+	} else {
+		color = currentGameState.findTopPieceColor(move.oldPieceLocation);
+		pieceOrderString = findTopPieceOrder(movingPiece);
 	}
 	
 	//remove from old location, insert into new
-	pieceOrderString = findTopPieceOrder(movingPiece);
-	pieceOrderStack[movingPiece.hash()].pop();
-	pieceOrderStack[newLocation.hash()].push(pieceOrderString);
+	if (movingPiece.count())
+		pieceOrders[movingPiece.hash()].pop_back();
+
+	pieceOrders[newLocation.hash()].push_back(make_tuple(name, color, pieceOrderString));
 	//update 
 	moveHistory.push_back(move);
 	currentGameState.replayMove(move);
@@ -259,11 +264,22 @@ void Arena::makeMove(MoveInfo move){
 
 //Assumes that the piece is already in the hive
 string Arena::findTopPieceOrder(Bitboard piece){
-	return pieceOrderStack[piece.hash()].top();
+	return std::get<2>(pieceOrders[piece.hash()].back());
 };
 
 int Arena::countPieces(PieceColor color, PieceName name){
-	Bitboard identicalPieces = *currentGameState.getPieces(name);
-	identicalPieces.intersectionWith(*currentGameState.getPieces(color));
-	return identicalPieces.count();
+
+	Bitboard pieces = *currentGameState.getPieces(color);
+	pieces.intersectionWith(*currentGameState.getPieces(name));
+	int amount = 0;
+	if (pieces.count()){
+		for (Bitboard piece : pieces.splitIntoBitboards()) {
+			for (auto description: pieceOrders[piece.hash()]){
+				if (std::get<0>(description)== name &&  std::get<1>(description) == color) {
+					amount++;
+				}
+			}
+		}
+	}
+	return amount;
 }

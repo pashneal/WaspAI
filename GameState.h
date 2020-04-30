@@ -28,9 +28,9 @@ struct MoveInfo {
 	const string toString(string prefix) const {
 		pair <int , unsigned long long> LSB1 = {0,0};
 		pair <int , unsigned long long> LSB2 = {0,0};
-		if (newPieceLocation.count())
-			LSB1 = newPieceLocation.getLeastSignificantBit();
 		if (oldPieceLocation.count())
+			LSB1 = newPieceLocation.getLeastSignificantBit();
+		if (newPieceLocation.count())
 			LSB2 = oldPieceLocation.getLeastSignificantBit();
 		return prefix + to_string(LSB1.first)+ "\t" + to_string(LSB1.second)+ "\n" +
 			   prefix + to_string(LSB2.first)+ "\t" + to_string(LSB2.second)+ "\n" +
