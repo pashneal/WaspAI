@@ -640,7 +640,7 @@ bool Bitboard::equals(Bitboard& other){
 const pair <const int , const unsigned long long >
 Bitboard::getLeastSignificantBit () const {
 	pair <int, unsigned long long> LSB;
-	int min = 40;
+	int min = 12345678;
 	for (int i: internalBoardCache) 
 		min = (min < i) ? min : i;
 	LSB.first = min;
@@ -727,7 +727,7 @@ void Bitboard::duplicateBoard(list <Direction> dirs){
 	initializeTo(duplicated);
 }
 
-int Bitboard::count(){
+int Bitboard::count() const{
 	int total = 0;
 	for (int i: internalBoardCache) {
 		total += __builtin_popcountll(internalBoards[i]);

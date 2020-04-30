@@ -42,9 +42,9 @@ MoveGenerator.o: ProblemNode.h Bitboard.h MoveGenerator.h MoveGenerator.cpp cons
 
 PieceNode.o: Bitboard.h PieceNode.h PieceNode.cpp constants.h
 
-Test.o: Test.cpp Test.h
+Test.o: Test.cpp Test.h Bitboard.h
 
-Arena.o: Arena.h Arena.cpp constants.h Heuristic.h
+Arena.o: Arena.h Arena.cpp constants.h Heuristic.h 
 
 clean:
 	rm -f *.o

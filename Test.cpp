@@ -1683,17 +1683,21 @@ void Test::GameStateTest::testPlayout() {
 
 void Test::ArenaTest::testArenaNotation() {
 	Arena arena(GameState(HivePLM, PieceColor::WHITE));
-	vector<MoveInfo> moves = arena.currentGameState.generateAllMoves();
-	std::random_shuffle(moves.begin(), moves.end());
-	arena.makeMove(*moves.begin());
-
-	moves = arena.currentGameState.generateAllMoves();
-	//std::random_shuffle(moves.begin(), moves.end());
-	//arena.makeMove(*moves.begin());
-	for (auto move: moves) {
-		
-		string s = arena.convertToNotation(move);
-		cout << s << endl;		
+	int count = 1;
+	while (arena.currentGameState.checkVictory() == PieceColor::NONE && count--) {
+		vector<MoveInfo> moves = arena.currentGameState.generateAllMoves();
+		for (auto move: moves){ 
+			//make sure the conversion is transitive
+			string s = arena.convertToNotation(move);
+			MoveInfo m = arena.convertFromNotation(s);
+			if (!(m==move)){
+				Test::pass(m==move,"conversion to notation produced unexpected results");
+				cout << s << endl;
+				cout << "MoveInfo" << endl << m.toString("") << endl;
+			}
+		}
+		if (moves.size() == 0 ) moves.push_back(MoveInfo());
+		arena.makeMove(moves[0]);
 	}
 }
 //creates a hashTable that stores the precomputed perimeter

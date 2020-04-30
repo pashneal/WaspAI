@@ -55,7 +55,7 @@ class Bitboard {
 
 	void duplicateBoard(list<Direction>);
 
-	int count();
+	int count() const;
 
 	Bitboard getPerimeter();
 	Bitboard slowGetPerimeter();

@@ -64,15 +64,15 @@ void Arena::setPlayer(int playerNum, Heuristic& playerHeuristic) {
 	}
 }
 
-//assumes that Arena::currentGameState has not yet made the 
-//specified move
+//assumes that Arena::currentGameState has not yet made the specified move
 string Arena::convertToNotation(MoveInfo move){
 	//first create the notation of the current piece
 	PieceColor oldColor;
 
 	PieceName oldName = move.pieceName;
+
+	if (move == MoveInfo()) return "pass";
 	//if not spawning
-	
 	if (move.oldPieceLocation.count() == 1)
 		oldColor = currentGameState.findTopPieceColor(move.oldPieceLocation);
 	else 
@@ -84,7 +84,8 @@ string Arena::convertToNotation(MoveInfo move){
 	if (move.oldPieceLocation.count() == 1)
 		notation += findTopPieceOrder(move.oldPieceLocation);
 	else 
-		notation += to_string(countPieces(oldColor, oldName) + 1);
+		if (singlePieces.find(oldName) == singlePieces.end())
+			notation += to_string(countPieces(oldColor, oldName) + 1);
 
 	Bitboard test;
 	
@@ -123,6 +124,8 @@ MoveInfo Arena::convertFromNotation(string notation) {
 	string pieceIdentifier = "";
 	string newLocation = "";
 	MoveInfo move;
+
+	if (notation == "pass") return move;
 
 	string * ptr = &pieceIdentifier;
 	//split into strings delimited by space

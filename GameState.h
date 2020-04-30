@@ -26,8 +26,12 @@ struct MoveInfo {
 				 other.pieceName == pieceName );
 	}
 	const string toString(string prefix) const {
-		auto LSB1 = newPieceLocation.getLeastSignificantBit();
-		auto LSB2 = oldPieceLocation.getLeastSignificantBit();
+		pair <int , unsigned long long> LSB1 = {0,0};
+		pair <int , unsigned long long> LSB2 = {0,0};
+		if (newPieceLocation.count())
+			LSB1 = newPieceLocation.getLeastSignificantBit();
+		if (oldPieceLocation.count())
+			LSB2 = oldPieceLocation.getLeastSignificantBit();
 		return prefix + to_string(LSB1.first)+ "\t" + to_string(LSB1.second)+ "\n" +
 			   prefix + to_string(LSB2.first)+ "\t" + to_string(LSB2.second)+ "\n";
 	}
@@ -37,7 +41,7 @@ template <>
 struct std::hash<MoveInfo> {
 	std::size_t operator()(const MoveInfo& m)const {
 		auto LSB1 = m.newPieceLocation.getLeastSignificantBit();
-		auto LSB2 = m.oldPieceLocation.getLeastSignificantBit();
+		auto LSB2  = m.oldPieceLocation.getLeastSignificantBit();
 		return ((__builtin_ctzll(LSB1.second) << 8) + __builtin_ctzll(LSB2.second));
 	}
 };
