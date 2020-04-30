@@ -209,35 +209,40 @@ void GameState::randomMovePiece(Bitboard& initialPiece,
 
 void GameState::replayMove(MoveInfo moveInfo) {
 	PieceColor oldTurnColor = turnColor;
-	changeTurnColor();
-	turnCounter++;
 	//if an empty move
 	if (moveInfo == MoveInfo()) return;
 	//if move is spawning a piece
-	if(!(moveInfo.oldPieceLocation.count())) 
+	if(!(moveInfo.oldPieceLocation.count())) {
 		//update reserve count
 		unusedPieces[oldTurnColor][findTopPieceName(moveInfo.oldPieceLocation)]--;
-	//assume move is a swap
-	//makes the code a little easier
-	fastSwapPiece(moveInfo.oldPieceLocation,
-				  moveInfo.newPieceLocation,
-				  moveInfo.pieceName);
+	} else {
+		turnColor = findTopPieceColor(moveInfo.oldPieceLocation);
+		fastRemovePiece(moveInfo.oldPieceLocation, moveInfo.pieceName);
+		turnColor = oldTurnColor;
+	}
+	fastInsertPiece(moveInfo.newPieceLocation, moveInfo.pieceName);
+	turnCounter++;
+	changeTurnColor();
 }
 void GameState::undoMove(MoveInfo moveInfo) {
 	PieceColor oldTurnColor = turnColor;
-	changeTurnColor();
-	turnCounter--;
 	//if an empty move
 	if (moveInfo == MoveInfo() ) return;
 	//if last move was spawning a piece
 	if (!(moveInfo.oldPieceLocation.count())) {
 		//update reserve count
 		unusedPieces[oldTurnColor][findTopPieceName(moveInfo.newPieceLocation)]++;
+	} else {
+		turnColor = findTopPieceColor(moveInfo.oldPieceLocation);
+		fastInsertPiece(moveInfo.oldPieceLocation, moveInfo.pieceName);
+		turnColor = oldTurnColor;
 	}
-	fastRemovePiece(moveInfo.newPieceLocation, moveInfo.pieceName);
-	fastInsertPiece(moveInfo.oldPieceLocation, moveInfo.pieceName);
 	//correct immobile piece assumption
 	immobile = moveInfo.prevImmobile;
+
+	fastRemovePiece(moveInfo.newPieceLocation, moveInfo.pieceName);
+	changeTurnColor();
+	turnCounter--;
 }
 
 PieceColor GameState::checkVictory() {
