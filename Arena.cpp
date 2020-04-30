@@ -91,7 +91,7 @@ string Arena::convertToNotation(MoveInfo move){
 	
 	
 	// if landing on top of another piece, use that in the notation
-	if (currentGameState.upperLevelPieces.containsAny(move.newPieceLocation)){
+	if (currentGameState.allPieces.containsAny(move.newPieceLocation)){
 		test.initializeTo(move.newPieceLocation);
 		notation += colorNotation[currentGameState.findTopPieceColor(test)];
 		notation += nameNotation[currentGameState.findTopPieceName(test)];
