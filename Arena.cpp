@@ -149,17 +149,15 @@ MoveInfo Arena::convertFromNotation(string notation) {
 	}
 
 	//determine which piece the string corresponds to 
-	Bitboard foundPiece(*currentGameState.getPieces(move.pieceName));
-	foundPiece.intersectionWith(*currentGameState.getPieces(color));
-	int p = 0;
-	if (pieceOrderString.size()) p = stoi(pieceOrderString);
+	Bitboard foundPieces(*currentGameState.getPieces(move.pieceName));
+	foundPieces.intersectionWith(*currentGameState.getPieces(color));
 	// since many pieces of a given name and color
 	// can be placed in the hive, determine which one it is
-	for (auto piece: foundPiece.splitIntoBitboards()) {
+	Bitboard foundPiece;
+	for (auto piece: foundPieces.splitIntoBitboards()) {
 		string s = pieceOrderStack[piece.hash()].top();
 		if (s == pieceOrderString)  {
 			foundPiece = piece;
-			break;
 		}
 	}
 	move.oldPieceLocation = foundPiece;

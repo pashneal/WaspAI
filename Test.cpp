@@ -1698,6 +1698,7 @@ void Test::ArenaTest::testArenaNotation() {
 				cout << s << endl;
 				cout << "converted MoveInfo" << endl << m.toString("") << endl;
 				cout << "original MoveInfo" << endl << move.toString("") << endl;
+				arena.currentGameState.print();
 				throw 118;
 			}
 

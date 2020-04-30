@@ -214,7 +214,7 @@ void GameState::replayMove(MoveInfo moveInfo) {
 	//if move is spawning a piece
 	if(!(moveInfo.oldPieceLocation.count())) {
 		//update reserve count
-		unusedPieces[oldTurnColor][findTopPieceName(moveInfo.oldPieceLocation)]--;
+		unusedPieces[oldTurnColor][moveInfo.pieceName]--;
 	} else {
 		turnColor = findTopPieceColor(moveInfo.oldPieceLocation);
 		fastRemovePiece(moveInfo.oldPieceLocation, moveInfo.pieceName);
@@ -231,7 +231,7 @@ void GameState::undoMove(MoveInfo moveInfo) {
 	//if last move was spawning a piece
 	if (!(moveInfo.oldPieceLocation.count())) {
 		//update reserve count
-		unusedPieces[oldTurnColor][findTopPieceName(moveInfo.newPieceLocation)]++;
+		unusedPieces[oldTurnColor][moveInfo.pieceName]++;
 	} else {
 		turnColor = findTopPieceColor(moveInfo.oldPieceLocation);
 		fastInsertPiece(moveInfo.oldPieceLocation, moveInfo.pieceName);
@@ -919,6 +919,13 @@ void GameState::print() {
 	upperLevelPieces.print();  
 	cout << "immobile" << endl; 
 	immobile.print();          
+	cout << "unused pieces" << endl;
+	cout << "player 0" << endl;
+	for (auto iter: unusedPieces[0])
+		cout << "pieceName " << iter.first << " amountRemaining " << iter.second << endl;
+	cout << "player 1" << endl;
+	for (auto iter: unusedPieces[1])
+		cout << "pieceName " << iter.first << " amountRemaining " << iter.second << endl;
 }
 //STILL WORKING ON RANDOM 
 //FORGOT THE RULE ABOUT PILLBUG CAN BE USED IF PINNED
