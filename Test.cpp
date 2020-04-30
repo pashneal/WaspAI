@@ -1683,7 +1683,7 @@ void Test::GameStateTest::testPlayout() {
 
 void Test::ArenaTest::testArenaNotation() {
 	Arena arena(GameState(HivePLM, PieceColor::WHITE));
-	int c = 1;
+	int c = 51;
 	while (arena.currentGameState.checkVictory() == PieceColor::NONE && c--) {
 		vector<MoveInfo> moves = arena.currentGameState.generateAllMoves();
 		srand(3);
@@ -1700,8 +1700,10 @@ void Test::ArenaTest::testArenaNotation() {
 				cout << "original MoveInfo" << endl << move.toString("") << endl;
 				throw 118;
 			}
+
 		}
 		if (moves.size() == 0) moves.push_back(MoveInfo());
+		cout << arena.convertToNotation(moves[0]) << endl;
 		arena.makeMove(moves[0]);
 	}
 }

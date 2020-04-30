@@ -10,8 +10,8 @@ unordered_map <PieceColor, string> colorNotation {
 };
 unordered_map <char, vector<Direction>> dirNotationReverse{
 	{'\\', {Direction::SE,Direction::NW}},
-	{'-',  {Direction::NE,Direction::SW}},
-	{'/',  {Direction::E, Direction::W }}
+	{'-',  {Direction::E,Direction::W}},
+	{'/',  {Direction::NE, Direction::SW }}
 };
 unordered_map <Direction, string> dirNotation {
 	{Direction::NW ,"\\"},
@@ -105,13 +105,15 @@ string Arena::convertToNotation(MoveInfo move){
 		test.shiftDirection(direction);
 		if (currentGameState.allPieces.containsAny(test)) {
 			notation += " ";
-			if (westernDirection.find(direction) != westernDirection.end())
-				notation += dirNotation[direction];
+			Direction opposite = oppositeDirection[direction];
+			//use the direction that is opposite in notation
+			if (westernDirection.find(opposite) != westernDirection.end())
+				notation += dirNotation[opposite];
 			notation += colorNotation[currentGameState.findTopPieceColor(test)];
 			notation += nameNotation[currentGameState.findTopPieceName(test)];
 			notation += findTopPieceOrder(test);
-			if (westernDirection.find(direction) == westernDirection.end())
-				notation += dirNotation[direction];
+			if (westernDirection.find(opposite) == westernDirection.end())
+				notation += dirNotation[opposite];
 			return notation;
 		}
 	}
@@ -170,9 +172,9 @@ MoveInfo Arena::convertFromNotation(string notation) {
 		bool isWesternDirection = symbols.find(newLocation[0]) != symbols.end();
 
 		//interpret the second half of the string
-		char newNameString = pieceIdentifier[1 + isWesternDirection];
+		char newNameString = newLocation[1 + isWesternDirection];
 		PieceName newName = nameNotationReverse[newNameString];
-		char newColorString = pieceIdentifier[0 + isWesternDirection];
+		char newColorString = newLocation[0 + isWesternDirection];
 		PieceColor newColor = colorNotationReverse[newColorString];
 
 		//determine possible pieces
