@@ -235,12 +235,11 @@ void GameState::undoMove(MoveInfo moveInfo) {
 	} else {
 		turnColor = findTopPieceColor(moveInfo.oldPieceLocation);
 		fastInsertPiece(moveInfo.oldPieceLocation, moveInfo.pieceName);
-		turnColor = oldTurnColor;
 	}
 	//correct immobile piece assumption
 	immobile = moveInfo.prevImmobile;
-
 	fastRemovePiece(moveInfo.newPieceLocation, moveInfo.pieceName);
+	turnColor = oldTurnColor;
 	changeTurnColor();
 	turnCounter--;
 }
