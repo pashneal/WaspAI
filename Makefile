@@ -20,7 +20,7 @@ debug: $(DEPENDENCIES)
 	$(CXX) $(CXXFLAGSDEBUG) $(DEPENDENCIES) $(DEBUG)
 
 # relink and compile with optimization flags
-all: $(DEPENDENCIES)
+all: 
 	$(CXX) $(CXXFLAGSRELEASE) *.cpp $(RELEASE)
 
 Bitboard.o: Bitboard.cpp Bitboard.h constants.h

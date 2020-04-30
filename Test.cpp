@@ -5,9 +5,11 @@
 #include <vector>
 #include <set>
 #include <unordered_map>
+#include <algorithm>
 #include <iostream>
 #include <random>
 #include "constants.h"
+#include "Arena.h"
 #include "Bitboard.h"
 #include "MoveGenerator.h"
 #include "PieceNode.h"
@@ -1679,8 +1681,20 @@ void Test::GameStateTest::testPlayout() {
 	cout << "total elapsed: " << totalElapsed << "[ms]" << endl;
 }
 
-void Test::Arena::testArenaNotation() {
+void Test::ArenaTest::testArenaNotation() {
+	Arena arena(GameState(HivePLM, PieceColor::WHITE));
+	vector<MoveInfo> moves = arena.currentGameState.generateAllMoves();
+	std::random_shuffle(moves.begin(), moves.end());
+	arena.makeMove(*moves.begin());
 
+	moves = arena.currentGameState.generateAllMoves();
+	//std::random_shuffle(moves.begin(), moves.end());
+	//arena.makeMove(*moves.begin());
+	for (auto move: moves) {
+		
+		string s = arena.convertToNotation(move);
+		cout << s << endl;		
+	}
 }
 //creates a hashTable that stores the precomputed perimeter
 //of a given bitboard array
@@ -1841,7 +1855,7 @@ int main() {
 	cout << "Finished initializing perimeters" << endl;
 	cout << "Intializing... " << endl;
 	createGateHashTable();
-	cout << "Finished initializing gates";
+	cout << "Finished initializing gates" << endl;
 	Test::BitboardTest::testShiftDirection();
 	Test::BitboardTest::testXorWith();
 	Test::BitboardTest::testIntersectionWith();
@@ -1865,7 +1879,8 @@ int main() {
 	Test::PieceGraphTest::testFindAllPinnedPieces();
 	Test::GameStateTest::testFastSpawnPiece();
 	Test::GameStateTest::testMovePiece();
-	Test::GameStateTest::testPsuedoRandom();
-	perfTest();
-	Test::GameStateTest::testPlayout();
+	//Test::GameStateTest::testPsuedoRandom();
+	//perfTest();
+	//Test::GameStateTest::testPlayout();
+	Test::ArenaTest::testArenaNotation();
 }

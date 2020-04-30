@@ -67,13 +67,27 @@ void Arena::setPlayer(int playerNum, Heuristic& playerHeuristic) {
 //assumes that Arena::currentGameState has not yet made the 
 //specified move
 string Arena::convertToNotation(MoveInfo move){
-		
 	//first create the notation of the current piece
-	PieceColor oldColor = currentGameState.findTopPieceColor(move.oldPieceLocation);
+	PieceColor oldColor;
+
 	PieceName oldName = move.pieceName;
+	//if not spawning
+	
+	if (move.oldPieceLocation.count() == 1)
+		oldColor = currentGameState.findTopPieceColor(move.oldPieceLocation);
+	else 
+		oldColor = currentGameState.turnColor;
+
+	
 	string notation = colorNotation[oldColor] + nameNotation[oldName];
-	notation += findTopPieceOrder(move.oldPieceLocation);
+	//if not spawning
+	if (move.oldPieceLocation.count() == 1)
+		notation += findTopPieceOrder(move.oldPieceLocation);
+	else 
+		notation += to_string(countPieces(oldColor, oldName) + 1);
+
 	Bitboard test;
+	
 	
 	// if landing on top of another piece, use that in the notation
 	if (currentGameState.upperLevelPieces.containsAny(move.newPieceLocation)){
@@ -100,6 +114,7 @@ string Arena::convertToNotation(MoveInfo move){
 			return notation;
 		}
 	}
+	
 	return notation;
 }
 
@@ -197,15 +212,17 @@ MoveInfo Arena::convertFromNotation(string notation) {
 	return move;
 }
 
-
 //Assumes that specified move is legal
 void Arena::makeMove(string move){
+	moveHistoryNotation.push_back(move);
 	MoveInfo moveInfo = convertFromNotation(move);
 	makeMove(moveInfo);
 };
 
 //Assumes that move is legal
 void Arena::makeMove(MoveInfo move){
+	moveHistoryNotation.push_back(convertToNotation(move));
+
 	Bitboard movingPiece = move.oldPieceLocation;
 	Bitboard newLocation = move.newPieceLocation;
 	string pieceOrderString = "";
@@ -216,11 +233,11 @@ void Arena::makeMove(MoveInfo move){
 		//find certain pieces that do not occur more than once
 		if (singlePieces.find(move.pieceName) == singlePieces.end()){
 			//find all identical pieces and add 1 to the count
-			PieceColor color = currentGameState.findTopPieceColor(move.oldPieceLocation);
+			PieceColor color = currentGameState.turnColor;
 			PieceName name = move.pieceName;
-			Bitboard identicalPieces = *currentGameState.getPieces(name);
-			identicalPieces.intersectionWith(*currentGameState.getPieces(color));
-			pieceOrderString = to_string(identicalPieces.count() + 1);
+			int num = countPieces(color, name);
+			pieceOrderString = to_string(num + 1);
+
 		}
 		//update the pieceOrderStack
 		pieceOrderStack[movingPiece.hash()].push(pieceOrderString);
@@ -231,7 +248,7 @@ void Arena::makeMove(MoveInfo move){
 	pieceOrderStack[movingPiece.hash()].pop();
 	pieceOrderStack[newLocation.hash()].push(pieceOrderString);
 	//update 
-	moveHistory.push(move);
+	moveHistory.push_back(move);
 	currentGameState.replayMove(move);
 };
 
@@ -239,3 +256,9 @@ void Arena::makeMove(MoveInfo move){
 string Arena::findTopPieceOrder(Bitboard piece){
 	return pieceOrderStack[piece.hash()].top();
 };
+
+int Arena::countPieces(PieceColor color, PieceName name){
+	Bitboard identicalPieces = *currentGameState.getPieces(name);
+	identicalPieces.intersectionWith(*currentGameState.getPieces(color));
+	return identicalPieces.count();
+}

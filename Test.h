@@ -62,7 +62,7 @@ class Test {
 				static void testPlayout();
 		};
 
-		class Arena {
+		class ArenaTest {
 			public:
 				static void testArenaNotation();
 		};

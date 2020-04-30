@@ -92,14 +92,14 @@ class Bitboard {
 
 	bool operator == (const Bitboard& other) const {
 		set <int> combined;
-		for (auto i: internalBoards) {
+		for (auto i: internalBoardCache) {
 			if (internalBoards[i] != 0) combined.insert(i);
 		}
-		for (auto i: other.internalBoards) {
+		for (auto i: other.internalBoardCache) {
 			if (other.internalBoards[i] != 0) combined.insert(i);
 		}
 		if (other.internalBoardCache.size() != combined.size() ||
-			other.internalBoardCache.size() != combined.size())
+			internalBoardCache.size() != combined.size())
 			return false;
 		for (int i: combined) {
 			if (other.internalBoards[i] != internalBoards[i])
