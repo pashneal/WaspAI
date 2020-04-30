@@ -1,8 +1,8 @@
 #include "Arena.h"
 
-unordered_map <string, PieceColor> colorNotationReverse {
-	{"w", PieceColor::WHITE},
-	{"b", PieceColor::BLACK},
+unordered_map <char, PieceColor> colorNotationReverse {
+	{'w', PieceColor::WHITE},
+	{'b', PieceColor::BLACK},
 };
 unordered_map <PieceColor, string> colorNotation {
 	{PieceColor::WHITE, "w"},
@@ -22,15 +22,15 @@ unordered_map <Direction, string> dirNotation {
 	{Direction::E  ,"-"},
 };
 
-unordered_map<string, PieceName> nameNotationReverse{ 
-	{"G", PieceName::GRASSHOPPER},
-	{"Q",		 PieceName::QUEEN},
-	{"L", 	 PieceName::LADYBUG},
-	{"P", 	 PieceName::PILLBUG},	
-	{"M",	 PieceName::MOSQUITO},
-	{"B",  	 PieceName::BEETLE},
-	{"A",     	 PieceName::ANT},
-	{"S",  	 PieceName::SPIDER},
+unordered_map<char, PieceName> nameNotationReverse{ 
+	{'G', PieceName::GRASSHOPPER},
+	{'Q',		 PieceName::QUEEN},
+	{'L', 	 PieceName::LADYBUG},
+	{'P', 	 PieceName::PILLBUG},	
+	{'M',	 PieceName::MOSQUITO},
+	{'B',  	 PieceName::BEETLE},
+	{'A',     	 PieceName::ANT},
+	{'S',  	 PieceName::SPIDER},
 };
 
 unordered_map<PieceName, string> nameNotation{ 
@@ -138,8 +138,9 @@ MoveInfo Arena::convertFromNotation(string notation) {
 	}
 
 	//interpret the first half of the string
-	move.pieceName = nameNotationReverse[to_string(pieceIdentifier[1])];
-	PieceColor color = colorNotationReverse[to_string(pieceIdentifier[0])];
+	move.pieceName = nameNotationReverse[pieceIdentifier[1]];
+	PieceColor color = colorNotationReverse[pieceIdentifier[0]];
+
 	string pieceOrderString = "";
 	if (pieceIdentifier.size() > 2) {
 		pieceOrderString = pieceIdentifier[2];
@@ -169,9 +170,9 @@ MoveInfo Arena::convertFromNotation(string notation) {
 		bool isWesternDirection = symbols.find(newLocation[0]) != symbols.end();
 
 		//interpret the second half of the string
-		string newNameString = to_string(pieceIdentifier[1 + isWesternDirection]);
+		char newNameString = pieceIdentifier[1 + isWesternDirection];
 		PieceName newName = nameNotationReverse[newNameString];
-		string newColorString = to_string(pieceIdentifier[0 + isWesternDirection]);
+		char newColorString = pieceIdentifier[0 + isWesternDirection];
 		PieceColor newColor = colorNotationReverse[newColorString];
 
 		//determine possible pieces

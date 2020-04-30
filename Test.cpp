@@ -1686,6 +1686,9 @@ void Test::ArenaTest::testArenaNotation() {
 	int c = 1;
 	while (arena.currentGameState.checkVictory() == PieceColor::NONE && c--) {
 		vector<MoveInfo> moves = arena.currentGameState.generateAllMoves();
+		srand(3);
+		std::random_shuffle(moves.begin(), moves.end());
+		std::random_shuffle(moves.begin(), moves.end());
 		for (auto move: moves){ 
 			//make sure the conversion is transitive
 			string s = arena.convertToNotation(move);
@@ -1695,6 +1698,7 @@ void Test::ArenaTest::testArenaNotation() {
 				cout << s << endl;
 				cout << "converted MoveInfo" << endl << m.toString("") << endl;
 				cout << "original MoveInfo" << endl << move.toString("") << endl;
+				throw 118;
 			}
 		}
 		if (moves.size() == 0) moves.push_back(MoveInfo());
