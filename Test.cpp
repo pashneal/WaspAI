@@ -1232,18 +1232,13 @@ void Test::GameStateTest::testMovePiece(){
 
 	bool color = (bool)PieceColor::WHITE;
 	for (auto p : initialPieces) {
-
 		gameState.fastSpawnPiece(p.first, p.second);
 		color = !color;
 	}
 
-	PieceName ant = PieceName::ANT;
-	PieceName mosquito = PieceName::MOSQUITO;
-	PieceName beetle = PieceName::BEETLE;
-
-	gameState.fastMovePiece(testAnt, finalAnt, ant);
-	gameState.fastMovePiece(testMosquito, finalMosquito, mosquito);
-	gameState.fastMovePiece(testBeetle, finalBeetle, beetle);
+	gameState.fastMovePiece(testAnt, finalAnt);
+	gameState.fastMovePiece(testMosquito, finalMosquito);
+	gameState.fastMovePiece(testBeetle, finalBeetle);
 	
 	color = !color;
 	int turnCounter = 10;
@@ -1284,7 +1279,7 @@ void Test::GameStateTest::testMovePiece(){
 	if (!silenced) {gameState.upperLevelPieces.print();}
 
 	gameState.changeTurnColor();
-	gameState.fastMovePiece(finalBeetle, testBeetle, beetle);
+	gameState.fastMovePiece(finalBeetle, testBeetle);
 	blackPieces.initialize({{5, 8813272891392u}});	
 	finalBoard.unionWith(blackPieces);
 	immobile.initializeTo(testBeetle);
@@ -1695,7 +1690,6 @@ void Test::ArenaTest::testArenaNotation() {
 			//make sure the conversion is transitive
 			string s = arena.convertToNotation(move);
 			MoveInfo m = arena.convertFromNotation(s);
-
 			if (!(m==move)){
 				Test::pass(m==move,"conversion to notation produced unexpected results");
 				cout << s << endl;

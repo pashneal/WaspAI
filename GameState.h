@@ -89,9 +89,9 @@ class GameState {
 
 	MoveInfo movePiece(Bitboard&, Bitboard&, PieceName);
 
-	void fastMovePiece(Bitboard&, Bitboard&, PieceName);
-	void fastInsertPiece(Bitboard&, PieceName);
-	void fastRemovePiece(Bitboard&, PieceName);
+	void fastMovePiece(Bitboard&, Bitboard&);
+	void fastInsertPiece(Bitboard&, PieceName, PieceColor);
+	void fastRemovePiece(Bitboard&);
 	void fastSpawnPiece(Bitboard&, PieceName);
 
 	int countSwaps(Bitboard&);
@@ -99,7 +99,7 @@ class GameState {
 
 	void randomSpawnPiece(Bitboard&);
 	void randomSwapPiece(Bitboard, Bitboard);
-	void randomMovePiece(Bitboard&, Bitboard&, PieceName name);
+	void randomMovePiece(Bitboard&, Bitboard&);
 
 	Bitboard getAllSpawnSpaces();
 	pair <Bitboard, Bitboard> getSwapSpaces(Bitboard);
@@ -133,7 +133,7 @@ class GameState {
 	bool attemptSpawn(int);
 	bool attemptMove(vector<movesCollection>& , int);
 
-	int moveApproximation(Bitboard, PieceName, bool);
+	int moveApproximation(Bitboard, bool);
 
 	void findPinnedPieces();
 

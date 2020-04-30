@@ -156,6 +156,7 @@ MoveInfo Arena::convertFromNotation(string notation) {
 	// can be placed in the hive, determine which one it is
 	Bitboard foundPiece;
 	for (auto piece: foundPieces.splitIntoBitboards()) {
+	
 		auto description = pieceOrders[piece.hash()].back(); 
 		if (std::get<0>(description) == move.pieceName &&
 			std::get<1>(description) == color &&
@@ -257,11 +258,6 @@ void Arena::makeMove(MoveInfo move){
 
 	pieceOrders[newLocation.hash()].push_back(make_tuple(name, color, pieceOrderString));
 
-	cout << "========" << endl;
-	for (auto j = pieceOrders.begin(); j != pieceOrders.end(); j++) {
-		for (auto i = j->second.begin(); i != j ->second.end(); i++) 
-		cout << j->first << " " << std::get<0>(*i) << " "<< std::get<1>(*i) << " " <<std::get<2>(*i) << " " << endl;
-	}
 	//update 
 	moveHistory.push_back(move);
 	currentGameState.replayMove(move);

@@ -16,7 +16,10 @@ DEPENDENCIES=Bitboard.o\
 	Test.o\
 	Arena.o
 
-debug: $(DEPENDENCIES)
+debug: 
+	$(CXX) *.cpp $(CXXFLAGSDEBUG) $(DEBUG)
+
+quick: $(DEPENDENCIES)
 	$(CXX) $(CXXFLAGSDEBUG) $(DEPENDENCIES) $(DEBUG)
 
 # relink and compile with optimization flags
