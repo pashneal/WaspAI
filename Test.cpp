@@ -1679,6 +1679,9 @@ void Test::GameStateTest::testPlayout() {
 	cout << "total elapsed: " << totalElapsed << "[ms]" << endl;
 }
 
+void Test::Arena::testArenaNotation() {
+
+}
 //creates a hashTable that stores the precomputed perimeter
 //of a given bitboard array
 //int maxNumber : the number of bits per board to precomputed
@@ -1803,6 +1806,7 @@ Bitboard getLegalWalks(Bitboard board, Bitboard allPieces) {
 	return retBoard;
 }
 
+//creates a hashTable that stores the precomputed perimeter
 void createGateHashTable() {
 	unsigned long long notAllowed = 0xff818181818181ffu;
 	unsigned long long position = 1; 

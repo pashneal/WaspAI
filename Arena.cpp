@@ -88,7 +88,7 @@ string Arena::convertToNotation(MoveInfo move){
 	for (auto direction: hexagonalDirections) {
 		test.initializeTo(move.newPieceLocation);
 		test.shiftDirection(direction);
-		if (currentGameState.allPieces.containsAny(test)) 
+		if (currentGameState.allPieces.containsAny(test)) {
 			notation += " ";
 			if (westernDirection.find(direction) != westernDirection.end())
 				notation += dirNotation[direction];
@@ -98,6 +98,7 @@ string Arena::convertToNotation(MoveInfo move){
 			if (westernDirection.find(direction) == westernDirection.end())
 				notation += dirNotation[direction];
 			return notation;
+		}
 	}
 	return notation;
 }

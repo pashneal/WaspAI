@@ -41,28 +41,41 @@ enum PieceColor {
 	NONE = 2
 };
 
+Direction rotateClockWise(Direction dir);
+Direction rotateCounterClockWise(Direction dir);
+
+//random generator things
+extern std::random_device rd;
+extern std::mt19937_64 e2;
+extern std::uniform_int_distribution<unsigned long long int> dist;
+
+//number of times nodes are expanded
 extern int MonteCarloSimulations;
+//number of moves played before a simulation is cutoff
 extern int MonteCarloSimulationsCutoff;
+
 extern int dxdy[6][2];  
 extern unordered_map <string, int> pieceNum; 
 extern unordered_map < string , vector<Direction> > directions;  
 extern list <Direction> hexagonalDirections ;
 extern unordered_map <Direction, Direction>  oppositeDirection;
-extern std::random_device rd;
-extern std::mt19937_64 e2;
-extern std::uniform_int_distribution<unsigned long long int> dist;
-Direction rotateClockWise(Direction dir);
-Direction rotateCounterClockWise(Direction dir);
 
 unsigned modulo(int, unsigned);
 	
+//a structure defining the number of pieces in a hive 
+//game with P (pillbug), L (ladybug), and M (mosquito)
 extern vector <unordered_map <PieceName, int>> HivePLM; 
+
 const int ROW_SHIFT = 8;
 const int COLUMN_SHIFT = 1;
+//dimensions of bitboard
 const int BITBOARD_HEIGHT = 8;
 const int BITBOARD_WIDTH = 8;
+//amount of boards per Bitboard object
 const int BITBOARD_SIZE  = 9;
+//amount of cols per Bitboard object
 const int BITBOARD_ROWS = 3;
+//amount of rows per Bitboard object
 const int BITBOARD_COLS = 3;
 const unsigned long long ODD_ROWS_BITMASK = 0xff00ff00ff00ff00u;
 
