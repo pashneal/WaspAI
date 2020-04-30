@@ -77,7 +77,6 @@ string Arena::convertToNotation(MoveInfo move){
 		oldColor = currentGameState.findTopPieceColor(move.oldPieceLocation);
 	else 
 		oldColor = currentGameState.turnColor;
-
 	
 	string notation = colorNotation[oldColor] + nameNotation[oldName];
 	//if not spawning
@@ -248,7 +247,7 @@ void Arena::makeMove(MoveInfo move){
 
 		}
 	} else {
-		color = currentGameState.findTopPieceColor(move.oldPieceLocation);
+		color = currentGameState.findTopPieceColor(movingPiece);
 		pieceOrderString = findTopPieceOrder(movingPiece);
 	}
 	
@@ -257,6 +256,12 @@ void Arena::makeMove(MoveInfo move){
 		pieceOrders[movingPiece.hash()].pop_back();
 
 	pieceOrders[newLocation.hash()].push_back(make_tuple(name, color, pieceOrderString));
+
+	cout << "========" << endl;
+	for (auto j = pieceOrders.begin(); j != pieceOrders.end(); j++) {
+		for (auto i = j->second.begin(); i != j ->second.end(); i++) 
+		cout << j->first << " " << std::get<0>(*i) << " "<< std::get<1>(*i) << " " <<std::get<2>(*i) << " " << endl;
+	}
 	//update 
 	moveHistory.push_back(move);
 	currentGameState.replayMove(move);

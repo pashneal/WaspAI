@@ -1683,7 +1683,7 @@ void Test::GameStateTest::testPlayout() {
 
 void Test::ArenaTest::testArenaNotation() {
 	Arena arena(GameState(HivePLM, PieceColor::WHITE));
-	int c = 51;
+	int c = 500;
 	while (arena.currentGameState.checkVictory() == PieceColor::NONE && c--) {
 		vector<MoveInfo> moves = arena.currentGameState.generateAllMoves();
 		srand(3);
@@ -1693,6 +1693,7 @@ void Test::ArenaTest::testArenaNotation() {
 			//make sure the conversion is transitive
 			string s = arena.convertToNotation(move);
 			MoveInfo m = arena.convertFromNotation(s);
+
 			if (!(m==move)){
 				Test::pass(m==move,"conversion to notation produced unexpected results");
 				cout << s << endl;
@@ -1705,6 +1706,12 @@ void Test::ArenaTest::testArenaNotation() {
 				m.oldPieceLocation.print();
 				m.newPieceLocation.print();
 				cout << m.pieceName << endl;
+				cout << "original hashes" << endl;
+				cout << move.oldPieceLocation.hash() << endl;
+				cout << move.newPieceLocation.hash() << endl;
+				cout << "converted hashes" << endl;
+				cout << m.oldPieceLocation.hash() << endl;
+				cout << m.newPieceLocation.hash() << endl;
 				throw 118;
 			}
 

@@ -218,10 +218,10 @@ void GameState::replayMove(MoveInfo moveInfo) {
 	} else {
 		turnColor = findTopPieceColor(moveInfo.oldPieceLocation);
 		fastRemovePiece(moveInfo.oldPieceLocation, moveInfo.pieceName);
-		turnColor = oldTurnColor;
 	}
 	fastInsertPiece(moveInfo.newPieceLocation, moveInfo.pieceName);
 	turnCounter++;
+	turnColor = oldTurnColor;
 	changeTurnColor();
 }
 void GameState::undoMove(MoveInfo moveInfo) {
