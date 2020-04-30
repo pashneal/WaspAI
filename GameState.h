@@ -33,7 +33,8 @@ struct MoveInfo {
 		if (oldPieceLocation.count())
 			LSB2 = oldPieceLocation.getLeastSignificantBit();
 		return prefix + to_string(LSB1.first)+ "\t" + to_string(LSB1.second)+ "\n" +
-			   prefix + to_string(LSB2.first)+ "\t" + to_string(LSB2.second)+ "\n";
+			   prefix + to_string(LSB2.first)+ "\t" + to_string(LSB2.second)+ "\n" +
+			   prefix + to_string(pieceName) + "\n";
 	}
 };
 

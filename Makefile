@@ -1,5 +1,5 @@
 CXX=g++
-CXXFLAGSDEBUG=-Wall -ggdb -pthread
+CXXFLAGSDEBUG=-Wall -Wextra -ggdb -pthread
 CXXFLAGSRELEASE=-O3 -Wall -pthread
 DEBUG=-o test.out
 RELEASE=-o test.out
@@ -13,8 +13,8 @@ DEPENDENCIES=Bitboard.o\
 	PieceGraph.o\
 	PieceNode.o\
 	ProblemNode.o\
-	Arena.o\
-	Test.o
+	Test.o\
+	Arena.o
 
 debug: $(DEPENDENCIES)
 	$(CXX) $(CXXFLAGSDEBUG) $(DEPENDENCIES) $(DEBUG)
@@ -42,23 +42,10 @@ MoveGenerator.o: ProblemNode.h Bitboard.h MoveGenerator.h MoveGenerator.cpp cons
 
 PieceNode.o: Bitboard.h PieceNode.h PieceNode.cpp constants.h
 
-Test.o: Test.cpp\
-	Test.h\
-	Bitboard.h\
-	Arena.h\
-	Bitboard.h\
-	constants.h\
-	GameState.h\
-	Heuristic.h\
-	MonteCarloNode.h\
-	MonteCarloTree.h\
-	MoveGenerator.h\
-	PieceGraph.h\
-	PieceNode.h\
-	ProblemNode.h\
-	Weight.h
-	
 Arena.o: Arena.h Arena.cpp constants.h Heuristic.h 
+
+Test.o: Test.h Test.cpp
+	$(CXX) $(CXXFLAGSDEBUG) -c Test.cpp
 
 clean:
 	rm -f *.o

@@ -1693,7 +1693,8 @@ void Test::ArenaTest::testArenaNotation() {
 			if (!(m==move)){
 				Test::pass(m==move,"conversion to notation produced unexpected results");
 				cout << s << endl;
-				cout << "MoveInfo" << endl << m.toString("") << endl;
+				cout << "converted MoveInfo" << endl << m.toString("") << endl;
+				cout << "original MoveInfo" << endl << move.toString("") << endl;
 			}
 		}
 		if (moves.size() == 0) moves.push_back(MoveInfo());
