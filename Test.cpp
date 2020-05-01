@@ -1679,44 +1679,53 @@ void Test::GameStateTest::testPlayout() {
 }
 
 void Test::ArenaTest::testArenaNotation() {
-	Arena arena(GameState(HivePLM, PieceColor::WHITE));
-	int c = 500;
-	while (arena.currentGameState.checkVictory() == PieceColor::NONE && c--) {
-		vector<MoveInfo> moves = arena.currentGameState.generateAllMoves();
-		srand(3);
-		std::random_shuffle(moves.begin(), moves.end());
-		std::random_shuffle(moves.begin(), moves.end());
-		for (auto move: moves){ 
-			//make sure the conversion is transitive
-			string s = arena.convertToNotation(move);
-			MoveInfo m = arena.convertFromNotation(s);
-			if (!(m==move)){
-				Test::pass(m==move,"conversion to notation produced unexpected results");
-				cout << s << endl;
-				arena.currentGameState.print();
-				cout << "original MoveInfo" << endl;
-				move.oldPieceLocation.print();
-				move.newPieceLocation.print();
-				cout << move.pieceName << endl;
-				cout << "converted MoveInfo" << endl;
-				m.oldPieceLocation.print();
-				m.newPieceLocation.print();
-				cout << m.pieceName << endl;
-				cout << "original hashes" << endl;
-				cout << move.oldPieceLocation.hash() << endl;
-				cout << move.newPieceLocation.hash() << endl;
-				cout << "converted hashes" << endl;
-				cout << m.oldPieceLocation.hash() << endl;
-				cout << m.newPieceLocation.hash() << endl;
-				throw 118;
+	int f = 500;
+	bool silenced = true;
+	srand(3);
+	while (f--) {
+		Arena arena(GameState(HivePLM, PieceColor::WHITE)); 
+		int c = 500;
+		while (arena.currentGameState.checkVictory() == PieceColor::NONE && c--) {
+			vector<MoveInfo> moves = arena.currentGameState.generateAllMoves();
+			std::random_shuffle(moves.begin(), moves.end());
+			PieceColor turnColor = arena.currentGameState.turnColor;
+			if (!silenced)
+				cout << "turnColor " << turnColor << endl;
+			for (auto move: moves){ 
+				//make sure the conversion is transitive
+				string s = arena.convertToNotation(move);
+				MoveInfo m = arena.convertFromNotation(s);
+				if (!(m==move)){
+					Test::pass(m==move,"conversion to notation produced unexpected results");
+					cout << s << endl;
+					arena.currentGameState.print();
+					cout << "original MoveInfo" << endl;
+					move.oldPieceLocation.print();
+					move.newPieceLocation.print();
+					cout << move.pieceName << endl;
+					cout << "converted MoveInfo" << endl;
+					m.oldPieceLocation.print();
+					m.newPieceLocation.print();
+					cout << m.pieceName << endl;
+					cout << "original hashes" << endl;
+					cout << move.oldPieceLocation.hash() << endl;
+					cout << move.newPieceLocation.hash() << endl;
+					cout << "converted hashes" << endl;
+					cout << m.oldPieceLocation.hash() << endl;
+					cout << m.newPieceLocation.hash() << endl;
+					throw 118;
+				}
 			}
-
+			if (moves.size() == 0) moves.push_back(MoveInfo());
+			if (!silenced){
+				cout << moves.size() << " ";
+				cout << arena.convertToNotation(moves[0]) << endl;
+			}
+			arena.makeMove(moves[0]);
 		}
-		if (moves.size() == 0) moves.push_back(MoveInfo());
-		cout << arena.convertToNotation(moves[0]) << endl;
-		arena.makeMove(moves[0]);
 	}
 }
+
 //creates a hashTable that stores the precomputed perimeter
 //of a given bitboard array
 //int maxNumber : the number of bits per board to precomputed

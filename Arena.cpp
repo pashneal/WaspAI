@@ -4,15 +4,18 @@ unordered_map <char, PieceColor> colorNotationReverse {
 	{'w', PieceColor::WHITE},
 	{'b', PieceColor::BLACK},
 };
+
 unordered_map <PieceColor, string> colorNotation {
 	{PieceColor::WHITE, "w"},
 	{PieceColor::BLACK, "b"},
 };
+
 unordered_map <char, vector<Direction>> dirNotationReverse{
 	{'\\', {Direction::SE,Direction::NW}},
 	{'-',  {Direction::E,Direction::W}},
 	{'/',  {Direction::NE, Direction::SW }}
 };
+
 unordered_map <Direction, string> dirNotation {
 	{Direction::NW ,"\\"},
 	{Direction::NE ,"/"},
@@ -67,12 +70,12 @@ void Arena::setPlayer(int playerNum, Heuristic& playerHeuristic) {
 //assumes that Arena::currentGameState has not yet made the specified move
 string Arena::convertToNotation(MoveInfo move){
 	//first create the notation of the current piece
-	PieceColor oldColor;
 
-	PieceName oldName = move.pieceName;
 
 	if (move == MoveInfo()) return "pass";
 	//if not spawning
+	PieceColor oldColor;
+	PieceName oldName = move.pieceName;
 	if (move.oldPieceLocation.count() == 1)
 		oldColor = currentGameState.findTopPieceColor(move.oldPieceLocation);
 	else 
@@ -152,6 +155,7 @@ MoveInfo Arena::convertFromNotation(string notation) {
 	//determine which piece the string corresponds to 
 	Bitboard foundPieces(*currentGameState.getPieces(move.pieceName));
 	foundPieces.intersectionWith(*currentGameState.getPieces(color));
+
 	// since many pieces of a given name and color
 	// can be placed in the hive, determine which one it is
 	Bitboard foundPiece;
@@ -230,12 +234,20 @@ void Arena::makeMove(string move){
 void Arena::makeMove(MoveInfo move){
 	moveHistoryNotation.push_back(convertToNotation(move));
 
+	//if no move made
+	if (move == MoveInfo()) {
+		moveHistory.push_back(move);
+		currentGameState.replayMove(move);
+		return;
+	}
+
 	Bitboard movingPiece = move.oldPieceLocation;
 	Bitboard newLocation = move.newPieceLocation;
 	string pieceOrderString = "";
 	
 	PieceColor color;
 	PieceName name = move.pieceName;
+
 	//if spawning a piece
 	if (movingPiece.count() == 0) {	
 		color = currentGameState.turnColor;
@@ -269,7 +281,6 @@ string Arena::findTopPieceOrder(Bitboard piece){
 };
 
 int Arena::countPieces(PieceColor color, PieceName name){
-
 	Bitboard pieces = *currentGameState.getPieces(color);
 	pieces.intersectionWith(*currentGameState.getPieces(name));
 	int amount = 0;
