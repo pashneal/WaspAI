@@ -107,6 +107,7 @@ void GameState::fastRemovePiece(Bitboard& oldBitboard){
 
 	PieceColor color = findTopPieceColor(oldBitboard); 
 	PieceName name = findTopPieceName(oldBitboard); 
+	//remove oldBitboard and assume nopiece is underneath
 	getPieces(name) -> xorWith(oldBitboard);
 	getPieces(color) -> xorWith(oldBitboard);
 	pieceStacks[bitHash].pop();
@@ -117,8 +118,9 @@ void GameState::fastRemovePiece(Bitboard& oldBitboard){
 		pieceGraph.remove(oldBitboard);
 		allPieces.xorWith(oldBitboard);
 	} else {
-		if (pieceStacks[bitHash].size()==1 ) {
-			//was on top of the hive
+		
+		if (pieceStacks[bitHash].size()==1 ){
+			//remove from upperLevelPieces
 			upperLevelPieces.xorWith(oldBitboard);
 		}
 		//update gameState with stack underneath
@@ -151,6 +153,7 @@ int GameState::countTotalUnusedPieces() {
 	}
 	return totalUnusedPieces;
 }
+
 void GameState::randomSpawnPiece(Bitboard& spawnLocations) {
 	int totalUnusedPieces = countTotalUnusedPieces();
 	int pieceSelect = rand() % totalUnusedPieces;
@@ -301,7 +304,12 @@ void GameState::destroy() {
 void GameState::getAllMoves() {
 	pieceSpawns = getAllSpawnSpaces();	
 	spawnNames = possibleNames;
+
+
 	bool canMove = true;
+	/*----------------------------SPAWNS--------------------------------*/
+	//if the first two moves have yet to be made, alter
+	//normal spawning rules
 	if (turnCounter < 2) {
 		canMove = false;
 		if (turnCounter == 1) {
@@ -312,12 +320,18 @@ void GameState::getAllMoves() {
 			pieceSpawns = startSpawnBoard; 
 		}
 
+		//Hive tournament rule: 
+		//queen is not allowed to spawn first
 		spawnNames.clear();
 		for (PieceName name: possibleNames) {
 			if (name != PieceName::QUEEN)
 				spawnNames.insert(name);
 		}
+
 	} else if ( turnCounter < 8)  {
+		//Hive rule:
+		//If queen is not yet placed by the player's fourth turn
+		//force a queen placement
 		if (!(getPieces(turnColor)->containsAny(*getPieces(PieceName::QUEEN)))) {
 			canMove = false;
 			if (turnCounter >= 6) {
@@ -335,8 +349,9 @@ void GameState::getAllMoves() {
 	test.notIntersectionWith(immobile);
 
 	for ( Bitboard piece : test.splitIntoBitboards() ) { 
+		/*----------------------------SWAPS--------------------------------*/
 		PieceName name = findTopPieceName(piece);
-		//if covered by another piece
+		//if covered by unfriendly piece, this piece cannot move
 		if (findTopPieceColor(piece) != turnColor)
 			continue;
 		//check for swaps if mosquito
@@ -345,18 +360,22 @@ void GameState::getAllMoves() {
 				swappableEmpty.push_back(getSwapSpaces(piece));	
 			}
 		}
+		//check for swaps if pillbug
 		if (name == PieceName::PILLBUG ) { 
 			swappableEmpty.push_back(getSwapSpaces(piece));	
 		}
+
+		/*----------------------------MOVES--------------------------------*/
 		if (upperLevelPieces.containsAny(piece) || !pinned.containsAny(piece)) {
 			if (name == PieceName::MOSQUITO) {
-				pieceMoves.push_back(make_pair(piece, getMosquitoMoves(piece)));
+				pieceMoves.push_back(std::make_pair(piece, getMosquitoMoves(piece)));
 				continue;
 			}
 			moveGenerator.setGeneratingPieceBoard(&piece);
 			moveGenerator.setGeneratingName(&name);
 			Bitboard moves = moveGenerator.getMoves();
-			pieceMoves.push_front(pair <Bitboard , Bitboard> {piece, moves});
+
+			pieceMoves.push_front(std::make_pair(piece, moves));
 		}
 	}
 }
@@ -423,6 +442,7 @@ Bitboard GameState::getMosquitoMoves(Bitboard piece) {
 
 	//if on top of the hive
 	if (upperLevelPieces.containsAny(piece)) {
+		//Hive rule:
 		//can only move like a beetle on top of the hive
 		moves = moveGenerator.getMoves();
 		return moves;
@@ -445,7 +465,7 @@ Bitboard GameState::getMosquitoMoves(Bitboard piece) {
 	piecePerimeter.notIntersectionWith(testUpperLevel);
 
 	for (PieceName name: possibleNames) {
-		//see if mosquito is beside one of these types
+		//see if mosquito is adjecent to one of these types
 		if (piecePerimeter.containsAny(*getPieces(name))) {
 			moveGenerator.setGeneratingName(&name);
 			generated = moveGenerator.getMoves();
@@ -490,7 +510,7 @@ Bitboard GameState::getAllSpawnSpaces() {
 }
 
 //faster than random
-//but does not store in move information
+//but does not store nor return move information
 bool GameState::makePsuedoRandomMove() {
 	if (turnCounter < 8) {
 			return makeTrueRandomMove();
@@ -534,7 +554,6 @@ bool GameState::makePsuedoRandomMove() {
 		if (pieceStacks[piece.hash()].top().first == turnColor) {
 			PieceName name = pieceStacks[piece.hash()].top().second;
 
-			// a piece that is on the upperLevel is not pinned
 			//int numMoves = moveApproximation(piece, PieceName::BEETLE, false);
 			int numMoves = 1;
 			total += numMoves;
@@ -560,27 +579,26 @@ bool GameState::makePsuedoRandomMove() {
 bool GameState::makeTrueRandomMove() {
 	getAllMoves();
 	int total = 0;
+	//count moves, swaps, and spawns respectively
 	for (auto pieceMove: pieceMoves) {
 		total += pieceMove.second.count();
 	}
 	for (auto se: swappableEmpty) {
 		total += se.first.count() * se.second.count();
 	}
-
-
-	int colorInt = (int)turnColor;
 	int totalUnusedPieces = 0;
-	
-	for (auto pieceAmountMap: unusedPieces[colorInt]){
+	for (auto pieceAmountMap: unusedPieces[turnColor]){
 		if (spawnNames.find(pieceAmountMap.first) != spawnNames.end())
 			totalUnusedPieces += (bool)pieceAmountMap.second;
 	}
-
 	total += pieceSpawns.count() * totalUnusedPieces;
 
+	//if no moves available, make empty move
 	if (!total) {changeTurnColor(); return false;}
+	
 	total = dist(e2) % total;
 
+	/*----------------------------MOVES-----------------------------*/
 	int moveSelect =0 ;
 	for (auto pieceMove: pieceMoves) {
 		moveSelect += pieceMove.second.count();
@@ -591,6 +609,7 @@ bool GameState::makeTrueRandomMove() {
 		}
 	}
 
+	/*----------------------------SWAPS-----------------------------*/
 	for (auto se: swappableEmpty) {
 		moveSelect += se.first.count() * se.second.count();
 		if (moveSelect > total) {
@@ -601,6 +620,7 @@ bool GameState::makeTrueRandomMove() {
 		}
 	}
 
+	/*----------------------------SPAWNS-----------------------------*/
 	Bitboard random = pieceSpawns.getRandom();
 	int pieceSelect = rand() % totalUnusedPieces;
 
@@ -612,8 +632,8 @@ bool GameState::makeTrueRandomMove() {
 			if (i - 1 == pieceSelect) {name = pieceAmountMap.first; break;}
 		}
 	}
-
 	fastSpawnPiece(random, name);
+
 	return true;
 }
 bool GameState::attemptSpawn(int totalApproxMoves) {
@@ -650,6 +670,7 @@ bool GameState::attemptMove(vector<movesCollection>& approxMovesPerPiece, int to
 			while (boardNumMoves != approxMovesPerPiece[i].end()) {
 				approxMoveSelect += boardNumMoves->second;
 
+				//select a random move to operation on
 				if  (approxMoveSelect > random) {
 					pieceBoard = boardNumMoves->first;
 					approxMoveCount = boardNumMoves->second;
@@ -663,10 +684,10 @@ bool GameState::attemptMove(vector<movesCollection>& approxMovesPerPiece, int to
 		}
 		
 		Bitboard moves;
-	
 		
-		//generate moves if not pinned
-		if (!pinned.containsAny(pieceBoard)) { 
+		//generate moves if not pinned or 
+		//if on top of another piece
+		if (!pinned.containsAny(pieceBoard) || upperLevelPieces.containsAny(pieceBoard)) { 
 			if (name == PieceName::MOSQUITO) {
 				moves = getMosquitoMoves(pieceBoard);
 			} else {
@@ -694,16 +715,18 @@ bool GameState::attemptMove(vector<movesCollection>& approxMovesPerPiece, int to
 				}
 			}
 		}
+		//if no swap made, attempt to make a move
 		if (movesCount) {
 			randomMovePiece(pieceBoard, moves);
 			return true;
 		}
 
-		//move approximation is incorrect so update
+		//no swap or move was made
+		//move approximation was incorrect so update
 		total -= approxMoveCount;
 		approxMovesPerPiece[name].erase(boardNumMoves);
 	}
-	//no move was made
+	//no swap or move was made
 	return false;
 }	
 
@@ -762,8 +785,7 @@ int GameState::moveApproximation(Bitboard piece, bool isPinned){
 			// The ant can usually go almost anywhere in the perimeter 
 			// But most of the ant moves are terrible
 			// Increase for more random results
-			int max = .1*sqrt(allPieces.getPerimeter().count());
-			cout << allPieces.getPerimeter().count() << endl;
+			int max = (int)(.5*allPieces.getPerimeter().count());
 			if (max == 0) max = 1;
 			return max;
 		}

@@ -1,5 +1,10 @@
 #include <algorithm>
 #include "MonteCarloTree.h"
+int intRand(const int & min, const int & max) {
+    static thread_local std::mt19937 generator;
+    std::uniform_int_distribution<int> distribution(min,max);
+    return distribution(generator);
+}
 /*
  *
  * Search from the specified MonteCarloTree::root position for best leaf weights
@@ -33,13 +38,18 @@ nodeMap MonteCarloTree::selectBestLeaves(int maxSelection, GameState& initialGam
 		}
 		if (bestPointer == nullptr) 
 			bestPointer = root;
-		else
+		else {
 			//erase so you don't select the same pointer twice
 			candidateNodes[bestPointer].erase(bestScore);
+		}
 		
 		//select the best leaf from the given position
 		queue<MoveInfo> moveHistory = traverseToLeaf(bestPointer, visited);	
-		//replay all moves to get to best leaf
+
+		//if we could not find best leaf cancel this thread
+		if (bestPointer == nullptr) continue;
+
+		//replay all moves to update gameState to leaf
 		while (moveHistory.size()) {
 			newGameState.replayMove(moveHistory.front());
 			moveHistory.pop();
@@ -70,7 +80,7 @@ nodeMap MonteCarloTree::selectBestLeaves(int maxSelection, GameState& initialGam
  * mutates parent to become best leaf
  */
 queue <MoveInfo> MonteCarloTree::traverseToLeaf(nodePtr& parent, set<nodePtr> disallowed){
-	queue<MoveInfo> moveHistory;
+	queue<MoveInfo> moveHistory; 
 	while(parent->children.size()) {
 		double bestScore = -1;
 		nodePtr bestLeaf = nullptr;
@@ -84,7 +94,10 @@ queue <MoveInfo> MonteCarloTree::traverseToLeaf(nodePtr& parent, set<nodePtr> di
 			}
 		}
 		//if all children are disallowed
-		if (bestLeaf == nullptr) return moveHistory;
+		if (bestLeaf == nullptr) {
+			parent = nullptr;
+			return moveHistory;
+		}
 		moveHistory.push(bestMove);
 		parent = bestLeaf;
 	}
@@ -166,9 +179,9 @@ MoveInfo MonteCarloTree::search(GameState& initialGameState){
 		for (auto leafNode: leafNodes) {
 			nodePtr leaf = leafNode.first;
 			GameState g = leafNode.second;
-			i++;
 			threads.push_back(
 					std::thread(&MonteCarloTree::expand, this, leaf, g, std::ref(bestMoves[i])));
+			i++;
 		}
 
 		for (int i = threads.size();i--;)
@@ -178,9 +191,17 @@ MoveInfo MonteCarloTree::search(GameState& initialGameState){
 		vector<double> results(0,leafNodes.size());
 		threads.clear();
 		i = 0;
+		nodeMap newLeafNodes;
 		for (auto leafNode: leafNodes){
+			//advance the leafNode by playing best move
 			GameState g = leafNode.second;
 			g.replayMove(bestMoves[i]);
+			nodePtr n = leafNode.first;
+			n = n->children[bestMoves[i]];
+
+			//assign new gameState
+			newLeafNodes[n] = g;
+
 			threads.push_back(
 					std::thread(&MonteCarloTree::simulate, this, g, std::ref(results[i])));
 			i++;
@@ -191,7 +212,7 @@ MoveInfo MonteCarloTree::search(GameState& initialGameState){
 
 		//backPropagate for each result
 		i = 0;
-		for (auto leafNode: leafNodes) {
+		for (auto leafNode: newLeafNodes) {
 			backPropagate(leafNode.first,results[i]);
 			i++;
 		}
@@ -228,14 +249,18 @@ MoveInfo MonteCarloTree::search(GameState& initialGameState){
 //past a certain depth, corrections are negligible so ignore those nodes
 void MonteCarloTree::train(nodePtr node, set<nodePtr>& visited, vector<double>&corrections){
 	//if possible children already visited
+	mtx.lock();
 	if (visited.find(node) != visited.end() ) return;
+	mtx.unlock();
 
 	if (node->numVisited / MonteCarloSimulations >= minLearningFraction)  {
-		//traverse the children in a random order to minimize collision
-		//with other threads
-		vector <nodePtr> shuffled;
+		vector<nodePtr> shuffled;
 		for (auto keyValue: node->children) shuffled.push_back(keyValue.second);
-		std::random_shuffle(shuffled.begin(), shuffled.end());
+
+		//Randomly order the traversal of children to minimize collision with 
+		//other threads
+		static thread_local std::mt19937 generator(rd());
+		std::shuffle(shuffled.begin(), shuffled.end(), generator);
 
 		//perform a DFS on all nodes in the tree and train using results
 		for (auto child: shuffled) 
