@@ -78,6 +78,7 @@ nodeMap MonteCarloTree::selectBestLeaves(int maxSelection, GameState& initialGam
  *
  * returns a list of moves that allow a parent to reach it's best leaf
  * mutates parent to become best leaf
+ * if a leaf could not be reached, parent = nullptr
  */
 queue <MoveInfo> MonteCarloTree::traverseToLeaf(nodePtr& parent, set<nodePtr> disallowed){
 	queue<MoveInfo> moveHistory; 

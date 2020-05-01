@@ -850,7 +850,6 @@ pair <Bitboard, Bitboard> GameState::getSwapSpaces(Bitboard piece) {
 	return pair <Bitboard, Bitboard> {swappable, empty};
 }
 
-//returns a negative number if an error occured
 int GameState::playout(int limitMoves) {
 	for (int i = 0; i < limitMoves; i++) {
 		if (limitMoves == 0)
@@ -860,6 +859,7 @@ int GameState::playout(int limitMoves) {
 		if (checkVictory() != PieceColor::NONE)
 			return i;
 		//in case both sides cannot move (very rare)
+		//I'm not sure it is even possible
 		if (!makePsuedoRandomMove()) 
 				if (!makePsuedoRandomMove()) 
 					return i;
@@ -907,12 +907,3 @@ void GameState::print() {
 	for (auto iter: unusedPieces[1])
 		cout << "pieceName " << iter.first << " amountRemaining " << iter.second << endl;
 }
-//STILL WORKING ON RANDOM 
-//FORGOT THE RULE ABOUT PILLBUG CAN BE USED IF PINNED
-//QUEEN CAN'T BE PLACED FIRST (FOR NOW)
-//NO OTHER PIECE CAN MOVE IF QUEEN NOT PLACED
-
-//TODO: delayed legality check
-
-//recenter / overflow?
-//end evaluation func

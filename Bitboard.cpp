@@ -1,3 +1,40 @@
+/*
+ * This module represents the various methods and techniques used to implement the concept 
+ * of a bitboard in Hive. Bitboards can be found in many popular AI engines and is a useful
+ * way of distilling information about a game's state. This is because representing the game at such
+ * a low level provides lightning-fast operations to manipulate it.
+ *
+ * The issue with traditional bitboards is that they are implemented for fixed-size games 
+ * where the layout of the board is static and known. For example, see bitboards for chess and
+ * checkers.
+ *
+ * In Hive, it is not possible to bound the bitboard in that way, so techniques were invented
+ * to allow this Hive engine to use bitboards
+ *
+ * The Bitboard object is dynamically allocated, with many different individual boards
+ * strung together create one large object if necessary. Common numerical operations
+ * are wrapped in functions like xorWith and unionWith. Overflow is dealt with by 
+ * putting the bits back on the board in diffent locations, so bits are never discarded via
+ * overflow. When a board is set to 0, calling pruneCache() will remove it from the Bitboard.
+ *
+ * Here are some cases in which bitboard usage speeds up the work:
+ *		-Shifting several pieces in a certain direction
+ *		-Finding the perimeter surrounding several pieces
+ *		TODO: make better use of perimeter hash table by random sampling bits
+ *		-Breath First Search
+ *		-Calculating heuristics 
+ *		-Calculating moves of a piece in a given state
+ *		TODO: actually make these faster lol
+ *		-Determining whether a Hive "gate" exists at a certain location
+ * 
+ * Here are some sacrifices made:
+ *		-Complicated and highly technical code
+ *		-Higher memory requirment for performance
+ *		-Separating a group of pieces into individual pieces is slow
+ *		-Calculating distance between two nodes requires searching the entire hive
+ *
+ *
+ */
 #include <iterator>
 #include <list>
 #include <set>
@@ -10,7 +47,6 @@ std::mt19937_64 eng(rd()); //Use the 64-bit Mersenne Twister 19937 generator
 
 std::uniform_int_distribution<unsigned long long> distr;
 using namespace std;
-
 list <Direction> hexagonalDirections = {
 	Direction::NE,
 	Direction::E,
@@ -47,6 +83,9 @@ Bitboard::Bitboard(unordered_map<int, unsigned long long > predefinedBoards){
 	initialize(predefinedBoards);
 }
 
+/*
+ * Iterate over a given map and set the specified board to the input
+ */
 void Bitboard::initialize(unordered_map < int, unsigned long long> predefinedBoards) {
 	clear();
 	//iterate through the map and update board internals
@@ -56,6 +95,10 @@ void Bitboard::initialize(unordered_map < int, unsigned long long> predefinedBoa
 	}
 }
 
+
+/*
+ * Set this Bitboard to another
+ */
 void Bitboard::initializeTo(Bitboard &other) {
 	clear();
 	for (int i: other.internalBoardCache){
@@ -64,20 +107,30 @@ void Bitboard::initializeTo(Bitboard &other) {
 	}
 }
 
-//TODO: make internalBoards private so you have to use this
+/*
+ * Set a specific board in this Bitboard
+ */
 void Bitboard::setBoard(int boardIndex, unsigned long long board) {
 	internalBoards[boardIndex] = board;
 	internalBoardCache.insert(boardIndex);
 }
  
-void Bitboard::convertToHexRepresentation (
-		Direction lastMovedDir , int lastMovedTimes) {
+/*
+ *
+ * Algorithm designed to facilitate 2D translation across a Bitboard.
+ *
+ * Call this after a pure 2D shift so that the Bitboard maintains the
+ * "Odd-r hexagonal" layout detailed here:
+ *
+ * https://www.redblobgames.com/grids/hexagons/#coordinates-offset
+ *
+ */
+void Bitboard::convertToHexRepresentation ( Direction lastMovedDir , int lastMovedTimes) {
 
 	unsigned long long changedBoards;
 
-
+	//only have to adjust things if the move was even
 	if (lastMovedTimes % 2){
-		//only have to adjust things if the move was even
 		
 		//if moving east, adjust the odd rows
 		//else adjust the even rows
@@ -90,13 +143,11 @@ void Bitboard::convertToHexRepresentation (
 		Bitboard unchangedBitboard;
 
 		for (int i : internalBoardCache) {
-
 			changedBitboard.setBoard(i, changedBoards &  internalBoards[i]);
 			unchangedBitboard.setBoard(i, ~changedBoards &  internalBoards[i]);
-			
 		}
 
-
+		//Shift certain rows E or W depending on which boards were adjusted
 		if (changedBoards == ~ODD_ROWS_BITMASK) {
 			changedBitboard.shiftDirection(Direction::E);
 			changedBitboard.unionWith(unchangedBitboard);
@@ -109,11 +160,15 @@ void Bitboard::convertToHexRepresentation (
 	}
 }
 
-//make this private
+
+/*
+ * Function that handles overflow and low-level bit operations
+ * when shifting in an orthogonal direction.
+ *
+ * Does not preserve "Odd-r hexagonal" layout
+ */
 void Bitboard::shiftOrthogonalDirection(Direction dir, int numTimes){
 	//assumes that dir is orthogonal
-	//TODO: separate orthogonal and hexagonal directions
-
 
 	int overflowAmount = numTimes % BITBOARD_WIDTH;
 	int newHighBoardIndex, newLowBoardIndex;
@@ -138,9 +193,6 @@ void Bitboard::shiftOrthogonalDirection(Direction dir, int numTimes){
 
 	for (int initialBoardIndex: activeBoards) {	
 
-
-		//TODO: name everything here better
-	
 		//determine where all the bits will move to
 		newLowBoardIndex =  initialBoardIndex + boardIndexDiff * boardLengthDiff;
 		newHighBoardIndex = newLowBoardIndex + boardIndexDiff;
@@ -182,6 +234,15 @@ void Bitboard::shiftOrthogonalDirection(Direction dir, int numTimes){
 }
 
 
+/*
+ * Takes any direction and shifts the board in that direction numTimes
+ * 
+ * When called, the Bitboard will shift into a direction represented by 
+ * "Odd-r hexagonal" notation detailed here:
+ *
+ * https://www.redblobgames.com/grids/hexagons/#coordinates-offset
+ *
+ */
 void Bitboard::shiftDirection(Direction dir, int numTimes){
 	if (numTimes < 0) {
 		dir = oppositeDirection[dir];
@@ -216,6 +277,12 @@ void Bitboard::shiftDirection(Direction dir, int numTimes){
 
 //optimized (and ugly) code
 //I'm sorry world =(
+/*
+ * Performs the same operation as shiftDirection(dir, 1) 
+ * but is ~3x-4x faster
+ *
+ * does this by applying low level bit operations on a case-by-case basis
+ */
 void Bitboard::shiftDirection(Direction dir) {
 	unsigned long long currentBoard;
 	unsigned long long newBoard;
@@ -542,6 +609,15 @@ void Bitboard::shiftDirection(Direction dir) {
 	}
 }
 
+/*
+ * function used to deal with overflow
+ *
+ * Direction dir : orthogonal direction (N,W,E,S)
+ *
+ * Returns a bitmask that contains the possible remaining bits on a board
+ * after shifting in an orthogonal direction
+ *
+ */
 unsigned long long Bitboard::createLowOverflowMask(Direction dir, int overflowAmount) {
 	long long overflowLow; 
 	//assumes orthogonal direction passed in
@@ -565,6 +641,29 @@ unsigned long long Bitboard::createLowOverflowMask(Direction dir, int overflowAm
 	return overflowLow;	
 }
 
+/*
+ * function used to deal with overflow
+ *
+ * Direction dir : orthogonal direction (N,W,E,S)  
+ * int overflowAmount : # of rows (or cols) of set bits that the highOverflowMask contains
+ * bool low : true if overflowMask is a lowOverflowMask, false if highOverflowMask
+ * overflowMask : input to operate on
+ *
+ * Returns a board has its bits translated to the other end of a board
+ * for example:
+ *
+ * lowOverflowMask = 
+ *     1 1 1 0 0 0 0 0
+ *     1 1 1 0 0 0 0 0
+ *     1 1 1 0 0 0 0 0
+ *          ...
+ *
+ * adjustOverflowMask(Direction::E, 5, true, lowOverflowMask)
+ *     0 0 0 0 0 1 1 1
+ *     0 0 0 0 0 1 1 1
+ *     0 0 0 0 0 1 1 1
+ *          ...
+ */
 unsigned long long Bitboard::adjustOverflowMask(
 		Direction dir, int overflowAmount, bool low, unsigned long long overflowMask) {
 
@@ -583,6 +682,14 @@ unsigned long long Bitboard::adjustOverflowMask(
 	
 	return overflowMask;
 }
+
+/* 
+ * Finds all adjecent hexagonal neighbors in *this that have not yet been visited
+ * and update frontier to them
+ *
+ * Bitboard frontier : mutated to new set of adjacent neighbors
+ * Bitboard visited : mutated to all previously visited neighbors
+ */
 void Bitboard::floodFillStep(Bitboard &frontier,  Bitboard &visited){
 	//assumes that everything in frontier is a legal node
 
@@ -600,10 +707,15 @@ void Bitboard::floodFillStep(Bitboard &frontier,  Bitboard &visited){
 	frontier.notIntersectionWith(visited);
 }
 
-
-
+/*
+ * Perform a Breath First Search on the graph G
+ * where edges in G are all hexagonal directions
+ * and nodes in G are bits set in *this Bitboard
+ *
+ * Bitboard frontier : start nodes;
+ * 
+ */
 void Bitboard::floodFill(Bitboard &frontier){
-
 	//assumes frontier is a legal node
 
 	Bitboard visited;
@@ -616,6 +728,9 @@ void Bitboard::floodFill(Bitboard &frontier){
 	frontier.initializeTo(visited);
 }
 
+/*
+ * Returns true if the other Bitboard is equal to this one
+ */
 bool Bitboard::equals(Bitboard& other){
 	//TODO: fix prunce cache leaks
 	other.pruneCache();
@@ -637,6 +752,9 @@ bool Bitboard::equals(Bitboard& other){
 	return true;
 }
 
+/*
+ * Returns the smallest bit found on the lowest numbered board
+ */
 const pair <const int , const unsigned long long >
 Bitboard::getLeastSignificantBit () const {
 	pair <int, unsigned long long> LSB;
@@ -649,6 +767,11 @@ Bitboard::getLeastSignificantBit () const {
 	return LSB;
 }
 
+/*
+ * Removes any board that has 0 bits set from the cache
+ *
+ * Causes significant speed up on certain tasks
+ */
 void Bitboard::pruneCache(){
 	list <int> emptyBoards;
 
@@ -663,6 +786,9 @@ void Bitboard::pruneCache(){
 	}
 }
 
+/*
+ * Applies the union ( | ) operator on all boards in this Bitboard
+ */
 void Bitboard::unionWith( Bitboard &other){
 	for (auto i: other.internalBoardCache){
 		if (internalBoardCache.find(i) == internalBoardCache.end()) internalBoards[i] = 0;
@@ -671,6 +797,9 @@ void Bitboard::unionWith( Bitboard &other){
 	}
 }
 
+/*
+ * Applies the intersection ( & ) operator on all boards in this Bitboard
+ */
 void Bitboard::intersectionWith( Bitboard &other) {
 	for (auto i: internalBoardCache){
 		if (other.internalBoardCache.find(i) != other.internalBoardCache.end())
@@ -682,6 +811,9 @@ void Bitboard::intersectionWith( Bitboard &other) {
 	pruneCache();
 }
 
+/*
+ * Applies the xor ( ^ ) operator on all boards in this Bitboard
+ */
 void Bitboard::xorWith( Bitboard &other) {
 	for (auto i: other.internalBoardCache) {
 		if (internalBoardCache.find(i) == internalBoardCache.end()) internalBoards[i] = 0;
@@ -691,12 +823,18 @@ void Bitboard::xorWith( Bitboard &other) {
 	pruneCache();
 }
 
+/*
+ * Applies the intersection ( & ) operator on the complement of all boards in this Bitboard
+ */
 void Bitboard::notIntersectionWith( Bitboard &other) {
 	for (auto i: other.internalBoardCache) {
 		internalBoards[i] &= ~other.internalBoards[i];
 	}
 }
 
+/*
+ * Returns true if any bit from the other Bitboard exists in this Bitboard
+ */
 bool Bitboard::containsAny(Bitboard& other) {
 	for (int i: other.internalBoardCache) { 
 		if (internalBoardCache.find(i) != internalBoardCache.end())
@@ -710,6 +848,9 @@ void Bitboard::clear() {
 	internalBoardCache.clear();
 }
 
+/*
+ * Mutate this board to be copy-pasted into specified directions
+ */
 void Bitboard::duplicateBoard(list <Direction> dirs){
 	Bitboard init;
 	Bitboard duplicated;
@@ -736,7 +877,13 @@ int Bitboard::count() const{
 }
 
 
-// optimized so its ugly =[
+// optimized so it's very ugly =[
+/*
+ *  Returns all adjecent hexagonal neighbors of all bits in this Bitboard
+ *	where a neighbor IS NOT already in this Bitboard
+ *  
+ *  about ~2x faster than slowGetPerimeter()
+ */
 Bitboard  Bitboard::getPerimeter() {
 	Bitboard perimeter;
 
@@ -749,8 +896,8 @@ Bitboard  Bitboard::getPerimeter() {
 			//if did not find in hash table; default to 
 			//resolving bits indiviually
 			count = 1;
-		} else {
-		}
+		} 
+		
 
 		unsigned long long*  hashedBoards ;
 		unsigned long long leastSignificantBit;
@@ -834,6 +981,14 @@ Bitboard  Bitboard::getPerimeter() {
 	return perimeter;
 }
 
+/*
+ *  Returns all adjecent hexagonal neighbors of all bits in this Bitboard
+ *	where a neighbor IS NOT already in this Bitboard
+ *  
+ *  Used to generate getPerimeterHashTable
+ *
+ *	about ~2x slower than getPerimeter()
+ */
 Bitboard Bitboard::slowGetPerimeter(){
 	Bitboard perimeter;
 	perimeter.initializeTo(*this);
@@ -842,6 +997,9 @@ Bitboard Bitboard::slowGetPerimeter(){
 	return perimeter;
 }
 
+/*
+ *  Applies the union operator ( | ) on a specified board in this Bitboard
+ */
 void Bitboard::unionWith(int boardIndex, unsigned long long board) {
 	if (internalBoardCache.find(boardIndex) == internalBoardCache.end()) {
 		internalBoards[boardIndex] = board;
@@ -850,8 +1008,9 @@ void Bitboard::unionWith(int boardIndex, unsigned long long board) {
 		internalBoards[boardIndex] |= board;
 	}
 }
+
 /*
- * returns a map of all the bits that were set and which board it was set on
+ * Returns a map of all the bits that were set and which board it was set on
  */
 unordered_map< int, vector < unsigned long long >> Bitboard::split(){
 	unordered_map< int, vector <unsigned long long >> returnMap;
@@ -868,6 +1027,9 @@ unordered_map< int, vector < unsigned long long >> Bitboard::split(){
 	return returnMap;
 }
 
+/*
+ * Returns a list of all individual bits from this Bitboard wrapped in a new Bitboard
+ */
 list <Bitboard> Bitboard::splitIntoBitboards() {
 	list <Bitboard> returnList;
 	for (int i: internalBoardCache){
@@ -883,6 +1045,9 @@ list <Bitboard> Bitboard::splitIntoBitboards() {
 	return returnList;
 }
 
+/*
+ * Returns a list of all connected components from this Bitboard wrapped in a new Bitboard
+ */
 vector <Bitboard> Bitboard::splitIntoConnectedComponents(){
 	vector <Bitboard> components;
 
@@ -925,14 +1090,15 @@ void Bitboard::print() {
 	if (!internalBoardCache.size())  cout << "empty" << endl;
 }
 
+/*
+ * Returns a hash for a Bitboard with A SINGLE set bit 
+ */
 int Bitboard::hash() {
 	return *(internalBoardCache.begin()) | (__builtin_clzll(internalBoards[
 				*(internalBoardCache.begin())]) << 8);
-
 }
 
 int Bitboard::getRandomBoardIndex() {
-
 	int total = count();
 	total = std::rand() % total;
 	int boardSelect = 0;
@@ -943,6 +1109,9 @@ int Bitboard::getRandomBoardIndex() {
 	return -1000;
 }
 
+/*
+ * Returns a random set bit from this Bitboard wrapped in a new Bitboard
+ */
 Bitboard Bitboard::getRandom() {
 	int randomBoardIndex = getRandomBoardIndex();
 	unsigned long long s = internalBoards[randomBoardIndex];
