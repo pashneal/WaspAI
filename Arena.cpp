@@ -1,4 +1,5 @@
 #include "Arena.h"
+#include <algorithm>
 
 unordered_map <char, PieceColor> colorNotationReverse {
 	{'w', PieceColor::WHITE},
@@ -54,13 +55,13 @@ set<Direction> westernDirection = {NW, SW, W};
  *Use this to set a player to a cpu
  *Initialized to human players by default
  */
-void Arena::setPlayer(int playerNum, Heuristic& playerHeuristic) {
+void Arena::setPlayer(int playerNum, MonteCarloTree& searchAlgo) {
 	if (playerNum == 1) {
 		playerOneCPU = true;
-		heuristics[0] = playerHeuristic;
+		CPU[0].initializeTo(searchAlgo);
 	} else if (playerNum == 2) {
 		playerTwoCPU = true;
-		heuristics[1] = playerHeuristic;
+		CPU[1].initializeTo(searchAlgo);
 	} else {
 		cout << "Illegal player set in Arena::setPlayer()" << endl;
 		throw 3;
@@ -103,22 +104,24 @@ string Arena::convertToNotation(MoveInfo move){
 		return notation;
 	}
 
-	//find a relative direction to connect to (if applicable)
-	for (auto direction: hexagonalDirections) {
-		test.initializeTo(move.newPieceLocation);
-		test.shiftDirection(direction);
-		if (currentGameState.allPieces.containsAny(test)) {
-			notation += " ";
-			Direction opposite = oppositeDirection[direction];
-			//use the direction that is opposite in notation
-			if (westernDirection.find(opposite) != westernDirection.end())
-				notation += dirNotation[opposite];
-			notation += colorNotation[currentGameState.findTopPieceColor(test)];
-			notation += nameNotation[currentGameState.findTopPieceName(test)];
-			notation += findTopPieceOrder(test);
-			if (westernDirection.find(opposite) == westernDirection.end())
-				notation += dirNotation[opposite];
-			return notation;
+	//find a relative direction to connect to (if not the first piece)
+	if (currentGameState.allPieces.count())  {
+		for (auto direction: hexagonalDirections) {
+			test.initializeTo(move.newPieceLocation);
+			test.shiftDirection(direction);
+			if (currentGameState.allPieces.containsAny(test)) {
+				notation += " ";
+				Direction opposite = oppositeDirection[direction];
+				//use the direction that is opposite in notation
+				if (westernDirection.find(opposite) != westernDirection.end())
+					notation += dirNotation[opposite];
+				notation += colorNotation[currentGameState.findTopPieceColor(test)];
+				notation += nameNotation[currentGameState.findTopPieceName(test)];
+				notation += findTopPieceOrder(test);
+				if (westernDirection.find(opposite) == westernDirection.end())
+					notation += dirNotation[opposite];
+				return notation;
+			}
 		}
 	}
 	
@@ -284,14 +287,82 @@ int Arena::countPieces(PieceColor color, PieceName name){
 	Bitboard pieces = *currentGameState.getPieces(color);
 	pieces.intersectionWith(*currentGameState.getPieces(name));
 	int amount = 0;
-	if (pieces.count()){
-		for (Bitboard piece : pieces.splitIntoBitboards()) {
-			for (auto description: pieceOrders[piece.hash()]){
-				if (std::get<0>(description)== name &&  std::get<1>(description) == color) {
-					amount++;
-				}
+	for (Bitboard piece : pieces.splitIntoBitboards()) {
+		for (auto description: pieceOrders[piece.hash()]){
+			if (std::get<0>(description)== name &&  std::get<1>(description) == color) {
+				amount++;
 			}
 		}
 	}
 	return amount;
+}
+
+/*
+ * Allows both agents to take a turn. If it is a human agent,
+ * require correct input from the console. If it is a computer agent
+ * require correct input from the search algorithm
+ *
+ * returns true if the game is over
+ */
+bool Arena::battle(bool silent) {
+	bool vals[] = {playerOneCPU, playerTwoCPU};
+
+	for (int i = 0 ; i < 2 ; i++) {
+		bool isCPU = vals[i];
+		MoveInfo selectedMove;
+		vector<MoveInfo> moves = currentGameState.generateAllMoves();
+
+		if (!moves.size()) {
+			currentGameState.replayMove(selectedMove);
+			if (!silent) {
+				string a = (isCPU) ? "Computer" : "Human";
+				cout << "[" << a << " Player " << i << "] pass" << endl;
+			}
+			continue;
+		};
+
+		set<string> moveStrings;
+		for (auto move: moves) {
+			moveStrings.insert(convertToNotation(move));	
+		}
+
+
+		if (isCPU) {
+			selectedMove = CPU[i].search(currentGameState);
+			if (std::find(moves.begin(), moves.end(), selectedMove) == moves.end())  {
+				cout << "SearchAlgorithm " << i << " returned an illegal move " << endl;
+				throw "hello darkness my old friend";
+			}
+			
+		} else {
+
+			string inputMove;
+			do {
+				cout << "[Human Player " << i << "] please enter a valid move: ";
+				cin >> inputMove;
+				cout << endl;
+			} while (moveStrings.find(inputMove) == moveStrings.end() );
+			selectedMove = convertFromNotation(inputMove);
+
+		}
+
+		currentGameState.replayMove(selectedMove);
+		if (!silent) {
+			string a = (isCPU) ? "Computer" : "Human";
+			cout << "[" << a << " Player " << i << "] " << convertToNotation(selectedMove) << endl;
+		}
+
+		if (currentGameState.checkDraw() || currentGameState.checkVictory() != PieceColor::NONE) {
+			if (!silent) {
+				cout << "Game Over" << endl;
+				if (currentGameState.checkDraw())
+					cout << "Draw" << endl;
+				else {
+					cout << "Player " << currentGameState.checkVictory() << " has won";
+				}
+			}
+			return true;
+		}
+	}
+	return false;
 }
