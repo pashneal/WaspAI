@@ -50,8 +50,6 @@ unordered_map <unsigned long long , unsigned long long > GATES[64];
 									   {"P",13}
 };
 
-
-
  unordered_map < string , vector<Direction> > directions = 
 													{{"\\",{Direction::NW,Direction::SE}}, 
 													 {"/",{Direction::SW,Direction::NE}},
@@ -1679,7 +1677,7 @@ void Test::GameStateTest::testPlayout() {
 }
 
 void Test::ArenaTest::testArenaNotation() {
-	int f = 500;
+	int f = 50;
 	bool silenced = true;
 	srand(3);
 	while (f--) {
@@ -1695,8 +1693,10 @@ void Test::ArenaTest::testArenaNotation() {
 				//make sure the conversion is transitive
 				string s = arena.convertToNotation(move);
 				MoveInfo m = arena.convertFromNotation(s);
+
 				if (!(m==move)){
-					Test::pass(m==move,"conversion to notation produced unexpected results");
+					Test::pass(m==move,"conversion to and from" 
+						" notation produced unexpected results");
 					cout << s << endl;
 					arena.currentGameState.print();
 					cout << "original MoveInfo" << endl;
@@ -1707,12 +1707,6 @@ void Test::ArenaTest::testArenaNotation() {
 					m.oldPieceLocation.print();
 					m.newPieceLocation.print();
 					cout << m.pieceName << endl;
-					cout << "original hashes" << endl;
-					cout << move.oldPieceLocation.hash() << endl;
-					cout << move.newPieceLocation.hash() << endl;
-					cout << "converted hashes" << endl;
-					cout << m.oldPieceLocation.hash() << endl;
-					cout << m.newPieceLocation.hash() << endl;
 					throw 118;
 				}
 			}
@@ -1724,8 +1718,13 @@ void Test::ArenaTest::testArenaNotation() {
 			arena.makeMove(moves[0]);
 		}
 	}
+	Test::pass(true, "");
 }
 
+void Test::ArenaTest::testBattle() {
+	Arena arena(GameState(HivePLM, PieceColor::WHITE));
+	arena.battle(false);
+}
 //creates a hashTable that stores the precomputed perimeter
 //of a given bitboard array
 //int maxNumber : the number of bits per board to precomputed
@@ -1912,5 +1911,6 @@ int main() {
 	//Test::GameStateTest::testPsuedoRandom();
 	//perfTest();
 	//Test::GameStateTest::testPlayout();
-	Test::ArenaTest::testArenaNotation();
+	//Test::ArenaTest::testArenaNotation();
+	Test::ArenaTest::testBattle();
 }

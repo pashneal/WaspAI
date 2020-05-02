@@ -3,37 +3,40 @@
 #include <mutex>
 #include <queue>
 #include <memory>
+#include "constants.h"
 #include "MonteCarloNode.h"
 
 #define nodeMap unordered_map<nodePtr, GameState>
 
-int numCores = 1;
-int MonteCarloSimulations = 100;
-int MonteCarloSimulationsCutoff = 500;
-double explorationFactor = 1.41;
-double heuristicFactor = .5;
-
-// don't bother attempting to learn from nodes unless 
-// its parent has been visited this proportion of times
-double minLearningFraction = .1;
 
 //TODO: background search while opponent's turn
 class MonteCarloTree {
 		nodePtr root;
-		Heuristic& currentHeuristic;
+		Heuristic currentHeuristic;
 		std::mutex mtx;
 
 	public:
-		bool trainingMode = false;
+		MonteCarloTree(){};
 		MonteCarloTree(MonteCarloNode* r, Heuristic& h)
 			:root(nodePtr(r)),currentHeuristic(h){};
+		void initializeTo(MonteCarloTree& MCT) {
+			root  = MCT.root;
+			currentHeuristic = MCT.currentHeuristic;
+		}
+		//toggles the training procedure in search()
+		bool trainingMode = false;
+		void train(nodePtr, set<nodePtr>&, vector<double>&);
+		
+		//selection methods
 		nodeMap selectBestLeaves(int, GameState&);
-		//TODO: optimize by storing leaves in ordered map
 		queue<MoveInfo> traverseToLeaf(nodePtr&, set<nodePtr>);
+		double selectionFunction(MoveInfo, nodePtr); 
+		
+		//Monte Carlo Tree Search Methods
 		void expand(nodePtr, GameState, MoveInfo&); 
 		void simulate(GameState, double&);
 		void backPropagate(nodePtr, double); 
-		void train(nodePtr, set<nodePtr>&, vector<double>&);
-		double selectionFunction(MoveInfo, nodePtr); 
 		MoveInfo search(GameState&);
+
+
 };

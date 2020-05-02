@@ -1,11 +1,11 @@
 #pragma once
 #include <memory>
+#include "constants.h"
 #include "GameState.h"
 #include  "Heuristic.h"
 
 #define nodePtr shared_ptr<MonteCarloNode>
 //step size for error correction
-double LEARNING_RATE = 1.0;
 
 class MonteCarloNode{
 		vector <double> heuristicEvals;

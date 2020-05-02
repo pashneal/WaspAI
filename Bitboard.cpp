@@ -26,6 +26,10 @@
  *		-Calculating moves of a piece in a given state
  *		TODO: actually make these faster lol
  *		-Determining whether a Hive "gate" exists at a certain location
+ *		-Checking whether a position has ever been visited before
+ *		TODO: implement zobrist hashing like so
+ *			-one number per piece per color per height per boardIndex per square
+ *			-one number to represent side to move
  * 
  * Here are some sacrifices made:
  *		-Complicated and highly technical code

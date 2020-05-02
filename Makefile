@@ -19,11 +19,11 @@ DEPENDENCIES=Bitboard.o\
 debug: 
 	$(CXX) *.cpp $(CXXFLAGSDEBUG) $(DEBUG)
 
-quick: $(DEPENDENCIES)
+test: $(DEPENDENCIES)
 	$(CXX) $(CXXFLAGSDEBUG) $(DEPENDENCIES) $(DEBUG)
 
 # relink and compile with optimization flags
-all: 
+release: 
 	$(CXX) $(CXXFLAGSRELEASE) *.cpp $(RELEASE)
 
 Bitboard.o: Bitboard.cpp Bitboard.h constants.h

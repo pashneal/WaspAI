@@ -81,7 +81,7 @@ string Arena::convertToNotation(MoveInfo move){
 		oldColor = currentGameState.findTopPieceColor(move.oldPieceLocation);
 	else 
 		oldColor = currentGameState.turnColor;
-	
+
 	string notation = colorNotation[oldColor] + nameNotation[oldName];
 	//if not spawning
 	if (move.oldPieceLocation.count() == 1){
@@ -92,8 +92,8 @@ string Arena::convertToNotation(MoveInfo move){
 	}
 
 	Bitboard test;
-	
-	
+
+
 	// if landing on top of another piece, use that in the notation
 	if (currentGameState.allPieces.containsAny(move.newPieceLocation)){
 		test.initializeTo(move.newPieceLocation);
@@ -105,26 +105,24 @@ string Arena::convertToNotation(MoveInfo move){
 	}
 
 	//find a relative direction to connect to (if not the first piece)
-	if (currentGameState.allPieces.count())  {
-		for (auto direction: hexagonalDirections) {
-			test.initializeTo(move.newPieceLocation);
-			test.shiftDirection(direction);
-			if (currentGameState.allPieces.containsAny(test)) {
-				notation += " ";
-				Direction opposite = oppositeDirection[direction];
-				//use the direction that is opposite in notation
-				if (westernDirection.find(opposite) != westernDirection.end())
-					notation += dirNotation[opposite];
-				notation += colorNotation[currentGameState.findTopPieceColor(test)];
-				notation += nameNotation[currentGameState.findTopPieceName(test)];
-				notation += findTopPieceOrder(test);
-				if (westernDirection.find(opposite) == westernDirection.end())
-					notation += dirNotation[opposite];
-				return notation;
-			}
+	for (auto direction: hexagonalDirections) {
+		test.initializeTo(move.newPieceLocation);
+		test.shiftDirection(direction);
+		if (currentGameState.allPieces.containsAny(test)) {
+			notation += " ";
+			Direction opposite = oppositeDirection[direction];
+			//use the direction that is opposite in notation
+			if (westernDirection.find(opposite) != westernDirection.end())
+				notation += dirNotation[opposite];
+			notation += colorNotation[currentGameState.findTopPieceColor(test)];
+			notation += nameNotation[currentGameState.findTopPieceName(test)];
+			notation += findTopPieceOrder(test);
+			if (westernDirection.find(opposite) == westernDirection.end())
+				notation += dirNotation[opposite];
+			return notation;
 		}
 	}
-	
+
 	return notation;
 }
 
@@ -280,7 +278,7 @@ void Arena::makeMove(MoveInfo move){
 
 //Assumes that the piece is already in the hive
 string Arena::findTopPieceOrder(Bitboard piece){
-	return std::get<2>(pieceOrders[piece.hash()].back());
+	return std::get<2>(pieceOrders.at(piece.hash()).back());
 };
 
 int Arena::countPieces(PieceColor color, PieceName name){
@@ -323,9 +321,10 @@ bool Arena::battle(bool silent) {
 
 		set<string> moveStrings;
 		for (auto move: moves) {
+			if (!silent)
+				cout << convertToNotation(move) <<endl;
 			moveStrings.insert(convertToNotation(move));	
 		}
-
 
 		if (isCPU) {
 			selectedMove = CPU[i].search(currentGameState);
@@ -338,8 +337,8 @@ bool Arena::battle(bool silent) {
 
 			string inputMove;
 			do {
-				cout << "[Human Player " << i << "] please enter a valid move: ";
-				cin >> inputMove;
+				cout << "[Human Player " << i << "] please enter a valid move: "<< endl;
+				getline(cin, inputMove);
 				cout << endl;
 			} while (moveStrings.find(inputMove) == moveStrings.end() );
 			selectedMove = convertFromNotation(inputMove);
@@ -350,7 +349,8 @@ bool Arena::battle(bool silent) {
 			string a = (isCPU) ? "Computer" : "Human";
 			cout << "[" << a << " Player " << i << "] " << convertToNotation(selectedMove) << endl;
 		}
-		currentGameState.replayMove(selectedMove);
+
+		makeMove(selectedMove);
 
 		if (currentGameState.checkDraw() || currentGameState.checkVictory() != PieceColor::NONE) {
 			if (!silent) {

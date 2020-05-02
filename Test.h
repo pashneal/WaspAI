@@ -65,6 +65,7 @@ class Test {
 		class ArenaTest {
 			public:
 				static void testArenaNotation();
+				static void testBattle();
 		};
 		static void pass(bool, string);
 };

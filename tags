@@ -1,325 +1,432 @@
-ANT	constants.h	16
-BEETLE	constants.h	15
-BITBOARD_COLS	constants.h	55
-BITBOARD_ROWS	constants.h	54
-BITBOARD_SIZE	constants.h	53
-BITBOARD_HEIGHT	constants.h	51
-BITBOARD_WIDTH	constants.h	52
-BLACK	constants.h	34
-Bitboard	Bitboard.h	10
-Bitboard::Bitboard	Bitboard.cpp	/^Bitboard::Bitboard(unordered_map/
-Bitboard::Bitboard	Bitboard.h	/^	Bitboard() {};$/
-Bitboard::adjustOverflowMask	Bitboard.cpp	/^unsigned long long Bitboard::adjustOverfl/
-Bitboard::clear	Bitboard.cpp	/^void Bitboard::clear() {$/
-Bitboard::containsAny	Bitboard.cpp	/^bool Bitboard::containsAny(BitboardContai/
-Bitboard::convertToHexRepresentation	Bitboard.cpp	/^void Bitboard::convertToHexRepresentation/
-Bitboard::count	Bitboard.cpp	/^int Bitboard::count(){$/
-Bitboard::createLowOverflowMask	Bitboard.cpp	/^unsigned long long Bitboard::createLowOve/
-Bitboard::duplicateBoard	Bitboard.cpp	/^void Bitboard::duplicateBoard(list <Direc/
-Bitboard::equals	Bitboard.cpp	/^bool Bitboard::equals(Bitboard& /
-Bitboard::floodFill	Bitboard.cpp	/^void Bitboard::floodFill(BitboardContaine/
-Bitboard::floodFillStep	Bitboard.cpp	/^void Bitboard::floodFillStep(BitboardCont/
-Bitboard::getLeastSignificantBit	Bitboard.cpp	/^pair <int , unsigned long long > Bitboard/
-Bitboard::getPerimeter	Bitboard.cpp	/^Bitboard  Bitboard::getPerimeter/
-Bitboard::hash	Bitboard.cpp	/^int Bitboard::hash() {$/
-Bitboard::initialize	Bitboard.cpp	/^void Bitboard::initialize(unordered_map </
-Bitboard::initializeTo	Bitboard.cpp	/^void Bitboard::initializeTo(BitboardConta/
-Bitboard::internalBoardCache	Bitboard.h	14
-Bitboard::internalBoards	Bitboard.h	17
-Bitboard::intersectionWith	Bitboard.cpp	/^void Bitboard::intersectionWith( Bitboard/
-Bitboard::notIntersectionWith	Bitboard.cpp	/^void Bitboard::notIntersectionWith( Bitbo/
-Bitboard::operator ==	Bitboard.h	/^	bool operator ==(Bitboard &other) {$/
-Bitboard::pair	Bitboard.h	39
-Bitboard::print	Bitboard.cpp	/^void Bitboard::print() {$/
-Bitboard::pruneCache	Bitboard.cpp	/^void Bitboard::pruneCache(){$/
-Bitboard::setBoard	Bitboard.cpp	/^void Bitboard::setBoard(int boardIndex, u/
-Bitboard::shiftDirection	Bitboard.cpp	/^void Bitboard::shiftDirection(Direction d/
-Bitboard::shiftDirection	Bitboard.cpp	/^void Bitboard::shiftDirection(Direction d/
-Bitboard::shiftOrthogonalDirection	Bitboard.cpp	/^void Bitboard::shiftOrthogonalDirection(D/
-Bitboard::split	Bitboard.cpp	/^unordered_map< int, vector < unsigned long long >>/
-Bitboard::splitIntoBitboards	Bitboard.cpp	/^list <Bitboard> Bitboard::splitI/
-Bitboard::splitIntoConnectedComponents	Bitboard.cpp	/^vector <Bitboard> Bitboard::spli/
-Bitboard::unionWith	Bitboard.cpp	/^void Bitboard::unionWith( BitboardContain/
-Bitboard::unordered_map	Bitboard.h	58
-Bitboard::xorWith	Bitboard.cpp	/^void Bitboard::xorWith( Bitboard/
-COLUMN_SHIFT	constants.h	50
-Direction	constants.h	20
-E	constants.h	22
-GRASSHOPPER	constants.h	10
-GameState	GameState.h	22
-GameState::GameState	3	/^GameState::GameState (list <PieceName> possibleNam/
-GameState::GameState	GameState.cpp	/^GameState::GameState (list <PieceName> possibleNam/
-GameState::allPieces	GameState.h	29
-GameState::ants	GameState.h	32
-GameState::beetles	GameState.h	33
-GameState::blackPieces	GameState.h	31
-GameState::changeTurnColor	3	/^void GameState::changeTurnColor() {$/
-GameState::changeTurnColor	GameState.cpp	/^void GameState::changeTurnColor() {$/
-GameState::checkDraw	3	/^bool GameState::checkDraw() {$/
-GameState::checkDraw	GameState.cpp	/^bool GameState::checkDraw() {$/
-GameState::checkVictory	3	/^PieceColor GameState::checkVictory() {$/
-GameState::checkVictory	GameState.cpp	/^PieceColor GameState::checkVictory() {$/
-GameState::destroy	3	/^void GameState::destroy() {$/
-GameState::destroy	GameState.cpp	/^void GameState::destroy() {$/
-GameState::fastInsertPiece	3	/^void GameState::fastInsertPiece(Bitboard&/
-GameState::fastInsertPiece	GameState.cpp	/^void GameState::fastInsertPiece(Bitboard&/
-GameState::fastMovePiece	3	/^void GameState::fastMovePiece(Bitboard& o/
-GameState::fastMovePiece	GameState.cpp	/^void GameState::fastMovePiece(Bitboard& o/
-GameState::fastRemovePiece	3	/^void GameState::fastRemovePiece(Bitboard&/
-GameState::fastRemovePiece	GameState.cpp	/^void GameState::fastRemovePiece(Bitboard&/
-GameState::findPieceName	3	/^PieceName GameState::findPieceName(BitboardContain/
-GameState::findPieceName	GameState.cpp	/^PieceName GameState::findPieceName(BitboardContain/
-GameState::findPinnedPieces	3	/^void GameState::findPinnedPieces(){$/
-GameState::findPinnedPieces	GameState.cpp	/^void GameState::findPinnedPieces(){$/
-GameState::firstPieces	GameState.h	40
-GameState::getAllMoves	3	/^void GameState::getAllMoves(list <PieceName> names/
-GameState::getAllMoves	GameState.cpp	/^void GameState::getAllMoves(list <PieceName> names/
-GameState::getAllSpawnSpaces	3	/^Bitboard GameState::getAllSpawnSpaces() {/
-GameState::getAllSpawnSpaces	GameState.cpp	/^Bitboard GameState::getAllSpawnSpaces() {/
-GameState::getMosquitoMoves	3	/^void GameState::getMosquitoMoves(Bitboard/
-GameState::getMosquitoMoves	GameState.cpp	/^Bitboard GameState::getMosquitoMoves(Bitb/
-GameState::getPieces	3	/^inline Bitboard * GameState::getPieces() /
-GameState::getPieces	3	/^Bitboard * GameState::getPieces(PieceName/
-GameState::getPieces	3	/^Bitboard * GameState::getPieces(PieceColo/
-GameState::getPieces	GameState.cpp	/^inline Bitboard * GameState::getPieces() /
-GameState::getPieces	GameState.cpp	/^Bitboard * GameState::getPieces(PieceName/
-GameState::getPieces	GameState.cpp	/^Bitboard * GameState::getPieces(PieceColo/
-GameState::getSwapSpaces	3	/^pair <Bitboard, Bitboard> GameSt/
-GameState::getSwapSpaces	GameState.cpp	/^pair <Bitboard, Bitboard> GameSt/
-GameState::grasshoppers	GameState.h	39
-GameState::immobile	GameState.h	42
-GameState::insertPiece	3	/^MoveInfo GameState::insertPiece(Bitboard&/
-GameState::insertPiece	GameState.cpp	/^MoveInfo GameState::insertPiece(Bitboard&/
-GameState::ladybugs	GameState.h	35
-GameState::list	GameState.h	46
-GameState::makePsuedoRandomMove	3	/^void GameState::makePsuedoRandomMove() {$/
-GameState::makePsuedoRandomMove	GameState.cpp	/^void GameState::makePsuedoRandomMove() {$/
-GameState::mosquitoes	GameState.h	37
-GameState::moveApproximation	3	/^int GameState::moveApproximation(Bitboard/
-GameState::moveApproximation	GameState.cpp	/^int GameState::moveApproximation(Bitboard/
-GameState::moveGenerator	GameState.h	55
-GameState::movePiece	3	/^MoveInfo GameState::movePiece(Bitboard& o/
-GameState::movePiece	GameState.cpp	/^MoveInfo GameState::movePiece(Bitboard& o/
-GameState::numberMoves	GameState.h	47
-GameState::pair	GameState.h	90
-GameState::pieceGraph	GameState.h	54
-GameState::pieceMoves	GameState.h	46
-GameState::pillbugs	GameState.h	38
-GameState::pinned	GameState.h	43
-GameState::possibleNames	GameState.h	48
-GameState::problemNodeContainer	GameState.h	53
-GameState::queens	GameState.h	36
-GameState::spiders	GameState.h	34
-GameState::stackHashTable	GameState.h	51
-GameState::swapPiece	GameState.cpp	/^void GameState::swapPiece(Bitboard& swapp/
-GameState::totalPossibleMoves	GameState.h	49
-GameState::turnColor	GameState.h	28
-GameState::turnCounter	GameState.h	44
-GameState::undoMove	3	/^void GameState::undoMove(MoveInfo moveInfo) {$/
-GameState::undoMove	GameState.cpp	/^void GameState::undoMove(MoveInfo moveInfo) {$/
-GameState::unordered_map	GameState.h	51
-GameState::upperLevelPieces	GameState.h	41
-GameState::whitePieces	GameState.h	30
-GameState::~GameState	GameState.h	/^	~GameState() { destroy();}$/
-Hâu∞	test.out	25
-Hâu‡HçUHãM‡Hã	test.out	32
-Hâu‡HçUHãM‡HãE	test.out	156
-HâuH	test.out	30
-HâuHâU	test.out	41
-Hâ√HãE–Hâ«Ë	test.out	19
-Hã	test.out	30
-Hã	test.out	32
-Hã	test.out	120
-HãE	test.out	116
-HãE	test.out	180
-HãE	test.out	181
-HãE¯âH	test.out	40
-LADYBUG	constants.h	12
-MOSQUITO	constants.h	14
-MTest.cpp	Test.cpp	/^int main() {$/
-MoveGenerator	MoveGenerator.h	12
-MoveGenerator::MoveGenerator	'	/^MoveGenerator::MoveGenerator(Bitboard * a/
-MoveGenerator::MoveGenerator	MoveGenerator.cpp	/^MoveGenerator::MoveGenerator(Bitboard * a/
-MoveGenerator::MoveGenerator	MoveGenerator.h	/^		MoveGenerator(){};$/
-MoveGenerator::NUM_SPIDER_MOVES	MoveGenerator.h	47
-MoveGenerator::allPieces	MoveGenerator.h	45
-MoveGenerator::gatesSplit	MoveGenerator.h	19
-MoveGenerator::generateAntMoves	'	/^void MoveGenerator::generateAntMoves() {$/
-MoveGenerator::generateAntMoves	MoveGenerator.cpp	/^void MoveGenerator::generateAntMoves() {$/
-MoveGenerator::generateBeetleMoves	'	/^void MoveGenerator::generateBeetleMoves(){$/
-MoveGenerator::generateBeetleMoves	MoveGenerator.cpp	/^void MoveGenerator::generateBeetleMoves(){$/
-MoveGenerator::generateGrasshopperMoves	'	/^void MoveGenerator::generateGrasshopperMoves(){$/
-MoveGenerator::generateGrasshopperMoves	MoveGenerator.cpp	/^void MoveGenerator::generateGrasshopperMoves(){$/
-MoveGenerator::generateLadybugMoves	'	/^void MoveGenerator::generateLadybugMoves(){$/
-MoveGenerator::generateLadybugMoves	MoveGenerator.cpp	/^void MoveGenerator::generateLadybugMoves(){$/
-MoveGenerator::generateMosquitoMoves	'	/^void MoveGenerator::generateMosquitoMoves(){$/
-MoveGenerator::generateMosquitoMoves	MoveGenerator.cpp	/^void MoveGenerator::generateMosquitoMoves(){$/
-MoveGenerator::generateMoves	'	/^void MoveGenerator::generateMoves() {$/
-MoveGenerator::generateMoves	MoveGenerator.cpp	/^void MoveGenerator::generateMoves() {$/
-MoveGenerator::generatePillbugMoves	'	/^void MoveGenerator::generatePillbugMoves(){$/
-MoveGenerator::generatePillbugMoves	MoveGenerator.cpp	/^void MoveGenerator::generatePillbugMoves(){$/
-MoveGenerator::generateQueenMoves	'	/^void MoveGenerator::generateQueenMoves(){ $/
-MoveGenerator::generateQueenMoves	MoveGenerator.cpp	/^void MoveGenerator::generateQueenMoves(){ $/
-MoveGenerator::generateSpiderMoves	'	/^void MoveGenerator::generateSpiderMoves(){$/
-MoveGenerator::generateSpiderMoves	MoveGenerator.cpp	/^void MoveGenerator::generateSpiderMoves(){$/
-MoveGenerator::generatingPieceBoard	MoveGenerator.h	21
-MoveGenerator::generatingPieceName	MoveGenerator.h	14
-MoveGenerator::getInaccessibleNodes	'	/^Bitboard MoveGenerator::getInaccessibleNo/
-MoveGenerator::getInaccessibleNodes	'	/^Bitboard MoveGenerator::getInaccessibleNo/
-MoveGenerator::getInaccessibleNodes	MoveGenerator.cpp	/^Bitboard MoveGenerator::getInaccessibleNo/
-MoveGenerator::getInaccessibleNodes	MoveGenerator.cpp	/^Bitboard MoveGenerator::getInaccessibleNo/
-MoveGenerator::getLegalClimb	'	/^Bitboard MoveGenerator::getLegalClimb( Bi/
-MoveGenerator::getLegalClimb	MoveGenerator.cpp	/^Bitboard MoveGenerator::getLegalClimb( Bi/
-MoveGenerator::getMoves	'	/^Bitboard MoveGenerator::getMoves() {	$/
-MoveGenerator::getMoves	MoveGenerator.cpp	/^Bitboard MoveGenerator::getMoves() {	$/
-MoveGenerator::getPillbugSwapSpaces	MoveGenerator.cpp	/^Bitboard MoveGenerator::getPillbugSwapSpa/
-MoveGenerator::ladybugStep	MoveGenerator.cpp	/^void MoveGenerator::ladybugStep(Bitboard&/
-MoveGenerator::moves	MoveGenerator.h	25
-MoveGenerator::perimeter	MoveGenerator.h	26
-MoveGenerator::piecesExceptCurrent	MoveGenerator.h	40
-MoveGenerator::problemNodes	MoveGenerator.h	44
-MoveGenerator::setGeneratingName	'	/^void MoveGenerator::setGeneratingName(PieceName * /
-MoveGenerator::setGeneratingName	MoveGenerator.cpp	/^void MoveGenerator::setGeneratingName(PieceName * /
-MoveGenerator::setGeneratingPieceBoard	'	/^void MoveGenerator::setGeneratingPieceBoard(Bitboa/
-MoveGenerator::setGeneratingPieceBoard	MoveGenerator.cpp	/^void MoveGenerator::setGeneratingPieceBoard(Bitboa/
-MoveGenerator::setStackHashTable	'	/^void MoveGenerator::setStackHashTable(unordered_ma/
-MoveGenerator::setStackHashTable	MoveGenerator.cpp	/^void MoveGenerator::setStackHashTable(unordered_ma/
-MoveGenerator::setUpperLevelPieces	'	/^void MoveGenerator::setUpperLevelPieces(BitboardCo/
-MoveGenerator::setUpperLevelPieces	MoveGenerator.cpp	/^void MoveGenerator::setUpperLevelPieces(BitboardCo/
-MoveGenerator::stackHashTable	MoveGenerator.h	22
-MoveGenerator::unordered_map	MoveGenerator.h	22
-MoveGenerator::upperLevelPieces	MoveGenerator.h	23
-MoveInfo	GameState.h	16
-N	constants.h	27
-NE	constants.h	21
-NONE	constants.h	35
-NW	constants.h	26
-ODD_ROWS_BITMASK	constants.h	56
-PILLBUG	constants.h	13
-Piece	Piece.h	10
-Piece::Piece	Piece.cpp	/^Piece::Piece(char pieceColor, string shorthand, in/
-Piece::Piece	Piece.h	/^	Piece() {};$/
-Piece::bitboard	Piece.h	13
-Piece::boardNumber	Piece.h	12
-Piece::color	Piece.h	17
-Piece::name	Piece.h	18
-Piece::shorthandName	Piece.h	19
-Piece::x	Piece.h	20
-Piece::y	Piece.h	21
-PieceColor	constants.h	32
-PieceGraph	PieceGraph.h	9
-PieceGraph::allPieceNodes	PieceGraph.h	12
-PieceGraph::allPieces	PieceGraph.h	16
-PieceGraph::articulationNodes	PieceGraph.h	11
-PieceGraph::bitboardHashTable	PieceGraph.h	18
-PieceGraph::checkArticulationRoot	PieceGraph.cpp	/^void PieceGraph::checkArticulationRoot(PieceNode */
-PieceGraph::destroy	PieceGraph.cpp	/^void PieceGraph::destroy() {$/
-PieceGraph::getArticulationNodes	PieceGraph.cpp	/^void PieceGraph::getArticulationNodes(PieceNode * /
-PieceGraph::getPinnedPieces	PieceGraph.cpp	/^Bitboard PieceGraph::getPinnedPieces() {$/
-PieceGraph::insert	PieceGraph.cpp	/^void PieceGraph::insert(Bitboard& newBitb/
-PieceGraph::remove	PieceGraph.cpp	/^void PieceGraph::remove(Bitboard& oldBitb/
-PieceGraph::reposition	PieceGraph.cpp	/^void PieceGraph::reposition(Bitboard& old/
-PieceGraph::unordered_map	PieceGraph.h	18
-PieceGraph::~PieceGraph	PieceGraph.h	/^		~PieceGraph() { destroy();}$/
-PieceName	constants.h	9
-PieceNode	PieceNode.h	9
-PieceNode::PieceNode	PieceNode.h	/^		PieceNode(){};$/
-PieceNode::boardIndex	PieceNode.h	11
-PieceNode::insert	PieceNode.cpp	/^void PieceNode::insert( list <PieceNode*> &newNeig/
-PieceNode::location	PieceNode.h	12
-PieceNode::lowLink	PieceNode.h	18
-PieceNode::neighbors	PieceNode.h	14
-PieceNode::operator==	PieceNode.h	/^		bool operator==(PieceNode &other) {$/
-PieceNode::parent	PieceNode.h	20
-PieceNode::print	PieceNode.cpp	/^void PieceNode::print() {$/
-PieceNode::remove	PieceNode.cpp	/^void PieceNode::remove() {$/
-PieceNode::reposition	PieceNode.cpp	/^void PieceNode::reposition(list <PieceNode*> &newN/
-PieceNode::visited	PieceNode.h	16
-PieceNode::visitedNum	PieceNode.h	17
-ProblemNodeContainer	ProblemNode.h	10
-ProblemNodeContainer::ProblemNodeContainer	ProblemNode.cpp	/^ProblemNodeContainer::ProblemNodeContainer(Bitboar/
-ProblemNodeContainer::ProblemNodeContainer	ProblemNode.h	/^		ProblemNodeContainer(){};$/
-ProblemNodeContainer::allPieces	ProblemNode.h	32
-ProblemNodeContainer::clear	ProblemNode.cpp	/^void ProblemNodeContainer::clear() {$/
-ProblemNodeContainer::contains	ProblemNode.cpp	/^bool ProblemNodeContainer::contains(BitboardContai/
-ProblemNodeContainer::findAllProblemNodes	ProblemNode.cpp	/^void ProblemNodeContainer::findAllProblemNodes() {/
-ProblemNodeContainer::getLegalClimbs	ProblemNode.cpp	/^Bitboard ProblemNodeContainer::getLegalCl/
-ProblemNodeContainer::getPerimeter	ProblemNode.cpp	/^Bitboard ProblemNodeContainer::getPerimet/
-ProblemNodeContainer::getProblemNodesAtLocation	ProblemNode.cpp	/^ProblemNodeContainer::getProblemNodesAtLocation(in/
-ProblemNodeContainer::hash	ProblemNode.cpp	/^int ProblemNodeContainer::hash(int boardIndex, uns/
-ProblemNodeContainer::insert	ProblemNode.cpp	/^void ProblemNodeContainer::insert(BitboardContaine/
-ProblemNodeContainer::insertPiece	ProblemNode.cpp	/^void ProblemNodeContainer::insertPiece(BitboardCon/
-ProblemNodeContainer::locationHashTable	ProblemNode.h	14
-ProblemNodeContainer::problemNodeExists	ProblemNode.cpp	/^bool ProblemNodeContainer::problemNodeExists(Bitbo/
-ProblemNodeContainer::problemNodeHashes	ProblemNode.h	16
-ProblemNodeContainer::remove	ProblemNode.cpp	/^void ProblemNodeContainer::remove(BitboardContaine/
-ProblemNodeContainer::removePiece	ProblemNode.cpp	/^void ProblemNodeContainer::removePiece( BitboardCo/
-ProblemNodeContainer::unordered_map	ProblemNode.h	14
-ProblemNodeContainer::updateVisible	ProblemNode.cpp	/^void ProblemNodeContainer::updateVisible(BitboardC/
-ProblemNodeContainer::visibleProblemNodes	ProblemNode.h	33
-QUEEN	constants.h	11
-ROW_SHIFT	constants.h	49
-S	constants.h	28
-SE	constants.h	23
-SPIDER	constants.h	17
-SW	constants.h	24
-Test	Test.h	6
-Test::BitboardTest	Test.h	30
-Test::BitboardTest::testContainsAny	Test.cpp	/^void Test::BitboardTest::testContainsAny() {$/
-Test::BitboardTest::testFloodFill	Test.cpp	/^void Test::BitboardTest::testFloodFill() {$/
-Test::BitboardTest::testFloodFillStep	Test.cpp	/^void Test::BitboardTest::testFloodFillStep() {$/
-Test::BitboardTest::testIntersectionWith	Test.cpp	/^void Test::BitboardTest::testIntersectionWith() {$/
-Test::BitboardTest::testShiftDirection	Test.cpp	/^void Test::BitboardTest::testShiftDirection(){$/
-Test::BitboardTest::testSplit	Test.cpp	/^void Test::BitboardTest::testSplit() {$/
-Test::BitboardTest::testSplitIntoConnectedComponents	Test.cpp	/^void Test::BitboardTest::testSplitIntoConnectedCom/
-Test::BitboardTest::testUnionWith	Test.cpp	/^void Test::BitboardTest::testUnionWith() {$/
-Test::BitboardTest::testXorWith	Test.cpp	/^void Test::BitboardTest::testXorWith() {$/
-Test::HiveTest	Test.h	9
-Test::MoveGeneratorTest	Test.h	16
-Test::MoveGeneratorTest::testAntMoves	Test.cpp	/^void Test::MoveGeneratorTest::testAntMoves() {$/
-Test::MoveGeneratorTest::testBeetleMoves	Test.cpp	/^void Test::MoveGeneratorTest::testBeetleMoves() {$/
-Test::MoveGeneratorTest::testGrasshopperMoves	Test.cpp	/^void Test::MoveGeneratorTest::testGrasshopperMoves/
-Test::MoveGeneratorTest::testLadybugMoves	Test.cpp	/^void Test::MoveGeneratorTest::testLadybugMoves() {/
-Test::MoveGeneratorTest::testPillbugMoves	Test.cpp	/^void Test::MoveGeneratorTest::testPillbugMoves() {/
-Test::MoveGeneratorTest::testQueenMoves	Test.cpp	/^void Test::MoveGeneratorTest::testQueenMoves() {$/
-Test::MoveGeneratorTest::testSpiderMoves	Test.cpp	/^void Test::MoveGeneratorTest::testSpiderMoves() {$/
-Test::PieceGraphTest	Test.h	50
-Test::PieceGraphTest::testFindAllPinnedPieces	Test.cpp	/^void Test::PieceGraphTest::testFindAllPinnedPieces/
-Test::ProblemNodeContainerTest	Test.h	44
-Test::ProblemNodeContainerTest::testFindAllProblemNodes	Test.cpp	/^void Test::ProblemNodeContainerTest::testFindAllPr/
-Test::ProblemNodeContainerTest::testRemovePiece	Test.cpp	/^void Test::ProblemNodeContainerTest::testRemovePie/
-Test::pass	Test.cpp	/^void Test::pass(bool testPassed, string message){$/
-Test::silent	Test.cpp	64
-Test::silent	Test.h	8
-W	constants.h	25
-WHITE	constants.h	33
-directions	Test.cpp	45
-dxdy	Test.cpp	20
-gateInDirection	ProblemNode.cpp	11
-gates	ProblemNode.cpp	22
-hexagonalDirections	Bitboard.cpp	9
-lowerLeftGate	ProblemNode.cpp	8
-newPieceLocation	GameState.h	18
-numDirections	ProblemNode.cpp	7
-oldPieceLocation	GameState.h	17
-oppositeDirection	Bitboard.cpp	17
-overflowBitmask	Bitboard.cpp	37
-overflowLocation	Bitboard.cpp	44
-parameters	Bitboard.cpp	30
-pieceName	GameState.h	19
-pieceName	Piece.cpp	5
-pieceNum	Test.cpp	27
-potentialProblemNodes	ProblemNode.cpp	35
-rotateClockWise	constants.cpp	/^Direction rotateClockWise(Direction dir) {$/
-rotateCounterClockWise	constants.cpp	/^Direction rotateCounterClockWise(Direction dir) {$/
-std	'	9
-std	3	7
-std	Bitboard.h	9
-std	constants.h	7
-std	GameState.h	14
-std	MoveGenerator.h	10
-std	PieceGraph.h	7
-std	Piece.h	6
-std	PieceNode.h	7
-std	ProblemNode.h	8
-std	Test.h	4
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_OUTPUT_FILESEP	slash	/slash or backslash/
+!_TAG_OUTPUT_MODE	u-ctags	/u-ctags or e-ctags/
+!_TAG_PROGRAM_AUTHOR	Universal Ctags Team	//
+!_TAG_PROGRAM_NAME	Universal Ctags	/Derived from Exuberant Ctags/
+!_TAG_PROGRAM_URL	https://ctags.io/	/official site/
+!_TAG_PROGRAM_VERSION	0.0.0	/e0a976d7/
+ANT	constants.h	/^	ANT=6,$/;"	e	enum:PieceName
+Arena	Arena.h	/^		Arena(GameState g):currentGameState(g){};$/;"	f	class:Arena
+Arena	Arena.h	/^class Arena {$/;"	c
+Arena.o	Makefile	/^Arena.o: Arena.h Arena.cpp constants.h Heuristic.h $/;"	t
+ArenaTest	Test.h	/^		class ArenaTest {$/;"	c	class:Test
+BEETLE	constants.h	/^	BEETLE=5,$/;"	e	enum:PieceName
+BITBOARD_COLS	constants.h	/^const int BITBOARD_COLS = 3;$/;"	v	typeref:typename:const int
+BITBOARD_HEIGHT	constants.h	/^const int BITBOARD_HEIGHT = 8;$/;"	v	typeref:typename:const int
+BITBOARD_ROWS	constants.h	/^const int BITBOARD_ROWS = 3;$/;"	v	typeref:typename:const int
+BITBOARD_SIZE	constants.h	/^const int BITBOARD_SIZE  = 9;$/;"	v	typeref:typename:const int
+BITBOARD_WIDTH	constants.h	/^const int BITBOARD_WIDTH = 8;$/;"	v	typeref:typename:const int
+BLACK	constants.h	/^	BLACK = 1,$/;"	e	enum:PieceColor
+Bitboard	Bitboard.cpp	/^Bitboard::Bitboard(unordered_map<int, unsigned long long > predefinedBoards){$/;"	f	class:Bitboard
+Bitboard	Bitboard.h	/^	Bitboard() {};$/;"	f	class:Bitboard
+Bitboard	Bitboard.h	/^class Bitboard {$/;"	c
+Bitboard.o	Makefile	/^Bitboard.o: Bitboard.cpp Bitboard.h constants.h$/;"	t
+BitboardTest	Test.h	/^		class BitboardTest {$/;"	c	class:Test
+COLUMN_SHIFT	constants.h	/^const int COLUMN_SHIFT = 1;$/;"	v	typeref:typename:const int
+CPU	Arena.h	/^		MonteCarloTree CPU[2];$/;"	m	class:Arena	typeref:typename:MonteCarloTree[2]
+CXX	Makefile	/^CXX=g++$/;"	m
+CXXFLAGSRELEASE	Makefile	/^CXXFLAGSRELEASE=-O3 -Wall -pthread$/;"	m
+Complexity	constants.h	/^enum Complexity {$/;"	g
+DEBUG	Makefile	/^DEBUG=-o test.out$/;"	m
+DEPENDENCIES	Makefile	/^DEPENDENCIES=Bitboard.o\\$/;"	m
+DFS	PieceGraph.cpp	/^unordered_set <PieceNode*> PieceGraph::DFS() {$/;"	f	class:PieceGraph	typeref:typename:unordered_set<PieceNode * >
+DFS	PieceGraph.cpp	/^void PieceGraph::DFS( PieceNode * root,$/;"	f	class:PieceGraph	typeref:typename:void
+Direction	constants.h	/^enum Direction{$/;"	g
+E	constants.h	/^	E = 1,$/;"	e	enum:Direction
+GATES	Test.cpp	/^unordered_map <unsigned long long , unsigned long long > GATES[64];$/;"	v	typeref:typename:unordered_map<unsigned long long,unsigned long long>[64]
+GRASSHOPPER	constants.h	/^	GRASSHOPPER=0,$/;"	e	enum:PieceName
+GameState	GameState.cpp	/^GameState::GameState (vector <unordered_map <PieceName, int>> unusedPiecesIn, $/;"	f	class:GameState
+GameState	GameState.cpp	/^GameState::GameState(const GameState& other) {$/;"	f	class:GameState
+GameState	GameState.h	/^	GameState(){};$/;"	f	class:GameState
+GameState	GameState.h	/^class GameState {$/;"	c
+GameState.o	Makefile	/^GameState.o: GameState.h PieceNode.h ProblemNode.h MoveGenerator.h PieceGraph.h GameState.cpp \\$/;"	t
+GameStateTest	Test.h	/^		class GameStateTest {$/;"	c	class:Test
+Heuristic	Heuristic.cpp	/^Heuristic::Heuristic (Complexity c, set<char> expansionPieces) {$/;"	f	class:Heuristic
+Heuristic	Heuristic.h	/^		Heuristic(){};$/;"	f	class:Heuristic
+Heuristic	Heuristic.h	/^class Heuristic {$/;"	c
+Heuristic.o	Makefile	/^Heuristic.o: Heuristic.h Weight.h GameState.h Heuristic.cpp constants.h$/;"	t
+HivePLM	constants.cpp	/^vector < unordered_map <PieceName, int>> HivePLM = $/;"	v	typeref:typename:vector<unordered_map<PieceName,int>>
+HiveTest	Test.h	/^		class HiveTest {$/;"	c	class:Test
+LADYBUG	constants.h	/^	LADYBUG=2,$/;"	e	enum:PieceName
+LEARNING_RATE	constants.cpp	/^double LEARNING_RATE = 0.2;$/;"	v	typeref:typename:double
+LENGTH	constants.h	/^	LENGTH=8,$/;"	e	enum:PieceName
+MOSQUITO	constants.h	/^	MOSQUITO=4,$/;"	e	enum:PieceName
+MonteCarloNode	MonteCarloNode.h	/^class MonteCarloNode{$/;"	c
+MonteCarloSimulations	constants.cpp	/^int MonteCarloSimulations = 100;$/;"	v	typeref:typename:int
+MonteCarloSimulationsCutoff	constants.cpp	/^int MonteCarloSimulationsCutoff = 500;$/;"	v	typeref:typename:int
+MonteCarloTree	MonteCarloTree.h	/^		MonteCarloTree(){};$/;"	f	class:MonteCarloTree
+MonteCarloTree	MonteCarloTree.h	/^		MonteCarloTree(MonteCarloNode* r, Heuristic& h)$/;"	f	class:MonteCarloTree
+MonteCarloTree	MonteCarloTree.h	/^class MonteCarloTree {$/;"	c
+MonteCarloTree.o	Makefile	/^MonteCarloTree.o: MonteCarloNode.h  MonteCarloTree.h MonteCarloTree.cpp constants.h$/;"	t
+MoveGenerator	MoveGenerator.cpp	/^MoveGenerator::MoveGenerator(Bitboard * allPiecesIn , ProblemNodeContainer * problemNodesIn) {$/;"	f	class:MoveGenerator
+MoveGenerator	MoveGenerator.h	/^		MoveGenerator(){};$/;"	f	class:MoveGenerator
+MoveGenerator	MoveGenerator.h	/^class MoveGenerator {$/;"	c
+MoveGenerator.o	Makefile	/^MoveGenerator.o: ProblemNode.h Bitboard.h MoveGenerator.h MoveGenerator.cpp constants.h$/;"	t
+MoveGeneratorTest	Test.h	/^		class MoveGeneratorTest {$/;"	c	class:Test
+MoveInfo	GameState.h	/^struct MoveInfo {$/;"	s
+N	constants.h	/^	N = -1,$/;"	e	enum:Direction
+NE	constants.h	/^	NE = 0,$/;"	e	enum:Direction
+NONE	constants.h	/^	NONE = 2$/;"	e	enum:PieceColor
+NUMWEIGHTS	Heuristic.h	/^		int NUMWEIGHTS;$/;"	m	class:Heuristic	typeref:typename:int
+NUM_SPIDER_MOVES	MoveGenerator.h	/^		const int NUM_SPIDER_MOVES = 3;$/;"	m	class:MoveGenerator	typeref:typename:const int
+NW	constants.h	/^	NW = 5,$/;"	e	enum:Direction
+ODD_ROWS_BITMASK	constants.h	/^const unsigned long long ODD_ROWS_BITMASK = 0xff00ff00ff00ff00u;$/;"	v	typeref:typename:const unsigned long long
+PERIMETER	Test.cpp	/^vector <unordered_map<unsigned long long, unsigned long long[5]>> PERIMETER = {{{}}};$/;"	v	typeref:typename:vector<unordered_map<unsigned long long,unsigned long long[5]>>
+PERIMETER_SIZE	Test.cpp	/^int PERIMETER_SIZE = 2;$/;"	v	typeref:typename:int
+PILLBUG	constants.h	/^	PILLBUG=3,$/;"	e	enum:PieceName
+PieceColor	constants.h	/^enum PieceColor {$/;"	g
+PieceGraph	PieceGraph.h	/^class PieceGraph {$/;"	c
+PieceGraph.o	Makefile	/^PieceGraph.o: PieceNode.h PieceGraph.h PieceGraph.cpp constants.h$/;"	t
+PieceGraphTest	Test.h	/^		class PieceGraphTest {$/;"	c	class:Test
+PieceName	constants.h	/^enum PieceName{$/;"	g
+PieceNode	PieceNode.h	/^		PieceNode(){};$/;"	f	class:PieceNode
+PieceNode	PieceNode.h	/^class PieceNode {$/;"	c
+PieceNode.o	Makefile	/^PieceNode.o: Bitboard.h PieceNode.h PieceNode.cpp constants.h$/;"	t
+ProblemNode.o	Makefile	/^ProblemNode.o: Bitboard.h ProblemNode.h ProblemNode.cpp constants.h$/;"	t
+ProblemNodeContainer	ProblemNode.cpp	/^ProblemNodeContainer::ProblemNodeContainer(Bitboard * pieces) {$/;"	f	class:ProblemNodeContainer
+ProblemNodeContainer	ProblemNode.h	/^		ProblemNodeContainer(){};$/;"	f	class:ProblemNodeContainer
+ProblemNodeContainer	ProblemNode.h	/^class ProblemNodeContainer {$/;"	c
+ProblemNodeContainerTest	Test.h	/^		class ProblemNodeContainerTest {$/;"	c	class:Test
+QUEEN	constants.h	/^	QUEEN=1,$/;"	e	enum:PieceName
+RANDOM	constants.h	/^	RANDOM=0,$/;"	e	enum:Complexity
+RELEASE	Makefile	/^RELEASE=-o test.out$/;"	m
+ROW_SHIFT	constants.h	/^const int ROW_SHIFT = 8;$/;"	v	typeref:typename:const int
+RandomWeight	Weight.h	/^		RandomWeight():Weight{0}{};$/;"	f	class:RandomWeight
+RandomWeight	Weight.h	/^class RandomWeight: public Weight {$/;"	c
+S	constants.h	/^	S = -2,$/;"	e	enum:Direction
+SE	constants.h	/^	SE = 2,$/;"	e	enum:Direction
+SIMPLE	constants.h	/^	SIMPLE=1,$/;"	e	enum:Complexity
+SPIDER	constants.h	/^	SPIDER=7,$/;"	e	enum:PieceName
+SW	constants.h	/^	SW = 3,$/;"	e	enum:Direction
+SimpleMoveCountWeight	Weight.h	/^		SimpleMoveCountWeight(double multiplier)$/;"	f	class:SimpleMoveCountWeight
+SimpleMoveCountWeight	Weight.h	/^class SimpleMoveCountWeight: public Weight {$/;"	c
+Test	Test.h	/^class Test {$/;"	c
+Test.o	Makefile	/^Test.o: Test.h Test.cpp$/;"	t
+W	constants.h	/^	W = 4,$/;"	e	enum:Direction
+WHITE	constants.h	/^	WHITE = 0,$/;"	e	enum:PieceColor
+WaspAI	README.md	/^# WaspAI$/;"	c
+Weight	Weight.h	/^		Weight (){}$/;"	f	class:Weight
+Weight	Weight.h	/^		Weight (double multiplier): multiplier(multiplier){};$/;"	f	class:Weight
+Weight	Weight.h	/^class Weight {$/;"	c
+__anon214dabbd0102	Arena.cpp	/^		auto isValidMove = [&](string move) {$/;"	f	function:Arena::battle	file:
+adjustOverflowMask	Bitboard.cpp	/^unsigned long long Bitboard::adjustOverflowMask($/;"	f	class:Bitboard	typeref:typename:unsigned long long
+allPieces	GameState.h	/^	Bitboard allPieces;$/;"	m	class:GameState	typeref:typename:Bitboard
+allPieces	MoveGenerator.h	/^		Bitboard * allPieces;$/;"	m	class:MoveGenerator	typeref:typename:Bitboard *
+allPieces	PieceGraph.h	/^		Bitboard allPieces;$/;"	m	class:PieceGraph	typeref:typename:Bitboard
+allPieces	ProblemNode.h	/^		Bitboard *allPieces;$/;"	m	class:ProblemNodeContainer	typeref:typename:Bitboard *
+ants	GameState.h	/^	Bitboard ants;$/;"	m	class:GameState	typeref:typename:Bitboard
+approximate	MoveGenerator.h	/^		bool approximate = false;$/;"	m	class:MoveGenerator	typeref:typename:bool
+approximateEndResult	GameState.cpp	/^double GameState::approximateEndResult() {$/;"	f	class:GameState	typeref:typename:double
+articulationNodes	PieceGraph.h	/^		set <PieceNode*> articulationNodes;$/;"	m	class:PieceGraph	typeref:typename:set<PieceNode * >
+attemptMove	GameState.cpp	/^bool GameState::attemptMove(vector<movesCollection>& approxMovesPerPiece, int total){$/;"	f	class:GameState	typeref:typename:bool
+attemptSpawn	GameState.cpp	/^bool GameState::attemptSpawn(int totalApproxMoves) {$/;"	f	class:GameState	typeref:typename:bool
+backPropagate	MonteCarloTree.cpp	/^void MonteCarloTree::backPropagate(nodePtr leafPtr, double result){$/;"	f	class:MonteCarloTree	typeref:typename:void
+battle	Arena.cpp	/^bool Arena::battle(bool silent) {$/;"	f	class:Arena	typeref:typename:bool
+beetles	GameState.h	/^	Bitboard beetles;$/;"	m	class:GameState	typeref:typename:Bitboard
+bitboardHashTable	PieceGraph.h	/^		unordered_map <int, PieceNode*> bitboardHashTable;$/;"	m	class:PieceGraph	typeref:typename:unordered_map<int,PieceNode * >
+blackPieces	GameState.h	/^	Bitboard blackPieces;$/;"	m	class:GameState	typeref:typename:Bitboard
+boardIndex	PieceNode.h	/^		int boardIndex = -1;$/;"	m	class:PieceNode	typeref:typename:int
+calculate	Weight.h	/^		double calculate(MoveInfo) {return 0;};$/;"	f	class:RandomWeight	typeref:typename:double
+changeTurnColor	GameState.cpp	/^void GameState::changeTurnColor() {$/;"	f	class:GameState	typeref:typename:void
+checkArticulationRoot	PieceGraph.cpp	/^void PieceGraph::checkArticulationRoot(PieceNode * root) {$/;"	f	class:PieceGraph	typeref:typename:void
+checkBiDirectional	PieceGraph.cpp	/^bool PieceGraph::checkBiDirectional(Bitboard a, Bitboard b) {$/;"	f	class:PieceGraph	typeref:typename:bool
+checkDraw	GameState.cpp	/^bool GameState::checkDraw() {$/;"	f	class:GameState	typeref:typename:bool
+checkLegalWalk	Test.cpp	/^bool checkLegalWalk(Bitboard allPieces, Bitboard board, Direction dir) {$/;"	f	typeref:typename:bool
+checkVictory	GameState.cpp	/^PieceColor GameState::checkVictory() {$/;"	f	class:GameState	typeref:typename:PieceColor
+children	MonteCarloNode.h	/^		unordered_map <MoveInfo, nodePtr> children;$/;"	m	class:MonteCarloNode	typeref:typename:unordered_map<MoveInfo,nodePtr>
+clean	Makefile	/^clean:$/;"	t
+clear	Bitboard.cpp	/^void Bitboard::clear() {$/;"	f	class:Bitboard	typeref:typename:void
+clear	ProblemNode.cpp	/^void ProblemNodeContainer::clear() {$/;"	f	class:ProblemNodeContainer	typeref:typename:void
+clearChildren	MonteCarloNode.h	/^		void clearChildren() {$/;"	f	class:MonteCarloNode	typeref:typename:void
+clearParent	MonteCarloNode.h	/^		void clearParent() {$/;"	f	class:MonteCarloNode	typeref:typename:void
+colorNotation	Arena.cpp	/^unordered_map <PieceColor, string> colorNotation {$/;"	v	typeref:typename:unordered_map<PieceColor,string>
+colorNotationReverse	Arena.cpp	/^unordered_map <char, PieceColor> colorNotationReverse {$/;"	v	typeref:typename:unordered_map<char,PieceColor>
+constants.o	Makefile	/^constants.o: constants.h constants.cpp$/;"	t
+contains	ProblemNode.cpp	/^bool ProblemNodeContainer::contains(Bitboard& piece){$/;"	f	class:ProblemNodeContainer	typeref:typename:bool
+containsAny	Bitboard.cpp	/^bool Bitboard::containsAny(Bitboard& other) {$/;"	f	class:Bitboard	typeref:typename:bool
+convertFromNotation	Arena.cpp	/^MoveInfo Arena::convertFromNotation(string notation) {$/;"	f	class:Arena	typeref:typename:MoveInfo
+convertToHexRepresentation	Bitboard.cpp	/^void Bitboard::convertToHexRepresentation ( Direction lastMovedDir , int lastMovedTimes) {$/;"	f	class:Bitboard	typeref:typename:void
+convertToNotation	Arena.cpp	/^string Arena::convertToNotation(MoveInfo move){$/;"	f	class:Arena	typeref:typename:string
+count	Bitboard.cpp	/^int Bitboard::count() const{$/;"	f	class:Bitboard	typeref:typename:int
+countPieces	Arena.cpp	/^int Arena::countPieces(PieceColor color, PieceName name){$/;"	f	class:Arena	typeref:typename:int
+countSwaps	GameState.cpp	/^int	 GameState::countSwaps(Bitboard& piece){$/;"	f	class:GameState	typeref:typename:int
+countTotalUnusedPieces	GameState.cpp	/^int GameState::countTotalUnusedPieces() {$/;"	f	class:GameState	typeref:typename:int
+createChild	MonteCarloNode.h	/^		void createChild(MoveInfo m) {$/;"	f	class:MonteCarloNode	typeref:typename:void
+createGateHashTable	Test.cpp	/^void createGateHashTable() {$/;"	f	typeref:typename:void
+createLowOverflowMask	Bitboard.cpp	/^unsigned long long Bitboard::createLowOverflowMask(Direction dir, int overflowAmount) {$/;"	f	class:Bitboard	typeref:typename:unsigned long long
+createPerimeterHashTable	Test.cpp	/^void createPerimeterHashTable(int maxNumber) {$/;"	f	typeref:typename:void
+currentGameState	Arena.h	/^		GameState currentGameState;$/;"	m	class:Arena	typeref:typename:GameState
+currentHeuristic	MonteCarloTree.h	/^		Heuristic currentHeuristic;$/;"	m	class:MonteCarloTree	typeref:typename:Heuristic
+debug	Makefile	/^debug: $/;"	t
+depth	Heuristic.h	/^		int depth = 0;$/;"	m	class:Heuristic	typeref:typename:int
+destroy	GameState.cpp	/^void GameState::destroy() {$/;"	f	class:GameState	typeref:typename:void
+destroy	PieceGraph.cpp	/^void PieceGraph::destroy() {$/;"	f	class:PieceGraph	typeref:typename:void
+dirNotation	Arena.cpp	/^unordered_map <Direction, string> dirNotation {$/;"	v	typeref:typename:unordered_map<Direction,string>
+dirNotationReverse	Arena.cpp	/^unordered_map <char, vector<Direction>> dirNotationReverse{$/;"	v	typeref:typename:unordered_map<char,vector<Direction>>
+directions	Test.cpp	/^ unordered_map < string , vector<Direction> > directions = $/;"	v	typeref:typename:unordered_map<string,vector<Direction>>
+dist	Test.cpp	/^std::uniform_int_distribution<unsigned long long int> dist(0,18446744073709551615u);$/;"	v	typeref:typename:std::uniform_int_distribution<unsigned long long int>
+distr	Bitboard.cpp	/^std::uniform_int_distribution<unsigned long long> distr;$/;"	v	typeref:typename:std::uniform_int_distribution<unsigned long long>
+duplicateBoard	Bitboard.cpp	/^void Bitboard::duplicateBoard(list <Direction> dirs){$/;"	f	class:Bitboard	typeref:typename:void
+dxdy	Test.cpp	/^ int dxdy[6][2] = {{1,1},$/;"	v	typeref:typename:int[6][2]
+equals	Bitboard.cpp	/^bool Bitboard::equals(Bitboard& other){$/;"	f	class:Bitboard	typeref:typename:bool
+evaluate	Heuristic.cpp	/^vector<double> Heuristic::evaluate(MoveInfo m){$/;"	f	class:Heuristic	typeref:typename:vector<double>
+evaluate	MonteCarloNode.h	/^		inline void evaluate(Heuristic& h, MoveInfo m){$/;"	f	class:MonteCarloNode	typeref:typename:void
+evaluate	Weight.h	/^		double evaluate(MoveInfo m) {$/;"	f	class:SimpleMoveCountWeight	typeref:typename:double
+evaluate	Weight.h	/^		virtual double evaluate(MoveInfo){return 0;};$/;"	f	class:Weight	typeref:typename:double
+evaluateAllChildren	MonteCarloNode.h	/^		void evaluateAllChildren(Heuristic& h,GameState& gameState) {$/;"	f	class:MonteCarloNode	typeref:typename:void
+expand	MonteCarloTree.cpp	/^void MonteCarloTree::expand(nodePtr leafPtr, GameState leafGameState, MoveInfo& bestMove) {$/;"	f	class:MonteCarloTree	typeref:typename:void
+explorationFactor	constants.cpp	/^double explorationFactor = 1.41;$/;"	v	typeref:typename:double
+fastInsertPiece	GameState.cpp	/^void GameState::fastInsertPiece(Bitboard& bitboard, PieceName name, PieceColor color) {$/;"	f	class:GameState	typeref:typename:void
+fastMovePiece	GameState.cpp	/^void GameState::fastMovePiece(Bitboard& oldBitboard, Bitboard& newBitboard) {$/;"	f	class:GameState	typeref:typename:void
+fastRemovePiece	GameState.cpp	/^void GameState::fastRemovePiece(Bitboard& oldBitboard){ $/;"	f	class:GameState	typeref:typename:void
+fastSpawnPiece	GameState.cpp	/^void GameState::fastSpawnPiece(Bitboard& b, PieceName n) {$/;"	f	class:GameState	typeref:typename:void
+findAllProblemNodes	ProblemNode.cpp	/^void ProblemNodeContainer::findAllProblemNodes() {$/;"	f	class:ProblemNodeContainer	typeref:typename:void
+findPinnedPieces	GameState.cpp	/^inline void GameState::findPinnedPieces(){$/;"	f	class:GameState	typeref:typename:void
+findTopPieceColor	GameState.cpp	/^PieceColor GameState::findTopPieceColor( Bitboard piece) {$/;"	f	class:GameState	typeref:typename:PieceColor
+findTopPieceName	GameState.cpp	/^PieceName GameState::findTopPieceName(Bitboard piece) {$/;"	f	class:GameState	typeref:typename:PieceName
+findTopPieceOrder	Arena.cpp	/^string Arena::findTopPieceOrder(Bitboard piece){$/;"	f	class:Arena	typeref:typename:string
+floodFill	Bitboard.cpp	/^void Bitboard::floodFill(Bitboard &frontier){$/;"	f	class:Bitboard	typeref:typename:void
+floodFillStep	Bitboard.cpp	/^void Bitboard::floodFillStep(Bitboard &frontier,  Bitboard &visited){$/;"	f	class:Bitboard	typeref:typename:void
+gateInDirection	ProblemNode.cpp	/^unordered_map <Direction, unsigned long long> gateInDirection = {$/;"	v	typeref:typename:unordered_map<Direction,unsigned long long>
+gates	ProblemNode.cpp	/^Bitboard gates[] = {$/;"	v	typeref:typename:Bitboard[]
+generateAllMoves	GameState.cpp	/^vector<MoveInfo> GameState::generateAllMoves() {$/;"	f	class:GameState	typeref:typename:vector<MoveInfo>
+generateApproxAntMoves	MoveGenerator.cpp	/^void MoveGenerator::generateApproxAntMoves() {$/;"	f	class:MoveGenerator	typeref:typename:void
+generateBeetleMoves	MoveGenerator.cpp	/^void MoveGenerator::generateBeetleMoves(){$/;"	f	class:MoveGenerator	typeref:typename:void
+generateDirectionCombinations	Test.cpp	/^void generateDirectionCombinations (unsigned int i, vector < vector <Direction>>& v) {$/;"	f	typeref:typename:void
+generateGrasshopperMoves	MoveGenerator.cpp	/^void MoveGenerator::generateGrasshopperMoves(){$/;"	f	class:MoveGenerator	typeref:typename:void
+generateLadybugMoves	MoveGenerator.cpp	/^void MoveGenerator::generateLadybugMoves(){$/;"	f	class:MoveGenerator	typeref:typename:void
+generateLegalAntMoves	MoveGenerator.cpp	/^void MoveGenerator::generateLegalAntMoves() {$/;"	f	class:MoveGenerator	typeref:typename:void
+generateMosquitoMoves	MoveGenerator.cpp	/^void MoveGenerator::generateMosquitoMoves(){$/;"	f	class:MoveGenerator	typeref:typename:void
+generateMoves	MoveGenerator.cpp	/^void MoveGenerator::generateMoves() {$/;"	f	class:MoveGenerator	typeref:typename:void
+generatePillbugMoves	MoveGenerator.cpp	/^void MoveGenerator::generatePillbugMoves(){$/;"	f	class:MoveGenerator	typeref:typename:void
+generateQueenMoves	MoveGenerator.cpp	/^void MoveGenerator::generateQueenMoves(){ $/;"	f	class:MoveGenerator	typeref:typename:void
+generateSpiderMoves	MoveGenerator.cpp	/^void MoveGenerator::generateSpiderMoves(){$/;"	f	class:MoveGenerator	typeref:typename:void
+generatingPieceBoard	MoveGenerator.h	/^		Bitboard * generatingPieceBoard;$/;"	m	class:MoveGenerator	typeref:typename:Bitboard *
+generatingPieceName	MoveGenerator.h	/^		PieceName * generatingPieceName;$/;"	m	class:MoveGenerator	typeref:typename:PieceName *
+getAllMoves	GameState.cpp	/^void GameState::getAllMoves() {$/;"	f	class:GameState	typeref:typename:void
+getAllMovesCount	GameState.cpp	/^int GameState::getAllMovesCount() {$/;"	f	class:GameState	typeref:typename:int
+getAllSpawnSpaces	GameState.cpp	/^Bitboard GameState::getAllSpawnSpaces() {$/;"	f	class:GameState	typeref:typename:Bitboard
+getArticulationNodes	PieceGraph.cpp	/^void PieceGraph::getArticulationNodes(PieceNode * n, int& counter, $/;"	f	class:PieceGraph	typeref:typename:void
+getInaccessibleNodes	MoveGenerator.cpp	/^Bitboard MoveGenerator::getInaccessibleNodes(Bitboard gates) {$/;"	f	class:MoveGenerator	typeref:typename:Bitboard
+getInaccessibleNodes	MoveGenerator.cpp	/^Bitboard MoveGenerator::getInaccessibleNodes(vector <Bitboard> * gates) {$/;"	f	class:MoveGenerator	typeref:typename:Bitboard
+getLeastSignificantBit	Bitboard.cpp	/^Bitboard::getLeastSignificantBit () const {$/;"	f	class:Bitboard	typeref:typename:const pair<const int,const unsigned long long>
+getLegalClimb	MoveGenerator.cpp	/^Bitboard MoveGenerator::getLegalClimb( Bitboard& board, Direction dir) {$/;"	f	class:MoveGenerator	typeref:typename:Bitboard
+getLegalWalkPerimeter	MoveGenerator.cpp	/^Bitboard MoveGenerator::getLegalWalkPerimeter(Bitboard board) {$/;"	f	class:MoveGenerator	typeref:typename:Bitboard
+getLegalWalks	Test.cpp	/^Bitboard getLegalWalks(Bitboard board, Bitboard allPieces) {$/;"	f	typeref:typename:Bitboard
+getMosquitoMoves	GameState.cpp	/^Bitboard GameState::getMosquitoMoves(Bitboard piece) {$/;"	f	class:GameState	typeref:typename:Bitboard
+getMosquitoPillbug	GameState.cpp	/^Bitboard GameState::getMosquitoPillbug() {$/;"	f	class:GameState	typeref:typename:Bitboard
+getMoves	MoveGenerator.cpp	/^Bitboard MoveGenerator::getMoves() {	$/;"	f	class:MoveGenerator	typeref:typename:Bitboard
+getPerimeter	Bitboard.cpp	/^Bitboard  Bitboard::getPerimeter() {$/;"	f	class:Bitboard	typeref:typename:Bitboard
+getPerimeter	ProblemNode.cpp	/^Bitboard ProblemNodeContainer::getPerimeter(Bitboard& pieces) {$/;"	f	class:ProblemNodeContainer	typeref:typename:Bitboard
+getPieces	GameState.cpp	/^Bitboard * GameState::getPieces(PieceColor color) {$/;"	f	class:GameState	typeref:typename:Bitboard *
+getPieces	GameState.cpp	/^Bitboard * GameState::getPieces(PieceName name) {$/;"	f	class:GameState	typeref:typename:Bitboard *
+getPieces	GameState.cpp	/^inline Bitboard * GameState::getPieces() { $/;"	f	class:GameState	typeref:typename:Bitboard *
+getPillbugSwapSpaces	MoveGenerator.cpp	/^Bitboard MoveGenerator::getPillbugSwapSpaces() {$/;"	f	class:MoveGenerator	typeref:typename:Bitboard
+getPinnedPieces	PieceGraph.cpp	/^Bitboard PieceGraph::getPinnedPieces() {$/;"	f	class:PieceGraph	typeref:typename:Bitboard
+getProblemNodesAtLocation	ProblemNode.cpp	/^ProblemNodeContainer::getProblemNodesAtLocation(int boardIndex, unsigned long long$/;"	f	class:ProblemNodeContainer	typeref:typename:list<Bitboard>
+getRandom	Bitboard.cpp	/^Bitboard Bitboard::getRandom() {$/;"	f	class:Bitboard	typeref:typename:Bitboard
+getRandomBoardIndex	Bitboard.cpp	/^int Bitboard::getRandomBoardIndex() {$/;"	f	class:Bitboard	typeref:typename:int
+getSwapSpaces	GameState.cpp	/^pair <Bitboard, Bitboard> GameState::getSwapSpaces(Bitboard piece) {$/;"	f	class:GameState	typeref:typename:pair<Bitboard,Bitboard>
+grasshoppers	GameState.h	/^	Bitboard grasshoppers;$/;"	m	class:GameState	typeref:typename:Bitboard
+hash	Bitboard.cpp	/^int Bitboard::hash() {$/;"	f	class:Bitboard	typeref:typename:int
+hash	GameState.h	/^struct std::hash<MoveInfo> {$/;"	s	class:std
+hash	ProblemNode.cpp	/^int ProblemNodeContainer::hash(int boardIndex, unsigned long long piece) {$/;"	f	class:ProblemNodeContainer	typeref:typename:int
+heuristicEvals	MonteCarloNode.h	/^		vector <double> heuristicEvals;$/;"	m	class:MonteCarloNode	typeref:typename:vector<double>
+heuristicFactor	constants.cpp	/^double heuristicFactor = .5;$/;"	v	typeref:typename:double
+heuristicScore	MonteCarloNode.h	/^		double heuristicScore;$/;"	m	class:MonteCarloNode	typeref:typename:double
+hexagonalDirections	Bitboard.cpp	/^list <Direction> hexagonalDirections = {$/;"	v	typeref:typename:list<Direction>
+immobile	GameState.h	/^	Bitboard immobile;$/;"	m	class:GameState	typeref:typename:Bitboard
+initialize	Bitboard.cpp	/^void Bitboard::initialize(unordered_map < int, unsigned long long> predefinedBoards) {$/;"	f	class:Bitboard	typeref:typename:void
+initialize	Weight.h	/^		virtual void initialize(GameState&g){parentGameState = g;};$/;"	f	class:Weight	typeref:typename:void
+initializeTo	Bitboard.cpp	/^void Bitboard::initializeTo(Bitboard &other) {$/;"	f	class:Bitboard	typeref:typename:void
+initializeTo	MonteCarloTree.h	/^		void initializeTo(MonteCarloTree& MCT) {$/;"	f	class:MonteCarloTree	typeref:typename:void
+insert	PieceGraph.cpp	/^void PieceGraph::insert(Bitboard& newBitboard) {$/;"	f	class:PieceGraph	typeref:typename:void
+insert	PieceNode.cpp	/^void PieceNode::insert( list <PieceNode*> &newNeighbors, Bitboard &newBitboard) {$/;"	f	class:PieceNode	typeref:typename:void
+insert	ProblemNode.cpp	/^void ProblemNodeContainer::insert(Bitboard& problemNodes) {$/;"	f	class:ProblemNodeContainer	typeref:typename:void
+insertPiece	ProblemNode.cpp	/^void ProblemNodeContainer::insertPiece(Bitboard & piece) {$/;"	f	class:ProblemNodeContainer	typeref:typename:void
+intRand	MonteCarloTree.cpp	/^int intRand(const int & min, const int & max) {$/;"	f	typeref:typename:int
+internalBoardCache	Bitboard.h	/^	set<int> internalBoardCache;$/;"	m	class:Bitboard	typeref:typename:set<int>
+internalBoards	Bitboard.h	/^	unsigned long long internalBoards[BITBOARD_SIZE];$/;"	m	class:Bitboard	typeref:typename:unsigned long long[]
+intersectionWith	Bitboard.cpp	/^void Bitboard::intersectionWith( Bitboard &other) {$/;"	f	class:Bitboard	typeref:typename:void
+ladybugStep	MoveGenerator.cpp	/^void MoveGenerator::ladybugStep(Bitboard& frontier,	$/;"	f	class:MoveGenerator	typeref:typename:void
+ladybugs	GameState.h	/^	Bitboard ladybugs;$/;"	m	class:GameState	typeref:typename:Bitboard
+load	Heuristic.cpp	/^void Heuristic::load(){$/;"	f	class:Heuristic	typeref:typename:void
+loadWeights	Heuristic.cpp	/^void Heuristic::loadWeights(string){$/;"	f	class:Heuristic	typeref:typename:void
+location	PieceNode.h	/^		unsigned long long location = 0;$/;"	m	class:PieceNode	typeref:typename:unsigned long long
+locationHashTable	ProblemNode.h	/^		unordered_map <int, list<Bitboard>> locationHashTable;$/;"	m	class:ProblemNodeContainer	typeref:typename:unordered_map<int,list<Bitboard>>
+lowLink	PieceNode.h	/^		int lowLink;$/;"	m	class:PieceNode	typeref:typename:int
+lowerLeftGate	ProblemNode.cpp	/^int lowerLeftGate = (BITBOARD_ROWS - 1)*BITBOARD_COLS;$/;"	v	typeref:typename:int
+main	Test.cpp	/^int main() {$/;"	f	typeref:typename:int
+makeMove	Arena.cpp	/^void Arena::makeMove(MoveInfo move){$/;"	f	class:Arena	typeref:typename:void
+makeMove	Arena.cpp	/^void Arena::makeMove(string move){$/;"	f	class:Arena	typeref:typename:void
+makePsuedoRandomMove	GameState.cpp	/^bool GameState::makePsuedoRandomMove() {$/;"	f	class:GameState	typeref:typename:bool
+makeTrueRandomMove	GameState.cpp	/^bool GameState::makeTrueRandomMove() {$/;"	f	class:GameState	typeref:typename:bool
+maxAvgScore	MonteCarloNode.h	/^		double maxAvgScore = -1;$/;"	m	class:MonteCarloNode	typeref:typename:double
+maxChildScore	MonteCarloNode.h	/^		double maxChildScore;$/;"	m	class:MonteCarloNode	typeref:typename:double
+minChildScore	MonteCarloNode.h	/^		double minChildScore;$/;"	m	class:MonteCarloNode	typeref:typename:double
+minLearningFraction	MonteCarloTree.cpp	/^double minLearningFraction = .1;$/;"	v	typeref:typename:double
+modulo	constants.cpp	/^unsigned modulo( int value, unsigned m) {$/;"	f	typeref:typename:unsigned
+mosquitoes	GameState.h	/^	Bitboard mosquitoes;$/;"	m	class:GameState	typeref:typename:Bitboard
+moveApproximation	GameState.cpp	/^int GameState::moveApproximation(Bitboard piece, bool isPinned){$/;"	f	class:GameState	typeref:typename:int
+moveGenerator	GameState.h	/^	MoveGenerator moveGenerator;$/;"	m	class:GameState	typeref:typename:MoveGenerator
+moveHistory	Arena.h	/^		vector<MoveInfo> moveHistory;$/;"	m	class:Arena	typeref:typename:vector<MoveInfo>
+moveHistoryNotation	Arena.h	/^		vector<string> moveHistoryNotation;$/;"	m	class:Arena	typeref:typename:vector<string>
+movePiece	GameState.cpp	/^MoveInfo GameState::movePiece(Bitboard& oldBitboard, Bitboard& newBitboard,$/;"	f	class:GameState	typeref:typename:MoveInfo
+moves	MoveGenerator.h	/^		Bitboard moves;$/;"	m	class:MoveGenerator	typeref:typename:Bitboard
+movesCollection	GameState.h	/^#define movesCollection /;"	d
+mtx	MonteCarloTree.h	/^		std::mutex mtx;$/;"	m	class:MonteCarloTree	typeref:typename:std::mutex
+multiplier	Weight.h	/^		double multiplier;$/;"	m	class:Weight	typeref:typename:double
+nameNotation	Arena.cpp	/^unordered_map<PieceName, string> nameNotation{ $/;"	v	typeref:typename:unordered_map<PieceName,string>
+nameNotationReverse	Arena.cpp	/^unordered_map<char, PieceName> nameNotationReverse{ $/;"	v	typeref:typename:unordered_map<char,PieceName>
+neighbors	PieceNode.h	/^		list <PieceNode*> neighbors;	$/;"	m	class:PieceNode	typeref:typename:list<PieceNode * >
+newPieceLocation	GameState.h	/^	Bitboard newPieceLocation;$/;"	m	struct:MoveInfo	typeref:typename:Bitboard
+nodeMap	MonteCarloTree.h	/^#define nodeMap /;"	d
+nodePtr	MonteCarloNode.h	/^#define nodePtr /;"	d
+notIntersectionWith	Bitboard.cpp	/^void Bitboard::notIntersectionWith( Bitboard &other) {$/;"	f	class:Bitboard	typeref:typename:void
+numCores	constants.cpp	/^int numCores = 1;$/;"	v	typeref:typename:int
+numDirections	ProblemNode.cpp	/^int numDirections = 6;$/;"	v	typeref:typename:int
+numVisited	MonteCarloNode.h	/^		int numVisited = 0;$/;"	m	class:MonteCarloNode	typeref:typename:int
+oldPieceLocation	GameState.h	/^	Bitboard oldPieceLocation;$/;"	m	struct:MoveInfo	typeref:typename:Bitboard
+operator ()	GameState.h	/^	std::size_t operator()(const MoveInfo& m)const {$/;"	f	struct:std::hash	typeref:typename:std::size_t
+operator =	Bitboard.h	/^	void operator = (const Bitboard& other) {$/;"	f	class:Bitboard	typeref:typename:void
+operator =	GameState.cpp	/^void GameState::operator=( const GameState& other){$/;"	f	class:GameState	typeref:typename:void
+operator =	PieceGraph.h	/^		void operator = (const PieceGraph& other) {$/;"	f	class:PieceGraph	typeref:typename:void
+operator ==	Bitboard.h	/^	bool operator == (const Bitboard& other) const {$/;"	f	class:Bitboard	typeref:typename:bool
+operator ==	Bitboard.h	/^	bool operator ==(Bitboard &other) {$/;"	f	class:Bitboard	typeref:typename:bool
+operator ==	GameState.h	/^	bool operator==(const MoveInfo& other) const {$/;"	f	struct:MoveInfo	typeref:typename:bool
+operator ==	PieceNode.h	/^		bool operator==(PieceNode &other) {$/;"	f	class:PieceNode	typeref:typename:bool
+operator []	Bitboard.h	/^	inline unsigned long long operator [](int index) {$/;"	f	class:Bitboard	typeref:typename:unsigned long long
+oppositeDirection	constants.cpp	/^unordered_map<Direction, Direction> oppositeDirection = $/;"	v	typeref:typename:unordered_map<Direction,Direction>
+overflowBitmask	Bitboard.cpp	/^unordered_map <Direction, unsigned long long> overflowBitmask =$/;"	v	typeref:typename:unordered_map<Direction,unsigned long long>
+overflowLocation	Bitboard.cpp	/^unordered_map <Direction, vector<int>> overflowLocation =$/;"	v	typeref:typename:unordered_map<Direction,vector<int>>
+parameters	Bitboard.cpp	/^unordered_map <Direction, vector<int>> parameters  = {$/;"	v	typeref:typename:unordered_map<Direction,vector<int>>
+parent	MonteCarloNode.h	/^		nodePtr parent;$/;"	m	class:MonteCarloNode	typeref:typename:nodePtr
+parent	PieceNode.h	/^		PieceNode * parent;$/;"	m	class:PieceNode	typeref:typename:PieceNode *
+parentGameState	Heuristic.h	/^		GameState parentGameState;$/;"	m	class:Heuristic	typeref:typename:GameState
+parentGameState	Weight.h	/^		GameState parentGameState;$/;"	m	class:Weight	typeref:typename:GameState
+pass	Test.cpp	/^void Test::pass(bool testPassed, string message){$/;"	f	class:Test	typeref:typename:void
+perfTest	Test.cpp	/^void perfTest() {$/;"	f	typeref:typename:void
+perimeter	MoveGenerator.h	/^		Bitboard perimeter;$/;"	m	class:MoveGenerator	typeref:typename:Bitboard
+pieceGraph	GameState.h	/^	PieceGraph pieceGraph;$/;"	m	class:GameState	typeref:typename:PieceGraph
+pieceMoves	GameState.h	/^	list < pair <Bitboard , Bitboard > > pieceMoves;$/;"	m	class:GameState	typeref:typename:list<pair<Bitboard,Bitboard>>
+pieceName	GameState.h	/^	PieceName pieceName = PieceName::LENGTH;$/;"	m	struct:MoveInfo	typeref:typename:PieceName
+pieceNum	Test.cpp	/^ unordered_map <string, int> pieceNum = {{"Q",0},$/;"	v	typeref:typename:unordered_map<string,int>
+pieceOrders	Arena.h	/^		unordered_map< int, vector<tuple<PieceName, PieceColor, string>>> pieceOrders;$/;"	m	class:Arena	typeref:typename:unordered_map<int,vector<tuple<PieceName,PieceColor,string>>>
+pieceSpawns	GameState.h	/^	Bitboard pieceSpawns;$/;"	m	class:GameState	typeref:typename:Bitboard
+pieceStacks	GameState.h	/^	unordered_map < int , stack < pair < PieceColor , PieceName > > > pieceStacks;$/;"	m	class:GameState	typeref:typename:unordered_map<int,stack<pair<PieceColor,PieceName>>>
+pieceStacks	MoveGenerator.h	/^		unordered_map < int, stack < pair < PieceColor , PieceName> > > * pieceStacks; $/;"	m	class:MoveGenerator	typeref:typename:unordered_map<int,stack<pair<PieceColor,PieceName>>> *
+piecesExceptCurrent	MoveGenerator.h	/^		Bitboard piecesExceptCurrent;$/;"	m	class:MoveGenerator	typeref:typename:Bitboard
+pillbugs	GameState.h	/^	Bitboard pillbugs;$/;"	m	class:GameState	typeref:typename:Bitboard
+pinned	GameState.h	/^	Bitboard pinned;    $/;"	m	class:GameState	typeref:typename:Bitboard
+playerOneCPU	Arena.h	/^		bool playerOneCPU = false;$/;"	m	class:Arena	typeref:typename:bool
+playerTwoCPU	Arena.h	/^		bool playerTwoCPU = false;$/;"	m	class:Arena	typeref:typename:bool
+playout	GameState.cpp	/^int GameState::playout(int limitMoves) {$/;"	f	class:GameState	typeref:typename:int
+playoutScore	MonteCarloNode.h	/^		double playoutScore;$/;"	m	class:MonteCarloNode	typeref:typename:double
+possibleNames	GameState.h	/^	set <PieceName> possibleNames;$/;"	m	class:GameState	typeref:typename:set<PieceName>
+potentialProblemNodes	ProblemNode.cpp	/^Bitboard potentialProblemNodes[] = {$/;"	v	typeref:typename:Bitboard[]
+prevImmobile	GameState.h	/^	Bitboard prevImmobile;$/;"	m	struct:MoveInfo	typeref:typename:Bitboard
+print	Bitboard.cpp	/^void Bitboard::print() {$/;"	f	class:Bitboard	typeref:typename:void
+print	GameState.cpp	/^void GameState::print() {$/;"	f	class:GameState	typeref:typename:void
+print	PieceNode.cpp	/^void PieceNode::print() {$/;"	f	class:PieceNode	typeref:typename:void
+problemNodeContainer	GameState.h	/^	ProblemNodeContainer problemNodeContainer;$/;"	m	class:GameState	typeref:typename:ProblemNodeContainer
+problemNodeExists	ProblemNode.cpp	/^bool ProblemNodeContainer::problemNodeExists(Bitboard& problemNode) {$/;"	f	class:ProblemNodeContainer	typeref:typename:bool
+problemNodeHashes	ProblemNode.h	/^		unordered_set <int> problemNodeHashes;$/;"	m	class:ProblemNodeContainer	typeref:typename:unordered_set<int>
+problemNodes	MoveGenerator.h	/^		ProblemNodeContainer *problemNodes;$/;"	m	class:MoveGenerator	typeref:typename:ProblemNodeContainer *
+problemNodesEnabled	MoveGenerator.h	/^		bool problemNodesEnabled = false;$/;"	m	class:MoveGenerator	typeref:typename:bool
+proven	MonteCarloNode.h	/^		bool proven = false;$/;"	m	class:MonteCarloNode	typeref:typename:bool
+pruneCache	Bitboard.cpp	/^void Bitboard::pruneCache(){$/;"	f	class:Bitboard	typeref:typename:void
+queens	GameState.h	/^	Bitboard queens;$/;"	m	class:GameState	typeref:typename:Bitboard
+randomMovePiece	GameState.cpp	/^void GameState::randomMovePiece(Bitboard& initialPiece,$/;"	f	class:GameState	typeref:typename:void
+randomSpawnPiece	GameState.cpp	/^void GameState::randomSpawnPiece(Bitboard& spawnLocations) {$/;"	f	class:GameState	typeref:typename:void
+randomSwapPiece	GameState.cpp	/^void GameState::randomSwapPiece(Bitboard swappable, Bitboard empty) {$/;"	f	class:GameState	typeref:typename:void
+rd	Bitboard.cpp	/^std::random_device rd;     \/\/Get a random seed from the OS entropy device, or whatever$/;"	v	typeref:typename:std::random_device
+release	Makefile	/^release: $/;"	t
+remove	PieceGraph.cpp	/^void PieceGraph::remove(Bitboard& oldBitboard) {$/;"	f	class:PieceGraph	typeref:typename:void
+remove	PieceNode.cpp	/^void PieceNode::remove() {$/;"	f	class:PieceNode	typeref:typename:void
+remove	ProblemNode.cpp	/^void ProblemNodeContainer::remove(Bitboard & problemNodes) {$/;"	f	class:ProblemNodeContainer	typeref:typename:void
+removePiece	ProblemNode.cpp	/^void ProblemNodeContainer::removePiece( Bitboard & piece) {$/;"	f	class:ProblemNodeContainer	typeref:typename:void
+replayMove	GameState.cpp	/^void GameState::replayMove(MoveInfo moveInfo) {$/;"	f	class:GameState	typeref:typename:void
+reposition	PieceGraph.cpp	/^void PieceGraph::reposition(Bitboard& oldBitboard, Bitboard& newBitboard) {$/;"	f	class:PieceGraph	typeref:typename:void
+reposition	PieceNode.cpp	/^void PieceNode::reposition(list <PieceNode*> &newNeighbors, Bitboard &newBitboard){$/;"	f	class:PieceNode	typeref:typename:void
+root	MonteCarloTree.h	/^		nodePtr root;$/;"	m	class:MonteCarloTree	typeref:typename:nodePtr
+rotateClockWise	constants.cpp	/^Direction rotateClockWise(Direction dir) {$/;"	f	typeref:typename:Direction
+rotateCounterClockWise	constants.cpp	/^Direction rotateCounterClockWise(Direction dir) {$/;"	f	typeref:typename:Direction
+save	Heuristic.cpp	/^void Heuristic::save(){$/;"	f	class:Heuristic	typeref:typename:void
+saveWeights	Heuristic.cpp	/^void Heuristic::saveWeights(string){$/;"	f	class:Heuristic	typeref:typename:void
+search	MonteCarloTree.cpp	/^MoveInfo MonteCarloTree::search(GameState& initialGameState){$/;"	f	class:MonteCarloTree	typeref:typename:MoveInfo
+selectBestLeaves	MonteCarloTree.cpp	/^nodeMap MonteCarloTree::selectBestLeaves(int maxSelection, GameState& initialGameState){$/;"	f	class:MonteCarloTree	typeref:typename:nodeMap
+selectionFunction	MonteCarloTree.cpp	/^double MonteCarloTree::selectionFunction(MoveInfo m, nodePtr currentParent) {$/;"	f	class:MonteCarloTree	typeref:typename:double
+setBoard	Bitboard.cpp	/^void Bitboard::setBoard(int boardIndex, unsigned long long board) {$/;"	f	class:Bitboard	typeref:typename:void
+setGameState	Heuristic.cpp	/^void Heuristic::setGameState(GameState& parentGameState) {$/;"	f	class:Heuristic	typeref:typename:void
+setGeneratingName	MoveGenerator.cpp	/^void MoveGenerator::setGeneratingName(PieceName * pieceNameIn) {$/;"	f	class:MoveGenerator	typeref:typename:void
+setGeneratingPieceBoard	MoveGenerator.cpp	/^void MoveGenerator::setGeneratingPieceBoard(Bitboard * b) {$/;"	f	class:MoveGenerator	typeref:typename:void
+setPieceStacks	MoveGenerator.cpp	/^void MoveGenerator::setPieceStacks(unordered_map <int , stack <pair < PieceColor , PieceName >>>/;"	f	class:MoveGenerator	typeref:typename:void
+setPlayer	Arena.cpp	/^void Arena::setPlayer(int playerNum, MonteCarloTree& searchAlgo) {$/;"	f	class:Arena	typeref:typename:void
+setUpperLevelPieces	MoveGenerator.cpp	/^void MoveGenerator::setUpperLevelPieces(Bitboard * in) {$/;"	f	class:MoveGenerator	typeref:typename:void
+shiftDirection	Bitboard.cpp	/^void Bitboard::shiftDirection(Direction dir) {$/;"	f	class:Bitboard	typeref:typename:void
+shiftDirection	Bitboard.cpp	/^void Bitboard::shiftDirection(Direction dir, int numTimes){$/;"	f	class:Bitboard	typeref:typename:void
+shiftOrthogonalDirection	Bitboard.cpp	/^void Bitboard::shiftOrthogonalDirection(Direction dir, int numTimes){$/;"	f	class:Bitboard	typeref:typename:void
+silent	Test.cpp	/^bool Test::silent = false;$/;"	m	class:Test	typeref:typename:bool
+silent	Test.h	/^		static bool silent;$/;"	m	class:Test	typeref:typename:bool
+simulate	MonteCarloTree.cpp	/^void MonteCarloTree::simulate(GameState gameState, double& result){$/;"	f	class:MonteCarloTree	typeref:typename:void
+singlePieces	Arena.cpp	/^set<PieceName> singlePieces = {MOSQUITO, QUEEN, LADYBUG, PILLBUG};$/;"	v	typeref:typename:set<PieceName>
+slowGetPerimeter	Bitboard.cpp	/^Bitboard Bitboard::slowGetPerimeter(){$/;"	f	class:Bitboard	typeref:typename:Bitboard
+spawnNames	GameState.h	/^	set <PieceName> spawnNames;$/;"	m	class:GameState	typeref:typename:set<PieceName>
+spiders	GameState.h	/^	Bitboard spiders;$/;"	m	class:GameState	typeref:typename:Bitboard
+split	Bitboard.cpp	/^unordered_map< int, vector < unsigned long long >> Bitboard::split(){$/;"	f	class:Bitboard	typeref:typename:unordered_map<int,vector<unsigned long long>>
+splitIntoBitboards	Bitboard.cpp	/^list <Bitboard> Bitboard::splitIntoBitboards() {$/;"	f	class:Bitboard	typeref:typename:list<Bitboard>
+splitIntoConnectedComponents	Bitboard.cpp	/^vector <Bitboard> Bitboard::splitIntoConnectedComponents(){$/;"	f	class:Bitboard	typeref:typename:vector<Bitboard>
+startSpawnBoard	GameState.cpp	/^Bitboard startSpawnBoard = Bitboard({{5, 34359738368u}});$/;"	v	typeref:typename:Bitboard
+swappableEmpty	GameState.h	/^	vector <pair<Bitboard, Bitboard>> swappableEmpty;$/;"	m	class:GameState	typeref:typename:vector<pair<Bitboard,Bitboard>>
+test	Makefile	/^test: $(DEPENDENCIES)$/;"	t
+testAntMoves	Test.cpp	/^void Test::MoveGeneratorTest::testAntMoves() {$/;"	f	class:Test::MoveGeneratorTest	typeref:typename:void
+testArenaNotation	Test.cpp	/^void Test::ArenaTest::testArenaNotation() {$/;"	f	class:Test::ArenaTest	typeref:typename:void
+testBattle	Test.cpp	/^void Test::ArenaTest::testBattle() {$/;"	f	class:Test::ArenaTest	typeref:typename:void
+testBeetleMoves	Test.cpp	/^void Test::MoveGeneratorTest::testBeetleMoves() {$/;"	f	class:Test::MoveGeneratorTest	typeref:typename:void
+testContainsAny	Test.cpp	/^void Test::BitboardTest::testContainsAny() {$/;"	f	class:Test::BitboardTest	typeref:typename:void
+testFastPerimeter	Test.cpp	/^void Test::BitboardTest::testFastPerimeter(){$/;"	f	class:Test::BitboardTest	typeref:typename:void
+testFastSpawnPiece	Test.cpp	/^void Test::GameStateTest::testFastSpawnPiece(){$/;"	f	class:Test::GameStateTest	typeref:typename:void
+testFindAllPinnedPieces	Test.cpp	/^void Test::PieceGraphTest::testFindAllPinnedPieces(){$/;"	f	class:Test::PieceGraphTest	typeref:typename:void
+testFindAllProblemNodes	Test.cpp	/^void Test::ProblemNodeContainerTest::testFindAllProblemNodes(){$/;"	f	class:Test::ProblemNodeContainerTest	typeref:typename:void
+testFloodFill	Test.cpp	/^void Test::BitboardTest::testFloodFill() {$/;"	f	class:Test::BitboardTest	typeref:typename:void
+testFloodFillStep	Test.cpp	/^void Test::BitboardTest::testFloodFillStep() {$/;"	f	class:Test::BitboardTest	typeref:typename:void
+testGrasshopperMoves	Test.cpp	/^void Test::MoveGeneratorTest::testGrasshopperMoves() {$/;"	f	class:Test::MoveGeneratorTest	typeref:typename:void
+testIntersectionWith	Test.cpp	/^void Test::BitboardTest::testIntersectionWith() {$/;"	f	class:Test::BitboardTest	typeref:typename:void
+testLadybugMoves	Test.cpp	/^void Test::MoveGeneratorTest::testLadybugMoves() {$/;"	f	class:Test::MoveGeneratorTest	typeref:typename:void
+testMovePiece	Test.cpp	/^void Test::GameStateTest::testMovePiece(){$/;"	f	class:Test::GameStateTest	typeref:typename:void
+testPillbugMoves	Test.cpp	/^void Test::MoveGeneratorTest::testPillbugMoves() {$/;"	f	class:Test::MoveGeneratorTest	typeref:typename:void
+testPlayout	Test.cpp	/^void Test::GameStateTest::testPlayout() {$/;"	f	class:Test::GameStateTest	typeref:typename:void
+testPsuedoRandom	Test.cpp	/^void Test::GameStateTest::testPsuedoRandom() {$/;"	f	class:Test::GameStateTest	typeref:typename:void
+testQueenMoves	Test.cpp	/^void Test::MoveGeneratorTest::testQueenMoves() {$/;"	f	class:Test::MoveGeneratorTest	typeref:typename:void
+testRemovePiece	Test.cpp	/^void Test::ProblemNodeContainerTest::testRemovePiece(bool noMessage){$/;"	f	class:Test::ProblemNodeContainerTest	typeref:typename:void
+testShiftDirection	Test.cpp	/^void Test::BitboardTest::testShiftDirection(){$/;"	f	class:Test::BitboardTest	typeref:typename:void
+testSpiderMoves	Test.cpp	/^void Test::MoveGeneratorTest::testSpiderMoves() {$/;"	f	class:Test::MoveGeneratorTest	typeref:typename:void
+testSplit	Test.cpp	/^void Test::BitboardTest::testSplit() {$/;"	f	class:Test::BitboardTest	typeref:typename:void
+testSplitIntoConnectedComponents	Test.cpp	/^void Test::BitboardTest::testSplitIntoConnectedComponents() {$/;"	f	class:Test::BitboardTest	typeref:typename:void
+testUnionWith	Test.cpp	/^void Test::BitboardTest::testUnionWith() {$/;"	f	class:Test::BitboardTest	typeref:typename:void
+testXorWith	Test.cpp	/^void Test::BitboardTest::testXorWith() {$/;"	f	class:Test::BitboardTest	typeref:typename:void
+toString	GameState.h	/^	const string toString(string prefix) const {$/;"	f	struct:MoveInfo	typeref:typename:const string
+toString	MonteCarloNode.h	/^		string toString(int depth, string prefix) {$/;"	f	class:MonteCarloNode	typeref:typename:string
+train	Heuristic.cpp	/^void Heuristic::train(vector<double> corrections){$/;"	f	class:Heuristic	typeref:typename:void
+train	MonteCarloNode.h	/^		vector <double> train(double maxExpectedScore , double minExpectedScore,$/;"	f	class:MonteCarloNode	typeref:typename:vector<double>
+train	MonteCarloTree.cpp	/^void MonteCarloTree::train(nodePtr node, set<nodePtr>& visited, vector<double>&corrections){$/;"	f	class:MonteCarloTree	typeref:typename:void
+trainingMode	MonteCarloTree.h	/^		bool trainingMode = false;$/;"	m	class:MonteCarloTree	typeref:typename:bool
+traverseToLeaf	MonteCarloTree.cpp	/^queue <MoveInfo> MonteCarloTree::traverseToLeaf(nodePtr& parent, set<nodePtr> disallowed){$/;"	f	class:MonteCarloTree	typeref:typename:queue<MoveInfo>
+turnColor	GameState.h	/^	PieceColor turnColor;$/;"	m	class:GameState	typeref:typename:PieceColor
+turnCounter	GameState.h	/^	int turnCounter = 0;$/;"	m	class:GameState	typeref:typename:int
+undoMove	GameState.cpp	/^void GameState::undoMove(MoveInfo moveInfo) {$/;"	f	class:GameState	typeref:typename:void
+unionWith	Bitboard.cpp	/^void Bitboard::unionWith( Bitboard &other){$/;"	f	class:Bitboard	typeref:typename:void
+unionWith	Bitboard.cpp	/^void Bitboard::unionWith(int boardIndex, unsigned long long board) {$/;"	f	class:Bitboard	typeref:typename:void
+unusedPieces	GameState.h	/^	vector <unordered_map <PieceName, int>> unusedPieces;$/;"	m	class:GameState	typeref:typename:vector<unordered_map<PieceName,int>>
+updateVisible	ProblemNode.cpp	/^void ProblemNodeContainer::updateVisible(Bitboard& locations) {$/;"	f	class:ProblemNodeContainer	typeref:typename:void
+upperLevelPieces	GameState.h	/^	Bitboard upperLevelPieces;$/;"	m	class:GameState	typeref:typename:Bitboard
+upperLevelPieces	MoveGenerator.h	/^		Bitboard * upperLevelPieces;$/;"	m	class:MoveGenerator	typeref:typename:Bitboard *
+visibleProblemNodes	ProblemNode.h	/^		Bitboard visibleProblemNodes;$/;"	m	class:ProblemNodeContainer	typeref:typename:Bitboard
+visitedNum	PieceNode.h	/^		int visitedNum;$/;"	m	class:PieceNode	typeref:typename:int
+weights	Heuristic.h	/^		vector <Weight> weights;$/;"	m	class:Heuristic	typeref:typename:vector<Weight>
+westernDirection	Arena.cpp	/^set<Direction> westernDirection = {NW, SW, W};$/;"	v	typeref:typename:set<Direction>
+whitePieces	GameState.h	/^	Bitboard whitePieces;$/;"	m	class:GameState	typeref:typename:Bitboard
+xorWith	Bitboard.cpp	/^void Bitboard::xorWith( Bitboard &other) {$/;"	f	class:Bitboard	typeref:typename:void
+~GameState	GameState.h	/^	~GameState() { destroy();}$/;"	f	class:GameState
+~PieceGraph	PieceGraph.h	/^		~PieceGraph() { destroy();}$/;"	f	class:PieceGraph

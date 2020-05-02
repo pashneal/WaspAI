@@ -44,6 +44,15 @@ enum PieceColor {
 Direction rotateClockWise(Direction dir);
 Direction rotateCounterClockWise(Direction dir);
 
+//MonteCarlo things;
+extern int numCores;
+extern int MonteCarloSimulations;
+extern int MonteCarloSimulationsCutoff;
+extern double explorationFactor;
+extern double heuristicFactor;
+extern double minLearningFration;
+extern double LEARNING_RATE;
+
 //random generator things
 extern std::random_device rd;
 extern std::mt19937_64 e2;

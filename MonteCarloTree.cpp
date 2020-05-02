@@ -1,5 +1,9 @@
 #include <algorithm>
 #include "MonteCarloTree.h"
+// don't bother attempting to learn from nodes unless 
+// its parent has been visited this proportion of times
+double minLearningFraction = .1;
+
 int intRand(const int & min, const int & max) {
     static thread_local std::mt19937 generator;
     std::uniform_int_distribution<int> distribution(min,max);

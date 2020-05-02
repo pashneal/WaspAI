@@ -1,5 +1,13 @@
 #include "constants.h"
 
+//MonteCarlo things
+double LEARNING_RATE = 0.2;
+int numCores = 1;
+int MonteCarloSimulations = 100;
+int MonteCarloSimulationsCutoff = 500;
+double explorationFactor = 1.41;
+double heuristicFactor = .5;
+
 unordered_map<Direction, Direction> oppositeDirection = 
 {
 	{Direction::N, Direction::S},
