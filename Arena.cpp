@@ -151,6 +151,8 @@ MoveInfo Arena::convertFromNotation(string notation) {
 	string pieceOrderString = "";
 	if (pieceIdentifier.size() > 2) {
 		pieceOrderString = pieceIdentifier[2];
+		if (pieceOrderString == "1" && singlePieces.find(move.pieceName) != singlePieces.end())
+			pieceOrderString = "";
 	}
 
 	//determine which piece the string corresponds to 
@@ -226,7 +228,6 @@ MoveInfo Arena::convertFromNotation(string notation) {
 
 //Assumes that specified move is legal
 void Arena::makeMove(string move){
-	moveHistoryNotation.push_back(move);
 	MoveInfo moveInfo = convertFromNotation(move);
 	makeMove(moveInfo);
 };
