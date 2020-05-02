@@ -346,11 +346,11 @@ bool Arena::battle(bool silent) {
 
 		}
 
-		currentGameState.replayMove(selectedMove);
 		if (!silent) {
 			string a = (isCPU) ? "Computer" : "Human";
 			cout << "[" << a << " Player " << i << "] " << convertToNotation(selectedMove) << endl;
 		}
+		currentGameState.replayMove(selectedMove);
 
 		if (currentGameState.checkDraw() || currentGameState.checkVictory() != PieceColor::NONE) {
 			if (!silent) {
