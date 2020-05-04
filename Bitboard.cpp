@@ -761,14 +761,13 @@ bool Bitboard::equals(Bitboard& other){
  */
 const pair <const int , const unsigned long long >
 Bitboard::getLeastSignificantBit () const {
-	pair <int, unsigned long long> LSB;
+	pair <int, unsigned long long> LSB{0,0};
 	int min = 12345678;
 	for (int i: internalBoardCache) 
 		min = (min < i) ? min : i;
-	LSB.first = min;
-	LSB.second = (internalBoards[min] &  -internalBoards[min]);
-
-	return LSB;
+	if (min == 12345678)
+		return LSB;
+	return {min, internalBoards[min] & -internalBoards[min]};
 }
 
 /*

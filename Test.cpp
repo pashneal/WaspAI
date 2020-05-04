@@ -1677,7 +1677,8 @@ void Test::GameStateTest::testPlayout() {
 }
 
 void Test::ArenaTest::testArenaNotation() {
-	int f = 50;
+	cout <<"====================TestArenaNotation====================" << endl;
+	int f = 1;
 	bool silenced = true;
 	srand(3);
 	while (f--) {
@@ -1719,12 +1720,123 @@ void Test::ArenaTest::testArenaNotation() {
 		}
 	}
 	Test::pass(true, "");
+	Arena arena(GameState(HivePLM, PieceColor::WHITE));
+	arena.makeMove("wP");
+	arena.makeMove("bG1 wP-");
+	arena.makeMove("wQ /wP");
+	arena.makeMove("bA1 bG1\\");
+	arena.makeMove("wB1 wQ\\");
+	arena.makeMove("bQ bG1/");
+	arena.makeMove("wS1 /wQ");
+	arena.makeMove("bA2 bQ/");
+	arena.makeMove("wL -wQ");
+	arena.makeMove("bA2 \\wQ");
+
+	set <string> expectedMoves {
+		"wB1 wQ-",
+		"wB1 wS1\\",
+		"wB1 wQ",
+		"wB1 wS1",
+		"wA1 wB1\\",
+		"wG1 wB1\\",
+		"wB2 wB1\\", 
+		"wS2 wB1\\",
+		"wM wB1\\",
+		"wA1 /wB1",
+		"wG1 /wB1",
+		"wB2 /wB1",
+		"wS2 /wB1",
+		"wM /wB1",
+		"wS1 wB1-",
+		"wS1 \\wL",
+		"wA1 /wS1",
+		"wG1 /wS1",
+		"wB2 /wS1",
+		"wS2 /wS1",
+		"wM /wS1",
+		"wA1 -wS1",
+		"wG1 -wS1",
+		"wB2 -wS1",
+		"wS2 -wS1",
+		"wM -wS1",
+		"wL \\wP",
+		"wL wP/",
+		"wL wP\\",
+		"wL wQ-",
+		"wL \\bA2",
+		"wL bA2/",
+		"wL -bA2",
+		"wL \\wP",
+		"wL wP/",
+		"wL wP\\",
+		"wL wB1/",
+		"wL wB1-",
+		"wL wB1\\",
+		"wL /wB1",
+		"wL wS1\\",
+		"wL /wS1",
+		"wL -wS1",
+		"wL wQ-",
+		"wL wB1/",
+		"wL wB1-",
+		"wL wB1\\",
+		"wL /wB1",
+		"wA1 -wL",
+		"wG1 -wL",
+		"wB2 -wL",
+		"wS2 -wL",
+		"wM -wL",
+		"wQ \\wP",
+		"wQ wP/",
+		"wQ wP\\"
+	};
+	unordered_set <MoveInfo> expectedMoveInfo;
+	for (auto move : expectedMoves){
+		expectedMoveInfo.insert(arena.convertFromNotation(move));
+	}
+
+	for (auto move: arena.currentGameState.generateAllMoves()){
+		if (expectedMoveInfo.find(move) == expectedMoveInfo.end()){
+			cout << "An illegal move was generated at this position" << endl;
+			cout << arena.convertToNotation(move) << endl;
+			throw 5;
+		}
+		expectedMoveInfo.erase(move);
+	}
+	Test::pass(!expectedMoveInfo.size(),"Not all legal moves were generated");
+
+	if (!expectedMoveInfo.size()) {
+		for (auto m : expectedMoveInfo) {
+			cout << arena.convertToNotation(m) << endl;
+		}
+	}
 }
 
 void Test::ArenaTest::testBattle() {
 	Arena arena(GameState(HivePLM, PieceColor::WHITE));
-	arena.battle(false);
+	arena.battle(true);
 }
+
+void Test::MonteCarloTest::testRandomSearch(){
+	bool silenced = false;
+
+	MonteCarloSimulations  = 2;
+	MonteCarloSimulationsCutoff = 500;
+
+	GameState newGameState(HivePLM, PieceColor::WHITE);
+	Heuristic h(RANDOM, {'P','L','M'});
+	Arena arena(newGameState);
+
+	while( !newGameState.checkDraw() && newGameState.checkVictory() == PieceColor::NONE) {
+		MonteCarloNode root;
+		MonteCarloTree MCT(h);
+		MoveInfo bestMove = MCT.search(arena.currentGameState);
+		if (!silenced)
+			cout << arena.convertToNotation(bestMove) << endl;
+		arena.makeMove(bestMove);
+	}
+}
+
 //creates a hashTable that stores the precomputed perimeter
 //of a given bitboard array
 //int maxNumber : the number of bits per board to precomputed
@@ -1911,6 +2023,7 @@ int main() {
 	//Test::GameStateTest::testPsuedoRandom();
 	//perfTest();
 	//Test::GameStateTest::testPlayout();
-	//Test::ArenaTest::testArenaNotation();
-	Test::ArenaTest::testBattle();
+	Test::ArenaTest::testArenaNotation();
+	//Test::ArenaTest::testBattle();
+	Test::MonteCarloTest::testRandomSearch();
 }

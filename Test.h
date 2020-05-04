@@ -67,6 +67,11 @@ class Test {
 				static void testArenaNotation();
 				static void testBattle();
 		};
+
+		class MonteCarloTest {
+			public:
+				static void testRandomSearch();
+		};
 		static void pass(bool, string);
 };
 

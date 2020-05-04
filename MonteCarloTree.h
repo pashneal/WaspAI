@@ -17,8 +17,9 @@ class MonteCarloTree {
 
 	public:
 		MonteCarloTree(){};
-		MonteCarloTree(MonteCarloNode* r, Heuristic& h)
-			:root(nodePtr(r)),currentHeuristic(h){};
+		MonteCarloTree(Heuristic& h)
+			:currentHeuristic(h){};
+
 		void initializeTo(MonteCarloTree& MCT) {
 			root  = MCT.root;
 			currentHeuristic = MCT.currentHeuristic;

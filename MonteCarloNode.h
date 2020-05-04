@@ -4,7 +4,7 @@
 #include "GameState.h"
 #include  "Heuristic.h"
 
-#define nodePtr shared_ptr<MonteCarloNode>
+#define nodePtr MonteCarloNode*
 //step size for error correction
 
 class MonteCarloNode{
@@ -22,9 +22,9 @@ class MonteCarloNode{
 	
 		
 		void createChild(MoveInfo m) {
-			MonteCarloNode child;
-			child.parent = nodePtr(this);
-			children[m] = nodePtr(&child);
+			nodePtr child = new MonteCarloNode();
+			child->parent = this;
+			children[m] = child;
 		}
 
 		//Heuristic must already have gameState updated to parent of this node
@@ -47,18 +47,18 @@ class MonteCarloNode{
 			}
 		}
 
+		//assumes parent is not null
 		void clearParent() {
-			parent.reset();
 			for (auto child: parent->children) 
-				if( child.second != nodePtr(this)) 
+				if( child.second != this) 
 					child.second -> clearChildren();
+			delete parent;
 		}
 
 		void clearChildren() {
-			parent.reset();
-			for (auto child: children) {
+			for (auto& child: children) {
 				child.second -> clearChildren();
-				child.second.reset();
+				delete child.second;
 			}
 			children.clear();
 		}
@@ -72,10 +72,9 @@ class MonteCarloNode{
 
 			//proportion of times this node or its siblings have been expanded
 			double  confidence = ((double)parent->numVisited)/ MonteCarloSimulations;
-
 			double expectedResults;
 			// score produced by node weights normalized by best sibling weights
-			if (minExpectedScore == maxExpectedScore)
+			if (minExpectedScore >= maxExpectedScore)
 				expectedResults = 1;
 			else 
 				expectedResults = (heuristicScore - minExpectedScore) / 
@@ -83,7 +82,8 @@ class MonteCarloNode{
 
 			// score produced by playouts normalized by best sibling playout score
 			// this way expectedResults approximate best move within given options
-			double actualResults = (numVisited) ? ((playoutScore)/numVisited)/maxAvgScore : 0;
+			double actualResults = (numVisited && maxAvgScore > 0) ? 
+					((playoutScore)/numVisited)/maxAvgScore : 0;
 			vector <double> corrections;
 
 			for (double score: heuristicEvals) {

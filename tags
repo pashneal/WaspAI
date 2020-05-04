@@ -55,8 +55,9 @@ MOSQUITO	constants.h	/^	MOSQUITO=4,$/;"	e	enum:PieceName
 MonteCarloNode	MonteCarloNode.h	/^class MonteCarloNode{$/;"	c
 MonteCarloSimulations	constants.cpp	/^int MonteCarloSimulations = 100;$/;"	v	typeref:typename:int
 MonteCarloSimulationsCutoff	constants.cpp	/^int MonteCarloSimulationsCutoff = 500;$/;"	v	typeref:typename:int
+MonteCarloTest	Test.h	/^		class MonteCarloTest {$/;"	c	class:Test
 MonteCarloTree	MonteCarloTree.h	/^		MonteCarloTree(){};$/;"	f	class:MonteCarloTree
-MonteCarloTree	MonteCarloTree.h	/^		MonteCarloTree(MonteCarloNode* r, Heuristic& h)$/;"	f	class:MonteCarloTree
+MonteCarloTree	MonteCarloTree.h	/^		MonteCarloTree(Heuristic& h)$/;"	f	class:MonteCarloTree
 MonteCarloTree	MonteCarloTree.h	/^class MonteCarloTree {$/;"	c
 MonteCarloTree.o	Makefile	/^MonteCarloTree.o: MonteCarloNode.h  MonteCarloTree.h MonteCarloTree.cpp constants.h$/;"	t
 MoveGenerator	MoveGenerator.cpp	/^MoveGenerator::MoveGenerator(Bitboard * allPiecesIn , ProblemNodeContainer * problemNodesIn) {$/;"	f	class:MoveGenerator
@@ -109,7 +110,6 @@ WaspAI	README.md	/^# WaspAI$/;"	c
 Weight	Weight.h	/^		Weight (){}$/;"	f	class:Weight
 Weight	Weight.h	/^		Weight (double multiplier): multiplier(multiplier){};$/;"	f	class:Weight
 Weight	Weight.h	/^class Weight {$/;"	c
-__anon214dabbd0102	Arena.cpp	/^		auto isValidMove = [&](string move) {$/;"	f	function:Arena::battle	file:
 adjustOverflowMask	Bitboard.cpp	/^unsigned long long Bitboard::adjustOverflowMask($/;"	f	class:Bitboard	typeref:typename:unsigned long long
 allPieces	GameState.h	/^	Bitboard allPieces;$/;"	m	class:GameState	typeref:typename:Bitboard
 allPieces	MoveGenerator.h	/^		Bitboard * allPieces;$/;"	m	class:MoveGenerator	typeref:typename:Bitboard *
@@ -399,6 +399,7 @@ testPillbugMoves	Test.cpp	/^void Test::MoveGeneratorTest::testPillbugMoves() {$/
 testPlayout	Test.cpp	/^void Test::GameStateTest::testPlayout() {$/;"	f	class:Test::GameStateTest	typeref:typename:void
 testPsuedoRandom	Test.cpp	/^void Test::GameStateTest::testPsuedoRandom() {$/;"	f	class:Test::GameStateTest	typeref:typename:void
 testQueenMoves	Test.cpp	/^void Test::MoveGeneratorTest::testQueenMoves() {$/;"	f	class:Test::MoveGeneratorTest	typeref:typename:void
+testRandomSearch	Test.cpp	/^void Test::MonteCarloTest::testRandomSearch(){$/;"	f	class:Test::MonteCarloTest	typeref:typename:void
 testRemovePiece	Test.cpp	/^void Test::ProblemNodeContainerTest::testRemovePiece(bool noMessage){$/;"	f	class:Test::ProblemNodeContainerTest	typeref:typename:void
 testShiftDirection	Test.cpp	/^void Test::BitboardTest::testShiftDirection(){$/;"	f	class:Test::BitboardTest	typeref:typename:void
 testSpiderMoves	Test.cpp	/^void Test::MoveGeneratorTest::testSpiderMoves() {$/;"	f	class:Test::MoveGeneratorTest	typeref:typename:void

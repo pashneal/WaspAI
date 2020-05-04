@@ -18,12 +18,14 @@ int intRand(const int & min, const int & max) {
  */
 nodeMap MonteCarloTree::selectBestLeaves(int maxSelection, GameState& initialGameState){
 	nodeMap returnMap;
+	//maps nodePtr -> bestScore, bestMove for all children at nodePtr
 	map<nodePtr, map<double, MoveInfo, std::greater<double>>> candidateNodes;
 	set<nodePtr> visited;
 
 	map<double, MoveInfo, std::greater<double>> rootMoves;
 	//store root's children as candidate selections
 	for (auto child: root->children) {
+		//child.first = nodePtr to child
 		rootMoves[selectionFunction(child.first, root)] = child.first;
 	}
 	candidateNodes[root] = rootMoves;
@@ -160,11 +162,13 @@ void MonteCarloTree::backPropagate(nodePtr leafPtr, double result){
 //supports training mode based on trainingMode variable
 MoveInfo MonteCarloTree::search(GameState& initialGameState){
 	//delete the old tree
-	root->clearChildren();		
-	root.reset();
+	if (root != nullptr){
+		root->clearChildren();		
+		delete root;
+	}
 
 	//create a new tree
-	root = nodePtr(new MonteCarloNode);
+	root = new MonteCarloNode();
 	MoveInfo empty;
 	expand(root, initialGameState, empty);
 
@@ -217,7 +221,7 @@ MoveInfo MonteCarloTree::search(GameState& initialGameState){
 
 		//backPropagate for each result
 		i = 0;
-		for (auto leafNode: newLeafNodes) {
+		for (auto& leafNode: newLeafNodes) {
 			backPropagate(leafNode.first,results[i]);
 			i++;
 		}
@@ -242,8 +246,9 @@ MoveInfo MonteCarloTree::search(GameState& initialGameState){
 	double max = -1;
 	MoveInfo bestMove;
 	for (auto child: root->children) {
-		if (child.second->playoutScore/ child.second->numVisited > max) {
-			max = child.second->playoutScore/child.second->numVisited;
+		int denominator = std::max(child.second->numVisited, 1);
+		if (child.second->playoutScore/ denominator > max) {
+			max = child.second->playoutScore/denominator;
 			bestMove = child.first;
 		}
 	}
@@ -265,6 +270,7 @@ void MonteCarloTree::train(nodePtr node, set<nodePtr>& visited, vector<double>&c
 		//Randomly order the traversal of children to minimize collision with 
 		//other threads
 		static thread_local std::mt19937 generator(rd());
+
 		std::shuffle(shuffled.begin(), shuffled.end(), generator);
 
 		//perform a DFS on all nodes in the tree and train using results
@@ -286,7 +292,9 @@ void MonteCarloTree::train(nodePtr node, set<nodePtr>& visited, vector<double>&c
 		if (node->parent->maxAvgScore == -1) {
 			double max = -1;
 			for (auto child: node->parent->children) {
-				max = std::max(child.second->playoutScore / child.second->numVisited, max);
+				int denominator = std::max(child.second->numVisited, 1);
+				max = std::max(child.second->playoutScore / denominator,  max);
+
 			}
 			//lock threads to prevent race condition
 			mtx.lock();
@@ -310,13 +318,16 @@ void MonteCarloTree::train(nodePtr node, set<nodePtr>& visited, vector<double>&c
 // tweaked to include weights guided by heuristics
 double MonteCarloTree::selectionFunction(MoveInfo m, nodePtr currentParent) {
 	const auto child = currentParent-> children[m];
-	double heuristicEstimation = (child->heuristicScore - 
-								  currentParent->minChildScore) /
-								 (currentParent->maxChildScore - 
-								  currentParent->minChildScore);
-	int numVisited = std::max(child->numVisited, 1);
-	double exploration = sqrt(std::log(currentParent->numVisited)/numVisited);
-	double meanEstimation = child->playoutScore / numVisited;
+	const double maxChildScore = currentParent->maxChildScore;
+	const double minChildScore = currentParent->minChildScore;
+	double denominator = (maxChildScore > minChildScore) ? 1 : maxChildScore - minChildScore;
+	double heuristicEstimation = (child->heuristicScore - minChildScore) / denominator;
+
+	int childNumVisited = std::max(child->numVisited, 1);
+	int parentNumVisited = std::max(currentParent->numVisited, 1);
+
+	double exploration = sqrt(std::log(parentNumVisited)/childNumVisited);
+	double meanEstimation = child->playoutScore / childNumVisited;
 
 	return heuristicEstimation*heuristicFactor +
 		   meanEstimation *(1-heuristicFactor) +

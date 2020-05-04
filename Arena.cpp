@@ -193,14 +193,16 @@ MoveInfo Arena::convertFromNotation(string notation) {
 		string pieceOrderString = "";
 		bool containsDirection = false;
 		char dir;
-		for (char c: symbols) 
+
+		for (char c: symbols) {
 			if (newLocation.find(c) != string::npos)  {
 				containsDirection = true;
 				dir = c;
 				break;
 			}
+		}
 
-		if (newLocation.size() > (2 + containsDirection)) {
+		if ((int)newLocation.size() > (2 + containsDirection)) {
 			pieceOrderString = newLocation[2 + isWesternDirection];
 		}
 		// since many pieces of a given name and color
