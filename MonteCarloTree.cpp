@@ -93,7 +93,7 @@ queue <MoveInfo> MonteCarloTree::traverseToLeaf(nodePtr& parent, set<nodePtr> di
 		nodePtr bestLeaf = nullptr;
 		MoveInfo bestMove;
 		for (auto child : parent->children) {
-			if (disallowed.find(child.second) == disallowed.end()) continue;
+			if (disallowed.find(child.second) != disallowed.end()) continue;
 			if (bestScore < child.second->heuristicScore) {
 				bestScore = child.second->heuristicScore;
 				bestLeaf = child.second;
@@ -320,7 +320,9 @@ double MonteCarloTree::selectionFunction(MoveInfo m, nodePtr currentParent) {
 	const auto child = currentParent-> children[m];
 	const double maxChildScore = currentParent->maxChildScore;
 	const double minChildScore = currentParent->minChildScore;
-	double denominator = (maxChildScore > minChildScore) ? 1 : maxChildScore - minChildScore;
+
+	double denominator = ((maxChildScore - minChildScore) < .0001 ) ?
+			1 : maxChildScore - minChildScore;
 	double heuristicEstimation = (child->heuristicScore - minChildScore) / denominator;
 
 	int childNumVisited = std::max(child->numVisited, 1);

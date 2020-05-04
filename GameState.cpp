@@ -526,13 +526,11 @@ bool GameState::makePsuedoRandomMove() {
 	vector<movesCollection> movesPerPiece((int)PieceName::LENGTH);
 
 	int total = 0;
-	int prevTotal;
 
 	Bitboard test;
 
 	//add a slot for each piece found
 	for (auto name : possibleNames) {
-
 		test.initializeTo(*getPieces(name));
 		test.intersectionWith(notCovered); 
 
@@ -544,7 +542,6 @@ bool GameState::makePsuedoRandomMove() {
 				//if (numMoves == 0) continue;
 				movesPerPiece[name].push_back(make_pair(piece, numMoves));
 				total += numMoves;
-				prevTotal = total;
 			}
 		}
 	}
