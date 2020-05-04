@@ -136,10 +136,14 @@ void MonteCarloTree::simulate(GameState gameState, double& result){
 	if (!gameState.checkDraw() && gameState.checkVictory() == PieceColor::NONE)
 		gameState.playout(MonteCarloSimulationsCutoff);
 
-	if (gameState.checkDraw())
+	if (gameState.checkDraw()){
 		result = .5;
-	else if (gameState.checkVictory() != PieceColor::NONE) 
+		return;
+	}
+	else if (gameState.checkVictory() != PieceColor::NONE) {
 		result =  1*(gameState.checkVictory() == initialTurnColor);
+		return;
+	}
 	result = gameState.approximateEndResult();
 };
 
@@ -177,6 +181,7 @@ MoveInfo MonteCarloTree::search(GameState& initialGameState){
 	int numTrials = MonteCarloSimulations;
 
 	while (numTrials>0) {
+			
 		nodeMap leafNodes = selectBestLeaves(numCores, initialGameState);
 		vector<MoveInfo> bestMoves;
 
