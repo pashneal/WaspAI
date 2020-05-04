@@ -1827,7 +1827,7 @@ void Test::MonteCarloTest::testRandomSearch(){
 	Heuristic h(RANDOM, {'P','L','M'});
 	Arena arena(newGameState);
 
-	while( !newGameState.checkDraw() && newGameState.checkVictory() == PieceColor::NONE) {
+	while( !arena.currentGameState.checkDraw() && arena.currentGameState.checkVictory() == PieceColor::NONE) {
 		MonteCarloNode root;
 		MonteCarloTree MCT(h);
 		MoveInfo bestMove = MCT.search(arena.currentGameState);
