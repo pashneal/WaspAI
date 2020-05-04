@@ -104,13 +104,19 @@ string Arena::convertToNotation(MoveInfo move){
 		return notation;
 	}
 
+
+	Bitboard piecesExceptCurrent(currentGameState.allPieces);
+	piecesExceptCurrent.notIntersectionWith(move.oldPieceLocation);
+
 	//find a relative direction to connect to (if not the first piece)
 	for (auto direction: hexagonalDirections) {
 		test.initializeTo(move.newPieceLocation);
 		test.shiftDirection(direction);
-		if (currentGameState.allPieces.containsAny(test)) {
+
+		if (piecesExceptCurrent.containsAny(test)) {
 			notation += " ";
 			Direction opposite = oppositeDirection[direction];
+
 			//use the direction that is opposite in notation
 			if (westernDirection.find(opposite) != westernDirection.end())
 				notation += dirNotation[opposite];
