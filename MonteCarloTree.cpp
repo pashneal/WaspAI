@@ -197,7 +197,7 @@ MoveInfo MonteCarloTree::search(GameState& initialGameState){
 			threads[i].join();
 
 		//use multithreading to perform game simulations
-		vector<double> results(0,leafNodes.size());
+		vector<double> results(leafNodes.size());
 		threads.clear();
 		i = 0;
 		nodeMap newLeafNodes;
