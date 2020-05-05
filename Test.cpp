@@ -1820,7 +1820,9 @@ void Test::ArenaTest::testBattle() {
 void Test::MonteCarloTest::testRandomSearch(){
 	bool silenced = false;
 
-	MonteCarloSimulations  = 2;
+
+	numCores = 3;
+	MonteCarloSimulations  = 100;
 	MonteCarloSimulationsCutoff = 500;
 
 	GameState newGameState(HivePLM, PieceColor::WHITE);

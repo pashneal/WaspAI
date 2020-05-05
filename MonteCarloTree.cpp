@@ -18,62 +18,28 @@ int intRand(const int & min, const int & max) {
  */
 nodeMap MonteCarloTree::selectBestLeaves(int maxSelection, GameState& initialGameState){
 	nodeMap returnMap;
-	//maps nodePtr -> bestScore, bestMove for all children at nodePtr
-	map<nodePtr, map<double, MoveInfo, std::greater<double>>> candidateNodes;
-	set<nodePtr> visited;
-
-	map<double, MoveInfo, std::greater<double>> rootMoves;
-	//store root's children as candidate selections
-	for (auto child: root->children) {
-		//child.first = nodePtr to child
-		rootMoves[selectionFunction(child.first, root)] = child.first;
-	}
-	candidateNodes[root] = rootMoves;
-
-	for (int i = maxSelection; i--; ){
-		GameState newGameState = initialGameState;
-
-		//find best candidate node
-		nodePtr bestPointer = nullptr;
-		double bestScore = -HUGE_VAL;
-		for (auto node: candidateNodes) {
-			if (bestScore < node.second.begin()->first) {
-				bestScore = node.second.begin()->first;
-				bestPointer = node.first;
+	int count = maxSelection;
+	while (count--){
+		nodePtr selectedChild;
+		double bestChildResult  = -HUGE_VAL;
+		for (auto child: root->children){
+			//add noise to spread out the results
+			double noise = (dist(e2) % 10000)/1000000.0;
+			double result = selectionFunction(child.first, root);
+			result += noise;
+			if (bestChildResult < result) {
+				selectedChild = child.second;
+				bestChildResult = result;
 			}
+			
 		}
-		if (bestPointer == nullptr) 
-			bestPointer = root;
-		else {
-			//erase so you don't select the same pointer twice
-			candidateNodes[bestPointer].erase(bestScore);
-		}
-		
-		//select the best leaf from the given position
-		queue<MoveInfo> moveHistory = traverseToLeaf(bestPointer, visited);	
-
-		//if we could not find best leaf cancel this thread
-		if (bestPointer == nullptr) continue;
-
-		//replay all moves to update gameState to leaf
+		queue<MoveInfo> moveHistory = traverseToLeaf(selectedChild, {});
+		GameState newGameState = initialGameState;
 		while (moveHistory.size()) {
 			newGameState.replayMove(moveHistory.front());
 			moveHistory.pop();
 		}
-
-		//store the best leaf and game state	
-		returnMap[bestPointer] = newGameState;
-		visited.insert(bestPointer);
-
-		//create map from sibling nodes if parent is unique
-		auto parent = bestPointer->parent;
-		if (candidateNodes.find(parent) == candidateNodes.end()) {
-			map<double, MoveInfo, std::greater<double>> parentMoves;
-			for (auto child: parent->children) {
-				if (child.second != bestPointer)
-					parentMoves[selectionFunction(child.first, parent)] = child.first;
-			}
-		}
+		returnMap[selectedChild] = newGameState;
 	}
 	return returnMap;
 }
@@ -94,8 +60,9 @@ queue <MoveInfo> MonteCarloTree::traverseToLeaf(nodePtr& parent, set<nodePtr> di
 		MoveInfo bestMove;
 		for (auto child : parent->children) {
 			if (disallowed.find(child.second) != disallowed.end()) continue;
-			if (bestScore < child.second->heuristicScore) {
-				bestScore = child.second->heuristicScore;
+			double candidateScore = selectionFunction(child.first, parent);
+			if (bestScore < candidateScore) {
+				bestScore = candidateScore; 
 				bestLeaf = child.second;
 				bestMove = child.first;
 			}
@@ -185,6 +152,7 @@ MoveInfo MonteCarloTree::search(GameState& initialGameState){
 		nodeMap leafNodes = selectBestLeaves(numCores, initialGameState);
 		vector<MoveInfo> bestMoves;
 
+
 		//use multithreading to expand nodes
 		for (auto leafNode: leafNodes)
 			bestMoves.push_back(MoveInfo());
@@ -234,11 +202,13 @@ MoveInfo MonteCarloTree::search(GameState& initialGameState){
 		numTrials -= leafNodes.size();
 	}
 
+
 	//train the heuristic model
 	if (trainingMode) {
 		vector <double> corrections(0, currentHeuristic.NUMWEIGHTS);
 		set<nodePtr> visited;
 		vector<std::thread> threads;
+
 		for (int i = numCores;i--;)
 			threads.push_back(std::thread(&MonteCarloTree::train, this, root,
 							  std::ref(visited), std::ref(corrections)));
@@ -250,13 +220,18 @@ MoveInfo MonteCarloTree::search(GameState& initialGameState){
 	//choose and return best move
 	double max = -1;
 	MoveInfo bestMove;
+	string v, h;
 	for (auto child: root->children) {
 		int denominator = std::max(child.second->numVisited, 1);
+		v += to_string(child.second->numVisited) + " " ;
+		h += to_string(selectionFunction(child.first, root)) + " ";
 		if (child.second->playoutScore/ denominator > max) {
 			max = child.second->playoutScore/denominator;
 			bestMove = child.first;
 		}
 	}
+	
+	cout << v << endl << endl << h << endl;
 	return bestMove;
 }
 

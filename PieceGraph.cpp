@@ -9,7 +9,6 @@
 void PieceGraph::insert(Bitboard& newBitboard) {
 
 	if (!(allPieces.containsAny(newBitboard))) {
-
 		PieceNode * newPieceNode = new PieceNode();
 		Bitboard perimeter = newBitboard.getPerimeter();
 
@@ -24,8 +23,6 @@ void PieceGraph::insert(Bitboard& newBitboard) {
 		bitboardHashTable[newBitboard.hash()] = newPieceNode;
 
 		allPieces.unionWith(newBitboard);
-	} else {
-		cout << "you attempted to insert a piece that already exists" << endl;
 	}
 
 }
