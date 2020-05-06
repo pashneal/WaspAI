@@ -1820,8 +1820,6 @@ void Test::ArenaTest::testBattle() {
 void Test::MonteCarloTest::testRandomSearch(){
 	bool silenced = false;
 
-
-	numCores = 3;
 	MonteCarloSimulations  = 100;
 	MonteCarloSimulationsCutoff = 500;
 
@@ -1832,7 +1830,7 @@ void Test::MonteCarloTest::testRandomSearch(){
 	while( !arena.currentGameState.checkDraw() && arena.currentGameState.checkVictory() == PieceColor::NONE) {
 		MonteCarloNode root;
 		MonteCarloTree MCT(h);
-		MoveInfo bestMove = MCT.search(arena.currentGameState);
+		MoveInfo bestMove = MCT.multiSearch(arena.currentGameState, 2);
 		if (!silenced)
 			cout << arena.convertToNotation(bestMove) << endl;
 		arena.makeMove(bestMove);

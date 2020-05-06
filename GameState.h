@@ -33,15 +33,15 @@ struct MoveInfo {
 			   prefix + to_string(pieceName) + "\n";
 	}
 };
-
 template <>
 struct std::hash<MoveInfo> {
-	std::size_t operator()(const MoveInfo& m)const {
-		auto LSB1 = m.newPieceLocation.getLeastSignificantBit();
-		auto LSB2  = m.oldPieceLocation.getLeastSignificantBit();
-		return (m.pieceName << 16) + ((__builtin_ctzll(LSB1.second) << 8)
-				+ __builtin_ctzll(LSB2.second));
-	}
+       std::size_t operator()(const MoveInfo& m)const {
+               auto LSB1 = m.newPieceLocation.getLeastSignificantBit();
+               auto LSB2  = m.oldPieceLocation.getLeastSignificantBit();
+               return  ((__builtin_ctzll(LSB1.second) << 8)
+                               + __builtin_ctzll(LSB2.second));
+
+	   };
 };
 
 class GameState {

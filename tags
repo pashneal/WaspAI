@@ -175,7 +175,7 @@ evaluate	MonteCarloNode.h	/^		inline void evaluate(Heuristic& h, MoveInfo m){$/;
 evaluate	Weight.h	/^		double evaluate(MoveInfo m) {$/;"	f	class:SimpleMoveCountWeight	typeref:typename:double
 evaluate	Weight.h	/^		virtual double evaluate(MoveInfo){return 0;};$/;"	f	class:Weight	typeref:typename:double
 evaluateAllChildren	MonteCarloNode.h	/^		void evaluateAllChildren(Heuristic& h,GameState& gameState) {$/;"	f	class:MonteCarloNode	typeref:typename:void
-expand	MonteCarloTree.cpp	/^void MonteCarloTree::expand(nodePtr leafPtr, GameState leafGameState, MoveInfo& bestMove) {$/;"	f	class:MonteCarloTree	typeref:typename:void
+expand	MonteCarloTree.cpp	/^MoveInfo MonteCarloTree::expand(nodePtr leafPtr, GameState leafGameState) {$/;"	f	class:MonteCarloTree	typeref:typename:MoveInfo
 explorationFactor	constants.cpp	/^double explorationFactor = 1.41;$/;"	v	typeref:typename:double
 fastInsertPiece	GameState.cpp	/^void GameState::fastInsertPiece(Bitboard& bitboard, PieceName name, PieceColor color) {$/;"	f	class:GameState	typeref:typename:void
 fastMovePiece	GameState.cpp	/^void GameState::fastMovePiece(Bitboard& oldBitboard, Bitboard& newBitboard) {$/;"	f	class:GameState	typeref:typename:void
@@ -354,8 +354,8 @@ rotateClockWise	constants.cpp	/^Direction rotateClockWise(Direction dir) {$/;"	f
 rotateCounterClockWise	constants.cpp	/^Direction rotateCounterClockWise(Direction dir) {$/;"	f	typeref:typename:Direction
 save	Heuristic.cpp	/^void Heuristic::save(){$/;"	f	class:Heuristic	typeref:typename:void
 saveWeights	Heuristic.cpp	/^void Heuristic::saveWeights(string){$/;"	f	class:Heuristic	typeref:typename:void
-search	MonteCarloTree.cpp	/^MoveInfo MonteCarloTree::search(GameState& initialGameState){$/;"	f	class:MonteCarloTree	typeref:typename:MoveInfo
-selectBestLeaves	MonteCarloTree.cpp	/^nodeMap MonteCarloTree::selectBestLeaves(int maxSelection, GameState& initialGameState){$/;"	f	class:MonteCarloTree	typeref:typename:nodeMap
+search	MonteCarloTree.cpp	/^MoveInfo MonteCarloTree::search(GameState& initialGameState, int numTrials){$/;"	f	class:MonteCarloTree	typeref:typename:MoveInfo
+selectBestLeaf	MonteCarloTree.cpp	/^queue <MoveInfo> MonteCarloTree::selectBestLeaf(nodePtr& parent){$/;"	f	class:MonteCarloTree	typeref:typename:queue<MoveInfo>
 selectionFunction	MonteCarloTree.cpp	/^double MonteCarloTree::selectionFunction(MoveInfo m, nodePtr currentParent) {$/;"	f	class:MonteCarloTree	typeref:typename:double
 setBoard	Bitboard.cpp	/^void Bitboard::setBoard(int boardIndex, unsigned long long board) {$/;"	f	class:Bitboard	typeref:typename:void
 setGameState	Heuristic.cpp	/^void Heuristic::setGameState(GameState& parentGameState) {$/;"	f	class:Heuristic	typeref:typename:void
@@ -369,7 +369,7 @@ shiftDirection	Bitboard.cpp	/^void Bitboard::shiftDirection(Direction dir, int n
 shiftOrthogonalDirection	Bitboard.cpp	/^void Bitboard::shiftOrthogonalDirection(Direction dir, int numTimes){$/;"	f	class:Bitboard	typeref:typename:void
 silent	Test.cpp	/^bool Test::silent = false;$/;"	m	class:Test	typeref:typename:bool
 silent	Test.h	/^		static bool silent;$/;"	m	class:Test	typeref:typename:bool
-simulate	MonteCarloTree.cpp	/^void MonteCarloTree::simulate(GameState gameState, double& result){$/;"	f	class:MonteCarloTree	typeref:typename:void
+simulate	MonteCarloTree.cpp	/^double MonteCarloTree::simulate(GameState gameState){$/;"	f	class:MonteCarloTree	typeref:typename:double
 singlePieces	Arena.cpp	/^set<PieceName> singlePieces = {MOSQUITO, QUEEN, LADYBUG, PILLBUG};$/;"	v	typeref:typename:set<PieceName>
 slowGetPerimeter	Bitboard.cpp	/^Bitboard Bitboard::slowGetPerimeter(){$/;"	f	class:Bitboard	typeref:typename:Bitboard
 spawnNames	GameState.h	/^	set <PieceName> spawnNames;$/;"	m	class:GameState	typeref:typename:set<PieceName>
@@ -413,7 +413,6 @@ train	Heuristic.cpp	/^void Heuristic::train(vector<double> corrections){$/;"	f	c
 train	MonteCarloNode.h	/^		vector <double> train(double maxExpectedScore , double minExpectedScore,$/;"	f	class:MonteCarloNode	typeref:typename:vector<double>
 train	MonteCarloTree.cpp	/^void MonteCarloTree::train(nodePtr node, set<nodePtr>& visited, vector<double>&corrections){$/;"	f	class:MonteCarloTree	typeref:typename:void
 trainingMode	MonteCarloTree.h	/^		bool trainingMode = false;$/;"	m	class:MonteCarloTree	typeref:typename:bool
-traverseToLeaf	MonteCarloTree.cpp	/^queue <MoveInfo> MonteCarloTree::traverseToLeaf(nodePtr& parent, set<nodePtr> disallowed){$/;"	f	class:MonteCarloTree	typeref:typename:queue<MoveInfo>
 turnColor	GameState.h	/^	PieceColor turnColor;$/;"	m	class:GameState	typeref:typename:PieceColor
 turnCounter	GameState.h	/^	int turnCounter = 0;$/;"	m	class:GameState	typeref:typename:int
 undoMove	GameState.cpp	/^void GameState::undoMove(MoveInfo moveInfo) {$/;"	f	class:GameState	typeref:typename:void

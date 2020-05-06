@@ -11,9 +11,7 @@
 
 //TODO: background search while opponent's turn
 class MonteCarloTree {
-		nodePtr root;
 		Heuristic currentHeuristic;
-		std::mutex mtx;
 
 	public:
 		MonteCarloTree(){};
@@ -21,23 +19,23 @@ class MonteCarloTree {
 			:currentHeuristic(h){};
 
 		void initializeTo(MonteCarloTree& MCT) {
-			root  = MCT.root;
 			currentHeuristic = MCT.currentHeuristic;
 		}
+		
 		//toggles the training procedure in search()
 		bool trainingMode = false;
-		void train(nodePtr, set<nodePtr>&, vector<double>&);
+		void train(nodePtr, set<nodePtr>&, vector<double>& );
 		
 		//selection methods
-		nodeMap selectBestLeaves(int, GameState&);
-		queue<MoveInfo> traverseToLeaf(nodePtr&, set<nodePtr>);
+		queue<MoveInfo> selectBestLeaf(nodePtr&);
 		double selectionFunction(MoveInfo, nodePtr); 
 		
 		//Monte Carlo Tree Search Methods
-		void expand(nodePtr, GameState, MoveInfo&); 
-		void simulate(GameState, double&);
+		MoveInfo expand(nodePtr, GameState); 
+		double simulate(GameState);
 		void backPropagate(nodePtr, double); 
-		MoveInfo search(GameState&);
+		MoveInfo search(nodePtr, GameState, int);
+		MoveInfo multiSearch(GameState&, int);
 
 
 };

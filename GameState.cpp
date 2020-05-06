@@ -180,7 +180,6 @@ void GameState::randomMovePiece(Bitboard& initialPiece,
 	possibleFinalLocations = possibleFinalLocations.getRandom();
 	fastMovePiece(initialPiece, possibleFinalLocations);
 }
-
 void GameState::replayMove(MoveInfo moveInfo) {
 	//if an empty move
 	if (moveInfo == MoveInfo()) {

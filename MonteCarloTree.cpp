@@ -10,40 +10,6 @@ int intRand(const int & min, const int & max) {
     return distribution(generator);
 }
 /*
- *
- * Search from the specified MonteCarloTree::root position for best leaf weights
- * maxSelection = maximum number of leaves selected
- * returns map of pointers and gameStates representing best leaf selections 
- *
- */
-nodeMap MonteCarloTree::selectBestLeaves(int maxSelection, GameState& initialGameState){
-	nodeMap returnMap;
-	int count = maxSelection;
-	while (count--){
-		nodePtr selectedChild;
-		double bestChildResult  = -HUGE_VAL;
-		for (auto child: root->children){
-			//add noise to spread out the results
-			double noise = (dist(e2) % 10000)/1000000.0;
-			double result = selectionFunction(child.first, root);
-			result += noise;
-			if (bestChildResult < result) {
-				selectedChild = child.second;
-				bestChildResult = result;
-			}
-			
-		}
-		queue<MoveInfo> moveHistory = traverseToLeaf(selectedChild, {});
-		GameState newGameState = initialGameState;
-		while (moveHistory.size()) {
-			newGameState.replayMove(moveHistory.front());
-			moveHistory.pop();
-		}
-		returnMap[selectedChild] = newGameState;
-	}
-	return returnMap;
-}
-/*
  * Traverse down in the tree via best-first selection while possible
  * parent = nodePtr representing the current position in the tree
  * dissallowed = pointers that the traversal algo is not allowed to pass through
@@ -52,25 +18,22 @@ nodeMap MonteCarloTree::selectBestLeaves(int maxSelection, GameState& initialGam
  * mutates parent to become best leaf
  * if a leaf could not be reached, parent = nullptr
  */
-queue <MoveInfo> MonteCarloTree::traverseToLeaf(nodePtr& parent, set<nodePtr> disallowed){
+queue <MoveInfo> MonteCarloTree::selectBestLeaf(nodePtr& parent){
 	queue<MoveInfo> moveHistory; 
+	std::mt19937 engine(rd());
+	std::uniform_int_distribution<int> distribution(0,1000000000);
 	while(parent->children.size()) {
 		double bestScore = -1;
 		nodePtr bestLeaf = nullptr;
 		MoveInfo bestMove;
 		for (auto child : parent->children) {
-			if (disallowed.find(child.second) != disallowed.end()) continue;
 			double candidateScore = selectionFunction(child.first, parent);
-			if (bestScore < candidateScore) {
-				bestScore = candidateScore; 
+			double noise = (distribution(engine) % 10000)/1000000.0;
+			if (bestScore < candidateScore + noise) {
+				bestScore = candidateScore + noise; 
 				bestLeaf = child.second;
 				bestMove = child.first;
 			}
-		}
-		//if all children are disallowed
-		if (bestLeaf == nullptr) {
-			parent = nullptr;
-			return moveHistory;
 		}
 		moveHistory.push(bestMove);
 		parent = bestLeaf;
@@ -80,217 +43,194 @@ queue <MoveInfo> MonteCarloTree::traverseToLeaf(nodePtr& parent, set<nodePtr> di
 
 //Expands a node by looking at all its moves and
 //mutates input MoveInfo to the best move found
-void MonteCarloTree::expand(nodePtr leafPtr, GameState leafGameState, MoveInfo& bestMove) {
-	vector<MoveInfo> moves = leafGameState.generateAllMoves();
+MoveInfo MonteCarloTree::expand(nodePtr leafPtr, GameState leafGameState) {
+	//if the game is already resolved at this node, do not expand
+	if (leafGameState.checkDraw() || leafGameState.checkVictory() != PieceColor::NONE)
+		return MoveInfo();
 
-	//if moves were found expand the node
-	if (moves.size()) 
-		for (MoveInfo m: moves) 
-			leafPtr->createChild(m);
-	else 
+	vector<MoveInfo> moves = leafGameState.generateAllMoves();
+	//if no moves were found, pass turn
+	if (!moves.size()) 
 		moves.push_back(MoveInfo());
 
+	for (MoveInfo m: moves) 
+		leafPtr->createChild(m);
+
 	leafPtr->evaluateAllChildren(currentHeuristic, leafGameState);
-	bestMove = traverseToLeaf(leafPtr, {}).front();
+	return selectBestLeaf(leafPtr).front();
 }
 
 //Plays out games until a match resolution or a set limit of moves (whichever is first)
 //If the game is decisive, update with 0, 1, or .5 for loss, win or draw
 //If the game is not decisive, approximate with values [0-1)
-void MonteCarloTree::simulate(GameState gameState, double& result){
+double MonteCarloTree::simulate(GameState gameState){
 	PieceColor initialTurnColor = gameState.turnColor;
 
 	if (!gameState.checkDraw() && gameState.checkVictory() == PieceColor::NONE)
 		gameState.playout(MonteCarloSimulationsCutoff);
 
 	if (gameState.checkDraw()){
-		result = .5;
-		return;
+		return .5;
 	}
 	else if (gameState.checkVictory() != PieceColor::NONE) {
-		result =  1*(gameState.checkVictory() == initialTurnColor);
-		return;
+		return (int)(gameState.checkVictory() != initialTurnColor);
 	}
-	result = gameState.approximateEndResult();
+	return gameState.approximateEndResult();
 };
 
 //Goes up the tree and updates the node augmentations
 //Assumes leafPtr is pointing to the leaf where simulate() was called
 void MonteCarloTree::backPropagate(nodePtr leafPtr, double result){
 	int maxScore = 1;
-	while (leafPtr != root) {
+	while (leafPtr->parent != nullptr) {
 		leafPtr->numVisited++;
 		leafPtr->playoutScore += result;
 		result = maxScore-result;
 		leafPtr  = leafPtr->parent;
 	}
-	root->numVisited++;
+	leafPtr->numVisited++;
 }
 
 //Given a position, apply MCTS to attempt to find the best move and return it
 //If no moves exist from this position, return empty move
-//supports multithreading based on numCores variable
-//supports training mode based on trainingMode variable
-MoveInfo MonteCarloTree::search(GameState& initialGameState){
-	//delete the old tree
-	if (root != nullptr){
-		root->clearChildren();		
-		delete root;
+MoveInfo MonteCarloTree::search(nodePtr root, GameState initialGameState, int numTrials){
+	expand(root, initialGameState);
+
+	//if only one or zero moves available
+	if (root -> children.size() < 2) {
+		return MoveInfo();
 	}
-
-	//create a new tree
-	root = new MonteCarloNode();
-	MoveInfo empty;
-	expand(root, initialGameState, empty);
-
-	//if only one move allowed, return it
-	if (root -> children.size() == 1) return root->children.begin()->first;
-	int numTrials = MonteCarloSimulations;
-
-	while (numTrials>0) {
-			
-		nodeMap leafNodes = selectBestLeaves(numCores, initialGameState);
-		vector<MoveInfo> bestMoves;
-
-
-		//use multithreading to expand nodes
-		for (auto leafNode: leafNodes)
-			bestMoves.push_back(MoveInfo());
-		vector<std::thread> threads;
-		int i = 0;
-		for (auto leafNode: leafNodes) {
-			nodePtr leaf = leafNode.first;
-			GameState g = leafNode.second;
-			threads.push_back(
-					std::thread(&MonteCarloTree::expand, this, leaf, g, std::ref(bestMoves[i])));
-			i++;
+	
+	while (numTrials--) {
+		auto leafNode = root;
+		queue<MoveInfo> moveHistory = selectBestLeaf(leafNode);
+		GameState newGameState = initialGameState;
+		while (moveHistory.size()) {
+			newGameState.replayMove(moveHistory.front());
+			moveHistory.pop();
 		}
 
-		for (int i = threads.size();i--;)
-			threads[i].join();
-
-		//use multithreading to perform game simulations
-		vector<double> results(leafNodes.size());
-		threads.clear();
-		i = 0;
-		nodeMap newLeafNodes;
-		for (auto leafNode: leafNodes){
-			//advance the leafNode by playing best move
-			GameState g = leafNode.second;
-			g.replayMove(bestMoves[i]);
-			nodePtr n = leafNode.first;
-			n = n->children[bestMoves[i]];
-
-			//assign new gameState
-			newLeafNodes[n] = g;
-
-			threads.push_back(
-					std::thread(&MonteCarloTree::simulate, this, g, std::ref(results[i])));
-			i++;
+		expand(leafNode, newGameState);
+		moveHistory = selectBestLeaf(leafNode);
+		while(moveHistory.size()){
+			newGameState.replayMove(moveHistory.front());
+			moveHistory.pop();
 		}
-			
-		for (int i = threads.size();i--;)
-			threads[i].join();
-
-		//backPropagate for each result
-		i = 0;
-		for (auto& leafNode: newLeafNodes) {
-			backPropagate(leafNode.first,results[i]);
-			i++;
-		}
-
-		numTrials -= leafNodes.size();
+		double result = simulate(newGameState);
+		backPropagate(leafNode, result);
 	}
 
-
-	//train the heuristic model
-	if (trainingMode) {
-		vector <double> corrections(0, currentHeuristic.NUMWEIGHTS);
-		set<nodePtr> visited;
-		vector<std::thread> threads;
-
-		for (int i = numCores;i--;)
-			threads.push_back(std::thread(&MonteCarloTree::train, this, root,
-							  std::ref(visited), std::ref(corrections)));
-		for (int i = numCores;i--;)
-			threads[i].join();
-		currentHeuristic.train(corrections);
-	}
-
-	//choose and return best move
-	double max = -1;
+	//iterate and select best move from root;
 	MoveInfo bestMove;
-	string v, h;
+	double bestScore = -1;
 	for (auto child: root->children) {
-		int denominator = std::max(child.second->numVisited, 1);
-		v += to_string(child.second->numVisited) + " " ;
-		h += to_string(selectionFunction(child.first, root)) + " ";
-		if (child.second->playoutScore/ denominator > max) {
-			max = child.second->playoutScore/denominator;
+		int denominator = std::max(1, child.second->numVisited);
+		if (child.second->playoutScore/denominator > bestScore) {
+			bestScore = child.second->playoutScore/denominator;
 			bestMove = child.first;
 		}
 	}
-	
-	cout << v << endl << endl << h << endl;
+	//run training procedure if enabled
+	return bestMove;
+}
+
+
+//multithreaded search of the game space
+MoveInfo MonteCarloTree::multiSearch(GameState& initialGameState, int numThreads){
+	vector <nodePtr> roots;
+
+	vector <std::thread> threads;
+	int dividedWork = std::max(MonteCarloSimulations/numThreads, 1);
+	for (int i = 0; i < numThreads; i++) {
+		roots.push_back(new MonteCarloNode());
+		threads.push_back(std::thread(&MonteCarloTree::search,this, roots[i],
+								initialGameState, dividedWork));
+	}
+
+	for (auto& thread: threads){
+		thread.join();
+	}
+
+	if (trainingMode) {
+		for (auto& root: roots){
+			set<nodePtr> visited;
+			vector<double> corrections(currentHeuristic.weights.size());
+			train(root, visited, corrections);
+			currentHeuristic.train(corrections);
+		}
+	}
+	unordered_map<MoveInfo, pair<double,double>> bestAverageScores;
+	for (auto& root: roots) {
+		for (auto child: root->children){
+
+			MoveInfo move = child.first;
+			int denominator = std::max(child.second->numVisited, 1);
+			auto score = std::make_pair(child.second->playoutScore, denominator);
+
+			if (bestAverageScores.find(move) == bestAverageScores.end())
+				bestAverageScores.insert(std::make_pair(move, score));
+			else {
+				bestAverageScores[move].first += score.first;
+				bestAverageScores[move].second += score.second;
+			}
+		}
+	}
+
+	double bestScore = -111;
+	MoveInfo bestMove;
+	//calculate the best move from given options
+	string a;
+	for (auto moveIter: bestAverageScores){
+		auto fraction = moveIter.second;
+		a += to_string(fraction.first) + "/" + to_string((int)fraction.second) + " ";
+		if (fraction.first/fraction.second > bestScore){
+			bestScore = fraction.first/fraction.second;
+			bestMove = moveIter.first;
+		}
+	}
+	cout << a << endl;
+	//clean up
+	for (auto& root: roots){
+		root->clearChildren();
+		delete root;
+	}
 	return bestMove;
 }
 
 //calculate the corrections needed for every weight in each node
 //past a certain depth, corrections are negligible so ignore those nodes
-void MonteCarloTree::train(nodePtr node, set<nodePtr>& visited, vector<double>&corrections){
-	//if possible children already visited
-	mtx.lock();
-	if (visited.find(node) != visited.end() ) return;
-	mtx.unlock();
-
+void MonteCarloTree::train(nodePtr node, set<nodePtr>& visited, vector<double>& corrections){
 	if (node->numVisited / MonteCarloSimulations >= minLearningFraction)  {
-		vector<nodePtr> shuffled;
-		for (auto keyValue: node->children) shuffled.push_back(keyValue.second);
-
-		//Randomly order the traversal of children to minimize collision with 
-		//other threads
-		static thread_local std::mt19937 generator(rd());
-
-		std::shuffle(shuffled.begin(), shuffled.end(), generator);
+		vector<nodePtr> children;
+		for (auto keyValue: node->children) children.push_back(keyValue.second);
 
 		//perform a DFS on all nodes in the tree and train using results
-		for (auto child: shuffled) 
+		for (auto child: children) 
 			train(child, visited, corrections);
 	}
 
-	mtx.lock();
 	//if visited was updated while traversing children
-	if (visited.find(node) != visited.end()) {
-		mtx.unlock();
+	if (visited.find(node) != visited.end()) 
 		return;
-	}
 	visited.insert(node);
-	mtx.unlock();
 
 	//if the maxAvgScore is unitilialized, calculate it
-	if (node != root)
+	if (node->parent != nullptr)
 		if (node->parent->maxAvgScore == -1) {
 			double max = -1;
 			for (auto child: node->parent->children) {
 				int denominator = std::max(child.second->numVisited, 1);
 				max = std::max(child.second->playoutScore / denominator,  max);
-
 			}
-			//lock threads to prevent race condition
-			mtx.lock();
 			node->parent->maxAvgScore = max;
-			mtx.unlock();
 		}
 
 	vector<double> myCorrec = node->train(node->parent->maxChildScore, 
-			node->parent->minChildScore,
-			node->parent->maxAvgScore);
+									node->parent->minChildScore,
+									node->parent->maxAvgScore);
 
-	//update corrections while locking threads
 	for (unsigned i = 0; i < myCorrec.size() ; i++) {
-		mtx.lock();
 		corrections[i] += myCorrec[i];
-		mtx.unlock();
 	}
 }
 

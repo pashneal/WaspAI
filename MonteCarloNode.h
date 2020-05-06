@@ -11,20 +11,21 @@ class MonteCarloNode{
 		vector <double> heuristicEvals;
 	public:
 		int numVisited = 0;
+		double playoutScore = 0;
+		double maxAvgScore = -1;
 		double heuristicScore;
-		double playoutScore;
 		double maxChildScore;
 		double minChildScore;
-		double maxAvgScore = -1;
 		bool proven = false;
-		nodePtr parent;
+		nodePtr parent = nullptr;
 		unordered_map <MoveInfo, nodePtr> children;
 	
+		MonteCarloNode(){};
 		
 		void createChild(MoveInfo m) {
-			nodePtr child = new MonteCarloNode();
+			MonteCarloNode * child = new MonteCarloNode;
 			child->parent = this;
-			children[m] = child;
+			children.insert(std::make_pair(m, child));
 		}
 
 		//Heuristic must already have gameState updated to parent of this node

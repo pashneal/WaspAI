@@ -336,7 +336,7 @@ bool Arena::battle(bool silent) {
 		}
 
 		if (isCPU) {
-			selectedMove = CPU[i].search(currentGameState);
+			selectedMove = CPU[i].multiSearch(currentGameState, 1);
 			if (std::find(moves.begin(), moves.end(), selectedMove) == moves.end())  {
 				cout << "SearchAlgorithm " << i << " returned an illegal move " << endl;
 				throw "hello darkness my old friend";
