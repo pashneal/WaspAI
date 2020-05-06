@@ -121,7 +121,7 @@ void GameState::fastRemovePiece(Bitboard& oldBitboard){
 		
 		if (pieceStacks[bitHash].size()==1 ){
 			//remove from upperLevelPieces
-			upperLevelPieces.xorWith(oldBitboard);
+			upperLevelPieces.notIntersectionWith(oldBitboard);
 		}
 		//update gameState with stack underneath
 		PieceColor newColor = pieceStacks[bitHash].top().first;
