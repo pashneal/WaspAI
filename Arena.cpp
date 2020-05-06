@@ -315,6 +315,7 @@ bool Arena::battle(bool silent) {
 	bool vals[] = {playerOneCPU, playerTwoCPU};
 
 	for (int i = 0 ; i < 2 ; i++) {
+		if ((PieceColor)i != currentGameState.turnColor) continue;
 		bool isCPU = vals[i];
 		MoveInfo selectedMove;
 		vector<MoveInfo> moves = currentGameState.generateAllMoves();
