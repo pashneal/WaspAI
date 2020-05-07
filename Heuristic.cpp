@@ -6,7 +6,8 @@ Heuristic::Heuristic (Complexity c, set<char> expansionPieces) {
 		throw 10;
 	}
 
-	if (c != Complexity::RANDOM)  {
+	if (c == Complexity::SIMPLE) {
+	}else if (c != Complexity::RANDOM)  {
 		cout << "NOT IMPLEMENTED YET" << endl;
 		throw 10;
 	}

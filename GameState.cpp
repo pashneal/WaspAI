@@ -250,7 +250,122 @@ bool GameState::checkDraw() {
 }
 
 double GameState::approximateEndResult() {
-	return .5;
+	PieceColor minimizingPlayer = turnColor;
+	int parameters[2][8];
+	
+	for (int i = 0 ; i < 2 ; i++ ) {
+		int surroundCount;
+		int enemyCount = 0;
+		int mobileFriendly = 0;
+		int pillbugKillShotControl = 0;
+		int pillbugFreeSquares = 0;
+		int pillbugEscapeSquares = 0;
+		int unpinnedAntsCount = 0;
+		bool queenCanMove = false;
+		PieceColor color = (PieceColor)i;
+		PieceName name;
+
+		//get queen
+		Bitboard queen = *getPieces(color);
+		queen.intersectionWith(queens);
+
+		//count number of pieces surrounding queen
+		Bitboard surrounding(queen);
+		surrounding = surrounding.getPerimeter();
+		surrounding.intersectionWith(*getPieces(color));
+		surroundCount = surrounding.count();
+
+		//count mobile and friendly pieces
+		surrounding.notIntersectionWith(pinned);
+		surrounding.notIntersectionWith(upperLevelPieces);
+		surrounding.notIntersectionWith(immobile);
+		for (auto piece: surrounding.splitIntoBitboards()) {
+			name = findTopPieceName(piece);
+			moveGenerator.setGeneratingName(&name);
+			moveGenerator.setGeneratingPieceBoard(&piece);
+			mobileFriendly += (moveGenerator.getMoves().count() > 0);
+		} 
+
+		//count enemy upperLevelPieces near Queen
+		Bitboard nearQueen(queen);	
+		for (int i = 0 ; i < 2; i++){
+			Bitboard temp = nearQueen.getPerimeter();
+			nearQueen.unionWith(temp);
+		}
+		Bitboard enemies(*getPieces(color));
+		enemies.intersectionWith(upperLevelPieces);
+		enemies.intersectionWith(nearQueen);
+
+		for (auto enemy: enemies.splitIntoBitboards()){
+			enemyCount += (pieceStacks[enemy.hash()].top().first != color);
+		}
+
+		//see whether a nearby friendly pillbug is can still use its power
+		Bitboard activePillbug(*getPieces(color));
+		activePillbug.intersectionWith(nearQueen);
+		activePillbug.intersectionWith(pillbugs);
+		activePillbug.notIntersectionWith(upperLevelPieces);
+		activePillbug.notIntersectionWith(immobile);
+
+		if (activePillbug.count()){
+			//count squares around queen the pillbug can swap pieces away from
+			Bitboard pillbugControl = activePillbug.getPerimeter();
+			Bitboard killshots = queen.getPerimeter();
+			pillbugControl.notIntersectionWith(immobile);
+			killshots.intersectionWith(pillbugControl);
+			pillbugKillShotControl = killshots.count();
+
+			//see how many squares around pillbug are empty
+			pillbugControl.notIntersectionWith(allPieces);
+			pillbugEscapeSquares = pillbugControl.count();
+
+			//same as above but don't include killshots
+			pillbugControl.notIntersectionWith(killshots);
+			pillbugFreeSquares = pillbugControl.count();
+
+			//see if you can swap the queen away
+			queenCanMove = !pinned.containsAny(queen) &&
+							queen.getPerimeter().containsAny(activePillbug) &&
+							pillbugEscapeSquares;
+		
+		}
+
+		if (!queenCanMove) {
+			name = PieceName::QUEEN;
+			if (!pinned.containsAny(queen) && !upperLevelPieces.containsAny(queen)){
+				moveGenerator.setGeneratingName(&name);
+				moveGenerator.setGeneratingPieceBoard(&queen);
+				queenCanMove = moveGenerator.getMoves().count();
+			};
+		}
+
+		//count unpinned ants
+		Bitboard unpinned(*getPieces(color));
+		unpinned.notIntersectionWith(upperLevelPieces);
+		unpinned.notIntersectionWith(pinned);
+		unpinned.intersectionWith(ants);
+		unpinnedAntsCount = unpinned.count();
+
+		parameters[color][0] = surroundCount;
+		parameters[color][1] = enemyCount;
+		parameters[color][2] = mobileFriendly;
+		parameters[color][3] = unpinnedAntsCount;
+		parameters[color][4] = queenCanMove; 
+		parameters[color][5] = pillbugEscapeSquares;
+		parameters[color][6] = pillbugFreeSquares;
+		parameters[color][7] = pillbugKillShotControl;
+	}
+	double weights[6] = {-.05, -.05, .05, .1, .25, .04};
+	double score = 0;
+	for (int i = 0 ; i < 6; i++){
+		score += weights[i]*parameters[WHITE][i] - weights[i]*parameters[BLACK][i];
+	}
+	score += parameters[WHITE][7]*.075*parameters[WHITE][6] 
+			- parameters[BLACK][7]*.075*parameters[BLACK][6];
+	score = std::min(.5, std::max( -.5, score));
+	score = (minimizingPlayer == BLACK) ? -score : score;
+	score = .5 + score;
+	return score;
 }
 
 inline Bitboard * GameState::getPieces() { 
