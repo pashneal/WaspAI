@@ -269,6 +269,7 @@ double GameState::approximateEndResult() {
 		Bitboard queen = *getPieces(color);
 		queen.intersectionWith(queens);
 
+		if (!queen.count()) return .5;
 		//count number of pieces surrounding queen
 		Bitboard surrounding(queen);
 		surrounding = surrounding.getPerimeter();
