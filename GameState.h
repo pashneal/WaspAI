@@ -5,7 +5,7 @@
 #include "ProblemNode.h"
 #include "MoveGenerator.h"
 #include "PieceGraph.h"
-#include <stack>
+#include <deque>
 #include <set>
 #include <vector>
 #include <string>
@@ -78,7 +78,7 @@ class GameState {
 	list < pair <Bitboard , Bitboard > > pieceMoves;
 	set <PieceName> possibleNames;
 
-	unordered_map < int , stack < pair < PieceColor , PieceName > > > pieceStacks;
+	unordered_map < int , deque < pair < PieceColor , PieceName > > > pieceStacks;
 
 	ProblemNodeContainer problemNodeContainer;
 	PieceGraph pieceGraph;

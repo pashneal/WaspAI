@@ -1,6 +1,7 @@
 #pragma once
 #include <set>
 #include <string>
+#include <deque>
 #include <vector>
 #include <unordered_map>
 #include "Bitboard.h"
@@ -18,7 +19,7 @@ class MoveGenerator {
 		//TODO: make these read-only pointers
 		//TODO: change everything that is generatingPieceBoard to generatingPiece
 		Bitboard * generatingPieceBoard;
-		unordered_map < int, stack < pair < PieceColor , PieceName> > > * pieceStacks; 
+		unordered_map < int, deque < pair < PieceColor , PieceName> > > * pieceStacks; 
 		Bitboard * upperLevelPieces;
 
 		Bitboard moves;
@@ -58,7 +59,7 @@ class MoveGenerator {
 		void setGeneratingName(PieceName *);
 		void setGeneratingPieceBoard(Bitboard *);
 		void setUpperLevelPieces(Bitboard *);
-		void setPieceStacks(unordered_map <int , stack <pair < PieceColor , PieceName >>> * );
+		void setPieceStacks(unordered_map <int , deque <pair < PieceColor , PieceName >>> * );
 		Bitboard getPillbugSwapSpaces();
 
 		Bitboard getInaccessibleNodes(Bitboard);

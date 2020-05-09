@@ -401,7 +401,7 @@ void MoveGenerator::setGeneratingPieceBoard(Bitboard * b) {
 void MoveGenerator::setUpperLevelPieces(Bitboard * in) {
 	upperLevelPieces = in;
 }
-void MoveGenerator::setPieceStacks(unordered_map <int , stack <pair < PieceColor , PieceName >>> * in) {
+void MoveGenerator::setPieceStacks(unordered_map <int , deque <pair < PieceColor , PieceName >>> * in) {
 	pieceStacks = in;
 }
 

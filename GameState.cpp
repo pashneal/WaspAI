@@ -66,7 +66,7 @@ void GameState::fastInsertPiece(Bitboard& bitboard, PieceName name, PieceColor c
 	} else {
 		pieceGraph.insert(bitboard);
 	}
-	pieceStacks[bitboard.hash()].push({color, name});
+	pieceStacks[bitboard.hash()].push_front({color, name});
 	allPieces.unionWith(bitboard);
 	getPieces(name) -> unionWith(bitboard);
 	getPieces(color) -> unionWith(bitboard);
@@ -110,7 +110,7 @@ void GameState::fastRemovePiece(Bitboard& oldBitboard){
 	//remove oldBitboard and assume nopiece is underneath
 	getPieces(name) -> xorWith(oldBitboard);
 	getPieces(color) -> xorWith(oldBitboard);
-	pieceStacks[bitHash].pop();
+	pieceStacks[bitHash].pop_front();
 
 	if (!(pieceStacks[bitHash].size())) {
 		//if was only piece in stack, remove completely
@@ -124,9 +124,9 @@ void GameState::fastRemovePiece(Bitboard& oldBitboard){
 			upperLevelPieces.notIntersectionWith(oldBitboard);
 		}
 		//update gameState with stack underneath
-		PieceColor newColor = pieceStacks[bitHash].top().first;
+		PieceColor newColor = pieceStacks[bitHash].front().first;
 		getPieces(newColor) -> unionWith(oldBitboard);
-		PieceName name = pieceStacks[bitHash].top().second;
+		PieceName name = pieceStacks[bitHash].front().second;
 		getPieces(name) -> unionWith(oldBitboard);
 	}
 }
@@ -225,9 +225,9 @@ PieceColor GameState::checkVictory() {
 	for (Bitboard queen: queens.splitIntoBitboards()){
 		auto stackCopy = pieceStacks[queen.hash()];
 		while (stackCopy.size() > 1) {
-			stackCopy.pop();
+			stackCopy.pop_front();
 		}
-		if (stackCopy.top().first == PieceColor::WHITE) {
+		if (stackCopy.front().first == PieceColor::WHITE) {
 			whiteQueen = queen;
 		} else {
 			blackQueen = queen;
@@ -306,7 +306,7 @@ double GameState::approximateEndResult() {
 		enemies.intersectionWith(nearQueen);
 
 		for (auto enemy: enemies.splitIntoBitboards()){
-			enemyCount += (pieceStacks[enemy.hash()].top().first != color);
+			enemyCount += (pieceStacks[enemy.hash()].front().first != color);
 		}
 
 		//see whether a nearby friendly pillbug is can still use its power
@@ -578,7 +578,7 @@ Bitboard GameState::getMosquitoMoves(Bitboard piece) {
 	testUpperLevel.intersectionWith(piecePerimeter);
 
 	for (Bitboard test: testUpperLevel.splitIntoBitboards()) {
-		if(pieceStacks[test.hash()].top().second == PieceName::BEETLE) {
+		if(pieceStacks[test.hash()].front().second == PieceName::BEETLE) {
 			generated = moveGenerator.getMoves();
 			moves.unionWith(generated);
 		}
@@ -623,7 +623,7 @@ Bitboard GameState::getAllSpawnSpaces() {
 
 	//convert pieces to top most colors 
 	for (auto piece: upperLevelPieces.splitIntoBitboards()) {
-		if (pieceStacks[piece.hash()].top().first == turnColor) {
+		if (pieceStacks[piece.hash()].front().first == turnColor) {
 			oppositePiecePerimeter.notIntersectionWith(piece);
 		}
 	}
@@ -671,8 +671,8 @@ bool GameState::makePsuedoRandomMove() {
 
 	//deal with upperLevelPieces
 	for (Bitboard piece: upperLevelPieces.splitIntoBitboards()) {
-		if (pieceStacks[piece.hash()].top().first == turnColor) {
-			PieceName name = pieceStacks[piece.hash()].top().second;
+		if (pieceStacks[piece.hash()].front().first == turnColor) {
+			PieceName name = pieceStacks[piece.hash()].front().second;
 
 			//int numMoves = moveApproximation(piece, PieceName::BEETLE, false);
 			int numMoves = 1;
@@ -932,12 +932,11 @@ int GameState::moveApproximation(Bitboard piece, bool isPinned){
 }
 
 PieceName GameState::findTopPieceName(Bitboard piece) {
-	return pieceStacks.at(piece.hash()).top().second; 
+	return pieceStacks.at(piece.hash()).front().second; 
 }
 
-//only finds the colors of lower level pieces
 PieceColor GameState::findTopPieceColor( Bitboard piece) {
-	return pieceStacks.at(piece.hash()).top().first; 
+	return pieceStacks.at(piece.hash()).front().first; 
 }
 
 inline void GameState::findPinnedPieces(){
