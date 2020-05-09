@@ -811,7 +811,7 @@ void Test::MoveGeneratorTest::testBeetleMoves() {
 		moveGen.setGeneratingName(&name);
 		moveGen.setGeneratingPieceBoard(&pieceBoard);
 	
-		unordered_map <int, stack < pair < PieceColor, PieceName>>> m;
+		unordered_map <int, deque < pair < PieceColor, PieceName>>> m;
 		Bitboard upperLevelPieces;
 
 		moveGen.setPieceStacks(&m);
@@ -831,8 +831,8 @@ void Test::MoveGeneratorTest::testBeetleMoves() {
 	Bitboard upperLevelPieces({{5, 524288u}});
 	Bitboard givenPiece({{5, 524288u}});
 	name = PieceName::BEETLE;
-	unordered_map < int, stack < pair <PieceColor, PieceName>>> pieceStacks; 
-	pieceStacks[givenPiece.hash()].push({PieceColor::WHITE, PieceName::BEETLE});
+	unordered_map < int, deque < pair <PieceColor, PieceName>>> pieceStacks; 
+	pieceStacks[givenPiece.hash()].push_front({PieceColor::WHITE, PieceName::BEETLE});
 	ProblemNodeContainer problemNodeCont(&testBoard);
 	problemNodeCont.findAllProblemNodes();
 	MoveGenerator moveGenerator(&testBoard, &problemNodeCont);
@@ -932,7 +932,7 @@ void Test::MoveGeneratorTest::testLadybugMoves() {
 
 		ProblemNodeContainer problemNodeCont(&testBoard);
 		problemNodeCont.findAllProblemNodes();
-		unordered_map <int, stack < pair < PieceColor, PieceName>>> m;
+		unordered_map <int, deque < pair < PieceColor, PieceName>>> m;
 		Bitboard upperLevelPieces;
 
 
@@ -1257,9 +1257,9 @@ void Test::GameStateTest::testMovePiece(){
 	stackCompare.push({PieceColor::BLACK, PieceName::BEETLE});
 	
 	while (!stackCompare.empty() ) {
-		Test::pass(stackCompare.top() == stackCopy.top(),
+		Test::pass(stackCompare.top() == stackCopy.front(),
 				"pieceStacks produced unexpected results");
-		stackCompare.pop(); stackCopy.pop();
+		stackCompare.pop(); stackCopy.pop_front();
 	}
 
 	bool silenced = true;
@@ -1290,9 +1290,9 @@ void Test::GameStateTest::testMovePiece(){
 
 	cout << "-----------------------------" << endl;
 	while (!stackCompare.empty() ) {
-		Test::pass(stackCompare.top() == stackCopy.top(),
+		Test::pass(stackCompare.top() == stackCopy.front(),
 				"pieceStacks produced unexpected results");
-		stackCompare.pop(); stackCopy.pop();
+		stackCompare.pop(); stackCopy.pop_front();
 	}
 
 	Test::pass(turnCounter == gameState.turnCounter, "turnCounter produced incorrect results");
