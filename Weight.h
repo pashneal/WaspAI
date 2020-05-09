@@ -53,7 +53,19 @@ class SimpleMoveCountWeight: public Weight {
 
 			return totalMoveCount;
 		}
+};
 
+class KillShotCountWeight: public Weight {
+		//places in the hive that would trigger a recount
+		Bitboard watchPoints;
+		int queenKillShotCount[2];
+	public:	
+
+		KillShotCountWeight(double multiplier) :Weight(multiplier){};
+		virtual void initializeTo(GameState& g);
+		virtual double evaluate(MoveInfo);
+		pair<int,int> recalculate();
+		
 };
 
 //HEURISTIC SHOULD CHECK FOR VICTORY OR DRAW FIRST
