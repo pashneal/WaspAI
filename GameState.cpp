@@ -223,11 +223,8 @@ PieceColor GameState::checkVictory() {
 	Bitboard whiteQueen, blackQueen;
 	//find the respective queens
 	for (Bitboard queen: queens.splitIntoBitboards()){
-		auto stackCopy = pieceStacks[queen.hash()];
-		while (stackCopy.size() > 1) {
-			stackCopy.pop_front();
-		}
-		if (stackCopy.front().first == PieceColor::WHITE) {
+		auto& queenStack = pieceStacks[queen.hash()];
+		if (queenStack.back().first == PieceColor::WHITE) {
 			whiteQueen = queen;
 		} else {
 			blackQueen = queen;
