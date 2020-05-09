@@ -220,23 +220,31 @@ void GameState::undoMove(MoveInfo moveInfo) {
 }
 
 PieceColor GameState::checkVictory() {
-	//assumes no draws are in board
-	Bitboard queenCheck;
+	Bitboard whiteQueen, blackQueen;
+	//find the respective queens
+	for (Bitboard queen: queens.splitIntoBitboards()){
+		auto stackCopy = pieceStacks[queen.hash()];
+		while (stackCopy.size() > 1) {
+			stackCopy.pop();
+		}
+		if (stackCopy.top().first == PieceColor::WHITE) {
+			whiteQueen = queen;
+		} else {
+			blackQueen = queen;
+		}
+	}
 
-	queenCheck.initializeTo(queens);
-	//check white queen
-	queenCheck.intersectionWith(whitePieces);
-	queenCheck = queenCheck.getPerimeter();
-	queenCheck.intersectionWith(allPieces);
-	if (queenCheck.count() == 6) return PieceColor::BLACK;
 
-	queenCheck.initializeTo(queens);
-	//check black queen
-	queenCheck.intersectionWith(blackPieces);
-	queenCheck = queenCheck.getPerimeter();
-	queenCheck.intersectionWith(allPieces);
-	if (queenCheck.count() == 6) return PieceColor::WHITE;
+	//if the blackQueen is surrounded, white wins!
+	blackQueen = blackQueen.getPerimeter();
+	blackQueen.intersectionWith(allPieces);
+	if (blackQueen.count() == 6) return PieceColor::WHITE;
 
+	//if the whiteQueen is surrounded, black wins!
+	whiteQueen = whiteQueen.getPerimeter();
+	whiteQueen.intersectionWith(allPieces);
+	if (whiteQueen.count() == 6) return PieceColor::BLACK;
+	
 	return PieceColor::NONE;
 }
 
