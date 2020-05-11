@@ -6,7 +6,7 @@ void KillShotCountWeight::initializeTo(GameState& g) {
 	//set watchpoints to queen and her surroudings
 	//if there is no movement in these zones, the 
 	//default value do not have to be recalculated
-	for (auto queen : parentGameState.queens.splitIntoBitboards()){
+	for (auto& queen : parentGameState.queens.splitIntoBitboards()){
 		watchPoints.unionWith(queen);
 		Bitboard queenPerimeter = queen.getPerimeter();
 		watchPoints.unionWith(queenPerimeter);
@@ -14,11 +14,11 @@ void KillShotCountWeight::initializeTo(GameState& g) {
 	auto result = recalculate();
 	queenKillShotCount[PieceColor::WHITE] = result.first;
 	queenKillShotCount[PieceColor::BLACK] = result.second;
-
 }
+
 pair<int, int> KillShotCountWeight::recalculate() {
 	pair<int,int> killShotCount{0,0};
-	for (auto queen : parentGameState.queens.splitIntoBitboards()){
+	for (auto& queen : parentGameState.queens.splitIntoBitboards()){
 	
 		Bitboard queenPerimeter = queen.getPerimeter();
 
@@ -63,3 +63,5 @@ double KillShotCountWeight::evaluate(MoveInfo move){
 	
 	return result*multiplier;
 }
+
+

@@ -230,7 +230,7 @@ void MoveGenerator::generateLegalAntMoves() {
 	while(newFrontiers.count()) {
 		frontiers.initializeTo(newFrontiers);
 		newFrontiers.clear();
-		for (Bitboard frontier : frontiers.splitIntoBitboards()) {
+		for (Bitboard& frontier : frontiers.splitIntoBitboards()) {
 			//perform a flood fill step with regard to problematic nodes
 			frontier = getLegalWalkPerimeter(frontier);
 			frontier.intersectionWith(perimeter);
@@ -300,7 +300,7 @@ void MoveGenerator::generateSpiderMoves(){
 
 			if (frontier.count()) {
 
-				for (auto node: frontier.splitIntoBitboards()) {
+				for (auto& node: frontier.splitIntoBitboards()) {
 
 					//store the node and the path to the node
 					pair <Bitboard, Bitboard> pairOfBoards =

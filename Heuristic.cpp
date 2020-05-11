@@ -7,6 +7,7 @@ Heuristic::Heuristic (Complexity c, set<char> expansionPieces) {
 	}
 
 	if (c == Complexity::SIMPLE) {
+		weights.push_back(KillShotCountWeight(1));
 	}else if (c != Complexity::RANDOM)  {
 		cout << "NOT IMPLEMENTED YET" << endl;
 		throw 10;

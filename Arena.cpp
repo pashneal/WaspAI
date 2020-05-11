@@ -168,7 +168,7 @@ MoveInfo Arena::convertFromNotation(string notation) {
 	// since many pieces of a given name and color
 	// can be placed in the hive, determine which one it is
 	Bitboard foundPiece;
-	for (auto piece: foundPieces.splitIntoBitboards()) {
+	for (auto& piece: foundPieces.splitIntoBitboards()) {
 	
 		auto description = pieceOrders[piece.hash()].back(); 
 		if (std::get<0>(description) == move.pieceName &&
@@ -214,7 +214,7 @@ MoveInfo Arena::convertFromNotation(string notation) {
 		// since many pieces of a given name and color
 		// can be placed in the hive, determine which one it is
 		foundPiece.clear();
-		for (auto piece: foundPieces.splitIntoBitboards()) {
+		for (auto& piece: foundPieces.splitIntoBitboards()) {
 			auto description = pieceOrders[piece.hash()].back(); 
 			if (std::get<0>(description) == newName &&
 				std::get<1>(description) == newColor &&
@@ -294,7 +294,7 @@ int Arena::countPieces(PieceColor color, PieceName name){
 	Bitboard pieces = *currentGameState.getPieces(color);
 	pieces.intersectionWith(*currentGameState.getPieces(name));
 	int amount = 0;
-	for (Bitboard piece : pieces.splitIntoBitboards()) {
+	for (Bitboard& piece : pieces.splitIntoBitboards()) {
 		for (auto description: pieceOrders[piece.hash()]){
 			if (std::get<0>(description)== name &&  std::get<1>(description) == color) {
 				amount++;

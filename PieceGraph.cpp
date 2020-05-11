@@ -15,7 +15,7 @@ void PieceGraph::insert(Bitboard& newBitboard) {
 		perimeter.intersectionWith(allPieces);
 
 		list <PieceNode*> neighbors;
-		for (auto bitboard: perimeter.splitIntoBitboards()){
+		for (auto& bitboard: perimeter.splitIntoBitboards()){
 			neighbors.push_front(bitboardHashTable[bitboard.hash()]);
 		}
 

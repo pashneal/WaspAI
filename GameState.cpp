@@ -222,7 +222,7 @@ void GameState::undoMove(MoveInfo moveInfo) {
 PieceColor GameState::checkVictory() {
 	Bitboard whiteQueen, blackQueen;
 	//find the respective queens
-	for (Bitboard queen: queens.splitIntoBitboards()){
+	for (Bitboard& queen: queens.splitIntoBitboards()){
 		auto& queenStack = pieceStacks[queen.hash()];
 		if (queenStack.back().first == PieceColor::WHITE) {
 			whiteQueen = queen;
@@ -285,7 +285,7 @@ double GameState::approximateEndResult() {
 		surrounding.notIntersectionWith(pinned);
 		surrounding.notIntersectionWith(upperLevelPieces);
 		surrounding.notIntersectionWith(immobile);
-		for (auto piece: surrounding.splitIntoBitboards()) {
+		for (auto& piece: surrounding.splitIntoBitboards()) {
 			name = findTopPieceName(piece);
 			moveGenerator.setGeneratingName(&name);
 			moveGenerator.setGeneratingPieceBoard(&piece);
@@ -302,7 +302,7 @@ double GameState::approximateEndResult() {
 		enemies.intersectionWith(upperLevelPieces);
 		enemies.intersectionWith(nearQueen);
 
-		for (auto enemy: enemies.splitIntoBitboards()){
+		for (auto& enemy: enemies.splitIntoBitboards()){
 			enemyCount += (pieceStacks[enemy.hash()].front().first != color);
 		}
 
@@ -468,7 +468,7 @@ void GameState::getAllMoves() {
 	Bitboard test(*getPieces(turnColor));
 	test.notIntersectionWith(immobile);
 
-	for ( Bitboard piece : test.splitIntoBitboards() ) { 
+	for ( Bitboard& piece : test.splitIntoBitboards() ) { 
 		/*----------------------------SWAPS--------------------------------*/
 		PieceName name = findTopPieceName(piece);
 		//if covered by unfriendly piece, this piece cannot move
@@ -517,7 +517,7 @@ vector<MoveInfo> GameState::generateAllMoves() {
 	getAllMoves();
 	//TODO: make findTopPieceName unneccessary;
 	/* ----------------- SPAWNS --------------------------*/
-	for (auto emptySquare: pieceSpawns.splitIntoBitboards()) {
+	for (auto& emptySquare: pieceSpawns.splitIntoBitboards()) {
 		for (auto pieceAmountMap: unusedPieces[(int)turnColor]){
 			if (spawnNames.find(pieceAmountMap.first) != spawnNames.end()) {
 				if (pieceAmountMap.second) {
@@ -531,7 +531,7 @@ vector<MoveInfo> GameState::generateAllMoves() {
 	}
 	/* ----------------- MOVES  --------------------------*/
 	for (auto pieceMove: pieceMoves)  {
-		for (auto move : pieceMove.second.splitIntoBitboards()) {
+		for (auto& move : pieceMove.second.splitIntoBitboards()) {
 			MoveInfo newMove = templateMove;
 			newMove.oldPieceLocation = pieceMove.first;
 			newMove.pieceName = findTopPieceName(pieceMove.first);
@@ -541,8 +541,8 @@ vector<MoveInfo> GameState::generateAllMoves() {
 	}
 	/* ----------------- SWAPS  --------------------------*/
 	for (auto se: swappableEmpty) {
-		for (auto swappable: se.first.splitIntoBitboards()) {
-			for (auto empty: se.second.splitIntoBitboards()) {
+		for (auto& swappable: se.first.splitIntoBitboards()) {
+			for (auto& empty: se.second.splitIntoBitboards()) {
 				MoveInfo newMove = templateMove;
 				newMove.oldPieceLocation = swappable;
 				newMove.newPieceLocation = empty;
@@ -574,7 +574,7 @@ Bitboard GameState::getMosquitoMoves(Bitboard piece) {
 	//get all upperLevelPieces adjecent to this one and on top of hive
 	testUpperLevel.intersectionWith(piecePerimeter);
 
-	for (Bitboard test: testUpperLevel.splitIntoBitboards()) {
+	for (Bitboard& test: testUpperLevel.splitIntoBitboards()) {
 		if(pieceStacks[test.hash()].front().second == PieceName::BEETLE) {
 			generated = moveGenerator.getMoves();
 			moves.unionWith(generated);
@@ -619,7 +619,7 @@ Bitboard GameState::getAllSpawnSpaces() {
 
 
 	//convert pieces to top most colors 
-	for (auto piece: upperLevelPieces.splitIntoBitboards()) {
+	for (auto& piece: upperLevelPieces.splitIntoBitboards()) {
 		if (pieceStacks[piece.hash()].front().first == turnColor) {
 			oppositePiecePerimeter.notIntersectionWith(piece);
 		}
@@ -655,7 +655,7 @@ bool GameState::makePsuedoRandomMove() {
 		test.intersectionWith(notCovered); 
 
 		if (test.count()) {
-			for (Bitboard piece: test.splitIntoBitboards() ) {
+			for (Bitboard& piece: test.splitIntoBitboards() ) {
 				int numMoves = 1;
 				//bool isPinned = pinned.containsAny(piece);
 				//int numMoves = moveApproximation(piece, name, isPinned);
@@ -667,7 +667,7 @@ bool GameState::makePsuedoRandomMove() {
 	}
 
 	//deal with upperLevelPieces
-	for (Bitboard piece: upperLevelPieces.splitIntoBitboards()) {
+	for (Bitboard& piece: upperLevelPieces.splitIntoBitboards()) {
 		if (pieceStacks[piece.hash()].front().first == turnColor) {
 			PieceName name = pieceStacks[piece.hash()].front().second;
 
@@ -867,8 +867,8 @@ int GameState::moveApproximation(Bitboard piece, bool isPinned){
 
 			int approxMoves = 0;
 			//inherits moves of surrounding pieces
-			for (auto adjPiece: piecePerimeter.splitIntoBitboards()) {
-				approxMoves += moveApproximation(piece, isPinned);
+			for (auto& adjPiece: piecePerimeter.splitIntoBitboards()) {
+				approxMoves += moveApproximation(adjPiece, isPinned);
 			}
 
 

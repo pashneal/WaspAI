@@ -1041,7 +1041,8 @@ list <Bitboard> Bitboard::splitIntoBitboards() {
 			unsigned long long leastSignificantBit = board & -board;
 			board ^= leastSignificantBit; // remove least significant bit
 
-			Bitboard splitted({{i,leastSignificantBit}});
+			Bitboard splitted;
+			splitted.setBoard(i, leastSignificantBit);
 			returnList.push_front(splitted);
 		}		
 	}

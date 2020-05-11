@@ -1649,8 +1649,8 @@ void Test::GameStateTest::testPlayout() {
 	int firstPlayerWins = 0;
 	int secondPlayerWins =0 ;
 	int draws = 0;
-	int count = 500;
-	int limit = 500;
+	int count = 125;
+	int limit = 2000;
 	auto totalBegin = chrono::steady_clock::now();
 	for (int i = 0; i < count; i++) {
 		GameState newGame(HivePLM, PieceColor::WHITE);
@@ -1670,6 +1670,8 @@ void Test::GameStateTest::testPlayout() {
 	}
 	auto totalEnd = chrono::steady_clock::now();
 	double totalElapsed = chrono::duration_cast<chrono::milliseconds>(totalEnd -totalBegin).count();
+	cout << " total games played: " << count << endl;
+	cout << " limit: " << limit << endl;
 	cout << " avg moves: " << (float)numMoves/count << " average ms " << (float)ms/count << endl;
 	cout << " firstPlayerWins " << firstPlayerWins << " secondPlayerWins " 
 		 << secondPlayerWins << " draws " << draws << endl;
@@ -2020,10 +2022,10 @@ int main() {
 	Test::PieceGraphTest::testFindAllPinnedPieces();
 	Test::GameStateTest::testFastSpawnPiece();
 	Test::GameStateTest::testMovePiece();
-	//Test::GameStateTest::testPsuedoRandom();
-	//perfTest();
-	//Test::GameStateTest::testPlayout();
+	Test::GameStateTest::testPsuedoRandom();
+	perfTest();
+	Test::GameStateTest::testPlayout();
 	Test::ArenaTest::testArenaNotation();
 	//Test::ArenaTest::testBattle();
-	Test::MonteCarloTest::testRandomSearch();
+	//Test::MonteCarloTest::testRandomSearch();
 }

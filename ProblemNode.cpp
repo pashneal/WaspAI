@@ -169,7 +169,7 @@ void ProblemNodeContainer::updateVisible(Bitboard& locations) {
 	visibleProblemNodes.unionWith(locations);
 	visibleProblemNodes.xorWith(locations);
 
-	for (auto location: locations.splitIntoBitboards()){
+	for (auto& location: locations.splitIntoBitboards()){
 		int hashInt = location.hash();
 
 		auto problemNodes = locationHashTable[hashInt].begin();
@@ -246,7 +246,7 @@ Bitboard ProblemNodeContainer::getPerimeter(Bitboard& pieces) {
 	//first assume every direction is in perimeter
 	perimeter = pieces.getPerimeter();
 
-	for (auto piece: pieces.splitIntoBitboards()) {
+	for (auto& piece: pieces.splitIntoBitboards()) {
 		for (auto restrictedNodes: locationHashTable[piece.hash()]) {
 			//remove every restriction found
 			perimeter.notIntersectionWith(restrictedNodes);
