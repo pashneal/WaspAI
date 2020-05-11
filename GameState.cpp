@@ -274,7 +274,10 @@ double GameState::approximateEndResult() {
 		Bitboard queen = *getPieces(color);
 		queen.intersectionWith(queens);
 
-		if (!queen.count()) return .5;
+		if (!queen.count()) {
+			cout << "Queens are doing wonky things" << endl;
+			throw 91;
+		}
 		//count number of pieces surrounding queen
 		Bitboard surrounding(queen);
 		surrounding = surrounding.getPerimeter();
