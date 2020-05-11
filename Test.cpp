@@ -1211,13 +1211,13 @@ void Test::GameStateTest::testMovePiece(){
 	vector <pair <Bitboard, PieceName> > initialPieces;
 	cout << "====================TestMovePiece====================" << endl;
 	initialPieces = {
-		{Bitboard({{5,134217728u}}), PieceName::ANT},
-		{Bitboard({{5,34359738368u}}), PieceName::ANT},
-		{Bitboard({{5,1048576u}}), PieceName::ANT},
-		{Bitboard({{5, 4398046511104u}}), PieceName::ANT},
-		{Bitboard({{5, 524288u}}), PieceName::QUEEN},
-		{Bitboard({{5, 8796093022208u}}), PieceName::BEETLE},
-		{Bitboard({{5, 67108864u}}), PieceName::MOSQUITO},
+		{Bitboard({{5,134217728u}}), PieceName::ANT}, //White
+		{Bitboard({{5,34359738368u}}), PieceName::ANT}, //Black
+		{Bitboard({{5,1048576u}}), PieceName::ANT}, //White
+		{Bitboard({{5, 4398046511104u}}), PieceName::ANT}, //Black
+		{Bitboard({{5, 524288u}}), PieceName::QUEEN}, //White
+		{Bitboard({{5, 8796093022208u}}), PieceName::BEETLE}, //Black
+		{Bitboard({{5, 67108864u}}), PieceName::MOSQUITO}, //White
 	};
 	
 
@@ -1234,9 +1234,9 @@ void Test::GameStateTest::testMovePiece(){
 		color = !color;
 	}
 
-	gameState.fastMovePiece(testAnt, finalAnt);
-	gameState.fastMovePiece(testMosquito, finalMosquito);
-	gameState.fastMovePiece(testBeetle, finalBeetle);
+	gameState.fastMovePiece(testAnt, finalAnt);  //black
+	gameState.fastMovePiece(testMosquito, finalMosquito); //white
+	gameState.fastMovePiece(testBeetle, finalBeetle); //black
 	
 	color = !color;
 	int turnCounter = 10;
@@ -1262,7 +1262,7 @@ void Test::GameStateTest::testMovePiece(){
 		stackCompare.pop(); stackCopy.pop_front();
 	}
 
-	bool silenced = true;
+	bool silenced = false;
 	Test::pass(turnCounter == gameState.turnCounter, "turnCounter produced incorrect results");
 	Test::pass(gameState.ants == ants , " ants produced incorrect results");
 	Test::pass(gameState.queens == queens , " queens produced incorrect results");
@@ -1278,7 +1278,7 @@ void Test::GameStateTest::testMovePiece(){
 
 	gameState.changeTurnColor();
 	gameState.fastMovePiece(finalBeetle, testBeetle);
-	blackPieces.initialize({{5, 8813272891392u}});	
+	blackPieces.initialize({{5, 8847632629760u}});	
 	finalBoard.unionWith(blackPieces);
 	immobile.initializeTo(testBeetle);
 	beetles.initializeTo(testBeetle);
@@ -1305,6 +1305,7 @@ void Test::GameStateTest::testMovePiece(){
 	Test::pass(gameState.immobile == immobile , " immobile produced incorrect results");
 	Test::pass(gameState.whitePieces == whitePieces , " whitePieces produced incorrect results");
 	Test::pass(gameState.blackPieces == blackPieces , " blackPieces produced incorrect results");
+	if (!silenced) {gameState.blackPieces.print();}
 	Test::pass(gameState.allPieces == finalBoard , " allPieces produced incorrect results");
 	Test::pass(finalMosquito == gameState.upperLevelPieces, " upperLevelPieces incorrect");
 	if (!silenced) {gameState.upperLevelPieces.print();}
@@ -1313,7 +1314,7 @@ void Test::GameStateTest::testMovePiece(){
 void Test::GameStateTest::testPsuedoRandom() {
 	GameState gameState(HivePLM, PieceColor::WHITE);
 	vector <pair <Bitboard, PieceName> > initialPieces;
-	cout << "====================TestRandomMove====================" << endl;
+	cout << "====================TestPsuedoRandom====================" << endl;
 	initialPieces = {
 		{Bitboard({{5,134217728u}}), PieceName::ANT},
 		{Bitboard({{5,34359738368u}}), PieceName::MOSQUITO},
@@ -1527,7 +1528,7 @@ void Test::GameStateTest::testPsuedoRandom() {
 	
 	GameState c(gameState);
 
-	for (int i = 0 ; i < 1000000; i++ ) {
+	for (int i = 0 ; i < 10000; i++ ) {
 		if (!(i % 100)) cout << i << " probably legal moves made" << endl;	
 		if (i % 500 == 0) {c = gameState; color = gameState.turnColor;}
 		c.makePsuedoRandomMove();
@@ -1537,6 +1538,7 @@ void Test::GameStateTest::testPsuedoRandom() {
 			throw 42;
 		}
 		
+
 		Bitboard test;
 		for (auto i: c.pieceGraph.DFS() ){
 			Bitboard t({{i->boardIndex,i->location}});
@@ -1596,6 +1598,7 @@ void Test::GameStateTest::testPsuedoRandom() {
 		}
 	}
 }
+
 void perfTest() {
 	vector <pair <Bitboard , PieceName>> initialPieces = {
 		{Bitboard({{5,134217728u}}), PieceName::ANT},
@@ -1855,20 +1858,32 @@ void Test::ArenaTest::testBattle() {
 void Test::MonteCarloTest::testRandomSearch(){
 	bool silenced = false;
 
-	MonteCarloSimulations  = 100;
+	MonteCarloSimulations  = 10000;
 	MonteCarloSimulationsCutoff = 500;
+	numCores = 1;
 
 	GameState newGameState(HivePLM, PieceColor::WHITE);
 	Heuristic h(RANDOM, {'P','L','M'});
 	Arena arena(newGameState);
+	MonteCarloNode root;
+	MonteCarloTree MCT(h);
+	MonteCarloTree MCT2(h);
+	arena.setPlayer(PieceColor::WHITE , MCT);
+	arena.setPlayer(PieceColor::BLACK , MCT2);
+	arena.makeMove("wP");
+	arena.makeMove("bG1 wP-");
+	arena.makeMove("wQ /wP");
+	arena.makeMove("bA1 bG1\\");
+	arena.makeMove("wB1 wQ\\");
+	arena.makeMove("bQ bG1/");
+	arena.makeMove("wS1 /wQ");
+	arena.makeMove("bA2 bQ/");
+	arena.makeMove("wL -wQ");
+	arena.makeMove("bA2 \\wQ");
 
-	while( !arena.currentGameState.checkDraw() && arena.currentGameState.checkVictory() == PieceColor::NONE) {
-		MonteCarloNode root;
-		MonteCarloTree MCT(h);
-		MoveInfo bestMove = MCT.multiSearch(arena.currentGameState, 2);
-		if (!silenced)
-			cout << arena.convertToNotation(bestMove) << endl;
-		arena.makeMove(bestMove);
+	while( !arena.currentGameState.checkDraw() &&
+			arena.currentGameState.checkVictory() == PieceColor::NONE) {
+		arena.battle(silenced);
 	}
 }
 
@@ -2055,10 +2070,10 @@ int main() {
 	Test::PieceGraphTest::testFindAllPinnedPieces();
 	Test::GameStateTest::testFastSpawnPiece();
 	Test::GameStateTest::testMovePiece();
-	Test::GameStateTest::testPsuedoRandom();
-	perfTest();
+	//Test::GameStateTest::testPsuedoRandom();
+	//perfTest();
 	Test::GameStateTest::testPlayout();
-	//Test::ArenaTest::testArenaNotation();
+	Test::ArenaTest::testArenaNotation();
 	//Test::ArenaTest::testBattle();
-	//Test::MonteCarloTest::testRandomSearch();
+	Test::MonteCarloTest::testRandomSearch();
 }
