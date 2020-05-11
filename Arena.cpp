@@ -56,10 +56,10 @@ set<Direction> westernDirection = {NW, SW, W};
  *Initialized to human players by default
  */
 void Arena::setPlayer(int playerNum, MonteCarloTree& searchAlgo) {
-	if (playerNum == 1) {
+	if (playerNum == 0) {
 		playerOneCPU = true;
 		CPU[0].initializeTo(searchAlgo);
-	} else if (playerNum == 2) {
+	} else if (playerNum == 1) {
 		playerTwoCPU = true;
 		CPU[1].initializeTo(searchAlgo);
 	} else {
@@ -231,6 +231,11 @@ MoveInfo Arena::convertFromNotation(string notation) {
 		move.newPieceLocation = foundPiece;
 
 	}
+	if (move.newPieceLocation == Bitboard() && move.oldPieceLocation == Bitboard()) {
+		cout << "Parse error for input notation" << endl; 
+		cout <<  notation << endl;
+ 		throw  55;
+	}
 	return move;
 }
 
@@ -276,8 +281,12 @@ void Arena::makeMove(MoveInfo move){
 	
 	//remove from old location, insert into new
 	if (movingPiece.count())
-		pieceOrders[movingPiece.hash()].pop_back();
+		pieceOrders.at(movingPiece.hash()).pop_back();
 
+	if (newLocation.count() == 0){
+		cout << move.toString("") << endl;
+		throw 3;
+	}
 	pieceOrders[newLocation.hash()].push_back(make_tuple(name, color, pieceOrderString));
 
 	//update 
@@ -337,7 +346,7 @@ bool Arena::battle(bool silent) {
 		}
 
 		if (isCPU) {
-			selectedMove = CPU[i].multiSearch(currentGameState, 1);
+			selectedMove = CPU[i].multiSearch(currentGameState, numCores);
 			if (std::find(moves.begin(), moves.end(), selectedMove) == moves.end())  {
 				cout << "SearchAlgorithm " << i << " returned an illegal move " << endl;
 				throw "hello darkness my old friend";
