@@ -122,14 +122,12 @@ Bitboard PieceGraph::getPinnedPieces() {
 
 
 void PieceGraph::destroy() {
-	articulationNodes.clear();
 	for (auto element : bitboardHashTable ) {
-		PieceNode * ptr = element.second;
-			ptr->neighbors.clear();
-			ptr->parent = nullptr;
-			delete ptr;
+		delete element.second;
 	}
 	bitboardHashTable.clear();
+	articulationNodes.clear();
+	allPieces.clear();
 }
 
 void PieceGraph::DFS( PieceNode * root,

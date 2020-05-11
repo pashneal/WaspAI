@@ -38,14 +38,20 @@ class PieceGraph {
 
 		void destroy();
 
-		void operator = (const PieceGraph& other) {
+		void initializeTo (const PieceGraph& other) {
+			allPieces.print();
 			for (auto element: other.bitboardHashTable) {
-				Bitboard bitboard({{element.second -> boardIndex, 
-											 element.second -> location}});
+				Bitboard bitboard;
+				bitboard.setBoard(element.second->boardIndex, element.second -> location);
 				insert(bitboard);
 			}
 		}
 
 		void DFS ( PieceNode*, unordered_set<PieceNode*>&);
 		unordered_set<PieceNode*> DFS ();
+
+		void operator=(const PieceGraph& other){
+			destroy();
+			initializeTo(other);
+		}
 };
