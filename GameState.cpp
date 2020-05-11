@@ -108,11 +108,11 @@ void GameState::fastRemovePiece(Bitboard& oldBitboard){
 	PieceColor color = findTopPieceColor(oldBitboard); 
 	PieceName name = findTopPieceName(oldBitboard); 
 	//remove oldBitboard and assume nopiece is underneath
-	getPieces(name) -> xorWith(oldBitboard);
-	getPieces(color) -> xorWith(oldBitboard);
+	getPieces(name) -> notIntersectionWith(oldBitboard);
+	getPieces(color) -> notIntersectionWith(oldBitboard);
 	pieceStacks[bitHash].pop_front();
 
-	if (!(pieceStacks[bitHash].size())) {
+	if (pieceStacks[bitHash].size() == 0) {
 		//if was only piece in stack, remove completely
 		pieceStacks.erase(bitHash);
 		pieceGraph.remove(oldBitboard);
@@ -123,11 +123,22 @@ void GameState::fastRemovePiece(Bitboard& oldBitboard){
 			//remove from upperLevelPieces
 			upperLevelPieces.notIntersectionWith(oldBitboard);
 		}
-		//update gameState with stack underneath
-		PieceColor newColor = pieceStacks[bitHash].front().first;
-		getPieces(newColor) -> unionWith(oldBitboard);
-		PieceName name = pieceStacks[bitHash].front().second;
-		getPieces(name) -> unionWith(oldBitboard);
+
+		if (pieceStacks[bitHash].size() > 1){
+			//update gameState with stack underneath
+			auto copy = pieceStacks[bitHash];
+			while (copy.size()){
+				getPieces(copy.front().first) -> unionWith(oldBitboard);
+				getPieces(copy.front().second) -> unionWith(oldBitboard);
+				copy.pop_front();
+			}
+		} else {
+			//update gameState with single piece underneath
+			PieceColor newColor = pieceStacks[bitHash].front().first;
+			getPieces(newColor) -> unionWith(oldBitboard);
+			PieceName name = pieceStacks[bitHash].front().second;
+			getPieces(name) -> unionWith(oldBitboard);
+		}
 	}
 }
 
@@ -179,11 +190,15 @@ void GameState::randomMovePiece(Bitboard& initialPiece,
 						  Bitboard& possibleFinalLocations){
 	possibleFinalLocations = possibleFinalLocations.getRandom();
 	fastMovePiece(initialPiece, possibleFinalLocations);
+	cout << "INITIAL PIECE : " << endl;
+	initialPiece.print();
+	cout << "FINAL PIECE : " << endl;
+	possibleFinalLocations.print();
 }
 void GameState::replayMove(MoveInfo moveInfo) {
 	//if an empty move
 	if (moveInfo == MoveInfo()) {
-		turnCounter++; changeTurnColor(); return;
+		turnCounter++; changeTurnColor(); immobile.clear(); return;
 	}
 
 	PieceColor color  = turnColor;
@@ -696,6 +711,7 @@ bool GameState::makePsuedoRandomMove() {
 	//if no move was made, pass a turn
 	turnCounter++;
 	changeTurnColor();
+	immobile.clear();
 	return false;
 }
 
