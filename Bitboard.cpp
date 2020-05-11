@@ -41,7 +41,6 @@
  */
 #include <iterator>
 #include <list>
-#include <set>
 #include <algorithm>
 #include "constants.h"
 #include "Bitboard.h"
@@ -739,7 +738,7 @@ bool Bitboard::equals(Bitboard& other){
 	//TODO: fix prunce cache leaks
 	other.pruneCache();
 	pruneCache();
-	set<int> combined;
+	boost::container::flat_set<int> combined;
 	for (auto a : other.internalBoardCache){
 		combined.insert(a);
 	}

@@ -6,16 +6,15 @@
 #include <unordered_map>
 #include <map>
 #include <iostream>
-#include <set>
 #include "constants.h"
-
+#include <boost/container/flat_set.hpp>
 
 using namespace std;
 class Bitboard {
 
 //	map<int, unsigned long long> internalBoards;
 
-	set<int> internalBoardCache;
+	boost::container::flat_set<int> internalBoardCache;
 	unsigned long long internalBoards[BITBOARD_SIZE];
 
 	//low level bit twiddling functions
@@ -95,7 +94,7 @@ class Bitboard {
 	}	
 
 	bool operator == (const Bitboard& other) const {
-		set <int> combined;
+		boost::container::flat_set <int> combined;
 		for (auto i: internalBoardCache) {
 			if (internalBoards[i] != 0) combined.insert(i);
 		}

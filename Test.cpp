@@ -2021,11 +2021,11 @@ int main() {
 	Test::MoveGeneratorTest::testPillbugMoves();
 	Test::PieceGraphTest::testFindAllPinnedPieces();
 	Test::GameStateTest::testFastSpawnPiece();
-	Test::GameStateTest::testMovePiece();
-	Test::GameStateTest::testPsuedoRandom();
+	//Test::GameStateTest::testMovePiece();
+	//Test::GameStateTest::testPsuedoRandom();
 	perfTest();
 	Test::GameStateTest::testPlayout();
-	Test::ArenaTest::testArenaNotation();
+	//Test::ArenaTest::testArenaNotation();
 	//Test::ArenaTest::testBattle();
 	//Test::MonteCarloTest::testRandomSearch();
 }

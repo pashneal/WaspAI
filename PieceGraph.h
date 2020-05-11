@@ -10,7 +10,7 @@ using namespace std;
 
 class PieceGraph {
 		//the pieceGraph assumes that the graph is connected
-		set <PieceNode*> articulationNodes;
+		unordered_set <PieceNode*> articulationNodes;
 
 		//assumes that this is updated before every insert or remove operation
 		Bitboard allPieces;
