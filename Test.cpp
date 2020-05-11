@@ -1527,9 +1527,9 @@ void Test::GameStateTest::testPsuedoRandom() {
 	
 	GameState c(gameState);
 
-	color = gameState.turnColor;
-	for (int i = 0 ; i < 10000 ; i++ ) {
+	for (int i = 0 ; i < 1000000; i++ ) {
 		if (!(i % 100)) cout << i << " probably legal moves made" << endl;	
+		if (i % 500 == 0) {c = gameState; color = gameState.turnColor;}
 		c.makePsuedoRandomMove();
 		//cout << " turnCounter: " << c.turnCounter << " turnColor: " << c.turnColor << endl;
 		if (c.allPieces.splitIntoConnectedComponents().size() != 1){
@@ -1543,7 +1543,11 @@ void Test::GameStateTest::testPsuedoRandom() {
 			test.unionWith(t);
 		}
 		if (!(test == c.allPieces)) {
-			Test::pass(false, "Not all pieces are represented by piece graph");
+			Test::pass(false, "piece graph does not reflect allPieces");
+			c.print();
+			cout << "test" << endl;
+			test.print();
+			
 			throw 77;
 		}
 		Bitboard allPiecesTest;
@@ -1555,6 +1559,35 @@ void Test::GameStateTest::testPsuedoRandom() {
 			throw 76;
 		}
 
+		vector <unordered_map<PieceName, int>> count;
+		count.resize(2);
+		for (auto iter: c.pieceStacks){
+			auto pieceStack = iter.second;
+			while(pieceStack.size()){
+				PieceColor foundColor = pieceStack.front().first;
+				PieceName foundName = pieceStack.front().second;
+				if (count[foundColor].find(foundName) == count[foundColor].end())
+					count[foundColor][foundName] = 0;
+				count[foundColor][foundName]++;
+				pieceStack.pop_front();
+			}
+		}
+		for (int xx = 0 ; xx < PieceColor::NONE; xx++){
+			for (int x = 0; x < (int)HivePLM[xx].size(); x++){
+				count[xx][(PieceName)x] = HivePLM[xx][(PieceName)x] - count[xx][(PieceName)x];
+			}
+		}
+		if (!(count == c.unusedPieces)){
+			Test::pass(false, "There are pieces missing from the hive after the last move");
+			c.print();
+			cout << endl << "count" << endl;
+			for (auto iter: count[0])
+				cout << "pieceName " << iter.first << " amountRemaining " << iter.second << endl;
+			cout << "player 1" << endl;
+			for (auto iter: count[1])
+				cout << "pieceName " << iter.first << " amountRemaining " << iter.second << endl;
+			throw 54;
+		}
 
 		color = !color;
 		if (c.turnColor != color) {
@@ -2021,8 +2054,8 @@ int main() {
 	Test::MoveGeneratorTest::testPillbugMoves();
 	Test::PieceGraphTest::testFindAllPinnedPieces();
 	Test::GameStateTest::testFastSpawnPiece();
-	//Test::GameStateTest::testMovePiece();
-	//Test::GameStateTest::testPsuedoRandom();
+	Test::GameStateTest::testMovePiece();
+	Test::GameStateTest::testPsuedoRandom();
 	perfTest();
 	Test::GameStateTest::testPlayout();
 	//Test::ArenaTest::testArenaNotation();

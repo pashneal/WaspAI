@@ -39,7 +39,6 @@ class PieceGraph {
 		void destroy();
 
 		void initializeTo (const PieceGraph& other) {
-			allPieces.print();
 			for (auto element: other.bitboardHashTable) {
 				Bitboard bitboard;
 				bitboard.setBoard(element.second->boardIndex, element.second -> location);
