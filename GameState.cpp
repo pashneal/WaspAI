@@ -108,8 +108,8 @@ void GameState::fastRemovePiece(Bitboard& oldBitboard){
 	PieceColor color = findTopPieceColor(oldBitboard); 
 	PieceName name = findTopPieceName(oldBitboard); 
 	//remove oldBitboard and assume nopiece is underneath
-	getPieces(name) -> notIntersectionWith(oldBitboard);
-	getPieces(color) -> notIntersectionWith(oldBitboard);
+	getPieces(name) -> xorWith(oldBitboard);
+	getPieces(color) -> xorWith(oldBitboard);
 	pieceStacks[bitHash].pop_front();
 
 	if (pieceStacks[bitHash].size() == 0) {
