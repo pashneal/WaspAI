@@ -275,9 +275,11 @@ double GameState::approximateEndResult() {
 		queen.intersectionWith(queens);
 
 		if (!queen.count()) {
+			print();
 			cout << "Queens are doing wonky things" << endl;
 			throw 91;
 		}
+
 		//count number of pieces surrounding queen
 		Bitboard surrounding(queen);
 		surrounding = surrounding.getPerimeter();
@@ -692,6 +694,7 @@ bool GameState::makePsuedoRandomMove() {
 
 	if (madeAMove) return true;
 	//if no move was made, pass a turn
+	turnCounter++;
 	changeTurnColor();
 	return false;
 }
