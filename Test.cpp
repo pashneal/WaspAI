@@ -1262,7 +1262,7 @@ void Test::GameStateTest::testMovePiece(){
 		stackCompare.pop(); stackCopy.pop_front();
 	}
 
-	bool silenced = false;
+	bool silenced = true;
 	Test::pass(turnCounter == gameState.turnCounter, "turnCounter produced incorrect results");
 	Test::pass(gameState.ants == ants , " ants produced incorrect results");
 	Test::pass(gameState.queens == queens , " queens produced incorrect results");
@@ -1856,9 +1856,10 @@ void Test::ArenaTest::testBattle() {
 }
 
 void Test::MonteCarloTest::testRandomSearch(){
-	bool silenced = false;
+	cout << "=========================TestRandomSearch===========================" <<endl;
+	bool silenced = true;
 
-	MonteCarloSimulations  = 10000;
+	MonteCarloSimulations  = 1000;
 	MonteCarloSimulationsCutoff = 500;
 	numCores = 1;
 
@@ -1870,21 +1871,25 @@ void Test::MonteCarloTest::testRandomSearch(){
 	MonteCarloTree MCT2(h);
 	arena.setPlayer(PieceColor::WHITE , MCT);
 	arena.setPlayer(PieceColor::BLACK , MCT2);
-	arena.makeMove("wP");
-	arena.makeMove("bG1 wP-");
-	arena.makeMove("wQ /wP");
-	arena.makeMove("bA1 bG1\\");
-	arena.makeMove("wB1 wQ\\");
-	arena.makeMove("bQ bG1/");
-	arena.makeMove("wS1 /wQ");
-	arena.makeMove("bA2 bQ/");
-	arena.makeMove("wL -wQ");
-	arena.makeMove("bA2 \\wQ");
+	//set up for mate in one 
+	arena.makeMove("wA1");
+	arena.makeMove("bA1 wA1-");
+	arena.makeMove("wQ -wA1");
+	arena.makeMove("bQ bA1-");
+	arena.makeMove("wG1 wQ/");
+	arena.makeMove("bS1 \\bQ");
+	arena.makeMove("wB1 /wQ");
+	arena.makeMove("bL1 bQ/");
+	arena.makeMove("wS1 /wA1");
+	arena.makeMove("bG1 bQ-");
+	arena.makeMove("wA2 \\wQ");
+	//if the next move is made, white can mate
+	// arena.makeMove("bG1 bQ\\");
 
-	while( !arena.currentGameState.checkDraw() &&
-			arena.currentGameState.checkVictory() == PieceColor::NONE) {
-		arena.battle(silenced);
-	}
+	arena.battle(silenced);
+	cout << endl;
+	Test::pass(arena.currentGameState.checkVictory() == PieceColor::BLACK, 
+				"Computer player did not find the winning move");
 }
 
 //creates a hashTable that stores the precomputed perimeter

@@ -3,7 +3,6 @@
 #include <list>
 #include "PieceNode.h"
 #include <unordered_map>
-#include <stack>
 #include <unordered_set>
 #include <functional>
 using namespace std;
