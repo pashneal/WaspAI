@@ -14,6 +14,7 @@ DEPENDENCIES=Bitboard.o\
 	PieceNode.o\
 	ProblemNode.o\
 	Test.o\
+	Weight.o\
 	Arena.o
 
 debug: 
@@ -46,6 +47,8 @@ MoveGenerator.o: ProblemNode.h Bitboard.h MoveGenerator.h MoveGenerator.cpp cons
 PieceNode.o: Bitboard.h PieceNode.h PieceNode.cpp constants.h
 
 Arena.o: Arena.h Arena.cpp constants.h Heuristic.h 
+
+Weight.o: Weight.h Weight.cpp GameState.h
 
 Test.o: Test.h Test.cpp
 	$(CXX) $(CXXFLAGSDEBUG) -c Test.cpp
