@@ -42,10 +42,11 @@ pair<int, int> KillShotCountWeight::recalculate() {
  */
 double KillShotCountWeight::evaluate(MoveInfo move){
 	double result;
-	//initially assume that the maximizing player is white
-	//and see if necessary to recalculate weight
+	//see if necessary to recalculate weight
 	if ( watchPoints.containsAny(move.newPieceLocation) ||
-		 watchPoints.containsAny(move.oldPieceLocation) ){
+		 watchPoints.containsAny(move.oldPieceLocation) || 
+		 parentGameState.queens.count() < 2)
+	{
 		parentGameState.replayMove(move);
 		auto killShotCounts = recalculate();
 		result = killShotCounts.first - killShotCounts.second;
@@ -55,8 +56,10 @@ double KillShotCountWeight::evaluate(MoveInfo move){
 		result = queenKillShotCount[WHITE] - queenKillShotCount[BLACK];
 	}
 
+	//initially assumed maximizing player is WHITE
 	//correct assumptions if necessary
 	PieceColor maximizingColor = parentGameState.turnColor;
 	if (maximizingColor == PieceColor::BLACK) result = -result;
-	return result;
+	
+	return result*multiplier;
 }
