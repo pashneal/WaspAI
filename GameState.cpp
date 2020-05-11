@@ -190,10 +190,6 @@ void GameState::randomMovePiece(Bitboard& initialPiece,
 						  Bitboard& possibleFinalLocations){
 	possibleFinalLocations = possibleFinalLocations.getRandom();
 	fastMovePiece(initialPiece, possibleFinalLocations);
-	cout << "INITIAL PIECE : " << endl;
-	initialPiece.print();
-	cout << "FINAL PIECE : " << endl;
-	possibleFinalLocations.print();
 }
 void GameState::replayMove(MoveInfo moveInfo) {
 	//if an empty move
