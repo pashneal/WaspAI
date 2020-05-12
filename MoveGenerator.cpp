@@ -75,29 +75,28 @@ void MoveGenerator::generateMoves() {
 
 //TODO:optimize it is so slow
 void MoveGenerator::generateGrasshopperMoves(){
+	intermediate.clear();
 	for (Direction dir: hexagonalDirections){
-
 		Bitboard nextPiece(*generatingPieceBoard);
 
 		nextPiece.shiftDirection(dir);
 		
+		intermediate.unionWith(nextPiece);
 		//check if there is a piece to jump over
 		nextPiece.intersectionWith(*allPieces);
+
 		if (nextPiece.count() == 0) {
 			//cannot move in this Direction
 			//if no piece to jump over
 			continue;
 		}
 
-		bool pieceExists = true;
-		nextPiece.initializeTo(*generatingPieceBoard);
-		nextPiece.shiftDirection(dir);
-
-		while (pieceExists) {
-			//see if there is a piece to jump over
+		//jump over pieces until it is not possible
+		do {
 			nextPiece.shiftDirection(dir);
-			pieceExists = allPieces -> containsAny(nextPiece);
-		}
+			intermediate.unionWith(nextPiece);
+		} while(allPieces -> containsAny(nextPiece));
+				
 		moves.unionWith(nextPiece);
 	}
 }

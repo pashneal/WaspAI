@@ -48,6 +48,8 @@ class MoveGenerator {
 
 		ProblemNodeContainer *problemNodes;
 		Bitboard * allPieces;
+		//store locations that affect where a piece can move
+		Bitboard intermediate;
 
 		const int NUM_SPIDER_MOVES = 3;
 
