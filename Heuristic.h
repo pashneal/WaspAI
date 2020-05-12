@@ -6,7 +6,7 @@ class Heuristic {
 		int depth = 0;
 	public:
 		vector <Weight> weights;
-		GameState parentGameState;
+		GameState * gameState;
 		int NUMWEIGHTS;
 
 		Heuristic(){};
@@ -16,6 +16,6 @@ class Heuristic {
 		void saveWeights(string);
 		void save();
 		void train(vector<double>);
-		void setGameState(GameState&);
+		void setGameState(GameState);
 		vector<double> evaluate(MoveInfo);
 };

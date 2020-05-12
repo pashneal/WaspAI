@@ -23,17 +23,25 @@ void Heuristic::saveWeights(string){
 //save to the default file 
 void Heuristic::save(){
 }
-void Heuristic::setGameState(GameState& parentGameState) {
+void Heuristic::setGameState(GameState parentGameState) {
+	if (gameState != nullptr)
+		delete gameState;
+	gameState = new GameState(parentGameState);
+	
 	for (Weight w: weights) {
-		w.initialize(parentGameState);
+		w.initialize(gameState);
 	}
 }
 //assumes game state is already initialized
 vector<double> Heuristic::evaluate(MoveInfo m){
 	vector <double> evals;
+
+	gameState->replayMove(m);
 	for (Weight w: weights) {
 		evals.push_back(w.evaluate(m));
 	}
+	gameState->undoMove(m);
+
 	return evals;
 }
 

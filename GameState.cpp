@@ -210,9 +210,10 @@ void GameState::replayMove(MoveInfo moveInfo) {
 	turnCounter++; changeTurnColor();
 }
 void GameState::undoMove(MoveInfo moveInfo) {
-	//if an empty move
 	if (moveInfo == MoveInfo()) {
-		turnCounter++; changeTurnColor(); return;
+		cout << "Not allowed to undo an empty move" << endl;
+		cout << "prevImmobile value needs to be set" << endl;
+		throw 4;
 	}
 
 	PieceColor color  = turnColor;
@@ -672,10 +673,10 @@ bool GameState::makePsuedoRandomMove() {
 
 		if (test.count()) {
 			for (Bitboard& piece: test.splitIntoBitboards() ) {
-				int numMoves = 1;
-				//bool isPinned = pinned.containsAny(piece);
-				//int numMoves = moveApproximation(piece, name, isPinned);
-				//if (numMoves == 0) continue;
+				//int numMoves = 1;
+				bool isPinned = !pinned.containsAny(piece);
+				int numMoves = moveApproximation(piece, isPinned);
+				if (numMoves == 0) continue;
 				movesPerPiece[name].push_back(make_pair(piece, numMoves));
 				total += numMoves;
 			}
@@ -687,8 +688,8 @@ bool GameState::makePsuedoRandomMove() {
 		if (pieceStacks[piece.hash()].front().first == turnColor) {
 			PieceName name = pieceStacks[piece.hash()].front().second;
 
-			//int numMoves = moveApproximation(piece, PieceName::BEETLE, false);
-			int numMoves = 1;
+			int numMoves = moveApproximation(piece, false);
+			//int numMoves = 1;
 			total += numMoves;
 			movesPerPiece[name].push_back(make_pair(piece, numMoves));
 		}
@@ -712,6 +713,7 @@ bool GameState::makePsuedoRandomMove() {
 }
 
 bool GameState::makeTrueRandomMove() {
+
 	getAllMoves();
 	int total = 0;
 	//count moves, swaps, and spawns respectively
@@ -773,7 +775,7 @@ bool GameState::makeTrueRandomMove() {
 }
 bool GameState::attemptSpawn(int totalApproxMoves) {
 	Bitboard spawns = getAllSpawnSpaces();
-	int spawnsCount = countTotalUnusedPieces();
+	int spawnsCount = countTotalUnusedPieces()*spawns.count();
 	if (spawns.count() == 0) return false;
 
 	//if there are no legal spawns 
@@ -867,7 +869,7 @@ bool GameState::attemptMove(vector<movesCollection>& approxMovesPerPiece, int to
 
 int GameState::moveApproximation(Bitboard piece, bool isPinned){
 	PieceName name = findTopPieceName(piece);
-	if (isPinned && name != PieceName::PILLBUG) return 0;
+	if (isPinned && name != PieceName::PILLBUG && !upperLevelPieces.containsAny(piece)) return 0;
 	switch (name) {
 		case MOSQUITO:
 		{
