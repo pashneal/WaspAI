@@ -230,6 +230,8 @@ void GameState::undoMove(MoveInfo moveInfo) {
 	//correct immobile piece assumption
 	immobile = moveInfo.prevImmobile;
 	fastRemovePiece(moveInfo.newPieceLocation);
+	if (!moveInfo.oldPieceLocation.count())
+		findPinnedPieces();
 }
 
 PieceColor GameState::checkVictory() {
