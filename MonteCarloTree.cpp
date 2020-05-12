@@ -138,12 +138,17 @@ MoveInfo MonteCarloTree::search(nodePtr root, GameState initialGameState, int nu
 //multithreaded search of the game space
 MoveInfo MonteCarloTree::multiSearch(GameState& initialGameState, int numThreads){
 	vector <nodePtr> roots;
+	vector <MonteCarloTree*> MCTs;
 
 	vector <std::thread> threads;
 	int dividedWork = std::max(MonteCarloSimulations/numThreads, 1);
 	for (int i = 0; i < numThreads; i++) {
 		roots.push_back(new MonteCarloNode());
-		threads.push_back(std::thread(&MonteCarloTree::search,this, roots[i],
+		MCTs.push_back(new MonteCarloTree());
+		MCTs[i]->currentHeuristic = 
+			Heuristic(currentHeuristic.complexity, currentHeuristic.expansionPieces);
+		
+		threads.push_back(std::thread(&MonteCarloTree::search, MCTs[i], roots[i],
 								initialGameState, dividedWork));
 	}
 

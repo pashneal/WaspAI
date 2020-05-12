@@ -1,5 +1,8 @@
 #include "Heuristic.h"
-Heuristic::Heuristic (Complexity c, set<char> expansionPieces) {
+Heuristic::Heuristic (Complexity c, set<char> pieces) {
+	expansionPieces = pieces;
+	complexity = c;
+	
 	set<char> hiveCarbon {'P','L','M'};
 	if (expansionPieces != hiveCarbon) {
 		cout << "NOT IMPLEMENTED YET" << endl;

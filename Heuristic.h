@@ -8,6 +8,8 @@ class Heuristic {
 		vector <Weight *> weights;
 		GameState * gameState;
 		int NUMWEIGHTS;
+		Complexity complexity;
+		set<char> expansionPieces;
 
 		Heuristic(){};
 		Heuristic (Complexity, set<char>);
