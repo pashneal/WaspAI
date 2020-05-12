@@ -7,7 +7,7 @@ Heuristic::Heuristic (Complexity c, set<char> expansionPieces) {
 	}
 
 	if (c == Complexity::SIMPLE) {
-		weights.push_back(KillShotCountWeight(1));
+		weights.push_back(new KillShotCountWeight(1));
 	}else if (c != Complexity::RANDOM)  {
 		cout << "NOT IMPLEMENTED YET" << endl;
 		throw 10;
@@ -28,8 +28,8 @@ void Heuristic::setGameState(GameState parentGameState) {
 		delete gameState;
 	gameState = new GameState(parentGameState);
 	
-	for (Weight w: weights) {
-		w.initialize(gameState);
+	for (auto w: weights) {
+		w->initialize(gameState);
 	}
 }
 //assumes game state is already initialized
@@ -37,8 +37,8 @@ vector<double> Heuristic::evaluate(MoveInfo m){
 	vector <double> evals;
 
 	gameState->replayMove(m);
-	for (Weight w: weights) {
-		evals.push_back(w.evaluate(m));
+	for (auto w: weights) {
+		evals.push_back(w->evaluate(m));
 	}
 	gameState->undoMove(m);
 
@@ -49,7 +49,7 @@ void Heuristic::train(vector<double> corrections){
 	//apply corrections over weights
 	//TODO: is this the correct way to do it?
 	for (unsigned i = 0 ; i < corrections.size() ; i++){
-		weights[i].multiplier += corrections[i];
+		weights[i]->multiplier += corrections[i];
 	}
 	save();
 }
