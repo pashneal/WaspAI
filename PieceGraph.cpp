@@ -123,7 +123,9 @@ Bitboard PieceGraph::getPinnedPieces() {
 
 void PieceGraph::destroy() {
 	for (auto element : bitboardHashTable ) {
-		delete element.second;
+		if (element.second != nullptr){
+			delete element.second;
+		}
 	}
 	bitboardHashTable.clear();
 	articulationNodes.clear();
