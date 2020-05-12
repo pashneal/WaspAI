@@ -3,6 +3,7 @@ class Weight {
 	protected:	
 		GameState * parentGameState;
 	public: 
+		Bitboard watchPoints;
 		double multiplier;
 
 		Weight (){}
@@ -23,35 +24,6 @@ class RandomWeight: public Weight {
 		double calculate(MoveInfo) {return 0;};
 };
 
-class SimpleMoveCountWeight: public Weight {
-	public:
-		SimpleMoveCountWeight(double multiplier)
-			:Weight{multiplier}{};
-
-		//uses default initilization function
-		//void initialize(GameState){};	
-		
-		//evaluates the position from the point of view of the last
-		//person that moved
-		double evaluate(MoveInfo m) {
-			bool evaluatingPlayer = parentGameState->turnColor;
-			
-			int totalMoveCount = 0;
-			
-			//minimize opponent moves 
-			//maximize friendly moves
-			for (int i = 0; i < 2; i++ ) {
-				parentGameState->changeTurnColor();
-				int sign = 1;
-				if (parentGameState->turnColor != evaluatingPlayer)
-					sign = -1;
-				totalMoveCount += parentGameState->getAllMovesCount()*sign;
-			}
-			
-
-			return totalMoveCount;
-		}
-};
 
 class KillShotCountWeight: public Weight {
 		//places in the hive that would trigger a recount
@@ -61,12 +33,48 @@ class KillShotCountWeight: public Weight {
 	public:	
 
 		KillShotCountWeight(double multiplier) :Weight(multiplier){};
-		virtual void initializeTo(GameState * g);
-		virtual double evaluate(MoveInfo);
+		void initialize(GameState * g) override;
+		double evaluate(MoveInfo) override;
 		pair<int,int> recalculate();
 };
 
-class MoveCountWeight: public Weight {
-}
+class PinnedWeight : public Weight {
+	public: 
+		PinnedWeight(double multiplier) : Weight(multiplier) {};
+		double evaluate(MoveInfo) override;
+};
 
-//HEURISTIC SHOULD CHECK FOR VICTORY OR DRAW FIRST
+class PieceCountWeight : public Weight{
+		int pieceCounts[2];
+	public:
+		PieceCountWeight(double multiplier) :Weight(multiplier) {};
+		void initialize(GameState*) override;
+		double evaluate(MoveInfo) override;
+};
+
+class MoveCountWeight: public Weight {
+		unordered_map<int, Bitboard> oldLocationWatchpoints;
+		unordered_map<int, Bitboard> newLocationWatchpoints;
+	public: 
+		MoveCountWeight(double multiplier) : Weight(multiplier){};
+};
+
+class SimpleMoveCountWeight: public Weight {
+		PieceName name;
+		int moveCounts[2];
+		MoveGenerator moveGenerator;
+	public:
+		SimpleMoveCountWeight(double multiplier, PieceName n) :Weight(multiplier),name(n){};
+		void initialize(GameState *) override;
+		double evaluate(MoveInfo) override;
+		vector<int> recalculate();
+};
+
+class AntMoveCountWeight : public MoveCountWeight {
+};
+class GrasshopperMoveCountWeight : public MoveCountWeight {
+};
+class LadybugMoveCountWeight: public MoveCountWeight {
+};
+class MosquitoMoveCountWeight: public MoveCountWeight {
+};
