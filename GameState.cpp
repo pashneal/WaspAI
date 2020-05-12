@@ -222,7 +222,8 @@ void GameState::undoMove(MoveInfo moveInfo) {
 		//update reserve count
 		unusedPieces[turnColor][moveInfo.pieceName]++;
 	} else {
-		color = findTopPieceColor(moveInfo.oldPieceLocation);
+		// find color of existing piece
+		color = findTopPieceColor(moveInfo.newPieceLocation);
 		fastInsertPiece(moveInfo.oldPieceLocation, moveInfo.pieceName, color);
 	}
 
