@@ -1851,10 +1851,35 @@ void Test::ArenaTest::testArenaNotation() {
 }
 
 void Test::ArenaTest::testBattle() {
+	cout << "MONTECARLOSIMULATIONS = " <<endl;
+	cin >> MonteCarloSimulations;
+	cout << "CUTOFF =" << endl;
+	cin >> MonteCarloSimulationsCutoff;
+	cout << "NUMCORES = " << endl;
+	cin >> numCores;
 	Arena arena(GameState(HivePLM, PieceColor::WHITE));
-	arena.battle(true);
+	Heuristic h(SIMPLE, {'P','L','M'});
+	MonteCarloTree MCT(h);
+	arena.setPlayer(0, MCT);
+	arena.makeMove("wP");
+	arena.makeMove("bP wP-");
+	arena.makeMove("wL /wP");
+	arena.makeMove("bA1 bP-");
+	arena.makeMove("wB1 -wP");
+	arena.makeMove("bQ \\bA1");
+	arena.makeMove("wQ /wL");
+	arena.makeMove("bA2 /bA1");
+	arena.makeMove("wB1 wL");
+	arena.makeMove("bA2 /wQ");
+	arena.makeMove("wB1 wP");
+	arena.makeMove("bA3 bA1\\");
+	arena.makeMove("wG1 \\wB1");
+	arena.makeMove("bA3 -bA2");
+	arena.makeMove("wB2 -wL");
+	arena.makeMove("bA1 \\wB2");
+	while (arena.currentGameState.checkDraw() == false && arena.currentGameState.checkVictory() == PieceColor::NONE)
+		arena.battle(false);
 }
-
 void Test::MonteCarloTest::testRandomSearch(){
 	cout << "=========================TestRandomSearch===========================" <<endl;
 	bool silenced = true;
@@ -2077,8 +2102,8 @@ int main() {
 	Test::GameStateTest::testMovePiece();
 	//Test::GameStateTest::testPsuedoRandom();
 	//perfTest();
-	Test::GameStateTest::testPlayout();
-	Test::ArenaTest::testArenaNotation();
-	//Test::ArenaTest::testBattle();
-	Test::MonteCarloTest::testRandomSearch();
+	//Test::GameStateTest::testPlayout();
+	//Test::ArenaTest::testArenaNotation();
+	Test::ArenaTest::testBattle();
+	//Test::MonteCarloTest::testRandomSearch();
 }
