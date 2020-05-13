@@ -689,10 +689,8 @@ void Test::MoveGeneratorTest::testQueenMoves() {
 		Bitboard expectedBoard(expected[i]);
 		Bitboard pieceBoard(piece[i]);
 
-		ProblemNodeContainer problemNodeCont(&testBoard);
-		problemNodeCont.findAllProblemNodes();
 
-		MoveGenerator moveGen(&testBoard, &problemNodeCont);
+		MoveGenerator moveGen(&testBoard);
 		moveGen.setGeneratingName(&name);
 		moveGen.setGeneratingPieceBoard(&pieceBoard);
 	
@@ -754,7 +752,7 @@ void Test::MoveGeneratorTest::testSpiderMoves() {
 		ProblemNodeContainer problemNodeCont(&testBoard);
 		problemNodeCont.findAllProblemNodes();
 
-		MoveGenerator moveGen(&testBoard, &problemNodeCont);
+		MoveGenerator moveGen(&testBoard);
 		moveGen.setGeneratingName(&name);
 		moveGen.setGeneratingPieceBoard(&pieceBoard);
 	
@@ -807,7 +805,7 @@ void Test::MoveGeneratorTest::testBeetleMoves() {
 		ProblemNodeContainer problemNodeCont(&testBoard);
 		problemNodeCont.findAllProblemNodes();
 
-		MoveGenerator moveGen(&testBoard, &problemNodeCont);
+		MoveGenerator moveGen(&testBoard);
 		moveGen.setGeneratingName(&name);
 		moveGen.setGeneratingPieceBoard(&pieceBoard);
 	
@@ -835,7 +833,7 @@ void Test::MoveGeneratorTest::testBeetleMoves() {
 	pieceStacks[givenPiece.hash()].push_front({PieceColor::WHITE, PieceName::BEETLE});
 	ProblemNodeContainer problemNodeCont(&testBoard);
 	problemNodeCont.findAllProblemNodes();
-	MoveGenerator moveGenerator(&testBoard, &problemNodeCont);
+	MoveGenerator moveGenerator(&testBoard);
 	moveGenerator.setUpperLevelPieces(&upperLevelPieces);
 	moveGenerator.setPieceStacks(&pieceStacks);
 	moveGenerator.setGeneratingPieceBoard(&givenPiece);
@@ -875,7 +873,7 @@ void Test::MoveGeneratorTest::testGrasshopperMoves() {
 		ProblemNodeContainer problemNodeCont(&testBoard);
 		problemNodeCont.findAllProblemNodes();
 
-		MoveGenerator moveGen(&testBoard, &problemNodeCont);
+		MoveGenerator moveGen(&testBoard);
 		moveGen.setGeneratingName(&name);
 		moveGen.setGeneratingPieceBoard(&pieceBoard);
 	
@@ -936,7 +934,7 @@ void Test::MoveGeneratorTest::testLadybugMoves() {
 		Bitboard upperLevelPieces;
 
 
-		MoveGenerator moveGen(&testBoard, &problemNodeCont);
+		MoveGenerator moveGen(&testBoard);
 		moveGen.setGeneratingName(&name);
 		moveGen.setGeneratingPieceBoard(&pieceBoard);
 		moveGen.setPieceStacks(&m);
@@ -995,7 +993,7 @@ void Test::MoveGeneratorTest::testAntMoves() {
 		ProblemNodeContainer problemNodeCont(&testBoard);
 		problemNodeCont.findAllProblemNodes();
 
-		MoveGenerator moveGen(&testBoard, &problemNodeCont);
+		MoveGenerator moveGen(&testBoard);
 		moveGen.setGeneratingName(&name);
 		moveGen.setGeneratingPieceBoard(&pieceBoard);
 	
@@ -1052,7 +1050,7 @@ void Test::MoveGeneratorTest::testPillbugMoves() {
 		ProblemNodeContainer problemNodeCont(&testBoard);
 		problemNodeCont.findAllProblemNodes();
 
-		MoveGenerator moveGen(&testBoard, &problemNodeCont);
+		MoveGenerator moveGen(&testBoard);
 		moveGen.setGeneratingName(&name);
 		moveGen.setGeneratingPieceBoard(&pieceBoard);
 	
@@ -1346,7 +1344,7 @@ void Test::GameStateTest::testPsuedoRandom() {
 	Bitboard whiteMosquito({{5, 67108864u}});
 	Bitboard ladybug({{5, 17179869184u}});
 
-	MoveGenerator moveGenerator(&gameState.allPieces, &gameState.problemNodeContainer);
+	MoveGenerator moveGenerator(&gameState.allPieces);
 	Bitboard antMoves, queenMoves, ladybugMoves, whiteMosquitoMoves;
 
 	moveGenerator.setPieceStacks(&gameState.pieceStacks);
@@ -1865,20 +1863,11 @@ void Test::ArenaTest::testBattle() {
 	arena.makeMove("bP wP-");
 	arena.makeMove("wL /wP");
 	arena.makeMove("bA1 bP-");
-	arena.makeMove("wB1 -wP");
-	arena.makeMove("bQ \\bA1");
-	arena.makeMove("wQ /wL");
-	arena.makeMove("bA2 /bA1");
-	arena.makeMove("wB1 wL");
-	arena.makeMove("bA2 /wQ");
-	arena.makeMove("wB1 wP");
-	arena.makeMove("bA3 bA1\\");
-	arena.makeMove("wG1 \\wB1");
-	arena.makeMove("bA3 -bA2");
-	arena.makeMove("wB2 -wL");
-	arena.makeMove("bA1 \\wB2");
-	while (arena.currentGameState.checkDraw() == false && arena.currentGameState.checkVictory() == PieceColor::NONE)
+	arena.currentGameState.print();
+	while (arena.currentGameState.checkDraw() == false && arena.currentGameState.checkVictory() == PieceColor::NONE){
 		arena.battle(false);
+		arena.currentGameState.print();
+	}
 }
 void Test::MonteCarloTest::testRandomSearch(){
 	cout << "=========================TestRandomSearch===========================" <<endl;
