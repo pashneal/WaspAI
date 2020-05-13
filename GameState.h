@@ -103,6 +103,8 @@ class GameState {
 
 	PieceName findTopPieceName(Bitboard);
 	PieceColor findTopPieceColor(Bitboard);
+	PieceName findBottomPieceName(Bitboard);
+	PieceColor findBottomPieceColor(Bitboard);
 	void replayMove(MoveInfo);
 	void undoMove(MoveInfo);
 

@@ -959,6 +959,14 @@ PieceColor GameState::findTopPieceColor( Bitboard piece) {
 	return pieceStacks.at(piece.hash()).front().first; 
 }
 
+PieceName GameState::findBottomPieceName(Bitboard piece) {
+	return pieceStacks.at(piece.hash()).back().second; 
+}
+
+PieceColor GameState::findBottomPieceColor(Bitboard piece) {
+	return pieceStacks.at(piece.hash()).back().first; 
+}
+
 inline void GameState::findPinnedPieces(){
 	pinned = pieceGraph.getPinnedPieces();
 }
