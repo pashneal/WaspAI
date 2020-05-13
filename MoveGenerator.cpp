@@ -8,9 +8,8 @@
 
 using namespace std;
 
-MoveGenerator::MoveGenerator(Bitboard * allPiecesIn , ProblemNodeContainer * problemNodesIn) {
+MoveGenerator::MoveGenerator(Bitboard * allPiecesIn) {
 	allPieces = allPiecesIn;
-	problemNodes = problemNodesIn;
 }
 
 Bitboard MoveGenerator::getMoves() {	

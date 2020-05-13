@@ -54,7 +54,7 @@ class MoveGenerator {
 		const int NUM_SPIDER_MOVES = 3;
 
 		MoveGenerator(){};
-		MoveGenerator(Bitboard *, ProblemNodeContainer *);
+		MoveGenerator(Bitboard *);
 
 		Bitboard getMoves();
 
