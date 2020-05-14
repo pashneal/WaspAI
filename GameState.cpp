@@ -380,12 +380,11 @@ double GameState::approximateEndResult() {
 		parameters[color][3] = unpinnedCount;
 		parameters[color][4] = queenCanMove; 
 		parameters[color][5] = pillbugEscapeSquares;
-		cout << to_string(moveCount) + " "<< endl;
 		parameters[color][6] = moveCount;
 		parameters[color][7] = pillbugFreeSquares;
 		parameters[color][8] = pillbugKillShotControl;
 	}
-	double weights[7] = {-.025, -.025, -.01, .03, .2, .02, .01};
+	double weights[7] = {-.025, -.025, -.01, .03, .2, .02, .02};
 	double score = 0;
 	for (int i = 0 ; i < 7; i++){
 		score += weights[i]*parameters[WHITE][i] - weights[i]*parameters[BLACK][i];
@@ -393,6 +392,7 @@ double GameState::approximateEndResult() {
 	score += parameters[WHITE][8]*.033*parameters[WHITE][7] 
 			- parameters[BLACK][8]*.033*parameters[BLACK][7];
 	score = std::min(.5, std::max( -.5, score));
+	cout << score;
 	return score;
 }
 
