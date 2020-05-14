@@ -390,13 +390,13 @@ double GameState::approximateEndResult() {
 		parameters[color][7] = pillbugFreeSquares;
 		parameters[color][8] = pillbugKillShotControl;
 	}
-	double weights[7] = {-.025, -.025, .05, .03, .25, .02, .04};
+	double weights[7] = {-.025, -.025, .05, .03, .1, .02, .01};
 	double score = 0;
 	for (int i = 0 ; i < 7; i++){
 		score += weights[i]*parameters[WHITE][i] - weights[i]*parameters[BLACK][i];
 	}
-	score += parameters[WHITE][8]*.1*parameters[WHITE][7] 
-			- parameters[BLACK][8]*.1*parameters[BLACK][7];
+	score += parameters[WHITE][8]*.033*parameters[WHITE][7] 
+			- parameters[BLACK][8]*.033*parameters[BLACK][7];
 	score = std::min(.5, std::max( -.5, score));
 	return score;
 }
