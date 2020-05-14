@@ -390,7 +390,7 @@ double GameState::approximateEndResult() {
 		parameters[color][7] = pillbugFreeSquares;
 		parameters[color][8] = pillbugKillShotControl;
 	}
-	double weights[7] = {-.025, -.025, .05, .03, .25, .02, .01};
+	double weights[7] = {-.025, -.025, .05, .03, .25, .02, .04};
 	double score = 0;
 	for (int i = 0 ; i < 7; i++){
 		score += weights[i]*parameters[WHITE][i] - weights[i]*parameters[BLACK][i];
