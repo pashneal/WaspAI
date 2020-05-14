@@ -75,7 +75,11 @@ double MonteCarloTree::simulate(GameState gameState){
 	else if (gameState.checkVictory() != PieceColor::NONE) {
 		return (int)(gameState.checkVictory() != initialTurnColor);
 	}
-	return gameState.approximateEndResult();
+	double score = gameState.approximateEndResult();
+	if (initialTurnColor == BLACK) {
+		score = -score;
+	}
+	return score;
 };
 
 //Goes up the tree and updates the node augmentations

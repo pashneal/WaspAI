@@ -270,7 +270,7 @@ bool GameState::checkDraw() {
 }
 
 double GameState::approximateEndResult() {
-	PieceColor minimizingPlayer = turnColor;
+	
 	int parameters[2][8];
 	
 	for (int i = 0 ; i < 2 ; i++ ) {
@@ -353,7 +353,6 @@ double GameState::approximateEndResult() {
 			queenCanMove = !pinned.containsAny(queen) &&
 							queen.getPerimeter().containsAny(activePillbug) &&
 							pillbugEscapeSquares;
-		
 		}
 
 		if (!queenCanMove) {
@@ -389,8 +388,6 @@ double GameState::approximateEndResult() {
 	score += parameters[WHITE][7]*.075*parameters[WHITE][6] 
 			- parameters[BLACK][7]*.075*parameters[BLACK][6];
 	score = std::min(.5, std::max( -.5, score));
-	score = (minimizingPlayer == BLACK) ? -score : score;
-	score = .5 + score;
 	return score;
 }
 
