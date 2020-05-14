@@ -6,7 +6,7 @@ class Heuristic {
 		int depth = 0;
 	public:
 		vector <Weight *> weights;
-		GameState * gameState;
+		GameState * gameState = nullptr;
 		int NUMWEIGHTS;
 		Complexity complexity;
 		set<char> expansionPieces;

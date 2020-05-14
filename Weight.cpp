@@ -3,37 +3,75 @@
 void KillShotCountWeight::initialize(GameState* g) {
 	Weight::initialize(g);
 	watchPoints.clear();
+	pinnedWatchPoints.clear();
+	unpinnedWatchPoints.clear();
+
 	//set watchpoints to queen and her surroudings
 	//if there is no movement in these zones, the 
 	//default value do not have to be recalculated
 	queenCount = 0;
 	for (auto& queen : parentGameState->queens.splitIntoBitboards()){
+		//watch points for piece movements
 		watchPoints.unionWith(queen);
 		Bitboard queenPerimeter = queen.getPerimeter();
 		watchPoints.unionWith(queenPerimeter);
 		queenCount++;
+		queenPerimeter.intersectionWith(parentGameState->allPieces);
+
+		PieceColor queenColor = parentGameState->findBottomPieceColor(queen);
+		//watch points for friendly piece mobility
+		for (auto& piece: queenPerimeter.splitIntoBitboards()){
+
+			if (parentGameState->findTopPieceColor(piece) == queenColor &&
+			!parentGameState->upperLevelPieces.containsAny(piece)){
+
+				if (parentGameState->pinned.containsAny(piece) ) {
+					pinnedWatchPoints.unionWith(piece);
+				} else {
+					unpinnedWatchPoints.unionWith(piece);
+				}
+			}
+		}
 	}
 	auto result = recalculate();
-	queenKillShotCount[PieceColor::WHITE] = result.first;
-	queenKillShotCount[PieceColor::BLACK] = result.second;
+	scores[PieceColor::WHITE] = result[WHITE];
+	scores[PieceColor::BLACK] = result[BLACK];
 }
 
-pair<int, int> KillShotCountWeight::recalculate() {
-	pair<int,int> killShotCount{0,0};
+vector<int> KillShotCountWeight::recalculate() {
+	vector<int> killShotCount{0,0};
 	for (auto& queen : parentGameState->queens.splitIntoBitboards()){
 	
 		Bitboard queenPerimeter = queen.getPerimeter();
+		PieceColor queenColor = parentGameState->findBottomPieceColor(queen);
 
-		//find color by looking at the bottom of stack 
-		auto& stackOnQueen = parentGameState->pieceStacks[queen.hash()];
-		PieceColor color = stackOnQueen.back().first;
+		MoveGenerator moveGen(&parentGameState->allPieces);
+		moveGen.setPieceStacks(&parentGameState->pieceStacks);
+		moveGen.setUpperLevelPieces(&parentGameState->upperLevelPieces);
 
 		//calculate and store default values
 		queenPerimeter.intersectionWith(parentGameState->allPieces);
-		if (color == 0)
-			killShotCount.first = queenPerimeter.count();
-		else 
-			killShotCount.second = queenPerimeter.count();
+		for (auto& piece: queenPerimeter.splitIntoBitboards()){
+
+			//if the pieceStack > 1, it takes too long to remove the piece
+			if (parentGameState->upperLevelPieces.containsAny(piece)){
+				killShotCount[queenColor]++;
+				continue;
+			}
+			if (parentGameState->findTopPieceColor(piece) == queenColor){
+				if (!parentGameState->pinned.containsAny(piece)){
+					//if the unpinned friendly piece can move
+					PieceName name = parentGameState->findTopPieceName(piece);
+					moveGen.setGeneratingName(&name);
+					moveGen.setGeneratingPieceBoard(&piece);
+					if (moveGen.getMoves().count()){
+						killShotCount[queenColor] += .16666;
+						continue;
+					}
+				} 
+			}
+			killShotCount[queenColor]++;
+		}
 	}
 	return killShotCount;
 }
@@ -44,16 +82,19 @@ pair<int, int> KillShotCountWeight::recalculate() {
  */
 double KillShotCountWeight::evaluate(MoveInfo move){
 	double result;
+	Bitboard b(parentGameState->pinned);
+	b.notIntersectionWith(pinnedWatchPoints);
 	//see if necessary to recalculate weight
 	if ( watchPoints.containsAny(move.newPieceLocation) ||
 		 watchPoints.containsAny(move.oldPieceLocation) || 
+		 unpinnedWatchPoints.containsAny(parentGameState->pinned) ||
+		 b.count() ||
 		 queenCount < 2)
 	{
 		auto killShotCounts = recalculate();
-		result = killShotCounts.first - killShotCounts.second;
-			
+		result = killShotCounts[WHITE] - killShotCounts[BLACK];
 	} else {
-		result = queenKillShotCount[WHITE] - queenKillShotCount[BLACK];
+		result = scores[WHITE] - scores[BLACK];
 	}
 
 	//initially assumed maximizing player is WHITE
@@ -66,14 +107,30 @@ double KillShotCountWeight::evaluate(MoveInfo move){
 double PinnedWeight::evaluate(MoveInfo move){
 	int result = 0;
 
+
+	Bitboard whiteQueenPerimeter, blackQueenPerimeter;
+	for (auto& piece: parentGameState->queens.splitIntoBitboards()){
+		if (parentGameState->findBottomPieceColor(piece) == WHITE) 
+			whiteQueenPerimeter = piece.getPerimeter();
+		else 
+			blackQueenPerimeter = piece.getPerimeter();
+	}
+	
 	for (Bitboard& piece : parentGameState->allPieces.splitIntoBitboards()){
+		//don't count piece if not pinned or if on top of hive
 		if (parentGameState->upperLevelPieces.containsAny(piece)
 			|| !(parentGameState->pinned.containsAny(piece)))  
 		{	
-			if (parentGameState->findTopPieceColor(piece) == WHITE) 
+			//don't count piece if pinned beside opposing queen
+			if (parentGameState->findTopPieceColor(piece) == WHITE
+				&& !blackQueenPerimeter.containsAny(piece))  
+			{
 				result++;
-			else 
+			} else if (parentGameState->findTopPieceColor(piece) == BLACK
+				&& !whiteQueenPerimeter.containsAny(piece))  
+			{
 				result--;
+			}
 		}
 	}
 
@@ -120,6 +177,7 @@ void SimpleMoveCountWeight::initialize(GameState * gameState) {
 	}
 	moveGenerator.setPieceStacks(&gameState->pieceStacks);
 	moveGenerator.setGeneratingName(&name);
+
 	auto result = recalculate();
 	moveCounts[WHITE] = result[WHITE];
 	moveCounts[BLACK] = result[BLACK];

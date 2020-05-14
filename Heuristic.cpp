@@ -10,9 +10,9 @@ Heuristic::Heuristic (Complexity c, set<char> pieces) {
 	}
 
 	if (c == Complexity::SIMPLE) {
-		weights.push_back(new KillShotCountWeight(1));
-		weights.push_back(new PinnedWeight(.5));
-		weights.push_back(new PieceCountWeight(.5));
+		weights.push_back(new KillShotCountWeight(1.3));
+		weights.push_back(new PinnedWeight(1));
+		weights.push_back(new PieceCountWeight(1));
 	}else if (c != Complexity::RANDOM)  {
 		cout << "NOT IMPLEMENTED YET" << endl;
 		throw 10;

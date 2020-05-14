@@ -9,12 +9,12 @@ using namespace std;
 
 class PieceGraph {
 		//the pieceGraph assumes that the graph is connected
-		unordered_set <PieceNode*> articulationNodes;
+		unordered_set <PieceNode*> articulationNodes{};
 
 		//assumes that this is updated before every insert or remove operation
 		Bitboard allPieces;
 
-		unordered_map <int, PieceNode*> bitboardHashTable;
+		unordered_map <int, PieceNode*> bitboardHashTable{};
 		//no adjecency list needed; it is stored within the nodes themselves
 		//list <list<PieceNode>> adjList;
 		

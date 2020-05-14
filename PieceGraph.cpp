@@ -7,7 +7,6 @@
 
 
 void PieceGraph::insert(Bitboard& newBitboard) {
-
 	if (!(allPieces.containsAny(newBitboard))) {
 		PieceNode * newPieceNode = new PieceNode();
 		Bitboard perimeter = newBitboard.getPerimeter();
@@ -16,7 +15,7 @@ void PieceGraph::insert(Bitboard& newBitboard) {
 
 		list <PieceNode*> neighbors;
 		for (auto& bitboard: perimeter.splitIntoBitboards()){
-			neighbors.push_front(bitboardHashTable[bitboard.hash()]);
+			neighbors.push_front(bitboardHashTable.at(bitboard.hash()));
 		}
 
 		newPieceNode -> insert(neighbors, newBitboard);
@@ -123,9 +122,7 @@ Bitboard PieceGraph::getPinnedPieces() {
 
 void PieceGraph::destroy() {
 	for (auto element : bitboardHashTable ) {
-		if (element.second != nullptr){
-			delete element.second;
-		}
+		delete element.second;
 	}
 	bitboardHashTable.clear();
 	articulationNodes.clear();

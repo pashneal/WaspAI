@@ -185,15 +185,23 @@ MoveInfo MonteCarloTree::multiSearch(GameState& initialGameState, int numThreads
 	MoveInfo bestMove;
 	//calculate the best move from given options
 	string a;
+	string b;
 	for (auto moveIter: bestAverageScores){
 		auto fraction = moveIter.second;
-		a += to_string(fraction.first) + "/" + to_string((int)fraction.second) + " ";
 		if (fraction.first/fraction.second > bestScore){
 			bestScore = fraction.first/fraction.second;
 			bestMove = moveIter.first;
 		}
 	}
 	cout << a << endl;
+	cout << endl;
+	for (auto& child : roots[0]->children){
+		auto fraction = bestAverageScores[child.first];
+		cout << to_string(fraction.first) + "/" + to_string((int)fraction.second) << " = ";
+		cout << fraction.first/fraction.second << endl;
+		cout << child.second->heuristicScore << " " << endl;
+		cout << child.first.toString("") << endl;
+	}
 	//clean up
 	for (auto& root: roots){
 		root->clearChildren();

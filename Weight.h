@@ -28,14 +28,16 @@ class RandomWeight: public Weight {
 class KillShotCountWeight: public Weight {
 		//places in the hive that would trigger a recount
 		Bitboard watchPoints;
-		int queenKillShotCount[2];
+		Bitboard pinnedWatchPoints;
+		Bitboard unpinnedWatchPoints;
+		double scores[2];
 		int queenCount;
 	public:	
 
 		KillShotCountWeight(double multiplier) :Weight(multiplier){};
 		void initialize(GameState * g) override;
 		double evaluate(MoveInfo) override;
-		pair<int,int> recalculate();
+		vector<int> recalculate();
 };
 
 class PinnedWeight : public Weight {
