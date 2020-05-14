@@ -271,7 +271,7 @@ bool GameState::checkDraw() {
 
 double GameState::approximateEndResult() {
 	
-	int parameters[2][8];
+	int parameters[2][9];
 	
 	for (int i = 0 ; i < 2 ; i++ ) {
 		int surroundCount;
@@ -280,10 +280,14 @@ double GameState::approximateEndResult() {
 		int pillbugKillShotControl = 0;
 		int pillbugFreeSquares = 0;
 		int pillbugEscapeSquares = 0;
-		int unpinnedAntsCount = 0;
+		int unpinnedCount = 0;
+		int moveCount = 0;
 		bool queenCanMove = false;
 		PieceColor color = (PieceColor)i;
 		PieceName name;
+
+		turnColor = color;
+		moveCount = generateAllMoves().size();
 
 		//get queen
 		Bitboard queen;
@@ -369,29 +373,30 @@ double GameState::approximateEndResult() {
 			};
 		}
 
-		//count unpinned ants
+		//count unpinned pieces
 		Bitboard unpinned(*getPieces(color));
 		unpinned.notIntersectionWith(upperLevelPieces);
 		unpinned.notIntersectionWith(pinned);
-		unpinned.intersectionWith(ants);
-		unpinnedAntsCount = unpinned.count();
+		unpinnedCount = unpinned.count();
+
 
 		parameters[color][0] = surroundCount;
 		parameters[color][1] = enemyCount;
 		parameters[color][2] = mobileFriendly;
-		parameters[color][3] = unpinnedAntsCount;
+		parameters[color][3] = unpinnedCount;
 		parameters[color][4] = queenCanMove; 
 		parameters[color][5] = pillbugEscapeSquares;
-		parameters[color][6] = pillbugFreeSquares;
-		parameters[color][7] = pillbugKillShotControl;
+		parameters[color][6] = moveCount;
+		parameters[color][7] = pillbugFreeSquares;
+		parameters[color][8] = pillbugKillShotControl;
 	}
-	double weights[6] = {-.025, -.025, .05, .03, .25, .04};
+	double weights[7] = {-.025, -.025, .05, .03, .25, .02, .01};
 	double score = 0;
-	for (int i = 0 ; i < 6; i++){
+	for (int i = 0 ; i < 7; i++){
 		score += weights[i]*parameters[WHITE][i] - weights[i]*parameters[BLACK][i];
 	}
-	score += parameters[WHITE][7]*.15*parameters[WHITE][6] 
-			- parameters[BLACK][7]*.15*parameters[BLACK][6];
+	score += parameters[WHITE][8]*.1*parameters[WHITE][7] 
+			- parameters[BLACK][8]*.1*parameters[BLACK][7];
 	score = std::min(.5, std::max( -.5, score));
 	return score;
 }
