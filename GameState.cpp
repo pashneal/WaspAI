@@ -286,8 +286,13 @@ double GameState::approximateEndResult() {
 		PieceName name;
 
 		//get queen
-		Bitboard queen = *getPieces(color);
-		queen.intersectionWith(queens);
+		Bitboard queen(queens);
+		for (auto testQueen : queens.splitIntoBitboards()){
+			if (findBottomPieceColor(testQueen) == color){
+				queen = testQueen;
+			}
+		}
+
 
 		if (!queen.count()) {
 			print();
