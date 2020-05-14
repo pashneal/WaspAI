@@ -272,7 +272,6 @@ bool GameState::checkDraw() {
 double GameState::approximateEndResult() {
 	
 	int parameters[2][9];
-	return 0;
 	
 	for (int i = 0 ; i < 2 ; i++ ) {
 		int surroundCount;
@@ -325,7 +324,7 @@ double GameState::approximateEndResult() {
 
 		//count enemy upperLevelPieces near Queen
 		Bitboard nearQueen(queen);	
-		for (int i = 0 ; i < 2; i++){
+		for (int i = 0 ; i < 3; i++){
 			Bitboard temp = nearQueen.getPerimeter();
 			nearQueen.unionWith(temp);
 		}
@@ -350,6 +349,7 @@ double GameState::approximateEndResult() {
 			pillbugControl.notIntersectionWith(immobile);
 			killshots.intersectionWith(pillbugControl);
 			pillbugKillShotControl = killshots.count();
+			cout << pillbugKillShotControl;
 
 			//see how many squares around pillbug are empty
 			pillbugControl.notIntersectionWith(allPieces);
@@ -359,20 +359,14 @@ double GameState::approximateEndResult() {
 			pillbugControl.notIntersectionWith(killshots);
 			pillbugFreeSquares = pillbugControl.count();
 
-			//see if you can swap the queen away
-			queenCanMove = !pinned.containsAny(queen) &&
-							queen.getPerimeter().containsAny(activePillbug) &&
-							pillbugEscapeSquares;
 		}
 
-		if (!queenCanMove) {
-			name = PieceName::QUEEN;
-			if (!pinned.containsAny(queen) && !upperLevelPieces.containsAny(queen)){
-				moveGenerator.setGeneratingName(&name);
-				moveGenerator.setGeneratingPieceBoard(&queen);
-				queenCanMove = moveGenerator.getMoves().count();
-			};
-		}
+		name = PieceName::QUEEN;
+		if (!pinned.containsAny(queen) && !upperLevelPieces.containsAny(queen)){
+			moveGenerator.setGeneratingName(&name);
+			moveGenerator.setGeneratingPieceBoard(&queen);
+			queenCanMove = moveGenerator.getMoves().count();
+		};
 
 		//count unpinned pieces
 		Bitboard unpinned(*getPieces(color));
@@ -391,7 +385,7 @@ double GameState::approximateEndResult() {
 		parameters[color][7] = pillbugFreeSquares;
 		parameters[color][8] = pillbugKillShotControl;
 	}
-	double weights[7] = {-.025, -.025, -.01, .03, .1, .02, .01};
+	double weights[7] = {-.025, -.025, -.01, .03, .2, .02, .01};
 	double score = 0;
 	for (int i = 0 ; i < 7; i++){
 		score += weights[i]*parameters[WHITE][i] - weights[i]*parameters[BLACK][i];
