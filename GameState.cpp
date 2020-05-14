@@ -349,7 +349,6 @@ double GameState::approximateEndResult() {
 			pillbugControl.notIntersectionWith(immobile);
 			killshots.intersectionWith(pillbugControl);
 			pillbugKillShotControl = killshots.count();
-			cout << pillbugKillShotControl;
 
 			//see how many squares around pillbug are empty
 			pillbugControl.notIntersectionWith(allPieces);
@@ -381,6 +380,7 @@ double GameState::approximateEndResult() {
 		parameters[color][3] = unpinnedCount;
 		parameters[color][4] = queenCanMove; 
 		parameters[color][5] = pillbugEscapeSquares;
+		cout << to_string(moveCount) + " "<< endl;
 		parameters[color][6] = moveCount;
 		parameters[color][7] = pillbugFreeSquares;
 		parameters[color][8] = pillbugKillShotControl;
