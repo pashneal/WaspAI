@@ -286,7 +286,7 @@ double GameState::approximateEndResult() {
 		PieceName name;
 
 		//get queen
-		Bitboard queen(queens);
+		Bitboard queen;
 		for (auto testQueen : queens.splitIntoBitboards()){
 			if (findBottomPieceColor(testQueen) == color){
 				queen = testQueen;
