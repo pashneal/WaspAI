@@ -303,10 +303,11 @@ double GameState::approximateEndResult() {
 		//count number of pieces surrounding queen
 		Bitboard surrounding(queen);
 		surrounding = surrounding.getPerimeter();
-		surrounding.intersectionWith(*getPieces(color));
+		surrounding.intersectionWith(allPieces);
 		surroundCount = surrounding.count();
 
 		//count mobile and friendly pieces
+		surrounding.intersectionWith(*getPieces(color));
 		surrounding.notIntersectionWith(pinned);
 		surrounding.notIntersectionWith(upperLevelPieces);
 		surrounding.notIntersectionWith(immobile);
@@ -323,12 +324,11 @@ double GameState::approximateEndResult() {
 			Bitboard temp = nearQueen.getPerimeter();
 			nearQueen.unionWith(temp);
 		}
-		Bitboard enemies(*getPieces(color));
+		Bitboard enemies(nearQueen);
 		enemies.intersectionWith(upperLevelPieces);
-		enemies.intersectionWith(nearQueen);
 
 		for (auto& enemy: enemies.splitIntoBitboards()){
-			enemyCount += (pieceStacks[enemy.hash()].front().first != color);
+			enemyCount += (findTopPieceColor(enemy) != color);
 		}
 
 		//see whether a nearby friendly pillbug is can still use its power
@@ -385,13 +385,13 @@ double GameState::approximateEndResult() {
 		parameters[color][6] = pillbugFreeSquares;
 		parameters[color][7] = pillbugKillShotControl;
 	}
-	double weights[6] = {-.05, -.05, .05, .1, .25, .04};
+	double weights[6] = {-.025, -.025, .05, .03, .25, .04};
 	double score = 0;
 	for (int i = 0 ; i < 6; i++){
 		score += weights[i]*parameters[WHITE][i] - weights[i]*parameters[BLACK][i];
 	}
-	score += parameters[WHITE][7]*.075*parameters[WHITE][6] 
-			- parameters[BLACK][7]*.075*parameters[BLACK][6];
+	score += parameters[WHITE][7]*.15*parameters[WHITE][6] 
+			- parameters[BLACK][7]*.15*parameters[BLACK][6];
 	score = std::min(.5, std::max( -.5, score));
 	return score;
 }
