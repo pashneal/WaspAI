@@ -76,7 +76,7 @@ double MonteCarloTree::simulate(GameState gameState){
 		return (int)(gameState.checkVictory() != initialTurnColor);
 	}
 	double score = gameState.approximateEndResult();
-	if (initialTurnColor == BLACK) {
+	if (initialTurnColor == WHITE) {
 		score = -score;
 	}
 	return .5 + score;
