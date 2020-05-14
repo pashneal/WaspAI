@@ -79,7 +79,7 @@ double MonteCarloTree::simulate(GameState gameState){
 	if (initialTurnColor == BLACK) {
 		score = -score;
 	}
-	return score;
+	return .5 + score;
 };
 
 //Goes up the tree and updates the node augmentations
