@@ -53,6 +53,7 @@ class Bitboard {
 	void xorWith(Bitboard&);
 	void notIntersectionWith(Bitboard&);
 	bool containsAny(Bitboard&);
+	bool containsAll(Bitboard&);
 	bool equals(Bitboard&);
 
 

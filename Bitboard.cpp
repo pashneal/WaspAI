@@ -710,7 +710,7 @@ void Bitboard::floodFillStep(Bitboard &frontier,  Bitboard &visited){
 }
 
 /*
- * Perform a Breath First Search on the graph G
+ * Perform a Breadth First Search on the graph G
  * where edges in G are all hexagonal directions
  * and nodes in G are bits set in *this Bitboard
  *
@@ -831,6 +831,7 @@ void Bitboard::notIntersectionWith( Bitboard &other) {
 	for (auto i: other.internalBoardCache) {
 		internalBoards[i] &= ~other.internalBoards[i];
 	}
+	pruneCache();
 }
 
 /*
@@ -845,6 +846,20 @@ bool Bitboard::containsAny(Bitboard& other) {
 	return false;
 }
 
+/*
+ * Returns true if all bits from the other Bitboard exists in this Bitboard
+ */
+bool Bitboard::containsAll(Bitboard& other) {
+	for (int i : other.internalBoardCache) {
+		if (internalBoardCache.find(i) != internalBoardCache.end()){
+			if ((internalBoards[i] & other.internalBoards[i]) != internalBoards[i])
+				return false;
+		}else {
+			return false;
+		}
+	}
+	return true;
+}
 void Bitboard::clear() {
 	internalBoardCache.clear();
 }

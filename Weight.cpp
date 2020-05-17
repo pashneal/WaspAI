@@ -231,7 +231,7 @@ double AntMoveCountWeight::evaluate(MoveInfo move){
 		recalculate(move.newPieceLocation, newMoveCount);
 	} 
 
-	//see if moving this piece unpinned ants
+	//see if moving this piece unpinned some ants
 	Bitboard newlyUnpinnedAnts(pinnedAnts);
 	newlyUnpinnedAnts.unionWith(coveredAnts);
 	newlyUnpinnedAnts.notIntersectionWith(parentGameState->upperLevelPieces);
@@ -262,7 +262,56 @@ double AntMoveCountWeight::evaluate(MoveInfo move){
 }
 
 vector<int> AntMoveCountWeight::correctAssumptions(MoveInfo move, Bitboard incorrectAnts){
+	vector<int> corrections{0,0};
 	for (auto& ant : incorrectAnts.splitIntoBitboards() ){
 		
+		PieceColor color = parentGameState->findTopPieceColor(ant);
+		Bitboard newMoves = antMoves[ant.hash()].getMoves();
+		int oldMoveCount = newMoves.count();
+		newMoves.notIntersectionWith(move.newPieceLocation);
+		moveGen.piecesExceptCurrent = newMoves;
+
+		//find ant paths around the new piece location
+		Bitboard legalNodes = moveGen.getLegalWalkPerimeter(move.newPieceLocation);
+		Bitboard expectedNodes = move.newPieceLocation.getPerimeter();
+		expectedNodes.intersectionWith(newMoves);
+
+		//TODO: case analysis to get faster average case recalculation using articulation
+		//nodes and low-link in MoveGraph
+		//if the piece does not have an easy recalculation
+		if (legalNodes.splitIntoConnectedComponents().size() > 1 ||
+			!legalNodes.containsAll(expectedNodes)){
+
+			//brute force recalculate
+			vector<int>newMoveCount{0,0};
+			recalculate(ant,newMoveCount);
+			corrections[color] += newMoveCount[color] - oldMoveCount;
+			continue;
+
+		} else if (expectedNodes.containsAny(legalNodes)) {
+			newMoves.unionWith(legalNodes);
+		}
+
+
+		//recalulate ant paths around the old piece location
+		legalNodes = moveGen.getLegalWalkPerimeter(move.oldPieceLocation);
+		if (newMoves.containsAny(legalNodes))
+			newMoves.unionWith(move.oldPieceLocation);
+
+		//find nodes that are now connected to previous ant moves
+		expectedNodes = move.oldPieceLocation.getPerimeter();
+		expectedNodes.intersectionWith(newMoves);
+		expectedNodes.notIntersectionWith(legalNodes);
+
+		//if there are nodes that were not previously connected
+		//O(1) average case recalculation to find new ant moves
+		for (auto& startNode: expectedNodes.splitIntoBitboards()) {
+			newMoves.notIntersectionWith(startNode);
+			moveGen.setGeneratingPieceBoard(&startNode);
+			moveGen.findAntMoves(startNode, newMoves);
+		}
+
+		corrections[color] += newMoves.count()  - oldMoveCount;
 	}
+	return corrections;
 }

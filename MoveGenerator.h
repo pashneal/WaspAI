@@ -36,16 +36,17 @@ class MoveGenerator {
 		void generateBeetleMoves();  
 		void generateSpiderMoves();  	
 		
-		Bitboard piecesExceptCurrent;
 
 	public:
 
-		void generateLegalAntMoves();     
+		void generateLegalAntMoves(Bitboard = Bitboard(), Bitboard = Bitboard());     
 		void generateApproxAntMoves();
+		void findAntMoves(Bitboard&, Bitboard&);
 
 		bool problemNodesEnabled = false;
 		bool approximate = false;
 
+		Bitboard piecesExceptCurrent;
 		ProblemNodeContainer *problemNodes;
 		Bitboard * allPieces;
 		//store locations that affect where a piece can move

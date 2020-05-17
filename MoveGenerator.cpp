@@ -14,16 +14,12 @@ MoveGenerator::MoveGenerator(Bitboard * allPiecesIn) {
 
 Bitboard MoveGenerator::getMoves() {	
 	piecesExceptCurrent.initializeTo(*allPieces);
-
 	moves.clear();
 
 	//remove generatingPiece
 	piecesExceptCurrent.xorWith(*generatingPieceBoard);
-
-
 	perimeter = piecesExceptCurrent.getPerimeter();
 
-	//TODO: remove 
 	generateMoves();
 	return moves;
 }
@@ -123,13 +119,10 @@ void MoveGenerator::generateQueenMoves(){
 //TODO:optimize currently most expensive function
 void MoveGenerator::generateLadybugMoves(){
 	Bitboard frontier, path, visited, result;
-
 	frontier.initializeTo(*generatingPieceBoard);
 
 	ladybugStep(frontier, result, path, 0);
-
 	result.intersectionWith(perimeter);
-
 	moves.unionWith(result);
 }
 
@@ -165,7 +158,6 @@ void MoveGenerator::generatePillbugMoves(){
 //any piece in the returned Bitboard can be moved to any empty square in returned bit board
 //assumes that they are not pinned
 Bitboard MoveGenerator::getPillbugSwapSpaces() {
-
 	Bitboard legalClimbs;
 	for (Direction dir : hexagonalDirections) {
 		Bitboard legalClimb = getLegalClimb(*generatingPieceBoard, dir);
@@ -173,7 +165,6 @@ Bitboard MoveGenerator::getPillbugSwapSpaces() {
 		legalClimbs.unionWith(legalClimb);
 	}
 	return legalClimbs;
-
 }
 void MoveGenerator::generateMosquitoMoves(){
 	//no such thing as MosquitoMoves as it takes the moves from its neighbors
@@ -217,18 +208,30 @@ void MoveGenerator::generateBeetleMoves(){
 	moves.unionWith(frontier);
 }  
 
+void MoveGenerator::findAntMoves(Bitboard& frontier, Bitboard& visited){
+	moves.clear();
+	piecesExceptCurrent.initializeTo(*allPieces);
+	perimeter = piecesExceptCurrent.getPerimeter();
+	generateLegalAntMoves(frontier, visited);
+}
+
 //TODO: this is so slowwww
-void MoveGenerator::generateLegalAntMoves() {
-	//perform a flood fill step until it cannot anymore
+void MoveGenerator::generateLegalAntMoves(Bitboard startNodes, Bitboard visitedNodes) {
 
 	Bitboard frontiers;
 	Bitboard visited;
 	Bitboard newFrontiers(*generatingPieceBoard);
+
+	if (!(startNodes == Bitboard())){
+		visited = visitedNodes;
+		newFrontiers = startNodes;
+	}
+	//perform a flood fill step until it cannot anymore
 	while(newFrontiers.count()) {
 		frontiers.initializeTo(newFrontiers);
 		newFrontiers.clear();
 		for (Bitboard& frontier : frontiers.splitIntoBitboards()) {
-			//perform a flood fill step with regard to problematic nodes
+			//perform a flood fill step with only legal directions 
 			frontier = getLegalWalkPerimeter(frontier);
 			frontier.intersectionWith(perimeter);
 			frontier.notIntersectionWith(visited);
@@ -244,7 +247,6 @@ void MoveGenerator::generateLegalAntMoves() {
 }
 
 void MoveGenerator::generateApproxAntMoves() {
-	
 	moves.unionWith(perimeter);
 	moves.notIntersectionWith(*generatingPieceBoard);
 }
@@ -464,7 +466,7 @@ Bitboard MoveGenerator::getLegalWalkPerimeter(Bitboard board) {
 	} else if (LSB.second & 0x1010101010100u) {
 		correction = Direction::W;
 		LSB.second <<= 1;
-	} else if (LSB.second & 0x7e00000000000000) {
+	} else if (LSB.second & 0x7e00000000000000u) {
 		correction = Direction::N;
 		LSB.second >>= 16;
 	} else if (LSB.second & 0x7e) {
