@@ -99,11 +99,16 @@ void PieceGraph::checkArticulationRoot(PieceNode * root) {
 }
 
 //TODO: optimize (recalculate O(k) for inserted leaves)
-Bitboard PieceGraph::getPinnedPieces() {
+Bitboard PieceGraph::getPinnedPieces(Bitboard root) {
 	articulationNodes.clear();
 	int counter  = 0;
 	if (bitboardHashTable.size() == 0) return Bitboard();
-	PieceNode * firstPieceNode = bitboardHashTable.begin() -> second;
+	PieceNode * firstPieceNode;
+	if (root == Bitboard()){
+		firstPieceNode = bitboardHashTable.begin() -> second;
+	} else {
+		firstPieceNode = bitboardHashTable.at(root.hash());
+	}
 
 	unordered_set<PieceNode*> visited;
 	getArticulationNodes(firstPieceNode, counter, visited);
@@ -170,4 +175,23 @@ bool PieceGraph::checkBiDirectional(Bitboard a, Bitboard b) {
 	}
 
 	return forward && backward;
+}
+
+void MoveGraph::getArticulationNodes(Bitboard root) {
+	articulationLocations.clear();
+	PieceGraph::getPinnedPieces(root);
+
+	for (auto node: articulationNodes){
+		Bitboard newNode({{node->boardIndex, node->location}});
+		articulationLocations.unionWith(newNode);
+	}
+}
+
+void MoveGraph::destroy(){
+	PieceGraph::destroy();
+	articulationLocations.clear();
+}
+
+Bitboard MoveGraph::getMoves(){
+	return allPieces;
 }

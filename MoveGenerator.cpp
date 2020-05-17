@@ -156,7 +156,6 @@ void MoveGenerator::ladybugStep(Bitboard& frontier,
 		ladybugStep(newFrontier, result, path, step + 1);
 		path.notIntersectionWith(newFrontier);
 	}
-
 }
 void MoveGenerator::generatePillbugMoves(){
 	//the Pillbug moves just as a Queen does

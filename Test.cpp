@@ -1858,11 +1858,11 @@ void Test::ArenaTest::testBattle() {
 	Arena arena(GameState(HivePLM, PieceColor::WHITE));
 	Heuristic h(SIMPLE, {'P','L','M'});
 	MonteCarloTree MCT(h);
+	heuristicFactor = .7;
 	arena.setPlayer(0, MCT);
 	arena.makeMove("wP");
 	arena.makeMove("bP wP-");
-	arena.makeMove("wL /wP");
-	arena.makeMove("bA1 bP-");
+	arena.makeMove("wM /wP");
 	arena.currentGameState.print();
 	while (arena.currentGameState.checkDraw() == false && arena.currentGameState.checkVictory() == PieceColor::NONE){
 		arena.battle(false);

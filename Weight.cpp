@@ -163,71 +163,106 @@ double PieceCountWeight::evaluate(MoveInfo move) {
 	return result*multiplier;
 }
 
-void SimpleMoveCountWeight::initialize(GameState * gameState) {
+void AntMoveCountWeight::initialize(GameState * gameState){
 	Weight::initialize(gameState);
-	if (name == SPIDER || name == BEETLE ||name == QUEEN ||name == PILLBUG )
-			for (Bitboard& piece : gameState->getPieces(name)->splitIntoBitboards()) {
-				watchPoints.unionWith(piece);
-				piece = piece.getPerimeter();
-				watchPoints.unionWith(piece);
-			}
-	else {
-			cout << "Cannot initialize SimpleMoveCount to given PieceName" << endl;
-			throw 93;
-	}
-	moveGenerator.setPieceStacks(&gameState->pieceStacks);
-	moveGenerator.setGeneratingName(&name);
 
-	auto result = recalculate();
-	moveCounts[WHITE] = result[WHITE];
-	moveCounts[BLACK] = result[BLACK];
+	freeAnts.clear();
+	pinnedAnts.clear();
+	coveredAnts.clear();
+	allAnts.clear();
+	for (auto& graph: antMoves) {
+		graph.second.destroy();
+	}
+	antMoves.clear();
+	totalMoveCount = vector<int>{0,0};
+
+	moveGen.allPieces = &parentGameState->allPieces;
+	moveGen.setPieceStacks(&parentGameState->pieceStacks);
+
+	//insert properties of the ant for later use
+	for (auto& ant : gameState->ants.splitIntoBitboards()){
+		allAnts.unionWith(ant);
+		bool free = true;
+
+		if (gameState->pinned.containsAny(ant)){
+			pinnedAnts.unionWith(ant);
+			free = false;
+		}
+		if (gameState->upperLevelPieces.containsAny(ant)){
+			coveredAnts.unionWith(ant);
+			free = false;
+		}
+		if (free){
+			freeAnts.unionWith(ant);
+			moveGen.setGeneratingPieceBoard(&ant);
+			Bitboard moves = moveGen.getMoves();
+
+			//insert all moves (and initial ant location) for later use
+			antMoves[ant.hash()] = MoveGraph();
+			antMoves[ant.hash()].insert(ant);
+			for (auto& move : moves.splitIntoBitboards()){
+				antMoves[ant.hash()].insert(move);	
+			}
+			PieceColor color = gameState->findBottomPieceColor(ant);
+			totalMoveCount[color] += moves.count() + 1;
+		}
+	}
 }
 
-vector<int> SimpleMoveCountWeight::recalculate() {
-	vector<int> result{0,0};
-	for (Bitboard& piece : parentGameState->getPieces(name)->splitIntoBitboards()){
-		//if a beetle, check whether the piece is on top of the hive
-		if (name == BEETLE) {
+void AntMoveCountWeight::recalculate(Bitboard ant, vector<int>& result) {
+	moveGen.setGeneratingPieceBoard(&ant);
+	Bitboard moves = moveGen.getMoves();
+	//insert moves into the corresponding color
+	PieceColor color = parentGameState->findBottomPieceColor(ant);
+	result[color] += moves.count();
+}
 
-			if (parentGameState->upperLevelPieces.containsAny(piece)){
-				if (parentGameState->findTopPieceName(piece) != BEETLE)
-					continue;
-			} else {
-				if (parentGameState->pinned.containsAny(piece))
-					continue;
-			}
+double AntMoveCountWeight::evaluate(MoveInfo move){
+	vector<int> newMoveCount = totalMoveCount;
+	Bitboard incorrectAnts(freeAnts);
+	Bitboard expectedMoves;
+	if (move.pieceName == ANT)
+		expectedMoves = antMoves[move.oldPieceLocation.hash()].getMoves();
 
-		} else if (parentGameState->findTopPieceName(piece) != name ||
-				   parentGameState->pinned.containsAny(piece)) {
-			continue;
-		}
-		moveGenerator.setGeneratingPieceBoard(&piece);
+	//ant may have been swapped by a pillbug to a square it could
+	//not travel to itself, check to see if that is the case
+	if (expectedMoves.containsAny(move.newPieceLocation)) {
+		incorrectAnts.notIntersectionWith(move.oldPieceLocation);
+		recalculate(move.newPieceLocation, newMoveCount);
+	} 
 
-		PieceColor color = parentGameState->findTopPieceColor(piece);
-		result[color] += moveGenerator.getMoves().count();
+	//see if moving this piece unpinned ants
+	Bitboard newlyUnpinnedAnts(pinnedAnts);
+	newlyUnpinnedAnts.unionWith(coveredAnts);
+	newlyUnpinnedAnts.notIntersectionWith(parentGameState->upperLevelPieces);
+	newlyUnpinnedAnts.notIntersectionWith(parentGameState->pinned);
+	
+	//recalculate unpinned ants (if any)
+	for (auto& unpinned: newlyUnpinnedAnts.splitIntoBitboards()) {
+		recalculate(unpinned, newMoveCount);
 	}
+
+	//see if free ant was made immobile by covering it
+	if (freeAnts.containsAny(move.newPieceLocation)){
+		Bitboard& ant = move.newPieceLocation;
+		PieceColor antColor = parentGameState->findBottomPieceColor(ant);
+		newMoveCount[antColor] -= antMoves[ant.hash()].getMoves().count();
+		incorrectAnts.notIntersectionWith(ant);
+	}
+
+	vector<int> corrections = correctAssumptions(move, incorrectAnts);
+	newMoveCount[WHITE] += corrections[WHITE];
+	newMoveCount[BLACK] += corrections[BLACK];
+	
+	double result = newMoveCount[WHITE] - newMoveCount[BLACK];
+	result *= multiplier;
+	if (parentGameState->turnColor == WHITE) 
+		return -result;
 	return result;
 }
 
-double SimpleMoveCountWeight::evaluate(MoveInfo move){
-	double result;
-	//see if necessary to recalculate weight
-	if ( watchPoints.containsAny(move.newPieceLocation) ||
-		 watchPoints.containsAny(move.oldPieceLocation) )
-	{
-		vector<int> recalulatedMoveCounts = recalculate();
-		result = recalulatedMoveCounts[WHITE] - recalulatedMoveCounts[BLACK];
-			
-	} else {
-		result = moveCounts[WHITE] - moveCounts[BLACK];
+vector<int> AntMoveCountWeight::correctAssumptions(MoveInfo move, Bitboard incorrectAnts){
+	for (auto& ant : incorrectAnts.splitIntoBitboards() ){
+		
 	}
-
-	//initially assumed maximizing player is WHITE
-	//correct assumptions if necessary
-	PieceColor maximizingColor = parentGameState->turnColor;
-	if (maximizingColor == PieceColor::BLACK) result = -result;
-	
-	return result*multiplier;
 }
-
-

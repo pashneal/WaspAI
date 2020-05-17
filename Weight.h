@@ -54,29 +54,30 @@ class PieceCountWeight : public Weight{
 		double evaluate(MoveInfo) override;
 };
 
-class MoveCountWeight: public Weight {
-		unordered_map<int, Bitboard> oldLocationWatchpoints;
-		unordered_map<int, Bitboard> newLocationWatchpoints;
-	public: 
-		MoveCountWeight(double multiplier) : Weight(multiplier){};
-};
 
-class SimpleMoveCountWeight: public Weight {
-		PieceName name;
-		int moveCounts[2];
-		MoveGenerator moveGenerator;
+class AntMoveCountWeight : public Weight {
+		Bitboard freeAnts;
+		Bitboard pinnedAnts;
+		Bitboard coveredAnts;
+		Bitboard allAnts;
+		unordered_map <int , MoveGraph> antMoves;
+		vector<int> totalMoveCount;
+		MoveGenerator moveGen;
+		PieceName name = ANT;
 	public:
-		SimpleMoveCountWeight(double multiplier, PieceName n) :Weight(multiplier),name(n){};
+		AntMoveCountWeight(double multiplier) :Weight(multiplier){
+			moveGen.setGeneratingName(&name);
+		};
 		void initialize(GameState *) override;
 		double evaluate(MoveInfo) override;
-		vector<int> recalculate();
+		void recalculate(Bitboard, vector<int>&);
+		vector<int> correctAssumptions(MoveInfo, Bitboard);
+		
+};
+class GrasshopperMoveCountWeight : public Weight {
 };
 
-class AntMoveCountWeight : public MoveCountWeight {
+class LadybugMoveCountWeight: public Weight {
 };
-class GrasshopperMoveCountWeight : public MoveCountWeight {
-};
-class LadybugMoveCountWeight: public MoveCountWeight {
-};
-class MosquitoMoveCountWeight: public MoveCountWeight {
+class MosquitoMoveCountWeight: public Weight {
 };

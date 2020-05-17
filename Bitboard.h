@@ -26,6 +26,7 @@ class Bitboard {
 	Bitboard() {};
 	Bitboard(unordered_map<int, unsigned long long>);
 
+
 	//constructing a new Bitboard methods
 	void initialize(unordered_map <int, unsigned long long>);
 	void initializeTo(Bitboard&);
@@ -62,6 +63,7 @@ class Bitboard {
 	//finding individual bits
 	unordered_map <int , vector <unsigned long long> > split();
 	list <Bitboard> splitIntoBitboards();
+	list <Bitboard>::const_iterator begin();
 	
 	//random functions
 	int getRandomBoardIndex();

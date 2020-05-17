@@ -8,6 +8,7 @@
 using namespace std;
 
 class PieceGraph {
+	protected:
 		//the pieceGraph assumes that the graph is connected
 		unordered_set <PieceNode*> articulationNodes{};
 
@@ -33,7 +34,7 @@ class PieceGraph {
 
 		bool isTopOfStack();
 
-		Bitboard getPinnedPieces();
+		Bitboard getPinnedPieces(Bitboard = Bitboard());
 
 		void destroy();
 
@@ -52,4 +53,14 @@ class PieceGraph {
 			destroy();
 			initializeTo(other);
 		}
+};
+
+class MoveGraph : public PieceGraph{
+	public:
+		Bitboard articulationLocations;
+
+		~MoveGraph(){destroy();};
+		void getArticulationNodes(Bitboard);
+		void destroy();
+		Bitboard getMoves();
 };
