@@ -5,7 +5,6 @@
 #include "PieceGraph.h"
 
 
-
 void PieceGraph::insert(Bitboard& newBitboard) {
 	if (!(allPieces.containsAny(newBitboard))) {
 		PieceNode * newPieceNode = new PieceNode();
@@ -23,7 +22,6 @@ void PieceGraph::insert(Bitboard& newBitboard) {
 
 		allPieces.unionWith(newBitboard);
 	}
-
 }
 
 void PieceGraph::remove(Bitboard& oldBitboard) {

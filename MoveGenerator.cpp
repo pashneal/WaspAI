@@ -1,5 +1,4 @@
 #include "Bitboard.h"
-#include "ProblemNode.h"
 #include "MoveGenerator.h"
 #include "constants.h"
 #include <vector>
@@ -70,13 +69,13 @@ void MoveGenerator::generateMoves() {
 
 //TODO:optimize it is so slow
 void MoveGenerator::generateGrasshopperMoves(){
-	intermediate.clear();
+	extraInfo.clear();
 	for (Direction dir: hexagonalDirections){
 		Bitboard nextPiece(*generatingPieceBoard);
 
 		nextPiece.shiftDirection(dir);
 		
-		intermediate.unionWith(nextPiece);
+		if (extraInfoOn) extraInfo.unionWith(nextPiece);
 		//check if there is a piece to jump over
 		nextPiece.intersectionWith(*allPieces);
 
@@ -89,7 +88,7 @@ void MoveGenerator::generateGrasshopperMoves(){
 		//jump over pieces until it is not possible
 		do {
 			nextPiece.shiftDirection(dir);
-			intermediate.unionWith(nextPiece);
+			extraInfo.unionWith(nextPiece);
 		} while(allPieces -> containsAny(nextPiece));
 				
 		moves.unionWith(nextPiece);
@@ -117,13 +116,18 @@ void MoveGenerator::generateQueenMoves(){
 
 
 //TODO:optimize currently most expensive function
-void MoveGenerator::generateLadybugMoves(){
+void MoveGenerator::generateLadybugMoves(int depth){
 	Bitboard frontier, path, visited, result;
 	frontier.initializeTo(*generatingPieceBoard);
-
-	ladybugStep(frontier, result, path, 0);
+	//store extra info for move
+	if (extraInfoOn) {
+		extraInfo.clear();
+		graph.clear();
+		graph.root.initializeTo(frontier);
+	}
+	ladybugStep(frontier, result, path, depth);
 	result.intersectionWith(perimeter);
-	moves.unionWith(result);
+	moves = result;
 }
 
 void MoveGenerator::ladybugStep(Bitboard& frontier,	
@@ -140,10 +144,14 @@ void MoveGenerator::ladybugStep(Bitboard& frontier,
 		newFrontier = getLegalClimb(frontier, dir);
 		newFrontier.notIntersectionWith(path);
 
+		if (extraInfoOn) 
+			graph.assignNode(newFrontier, step);
+
 		if (step < 2) 
 			newFrontier.intersectionWith(piecesExceptCurrent);
 		if (newFrontier.count() == 0) 
 			continue;
+
 
 		path.unionWith(newFrontier);
 		ladybugStep(newFrontier, result, path, step + 1);
@@ -217,7 +225,6 @@ void MoveGenerator::findAntMoves(Bitboard& frontier, Bitboard& visited){
 
 //TODO: this is so slowwww
 void MoveGenerator::generateLegalAntMoves(Bitboard startNodes, Bitboard visitedNodes) {
-
 	Bitboard frontiers;
 	Bitboard visited;
 	Bitboard newFrontiers(*generatingPieceBoard);
@@ -321,74 +328,6 @@ void MoveGenerator::generateSpiderMoves(){
 		moves.unionWith(pairOfBoards.first);
 }  
 
-//TODO: Optimize so you don't have to iterate through every gate separately 
-Bitboard MoveGenerator::getInaccessibleNodes(vector <Bitboard> * gates) {
-	Bitboard inaccessible;
-
-	for (auto gate: *gates) {
-		vector <Bitboard> frontiers;
-		vector <Bitboard> initialFrontiers;
-
-		for (auto frontierMap : gate.split()) {
-			for (auto board: frontierMap.second) {
-				frontiers.push_back(Bitboard({{frontierMap.first, board}}));
-			}
-		}
-
-		for (auto frontier: frontiers) {
-			initialFrontiers.push_back(frontier);
-		}
-
-		bool searchResolved[frontiers.size()];
-		unsigned long searchResolvedCount = 0;
-		int index;
-
-		for (unsigned long i = 0; i < frontiers.size() ; i++) searchResolved[i] = 0;
-
-		while (searchResolvedCount < frontiers.size() - 1) {
-
-			Bitboard visited;
-			for (auto frontier = frontiers.begin(); frontier != frontiers.end(); frontier++) {
-
-				if (frontier -> count() == 0) {
-					index = frontier - frontiers.begin();
-					if (searchResolved[index])
-						continue;
-					searchResolved[index] = true;
-					searchResolvedCount++;
-				}
-				visited.initializeTo(*frontier);
-
-				//conduct a search and store prev nodes in visited	
-				perimeter.floodFillStep(*frontier, visited);
-
-				//TODO: replace with andNot()
-				//delete gate nodes from the frontier
-				frontier -> unionWith(gate);
-				frontier -> xorWith(gate);
-
-				//remove empty board
-				frontier -> pruneCache();
-			}
-		}		
-
-		for (unsigned long i = 0; i < frontiers.size(); i++) {
-		
-			frontiers[i].intersectionWith(*generatingPieceBoard);
-
-			if (!frontiers[i].equals(*generatingPieceBoard)){
-				//TODO: change clear to be a simple xor call
-
-				//if the search concluded before reaching target node
-				//the node is in accessible
-				inaccessible.unionWith(initialFrontiers[i]);
-			}
-		}
-	}
-
-	return inaccessible;
-}
-
 void MoveGenerator::setGeneratingName(PieceName * pieceNameIn) {
 	generatingPieceName = pieceNameIn;
 }
@@ -403,14 +342,14 @@ void MoveGenerator::setUpperLevelPieces(Bitboard * in) {
 void MoveGenerator::setPieceStacks(unordered_map <int , deque <pair < PieceColor , PieceName >>> * in) {
 	pieceStacks = in;
 }
-
-//Optimize TODO
-Bitboard MoveGenerator::getInaccessibleNodes(Bitboard gates) {
-	vector <Bitboard> gatesVector = {gates};
-	return getInaccessibleNodes(&gatesVector);
+Bitboard MoveGenerator::getLegalClimbs( Bitboard& board){
+	Bitboard testNeighbors;
+	for (auto dir : hexagonalDirections) {
+		Bitboard neighbor = getLegalClimb(board, dir);
+		testNeighbors.unionWith(neighbor);
+	}
+	return testNeighbors;
 }
-
-
 Bitboard MoveGenerator::getLegalClimb( Bitboard& board, Direction dir) {
 	Bitboard test(board), gate, CWgate(board), CCWgate(board);
 
@@ -442,10 +381,13 @@ Bitboard MoveGenerator::getLegalClimb( Bitboard& board, Direction dir) {
 
 		minGateHeight = (gateCWHeight < gateCCWHeight) ? gateCWHeight : gateCCWHeight;
 		if (minGateHeight <= maxPieceHeight) {
+			//store extra information for post-processing
+			if (extraInfoOn) extraInfo.unionWith(gate);				
 			return test;
 		}
 
 	}
+
 	return test;
 }
 Bitboard MoveGenerator::getLegalWalkPerimeter(Bitboard board) {
