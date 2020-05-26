@@ -27,6 +27,7 @@ class Bitboard {
 	Bitboard(unordered_map<int, unsigned long long>);
 
 
+
 	//constructing a new Bitboard methods
 	void initialize(unordered_map <int, unsigned long long>);
 	void initializeTo(Bitboard&);
@@ -87,14 +88,6 @@ class Bitboard {
 			return internalBoards[index];
 		return 0;
 	}
-
-	//overload the assigment operator to O(k) instead of O(n)
-	void operator = (const Bitboard& other) {
-		internalBoardCache = other.internalBoardCache;
-		for (int boardIndex : internalBoardCache) {
-			internalBoards[boardIndex] = other.internalBoards[boardIndex];
-		}
-	}	
 
 	bool operator == (const Bitboard& other) const {
 		boost::container::flat_set <int> combined;

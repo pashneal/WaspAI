@@ -5,7 +5,8 @@
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.9~svn20110310	//
 ANT	constants.h	/^	ANT=6,$/;"	e	enum:PieceName
-AntMoveCountWeight	Weight.h	/^class AntMoveCountWeight : public MoveCountWeight {$/;"	c
+AntMoveCountWeight	Weight.h	/^		AntMoveCountWeight(double multiplier) :Weight(multiplier){$/;"	f	class:AntMoveCountWeight
+AntMoveCountWeight	Weight.h	/^class AntMoveCountWeight : public Weight {$/;"	c
 Arena	Arena.h	/^		Arena(GameState g):currentGameState(g){};$/;"	f	class:Arena
 Arena	Arena.h	/^class Arena {$/;"	c
 ArenaTest	Test.h	/^		class ArenaTest {$/;"	c	class:Test
@@ -39,18 +40,22 @@ GameState	GameState.cpp	/^GameState::GameState(const GameState& other) {$/;"	f	c
 GameState	GameState.h	/^	GameState(){};$/;"	f	class:GameState
 GameState	GameState.h	/^class GameState {$/;"	c
 GameStateTest	Test.h	/^		class GameStateTest {$/;"	c	class:Test
-GrasshopperMoveCountWeight	Weight.h	/^class GrasshopperMoveCountWeight : public MoveCountWeight {$/;"	c
+GrasshopperMoveCountWeight	Weight.h	/^		GrasshopperMoveCountWeight(double multiplier) :Weight(multiplier){ };$/;"	f	class:GrasshopperMoveCountWeight
+GrasshopperMoveCountWeight	Weight.h	/^class GrasshopperMoveCountWeight : public Weight {$/;"	c
 Heuristic	Heuristic.cpp	/^Heuristic::Heuristic (Complexity c, set<char> pieces) {$/;"	f	class:Heuristic
 Heuristic	Heuristic.h	/^		Heuristic(){};$/;"	f	class:Heuristic
 Heuristic	Heuristic.h	/^class Heuristic {$/;"	c
 HivePLM	constants.cpp	/^vector < unordered_map <PieceName, int>> HivePLM = $/;"	v
 HiveTest	Test.h	/^		class HiveTest {$/;"	c	class:Test
+IntermediateGraph	PieceGraph.h	/^		IntermediateGraph(){$/;"	f	class:IntermediateGraph
+IntermediateGraph	PieceGraph.h	/^class IntermediateGraph {$/;"	c
 KillShotCountWeight	Weight.h	/^		KillShotCountWeight(double multiplier) :Weight(multiplier){};$/;"	f	class:KillShotCountWeight
 KillShotCountWeight	Weight.h	/^class KillShotCountWeight: public Weight {$/;"	c
 LADYBUG	constants.h	/^	LADYBUG=2,$/;"	e	enum:PieceName
 LEARNING_RATE	constants.cpp	/^double LEARNING_RATE = 0.2;$/;"	v
 LENGTH	constants.h	/^	LENGTH=8,$/;"	e	enum:PieceName
-LadybugMoveCountWeight	Weight.h	/^class LadybugMoveCountWeight: public MoveCountWeight {$/;"	c
+LadybugMoveCountWeight	Weight.h	/^		LadybugMoveCountWeight(double multiplier) :Weight(multiplier) {$/;"	f	class:LadybugMoveCountWeight
+LadybugMoveCountWeight	Weight.h	/^class LadybugMoveCountWeight: public Weight {$/;"	c
 MOSQUITO	constants.h	/^	MOSQUITO=4,$/;"	e	enum:PieceName
 MonteCarloNode	MonteCarloNode.h	/^		MonteCarloNode(){};$/;"	f	class:MonteCarloNode
 MonteCarloNode	MonteCarloNode.h	/^class MonteCarloNode{$/;"	c
@@ -60,13 +65,13 @@ MonteCarloTest	Test.h	/^		class MonteCarloTest {$/;"	c	class:Test
 MonteCarloTree	MonteCarloTree.h	/^		MonteCarloTree(){};$/;"	f	class:MonteCarloTree
 MonteCarloTree	MonteCarloTree.h	/^		MonteCarloTree(Heuristic& h)$/;"	f	class:MonteCarloTree
 MonteCarloTree	MonteCarloTree.h	/^class MonteCarloTree {$/;"	c
-MosquitoMoveCountWeight	Weight.h	/^class MosquitoMoveCountWeight: public MoveCountWeight {$/;"	c
-MoveCountWeight	Weight.h	/^		MoveCountWeight(double multiplier) : Weight(multiplier){};$/;"	f	class:MoveCountWeight
-MoveCountWeight	Weight.h	/^class MoveCountWeight: public Weight {$/;"	c
+MosquitoMoveCountWeight	Weight.h	/^		MosquitoMoveCountWeight(double multiplier, vector<Weight*> proxies)$/;"	f	class:MosquitoMoveCountWeight
+MosquitoMoveCountWeight	Weight.h	/^class MosquitoMoveCountWeight: public Weight {$/;"	c
 MoveGenerator	MoveGenerator.cpp	/^MoveGenerator::MoveGenerator(Bitboard * allPiecesIn) {$/;"	f	class:MoveGenerator
 MoveGenerator	MoveGenerator.h	/^		MoveGenerator(){};$/;"	f	class:MoveGenerator
 MoveGenerator	MoveGenerator.h	/^class MoveGenerator {$/;"	c
 MoveGeneratorTest	Test.h	/^		class MoveGeneratorTest {$/;"	c	class:Test
+MoveGraph	PieceGraph.h	/^class MoveGraph : public PieceGraph{$/;"	c
 MoveInfo	GameState.h	/^struct MoveInfo {$/;"	s
 N	constants.h	/^	N = -1,$/;"	e	enum:Direction
 NE	constants.h	/^	NE = 0,$/;"	e	enum:Direction
@@ -103,51 +108,63 @@ SE	constants.h	/^	SE = 2,$/;"	e	enum:Direction
 SIMPLE	constants.h	/^	SIMPLE=1,$/;"	e	enum:Complexity
 SPIDER	constants.h	/^	SPIDER=7,$/;"	e	enum:PieceName
 SW	constants.h	/^	SW = 3,$/;"	e	enum:Direction
-SimpleMoveCountWeight	Weight.h	/^		SimpleMoveCountWeight(double multiplier, PieceName n) :Weight(multiplier),name(n){};$/;"	f	class:SimpleMoveCountWeight
-SimpleMoveCountWeight	Weight.h	/^class SimpleMoveCountWeight: public Weight {$/;"	c
+SimpleMoveCountWeight	Weight.h	/^		SimpleMoveCountWeight(double multiplier, PieceName n) :Weight(multiplier),name(n){$/;"	f	class:SimpleMoveCountWeight
+SimpleMoveCountWeight	Weight.h	/^class SimpleMoveCountWeight : public Weight {$/;"	c
 Test	Test.h	/^class Test {$/;"	c
 W	constants.h	/^	W = 4,$/;"	e	enum:Direction
 WHITE	constants.h	/^	WHITE = 0,$/;"	e	enum:PieceColor
 Weight	Weight.h	/^		Weight (){}$/;"	f	class:Weight
 Weight	Weight.h	/^		Weight (double multiplier): multiplier(multiplier){};$/;"	f	class:Weight
 Weight	Weight.h	/^class Weight {$/;"	c
+WeightTest	Test.h	/^		class WeightTest{$/;"	c	class:Test
 adjustOverflowMask	Bitboard.cpp	/^unsigned long long Bitboard::adjustOverflowMask($/;"	f	class:Bitboard
+allNodes	PieceGraph.h	/^		Bitboard allNodes;$/;"	m	class:IntermediateGraph
 allPieces	GameState.h	/^	Bitboard allPieces;$/;"	m	class:GameState
 allPieces	MoveGenerator.h	/^		Bitboard * allPieces;$/;"	m	class:MoveGenerator
 allPieces	PieceGraph.h	/^		Bitboard allPieces;$/;"	m	class:PieceGraph
 allPieces	ProblemNode.h	/^		Bitboard *allPieces;$/;"	m	class:ProblemNodeContainer
+antMoves	Weight.h	/^		unordered_map <int , Bitboard> antMoves;$/;"	m	class:AntMoveCountWeight
 ants	GameState.h	/^	Bitboard ants;$/;"	m	class:GameState
 approximate	MoveGenerator.h	/^		bool approximate = false;$/;"	m	class:MoveGenerator
 approximateEndResult	GameState.cpp	/^double GameState::approximateEndResult() {$/;"	f	class:GameState
+articulationLocations	PieceGraph.h	/^		Bitboard articulationLocations;$/;"	m	class:MoveGraph
+assignNode	PieceGraph.h	/^		void assignNode(Bitboard& node, int num){$/;"	f	class:IntermediateGraph
 attemptMove	GameState.cpp	/^bool GameState::attemptMove(vector<movesCollection>& approxMovesPerPiece, int total){$/;"	f	class:GameState
 attemptSpawn	GameState.cpp	/^bool GameState::attemptSpawn(int totalApproxMoves) {$/;"	f	class:GameState
 backPropagate	MonteCarloTree.cpp	/^void MonteCarloTree::backPropagate(nodePtr leafPtr, double result){$/;"	f	class:MonteCarloTree
 battle	Arena.cpp	/^bool Arena::battle(bool silent) {$/;"	f	class:Arena
 beetles	GameState.h	/^	Bitboard beetles;$/;"	m	class:GameState
+begin	Bitboard.cpp	/^list <Bitboard>::const_iterator Bitboard::begin() {$/;"	f	class:Bitboard
 blackPieces	GameState.h	/^	Bitboard blackPieces;$/;"	m	class:GameState
 boardIndex	PieceNode.h	/^		int boardIndex = -1;$/;"	m	class:PieceNode
 calculate	Weight.h	/^		double calculate(MoveInfo) {return 0;};$/;"	f	class:RandomWeight
+calculateScore	Weight.cpp	/^double calculateScore(unordered_map <int, pair<PieceColor, int>>& finalMoveCounts,$/;"	f
 changeTurnColor	GameState.cpp	/^void GameState::changeTurnColor() {$/;"	f	class:GameState
 checkArticulationRoot	PieceGraph.cpp	/^void PieceGraph::checkArticulationRoot(PieceNode * root) {$/;"	f	class:PieceGraph
 checkBiDirectional	PieceGraph.cpp	/^bool PieceGraph::checkBiDirectional(Bitboard a, Bitboard b) {$/;"	f	class:PieceGraph
+checkDependency	Weight.cpp	/^Bitboard checkDependency(Bitboard& nodes, $/;"	f
 checkDraw	GameState.cpp	/^bool GameState::checkDraw() {$/;"	f	class:GameState
 checkLegalWalk	Test.cpp	/^bool checkLegalWalk(Bitboard allPieces, Bitboard board, Direction dir) {$/;"	f
 checkVictory	GameState.cpp	/^PieceColor GameState::checkVictory() {$/;"	f	class:GameState
 children	MonteCarloNode.h	/^		unordered_map <MoveInfo, nodePtr> children;$/;"	m	class:MonteCarloNode
 clear	Bitboard.cpp	/^void Bitboard::clear() {$/;"	f	class:Bitboard
+clear	PieceGraph.h	/^		void clear(){$/;"	f	class:IntermediateGraph
 clear	ProblemNode.cpp	/^void ProblemNodeContainer::clear() {$/;"	f	class:ProblemNodeContainer
 clearChildren	MonteCarloNode.h	/^		void clearChildren() {$/;"	f	class:MonteCarloNode
 clearParent	MonteCarloNode.h	/^		void clearParent() {$/;"	f	class:MonteCarloNode
 complexity	Heuristic.h	/^		Complexity complexity;$/;"	m	class:Heuristic
 contains	ProblemNode.cpp	/^bool ProblemNodeContainer::contains(Bitboard& piece){$/;"	f	class:ProblemNodeContainer
+containsAll	Bitboard.cpp	/^bool Bitboard::containsAll(Bitboard& other) {$/;"	f	class:Bitboard
 containsAny	Bitboard.cpp	/^bool Bitboard::containsAny(Bitboard& other) {$/;"	f	class:Bitboard
 convertFromNotation	Arena.cpp	/^MoveInfo Arena::convertFromNotation(string notation) {$/;"	f	class:Arena
 convertToHexRepresentation	Bitboard.cpp	/^void Bitboard::convertToHexRepresentation ( Direction lastMovedDir , int lastMovedTimes) {$/;"	f	class:Bitboard
 convertToNotation	Arena.cpp	/^string Arena::convertToNotation(MoveInfo move){$/;"	f	class:Arena
+correctAssumptions	Weight.cpp	/^void AntMoveCountWeight::correctAssumptions(MoveInfo move, Bitboard incorrectAnts){$/;"	f	class:AntMoveCountWeight
 count	Bitboard.cpp	/^int Bitboard::count() const{$/;"	f	class:Bitboard
 countPieces	Arena.cpp	/^int Arena::countPieces(PieceColor color, PieceName name){$/;"	f	class:Arena
 countSwaps	GameState.cpp	/^int	 GameState::countSwaps(Bitboard& piece){$/;"	f	class:GameState
 countTotalUnusedPieces	GameState.cpp	/^int GameState::countTotalUnusedPieces() {$/;"	f	class:GameState
+coveredAnts	Weight.h	/^		Bitboard coveredAnts;$/;"	m	class:AntMoveCountWeight
 createChild	MonteCarloNode.h	/^		void createChild(MoveInfo m) {$/;"	f	class:MonteCarloNode
 createGateHashTable	Test.cpp	/^void createGateHashTable() {$/;"	f
 createLowOverflowMask	Bitboard.cpp	/^unsigned long long Bitboard::createLowOverflowMask(Direction dir, int overflowAmount) {$/;"	f	class:Bitboard
@@ -156,6 +173,7 @@ currentGameState	Arena.h	/^		GameState currentGameState;$/;"	m	class:Arena
 currentHeuristic	MonteCarloTree.h	/^		Heuristic currentHeuristic;$/;"	m	class:MonteCarloTree
 depth	Heuristic.h	/^		int depth = 0;$/;"	m	class:Heuristic
 destroy	GameState.cpp	/^void GameState::destroy() {$/;"	f	class:GameState
+destroy	PieceGraph.cpp	/^void MoveGraph::destroy(){$/;"	f	class:MoveGraph
 destroy	PieceGraph.cpp	/^void PieceGraph::destroy() {$/;"	f	class:PieceGraph
 directions	Test.cpp	/^ unordered_map < string , vector<Direction> > directions = $/;"	v
 distr	Bitboard.cpp	/^std::uniform_int_distribution<unsigned long long> distr;$/;"	v
@@ -164,20 +182,29 @@ dxdy	Test.cpp	/^ int dxdy[6][2] = {{1,1},$/;"	v
 equals	Bitboard.cpp	/^bool Bitboard::equals(Bitboard& other){$/;"	f	class:Bitboard
 evaluate	Heuristic.cpp	/^vector<double> Heuristic::evaluate(MoveInfo m){$/;"	f	class:Heuristic
 evaluate	MonteCarloNode.h	/^		inline void evaluate(Heuristic& h, MoveInfo m){$/;"	f	class:MonteCarloNode
+evaluate	Weight.cpp	/^double AntMoveCountWeight::evaluate(MoveInfo move){$/;"	f	class:AntMoveCountWeight
+evaluate	Weight.cpp	/^double GrasshopperMoveCountWeight::evaluate(MoveInfo move) {$/;"	f	class:GrasshopperMoveCountWeight
 evaluate	Weight.cpp	/^double KillShotCountWeight::evaluate(MoveInfo move){$/;"	f	class:KillShotCountWeight
+evaluate	Weight.cpp	/^double LadybugMoveCountWeight::evaluate(MoveInfo move) {$/;"	f	class:LadybugMoveCountWeight
+evaluate	Weight.cpp	/^double MosquitoMoveCountWeight::evaluate(MoveInfo move){$/;"	f	class:MosquitoMoveCountWeight
 evaluate	Weight.cpp	/^double PieceCountWeight::evaluate(MoveInfo move) {$/;"	f	class:PieceCountWeight
 evaluate	Weight.cpp	/^double PinnedWeight::evaluate(MoveInfo move){$/;"	f	class:PinnedWeight
-evaluate	Weight.cpp	/^double SimpleMoveCountWeight::evaluate(MoveInfo move){$/;"	f	class:SimpleMoveCountWeight
+evaluate	Weight.cpp	/^double SimpleMoveCountWeight::evaluate(MoveInfo move) {$/;"	f	class:SimpleMoveCountWeight
 evaluate	Weight.h	/^		virtual double evaluate(MoveInfo){return 0;};$/;"	f	class:Weight
 evaluateAllChildren	MonteCarloNode.h	/^		void evaluateAllChildren(Heuristic& h,GameState& gameState) {$/;"	f	class:MonteCarloNode
 expand	MonteCarloTree.cpp	/^MoveInfo MonteCarloTree::expand(nodePtr leafPtr, GameState leafGameState) {$/;"	f	class:MonteCarloTree
 expansionPieces	Heuristic.h	/^		set<char> expansionPieces;$/;"	m	class:Heuristic
 explorationFactor	constants.cpp	/^double explorationFactor = 1.41;$/;"	v
+extraInfo	MoveGenerator.h	/^		Bitboard extraInfo;$/;"	m	class:MoveGenerator
+extraInfoOn	MoveGenerator.h	/^		bool extraInfoOn = false;$/;"	m	class:MoveGenerator
 fastInsertPiece	GameState.cpp	/^void GameState::fastInsertPiece(Bitboard& bitboard, PieceName name, PieceColor color) {$/;"	f	class:GameState
 fastMovePiece	GameState.cpp	/^void GameState::fastMovePiece(Bitboard& oldBitboard, Bitboard& newBitboard) {$/;"	f	class:GameState
 fastRemovePiece	GameState.cpp	/^void GameState::fastRemovePiece(Bitboard& oldBitboard){ $/;"	f	class:GameState
 fastSpawnPiece	GameState.cpp	/^void GameState::fastSpawnPiece(Bitboard& b, PieceName n) {$/;"	f	class:GameState
+finalMoveCounts	Weight.h	/^		unordered_map <int , pair<PieceColor, int>> finalMoveCounts;$/;"	m	class:Weight
+find	PieceGraph.h	/^		vector<int> find(Bitboard& test){$/;"	f	class:IntermediateGraph
 findAllProblemNodes	ProblemNode.cpp	/^void ProblemNodeContainer::findAllProblemNodes() {$/;"	f	class:ProblemNodeContainer
+findAntMoves	MoveGenerator.cpp	/^void MoveGenerator::findAntMoves(Bitboard& frontier, Bitboard& visited){$/;"	f	class:MoveGenerator
 findBottomPieceColor	GameState.cpp	/^PieceColor GameState::findBottomPieceColor(Bitboard piece) {$/;"	f	class:GameState
 findBottomPieceName	GameState.cpp	/^PieceName GameState::findBottomPieceName(Bitboard piece) {$/;"	f	class:GameState
 findPinnedPieces	GameState.cpp	/^inline void GameState::findPinnedPieces(){$/;"	f	class:GameState
@@ -186,6 +213,9 @@ findTopPieceName	GameState.cpp	/^PieceName GameState::findTopPieceName(Bitboard 
 findTopPieceOrder	Arena.cpp	/^string Arena::findTopPieceOrder(Bitboard piece){$/;"	f	class:Arena
 floodFill	Bitboard.cpp	/^void Bitboard::floodFill(Bitboard &frontier){$/;"	f	class:Bitboard
 floodFillStep	Bitboard.cpp	/^void Bitboard::floodFillStep(Bitboard &frontier,  Bitboard &visited){$/;"	f	class:Bitboard
+freeAnts	Weight.h	/^		Bitboard freeAnts;$/;"	m	class:AntMoveCountWeight
+freeGrasshoppers	Weight.h	/^		Bitboard freeGrasshoppers;$/;"	m	class:GrasshopperMoveCountWeight
+freeLadybugs	Weight.h	/^		Bitboard freeLadybugs;$/;"	m	class:LadybugMoveCountWeight
 gameState	Heuristic.h	/^		GameState * gameState = nullptr;$/;"	m	class:Heuristic
 gateInDirection	ProblemNode.cpp	/^unordered_map <Direction, unsigned long long> gateInDirection = {$/;"	v
 gates	ProblemNode.cpp	/^Bitboard gates[] = {$/;"	v
@@ -194,8 +224,8 @@ generateApproxAntMoves	MoveGenerator.cpp	/^void MoveGenerator::generateApproxAnt
 generateBeetleMoves	MoveGenerator.cpp	/^void MoveGenerator::generateBeetleMoves(){$/;"	f	class:MoveGenerator
 generateDirectionCombinations	Test.cpp	/^void generateDirectionCombinations (unsigned int i, vector < vector <Direction>>& v) {$/;"	f
 generateGrasshopperMoves	MoveGenerator.cpp	/^void MoveGenerator::generateGrasshopperMoves(){$/;"	f	class:MoveGenerator
-generateLadybugMoves	MoveGenerator.cpp	/^void MoveGenerator::generateLadybugMoves(){$/;"	f	class:MoveGenerator
-generateLegalAntMoves	MoveGenerator.cpp	/^void MoveGenerator::generateLegalAntMoves() {$/;"	f	class:MoveGenerator
+generateLadybugMoves	MoveGenerator.cpp	/^void MoveGenerator::generateLadybugMoves(int depth){$/;"	f	class:MoveGenerator
+generateLegalAntMoves	MoveGenerator.cpp	/^void MoveGenerator::generateLegalAntMoves(Bitboard startNodes, Bitboard visitedNodes) {$/;"	f	class:MoveGenerator
 generateMosquitoMoves	MoveGenerator.cpp	/^void MoveGenerator::generateMosquitoMoves(){$/;"	f	class:MoveGenerator
 generateMoves	MoveGenerator.cpp	/^void MoveGenerator::generateMoves() {$/;"	f	class:MoveGenerator
 generatePillbugMoves	MoveGenerator.cpp	/^void MoveGenerator::generatePillbugMoves(){$/;"	f	class:MoveGenerator
@@ -206,27 +236,34 @@ generatingPieceName	MoveGenerator.h	/^		PieceName * generatingPieceName;$/;"	m	c
 getAllMoves	GameState.cpp	/^void GameState::getAllMoves() {$/;"	f	class:GameState
 getAllMovesCount	GameState.cpp	/^int GameState::getAllMovesCount() {$/;"	f	class:GameState
 getAllSpawnSpaces	GameState.cpp	/^Bitboard GameState::getAllSpawnSpaces() {$/;"	f	class:GameState
+getArticulationNodes	PieceGraph.cpp	/^void MoveGraph::getArticulationNodes(Bitboard root) {$/;"	f	class:MoveGraph
 getArticulationNodes	PieceGraph.cpp	/^void PieceGraph::getArticulationNodes(PieceNode * n, int& counter, $/;"	f	class:PieceGraph
-getInaccessibleNodes	MoveGenerator.cpp	/^Bitboard MoveGenerator::getInaccessibleNodes(Bitboard gates) {$/;"	f	class:MoveGenerator
-getInaccessibleNodes	MoveGenerator.cpp	/^Bitboard MoveGenerator::getInaccessibleNodes(vector <Bitboard> * gates) {$/;"	f	class:MoveGenerator
+getDependencies	Weight.cpp	/^Bitboard LadybugMoveCountWeight::getDependencies(Bitboard startNode, PieceColor color) {$/;"	f	class:LadybugMoveCountWeight
+getEndNodes	PieceGraph.h	/^		Bitboard getEndNodes() {$/;"	f	class:IntermediateGraph
+getIntermediateNodes	PieceGraph.h	/^		Bitboard getIntermediateNodes(){$/;"	f	class:IntermediateGraph
 getLeastSignificantBit	Bitboard.cpp	/^Bitboard::getLeastSignificantBit () const {$/;"	f	class:Bitboard
 getLegalClimb	MoveGenerator.cpp	/^Bitboard MoveGenerator::getLegalClimb( Bitboard& board, Direction dir) {$/;"	f	class:MoveGenerator
+getLegalClimbs	MoveGenerator.cpp	/^Bitboard MoveGenerator::getLegalClimbs( Bitboard& board){$/;"	f	class:MoveGenerator
 getLegalWalkPerimeter	MoveGenerator.cpp	/^Bitboard MoveGenerator::getLegalWalkPerimeter(Bitboard board) {$/;"	f	class:MoveGenerator
 getLegalWalks	Test.cpp	/^Bitboard getLegalWalks(Bitboard board, Bitboard allPieces) {$/;"	f
 getMosquitoMoves	GameState.cpp	/^Bitboard GameState::getMosquitoMoves(Bitboard piece) {$/;"	f	class:GameState
 getMosquitoPillbug	GameState.cpp	/^Bitboard GameState::getMosquitoPillbug() {$/;"	f	class:GameState
 getMoves	MoveGenerator.cpp	/^Bitboard MoveGenerator::getMoves() {	$/;"	f	class:MoveGenerator
+getMoves	PieceGraph.cpp	/^Bitboard MoveGraph::getMoves(){$/;"	f	class:MoveGraph
+getNodes	PieceGraph.h	/^		Bitboard getNodes() {$/;"	f	class:IntermediateGraph
 getPerimeter	Bitboard.cpp	/^Bitboard  Bitboard::getPerimeter() {$/;"	f	class:Bitboard
 getPerimeter	ProblemNode.cpp	/^Bitboard ProblemNodeContainer::getPerimeter(Bitboard& pieces) {$/;"	f	class:ProblemNodeContainer
 getPieces	GameState.cpp	/^Bitboard * GameState::getPieces(PieceColor color) {$/;"	f	class:GameState
 getPieces	GameState.cpp	/^Bitboard * GameState::getPieces(PieceName name) {$/;"	f	class:GameState
 getPieces	GameState.cpp	/^inline Bitboard * GameState::getPieces() { $/;"	f	class:GameState
 getPillbugSwapSpaces	MoveGenerator.cpp	/^Bitboard MoveGenerator::getPillbugSwapSpaces() {$/;"	f	class:MoveGenerator
-getPinnedPieces	PieceGraph.cpp	/^Bitboard PieceGraph::getPinnedPieces() {$/;"	f	class:PieceGraph
+getPinnedPieces	PieceGraph.cpp	/^Bitboard PieceGraph::getPinnedPieces(Bitboard root) {$/;"	f	class:PieceGraph
 getProblemNodesAtLocation	ProblemNode.cpp	/^ProblemNodeContainer::getProblemNodesAtLocation(int boardIndex, unsigned long long$/;"	f	class:ProblemNodeContainer
 getRandom	Bitboard.cpp	/^Bitboard Bitboard::getRandom() {$/;"	f	class:Bitboard
 getRandomBoardIndex	Bitboard.cpp	/^int Bitboard::getRandomBoardIndex() {$/;"	f	class:Bitboard
 getSwapSpaces	GameState.cpp	/^pair <Bitboard, Bitboard> GameState::getSwapSpaces(Bitboard piece) {$/;"	f	class:GameState
+graph	MoveGenerator.h	/^		IntermediateGraph graph;$/;"	m	class:MoveGenerator
+grasshopperMoves	Weight.h	/^		unordered_map <int , int> grasshopperMoves;$/;"	m	class:GrasshopperMoveCountWeight
 grasshoppers	GameState.h	/^	Bitboard grasshoppers;$/;"	m	class:GameState
 hash	Bitboard.cpp	/^int Bitboard::hash() {$/;"	f	class:Bitboard
 hash	GameState.h	/^struct std::hash<MoveInfo> {$/;"	s	class:std
@@ -235,11 +272,17 @@ heuristicEvals	MonteCarloNode.h	/^		vector <double> heuristicEvals;$/;"	m	class:
 heuristicFactor	constants.cpp	/^double heuristicFactor = .5;$/;"	v
 heuristicScore	MonteCarloNode.h	/^		double heuristicScore;$/;"	m	class:MonteCarloNode
 immobile	GameState.h	/^	Bitboard immobile;$/;"	m	class:GameState
+immobileGrasshoppers	Weight.h	/^		Bitboard immobileGrasshoppers;$/;"	m	class:GrasshopperMoveCountWeight
+immobileLadybugs	Weight.h	/^		Bitboard immobileLadybugs;$/;"	m	class:LadybugMoveCountWeight
+initialMoveCounts	Weight.h	/^		unordered_map <int , pair<PieceColor, int>> initialMoveCounts;$/;"	m	class:AntMoveCountWeight
+initialMoveCounts	Weight.h	/^		unordered_map <int, pair<PieceColor, int>> initialMoveCounts;$/;"	m	class:GrasshopperMoveCountWeight
 initialize	Bitboard.cpp	/^void Bitboard::initialize(unordered_map < int, unsigned long long> predefinedBoards) {$/;"	f	class:Bitboard
+initialize	Weight.cpp	/^void AntMoveCountWeight::initialize(GameState * gameState){$/;"	f	class:AntMoveCountWeight
+initialize	Weight.cpp	/^void GrasshopperMoveCountWeight::initialize(GameState * gameState) {$/;"	f	class:GrasshopperMoveCountWeight
 initialize	Weight.cpp	/^void KillShotCountWeight::initialize(GameState* g) {$/;"	f	class:KillShotCountWeight
+initialize	Weight.cpp	/^void LadybugMoveCountWeight::initialize(GameState * gameState) {$/;"	f	class:LadybugMoveCountWeight
 initialize	Weight.cpp	/^void PieceCountWeight::initialize(GameState * gameState){$/;"	f	class:PieceCountWeight
-initialize	Weight.cpp	/^void SimpleMoveCountWeight::initialize(GameState * gameState) {$/;"	f	class:SimpleMoveCountWeight
-initialize	Weight.h	/^		virtual void initialize(GameState * g){parentGameState = g;};$/;"	f	class:Weight
+initialize	Weight.h	/^		virtual void initialize(GameState * g){$/;"	f	class:Weight
 initializeTo	Bitboard.cpp	/^void Bitboard::initializeTo(Bitboard &other) {$/;"	f	class:Bitboard
 initializeTo	MonteCarloTree.h	/^		void initializeTo(MonteCarloTree& MCT) {$/;"	f	class:MonteCarloTree
 initializeTo	PieceGraph.h	/^		void initializeTo (const PieceGraph& other) {$/;"	f	class:PieceGraph
@@ -248,7 +291,6 @@ insert	PieceNode.cpp	/^void PieceNode::insert( list <PieceNode*> &newNeighbors, 
 insert	ProblemNode.cpp	/^void ProblemNodeContainer::insert(Bitboard& problemNodes) {$/;"	f	class:ProblemNodeContainer
 insertPiece	ProblemNode.cpp	/^void ProblemNodeContainer::insertPiece(Bitboard & piece) {$/;"	f	class:ProblemNodeContainer
 intRand	MonteCarloTree.cpp	/^int intRand(const int & min, const int & max) {$/;"	f
-intermediate	MoveGenerator.h	/^		Bitboard intermediate;$/;"	m	class:MoveGenerator
 internalBoardCache	Bitboard.h	/^	boost::container::flat_set<int> internalBoardCache;$/;"	m	class:Bitboard
 internalBoards	Bitboard.h	/^	unsigned long long internalBoards[BITBOARD_SIZE];$/;"	m	class:Bitboard
 intersectionWith	Bitboard.cpp	/^void Bitboard::intersectionWith( Bitboard &other) {$/;"	f	class:Bitboard
@@ -272,9 +314,10 @@ minLearningFraction	MonteCarloTree.cpp	/^double minLearningFraction = .1;$/;"	v
 modulo	constants.cpp	/^unsigned modulo( int value, unsigned m) {$/;"	f
 mosquitoes	GameState.h	/^	Bitboard mosquitoes;$/;"	m	class:GameState
 moveApproximation	GameState.cpp	/^int GameState::moveApproximation(Bitboard piece, bool isPinned){$/;"	f	class:GameState
-moveCounts	Weight.h	/^		int moveCounts[2];$/;"	m	class:SimpleMoveCountWeight
+moveGen	Weight.h	/^		MoveGenerator moveGen;$/;"	m	class:AntMoveCountWeight
+moveGen	Weight.h	/^		MoveGenerator moveGen;$/;"	m	class:LadybugMoveCountWeight
+moveGen	Weight.h	/^		MoveGenerator moveGen;$/;"	m	class:Weight
 moveGenerator	GameState.h	/^	MoveGenerator moveGenerator;$/;"	m	class:GameState
-moveGenerator	Weight.h	/^		MoveGenerator moveGenerator;$/;"	m	class:SimpleMoveCountWeight
 moveHistory	Arena.h	/^		vector<MoveInfo> moveHistory;$/;"	m	class:Arena
 moveHistoryNotation	Arena.h	/^		vector<string> moveHistoryNotation;$/;"	m	class:Arena
 movePiece	GameState.cpp	/^MoveInfo GameState::movePiece(Bitboard& oldBitboard, Bitboard& newBitboard,$/;"	f	class:GameState
@@ -282,20 +325,21 @@ moves	MoveGenerator.h	/^		Bitboard moves;$/;"	m	class:MoveGenerator
 movesCollection	GameState.h	13;"	d
 multiSearch	MonteCarloTree.cpp	/^MoveInfo MonteCarloTree::multiSearch(GameState& initialGameState, int numThreads){$/;"	f	class:MonteCarloTree
 multiplier	Weight.h	/^		double multiplier;$/;"	m	class:Weight
+name	Weight.h	/^		PieceName name = ANT;$/;"	m	class:AntMoveCountWeight
+name	Weight.h	/^		PieceName name = LADYBUG;$/;"	m	class:LadybugMoveCountWeight
 name	Weight.h	/^		PieceName name;$/;"	m	class:SimpleMoveCountWeight
 neighbors	PieceNode.h	/^		list <PieceNode*> neighbors;	$/;"	m	class:PieceNode
-newLocationWatchpoints	Weight.h	/^		unordered_map<int, Bitboard> newLocationWatchpoints;$/;"	m	class:MoveCountWeight
 newPieceLocation	GameState.h	/^	Bitboard newPieceLocation;$/;"	m	struct:MoveInfo
 nodeMap	MonteCarloTree.h	9;"	d
 nodePtr	MonteCarloNode.h	7;"	d
+nodes	PieceGraph.h	/^		unordered_map<int, boost::container::flat_set<int>> nodes;$/;"	m	class:IntermediateGraph
 notIntersectionWith	Bitboard.cpp	/^void Bitboard::notIntersectionWith( Bitboard &other) {$/;"	f	class:Bitboard
 numCores	constants.cpp	/^int numCores = 1;$/;"	v
 numDirections	ProblemNode.cpp	/^int numDirections = 6;$/;"	v
+numHashTable	PieceGraph.h	/^		vector<Bitboard> numHashTable;$/;"	m	class:IntermediateGraph
 numVisited	MonteCarloNode.h	/^		int numVisited = 0;$/;"	m	class:MonteCarloNode
-oldLocationWatchpoints	Weight.h	/^		unordered_map<int, Bitboard> oldLocationWatchpoints;$/;"	m	class:MoveCountWeight
 oldPieceLocation	GameState.h	/^	Bitboard oldPieceLocation;$/;"	m	struct:MoveInfo
 operator ()	GameState.h	/^       std::size_t operator()(const MoveInfo& m)const {$/;"	f	struct:std::hash
-operator =	Bitboard.h	/^	void operator = (const Bitboard& other) {$/;"	f	class:Bitboard
 operator =	GameState.cpp	/^void GameState::operator=( const GameState& other){$/;"	f	class:GameState
 operator =	PieceGraph.h	/^		void operator=(const PieceGraph& other){$/;"	f	class:PieceGraph
 operator ==	Bitboard.h	/^	bool operator == (const Bitboard& other) const {$/;"	f	class:Bitboard
@@ -306,12 +350,18 @@ operator []	Bitboard.h	/^	inline unsigned long long operator [](int index) {$/;"
 oppositeDirection	constants.cpp	/^unordered_map<Direction, Direction> oppositeDirection = $/;"	v
 overflowBitmask	Bitboard.cpp	/^unordered_map <Direction, unsigned long long> overflowBitmask =$/;"	v
 overflowLocation	Bitboard.cpp	/^unordered_map <Direction, vector<int>> overflowLocation =$/;"	v
+override	Weight.h	/^		double evaluate(MoveInfo) override;$/;"	m	class:AntMoveCountWeight
+override	Weight.h	/^		double evaluate(MoveInfo) override;$/;"	m	class:GrasshopperMoveCountWeight
 override	Weight.h	/^		double evaluate(MoveInfo) override;$/;"	m	class:KillShotCountWeight
+override	Weight.h	/^		double evaluate(MoveInfo) override;$/;"	m	class:LadybugMoveCountWeight
+override	Weight.h	/^		double evaluate(MoveInfo) override;$/;"	m	class:MosquitoMoveCountWeight
 override	Weight.h	/^		double evaluate(MoveInfo) override;$/;"	m	class:PieceCountWeight
 override	Weight.h	/^		double evaluate(MoveInfo) override;$/;"	m	class:PinnedWeight
 override	Weight.h	/^		double evaluate(MoveInfo) override;$/;"	m	class:SimpleMoveCountWeight
 override	Weight.h	/^		void initialize(GameState * g) override;$/;"	m	class:KillShotCountWeight
-override	Weight.h	/^		void initialize(GameState *) override;$/;"	m	class:SimpleMoveCountWeight
+override	Weight.h	/^		void initialize(GameState *) override;$/;"	m	class:AntMoveCountWeight
+override	Weight.h	/^		void initialize(GameState *) override;$/;"	m	class:GrasshopperMoveCountWeight
+override	Weight.h	/^		void initialize(GameState *) override;$/;"	m	class:LadybugMoveCountWeight
 override	Weight.h	/^		void initialize(GameState*) override;$/;"	m	class:PieceCountWeight
 parameters	Bitboard.cpp	/^unordered_map <Direction, vector<int>> parameters  = {$/;"	v
 parent	MonteCarloNode.h	/^		nodePtr parent = nullptr;$/;"	m	class:MonteCarloNode
@@ -332,6 +382,7 @@ pieceStacks	MoveGenerator.h	/^		unordered_map < int, deque < pair < PieceColor ,
 piecesExceptCurrent	MoveGenerator.h	/^		Bitboard piecesExceptCurrent;$/;"	m	class:MoveGenerator
 pillbugs	GameState.h	/^	Bitboard pillbugs;$/;"	m	class:GameState
 pinned	GameState.h	/^	Bitboard pinned;    $/;"	m	class:GameState
+pinnedAnts	Weight.h	/^		Bitboard pinnedAnts;$/;"	m	class:AntMoveCountWeight
 pinnedWatchPoints	Weight.h	/^		Bitboard pinnedWatchPoints;$/;"	m	class:KillShotCountWeight
 playerOneCPU	Arena.h	/^		bool playerOneCPU = false;$/;"	m	class:Arena
 playerTwoCPU	Arena.h	/^		bool playerTwoCPU = false;$/;"	m	class:Arena
@@ -357,14 +408,16 @@ randomSpawnPiece	GameState.cpp	/^void GameState::randomSpawnPiece(Bitboard& spaw
 randomSwapPiece	GameState.cpp	/^void GameState::randomSwapPiece(Bitboard swappable, Bitboard empty) {$/;"	f	class:GameState
 rd	Bitboard.cpp	/^std::random_device rd;     \/\/Get a random seed from the OS entropy device, or whatever$/;"	v
 recalculate	Weight.cpp	/^vector<int> KillShotCountWeight::recalculate() {$/;"	f	class:KillShotCountWeight
-recalculate	Weight.cpp	/^vector<int> SimpleMoveCountWeight::recalculate() {$/;"	f	class:SimpleMoveCountWeight
+recalculateMoves	Weight.cpp	/^int recalculateMoves(Bitboard& piece, $/;"	f
 remove	PieceGraph.cpp	/^void PieceGraph::remove(Bitboard& oldBitboard) {$/;"	f	class:PieceGraph
+remove	PieceGraph.h	/^		void remove(Bitboard removingNodes) {$/;"	f	class:IntermediateGraph
 remove	PieceNode.cpp	/^void PieceNode::remove() {$/;"	f	class:PieceNode
 remove	ProblemNode.cpp	/^void ProblemNodeContainer::remove(Bitboard & problemNodes) {$/;"	f	class:ProblemNodeContainer
 removePiece	ProblemNode.cpp	/^void ProblemNodeContainer::removePiece( Bitboard & piece) {$/;"	f	class:ProblemNodeContainer
 replayMove	GameState.cpp	/^void GameState::replayMove(MoveInfo moveInfo) {$/;"	f	class:GameState
 reposition	PieceGraph.cpp	/^void PieceGraph::reposition(Bitboard& oldBitboard, Bitboard& newBitboard) {$/;"	f	class:PieceGraph
 reposition	PieceNode.cpp	/^void PieceNode::reposition(list <PieceNode*> &newNeighbors, Bitboard &newBitboard){$/;"	f	class:PieceNode
+root	PieceGraph.h	/^		Bitboard root;$/;"	m	class:IntermediateGraph
 rotateClockWise	constants.cpp	/^Direction rotateClockWise(Direction dir) {$/;"	f
 rotateCounterClockWise	constants.cpp	/^Direction rotateCounterClockWise(Direction dir) {$/;"	f
 save	Heuristic.cpp	/^void Heuristic::save(){$/;"	f	class:Heuristic
@@ -394,6 +447,7 @@ split	Bitboard.cpp	/^unordered_map< int, vector < unsigned long long >> Bitboard
 splitIntoBitboards	Bitboard.cpp	/^list <Bitboard> Bitboard::splitIntoBitboards() {$/;"	f	class:Bitboard
 splitIntoConnectedComponents	Bitboard.cpp	/^vector <Bitboard> Bitboard::splitIntoConnectedComponents(){$/;"	f	class:Bitboard
 swappableEmpty	GameState.h	/^	vector <pair<Bitboard, Bitboard>> swappableEmpty;$/;"	m	class:GameState
+testAntMoveWeights	Test.cpp	/^void Test::WeightTest::testAntMoveWeights() {$/;"	f	class:Test::WeightTest
 testAntMoves	Test.cpp	/^void Test::MoveGeneratorTest::testAntMoves() {$/;"	f	class:Test::MoveGeneratorTest
 testArenaNotation	Test.cpp	/^void Test::ArenaTest::testArenaNotation() {$/;"	f	class:Test::ArenaTest
 testBattle	Test.cpp	/^void Test::ArenaTest::testBattle() {$/;"	f	class:Test::ArenaTest
@@ -429,21 +483,27 @@ train	MonteCarloTree.cpp	/^void MonteCarloTree::train(nodePtr node, set<nodePtr>
 trainingMode	MonteCarloTree.h	/^		bool trainingMode = false;$/;"	m	class:MonteCarloTree
 turnColor	GameState.h	/^	PieceColor turnColor;$/;"	m	class:GameState
 turnCounter	GameState.h	/^	int turnCounter = 0;$/;"	m	class:GameState
+undo	Arena.cpp	/^void Arena::undo(MoveInfo move){$/;"	f	class:Arena
+undo	Arena.cpp	/^void Arena::undo(string move){$/;"	f	class:Arena
 undoMove	GameState.cpp	/^void GameState::undoMove(MoveInfo moveInfo) {$/;"	f	class:GameState
 unionWith	Bitboard.cpp	/^void Bitboard::unionWith( Bitboard &other){$/;"	f	class:Bitboard
 unionWith	Bitboard.cpp	/^void Bitboard::unionWith(int boardIndex, unsigned long long board) {$/;"	f	class:Bitboard
 unpinnedWatchPoints	Weight.h	/^		Bitboard unpinnedWatchPoints;$/;"	m	class:KillShotCountWeight
 unusedPieces	GameState.h	/^	vector <unordered_map <PieceName, int>> unusedPieces;$/;"	m	class:GameState
 updateVisible	ProblemNode.cpp	/^void ProblemNodeContainer::updateVisible(Bitboard& locations) {$/;"	f	class:ProblemNodeContainer
+upperLevelGates	Weight.h	/^		Bitboard upperLevelGates;$/;"	m	class:LadybugMoveCountWeight
 upperLevelPieces	GameState.h	/^	Bitboard upperLevelPieces;$/;"	m	class:GameState
 upperLevelPieces	MoveGenerator.h	/^		Bitboard * upperLevelPieces;$/;"	m	class:MoveGenerator
 visibleProblemNodes	ProblemNode.h	/^		Bitboard visibleProblemNodes;$/;"	m	class:ProblemNodeContainer
 visitedNum	PieceNode.h	/^		int visitedNum;$/;"	m	class:PieceNode
 watchPoints	Weight.h	/^		Bitboard watchPoints;$/;"	m	class:KillShotCountWeight
 watchPoints	Weight.h	/^		Bitboard watchPoints;$/;"	m	class:Weight
+watchpoints	Weight.h	/^		Bitboard watchpoints;$/;"	m	class:GrasshopperMoveCountWeight
 weights	Heuristic.h	/^		vector <Weight *> weights;$/;"	m	class:Heuristic
+weights	Weight.h	/^		vector<Weight*> weights;$/;"	m	class:MosquitoMoveCountWeight
 westernDirection	Arena.cpp	/^set<Direction> westernDirection = {NW, SW, W};$/;"	v
 whitePieces	GameState.h	/^	Bitboard whitePieces;$/;"	m	class:GameState
 xorWith	Bitboard.cpp	/^void Bitboard::xorWith( Bitboard &other) {$/;"	f	class:Bitboard
 ~GameState	GameState.h	/^	~GameState() { destroy();}$/;"	f	class:GameState
+~MoveGraph	PieceGraph.h	/^		~MoveGraph(){destroy();};$/;"	f	class:MoveGraph
 ~PieceGraph	PieceGraph.h	/^		~PieceGraph() { destroy();}$/;"	f	class:PieceGraph

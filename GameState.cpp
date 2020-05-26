@@ -197,41 +197,44 @@ void GameState::replayMove(MoveInfo moveInfo) {
 		turnCounter++; changeTurnColor(); immobile.clear(); return;
 	}
 
-	PieceColor color  = turnColor;
+	PieceColor color;
+	if (moveInfo.oldPieceLocation == Bitboard()) {
+		color = turnColor;
+	} else 
+		color = findTopPieceColor(moveInfo.oldPieceLocation);
 	//if move is spawning a piece
 	if(!(moveInfo.oldPieceLocation.count())) {
 		//update reserve count
-		unusedPieces[turnColor][moveInfo.pieceName]--;
+		unusedPieces[color][moveInfo.pieceName]--;
 	} else {
-		color = findTopPieceColor(moveInfo.oldPieceLocation);
 		fastRemovePiece(moveInfo.oldPieceLocation);
 	}
 	fastInsertPiece(moveInfo.newPieceLocation, moveInfo.pieceName, color);
 	turnCounter++; changeTurnColor();
 }
 void GameState::undoMove(MoveInfo moveInfo) {
-	if (moveInfo == MoveInfo()) {
-		cout << "Not allowed to undo an empty move" << endl;
-		cout << "prevImmobile value needs to be set" << endl;
-		throw 4;
-	}
 
-	PieceColor color  = turnColor;
+	//NOTE: undoMove is lossy, (does not have information about prev immobile)
+	//if move is empty 
+	//this might be fine but fair warning
+	if (moveInfo == MoveInfo()){
+		turnCounter--; changeTurnColor(); immobile.clear(); return;
+	}
+	
+	PieceColor color = findTopPieceColor(moveInfo.newPieceLocation);
 	//if last move was spawning a piece
 	if (!(moveInfo.oldPieceLocation.count())) {
 		//update reserve count
-		unusedPieces[turnColor][moveInfo.pieceName]++;
+		unusedPieces[color][moveInfo.pieceName]++;
 	} else {
-		// find color of existing piece
-		color = findTopPieceColor(moveInfo.newPieceLocation);
 		fastInsertPiece(moveInfo.oldPieceLocation, moveInfo.pieceName, color);
 	}
 
 	//correct immobile piece assumption
 	immobile = moveInfo.prevImmobile;
 	fastRemovePiece(moveInfo.newPieceLocation);
-	if (!moveInfo.oldPieceLocation.count())
-		findPinnedPieces();
+	findPinnedPieces();
+	turnCounter--; changeTurnColor();
 }
 
 PieceColor GameState::checkVictory() {
@@ -1048,6 +1051,8 @@ void GameState::print() {
 	upperLevelPieces.print();  
 	cout << "immobile" << endl; 
 	immobile.print();          
+	cout << "pinned" << endl; 
+	pinned.print();          
 	cout << "unused pieces" << endl;
 	cout << "player 0" << endl;
 	for (auto iter: unusedPieces[0])

@@ -11,6 +11,29 @@ MoveGenerator::MoveGenerator(Bitboard * allPiecesIn) {
 	allPieces = allPiecesIn;
 }
 
+// if a given piece complies with the Hive sliding rule, return true
+bool checkLegalWalk(Bitboard& allPieces, Bitboard& board, Direction dir) {
+	Bitboard CW(board), CCW(board);
+	CW.shiftDirection(rotateClockWise(dir));
+	CCW.shiftDirection(rotateCounterClockWise(dir));
+	return  !(allPieces.containsAny(CW) && allPieces.containsAny(CCW));
+}
+
+//  return a bitboard representing all directions a piece can slide to
+//  (does not comply with the one hive rule)
+Bitboard getLegalWalks(Bitboard& board, Bitboard& allPieces) {
+	Bitboard retBoard;
+	for (unsigned i = 0; i < hexagonalDirections.size(); i++) {
+		if (checkLegalWalk(allPieces, board, (Direction)i))
+		{
+			Bitboard test(board);
+			test.shiftDirection((Direction)i);
+			retBoard.unionWith(test);
+		}
+	}
+	return retBoard;
+}
+
 Bitboard MoveGenerator::getMoves() {	
 	piecesExceptCurrent.initializeTo(*allPieces);
 	moves.clear();
@@ -216,24 +239,41 @@ void MoveGenerator::generateBeetleMoves(){
 	moves.unionWith(frontier);
 }  
 
-void MoveGenerator::findAntMoves(Bitboard& frontier, Bitboard& visited){
+void MoveGenerator::findAntMoves(Bitboard& frontier, Bitboard& visited, Bitboard& ant){
 	moves.clear();
 	piecesExceptCurrent.initializeTo(*allPieces);
-	perimeter = piecesExceptCurrent.getPerimeter();
+
+	perimeter.initializeTo(*allPieces);
+	perimeter.notIntersectionWith(ant);
+	perimeter = perimeter.getPerimeter();
+
 	generateLegalAntMoves(frontier, visited);
+	moves.notIntersectionWith(ant);
+	moves.intersectionWith(perimeter);
+	visited = moves;
 }
 
 //TODO: this is so slowwww
-void MoveGenerator::generateLegalAntMoves(Bitboard startNodes, Bitboard visitedNodes) {
+void MoveGenerator::generateLegalAntMoves(Bitboard startNodes,  Bitboard visitedNodes) {
 	Bitboard frontiers;
 	Bitboard visited;
-	Bitboard newFrontiers(*generatingPieceBoard);
+	Bitboard newFrontiers;
 
-	if (!(startNodes == Bitboard())){
+	if (startNodes.count()){
 		visited = visitedNodes;
 		newFrontiers = startNodes;
+		for (Bitboard& node: startNodes.splitIntoBitboards()){
+			Bitboard test = getLegalWalkPerimeter(node);
+			node.notIntersectionWith(*allPieces);
+			if( visitedNodes.containsAny(test)) 
+				visited.unionWith(node);
+		}
+	} else {
+		newFrontiers = *generatingPieceBoard;
 	}
 	//perform a flood fill step until it cannot anymore
+	//TODO: avoid resplitting the board by using a getWalkPerimeter function that can
+	//handle multiple bits at once
 	while(newFrontiers.count()) {
 		frontiers.initializeTo(newFrontiers);
 		newFrontiers.clear();
@@ -243,13 +283,12 @@ void MoveGenerator::generateLegalAntMoves(Bitboard startNodes, Bitboard visitedN
 			frontier.intersectionWith(perimeter);
 			frontier.notIntersectionWith(visited);
 
-			// store previously visited nodes
+			// store new visited nodes
 			visited.unionWith(frontier);
 			// store next locations to search
 			newFrontiers.unionWith(frontier);
 		}
 	}
-
 	moves.unionWith(visited);
 }
 
@@ -258,6 +297,26 @@ void MoveGenerator::generateApproxAntMoves() {
 	moves.notIntersectionWith(*generatingPieceBoard);
 }
 
+Bitboard MoveGenerator::getLegalConnectedComponents(Bitboard test) {
+	Bitboard components(test);
+	Bitboard frontiers;
+	if (test.count()) {
+		frontiers = test.getRandom();
+	}
+	Bitboard newFrontiers = frontiers;
+	while (newFrontiers.count() ){
+		frontiers.clear();
+		for (auto frontier : newFrontiers.splitIntoBitboards()) {
+			frontier = getLegalWalkPerimeter(frontier);	
+			frontier.intersectionWith(test);
+			test.notIntersectionWith(frontier);
+			frontiers.unionWith(frontier);
+		}
+		newFrontiers = frontiers;
+	}
+	components.notIntersectionWith(test);
+	return components;
+}
 /*
 TODO: make this work when you have time for optimization
 void MoveGenerator::generateAntMoves(){
@@ -402,40 +461,35 @@ Bitboard MoveGenerator::getLegalWalkPerimeter(Bitboard board) {
 	testPerimeter = testPerimeter.getPerimeter();
 	testPerimeter.intersectionWith(piecesExceptCurrent);
 	if (LSB.second & 0x7e7e7e7e7e7e00u) {
+		//middle bits
 		testPerimeter.setBoard(LSB.first, GATES[__builtin_ctzll(LSB.second)]
 											   [testPerimeter[LSB.first]]);
 		return testPerimeter;
 	} else if (LSB.second & 0x1010101010100u) {
+		// rightmost bits
 		correction = Direction::W;
 		LSB.second <<= 1;
 	} else if (LSB.second & 0x7e00000000000000u) {
+		// upper bits
 		correction = Direction::N;
 		LSB.second >>= 16;
 	} else if (LSB.second & 0x7e) {
+		// lower bits
 		correction = Direction::S;
 		LSB.second <<= 16;
 	} else if (LSB.second & 0x80808080808000u) {
+		// leftmost bits
 		correction = Direction::E;
 		LSB.second >>= 1;
 	} else {
-		int xShift, yShift;
-		xShift = __builtin_ctzll(LSB.second) % 8;
-		yShift = __builtin_ctzll(LSB.second) / 8;
-		xShift = 1-xShift;
-		yShift = 1-yShift;
-
-		testPerimeter.shiftDirection(Direction::N , yShift);
-		testPerimeter.shiftDirection(Direction::E, xShift);
-		testPerimeter.convertToHexRepresentation(Direction::NE, yShift);
-		
-		testPerimeter.setBoard(LSB.first, GATES[__builtin_ctzll(512u)][testPerimeter[LSB.first]]);
-
-		testPerimeter.shiftDirection(Direction::S , yShift);
-		testPerimeter.shiftDirection(Direction::W, xShift);
-		testPerimeter.convertToHexRepresentation(Direction::SW, yShift);
-		return testPerimeter;
+		//use the slow method only for diagonal corner bits
+		Bitboard legalWalks = getLegalWalks(board, *allPieces);
+		legalWalks.notIntersectionWith(testPerimeter);
+		return legalWalks;
 	}
 
+	//since only one board is stored, shift the perimeter to occupy one board
+	//get the stored value, then correct
 	testPerimeter.shiftDirection(oppositeDirection[correction]);
 	if (correction == N || correction == S)
 		testPerimeter.shiftDirection(oppositeDirection[correction]);
@@ -446,3 +500,5 @@ Bitboard MoveGenerator::getLegalWalkPerimeter(Bitboard board) {
 
 	return testPerimeter;
 }
+
+

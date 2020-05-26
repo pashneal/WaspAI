@@ -11,8 +11,9 @@
 
 using namespace std;
 
+Bitboard getLegalWalks(Bitboard&, Bitboard&);
+bool checkLegalWalk(Bitboard& , Bitboard&, Direction);
 class MoveGenerator {
-	
 		PieceName * generatingPieceName;
 
 		//TODO: Optimize by checking inaccesible points only after it has been
@@ -39,9 +40,11 @@ class MoveGenerator {
 	public:
 
 		void generateLadybugMoves(int = 0); 
-		void generateLegalAntMoves(Bitboard = Bitboard(), Bitboard = Bitboard());     
 		void generateApproxAntMoves();
-		void findAntMoves(Bitboard&, Bitboard&);
+		void findAntMoves(Bitboard&, Bitboard&, Bitboard&);
+		void generateLegalAntMoves(Bitboard = Bitboard(), Bitboard = Bitboard());     
+
+		Bitboard getLegalConnectedComponents(Bitboard);
 
 		bool problemNodesEnabled = false;
 		bool approximate = false;

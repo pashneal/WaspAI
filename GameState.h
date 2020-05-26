@@ -28,9 +28,9 @@ struct MoveInfo {
 	const string toString(string prefix) const {
 		auto LSB1 = newPieceLocation.getLeastSignificantBit();
 		auto LSB2 = oldPieceLocation.getLeastSignificantBit();
-		return prefix + to_string(LSB1.first)+ "\t" + to_string(LSB1.second)+ "\n" +
-			   prefix + to_string(LSB2.first)+ "\t" + to_string(LSB2.second)+ "\n" +
-			   prefix + to_string(pieceName) + "\n";
+		return prefix + "new"+ "\t" +to_string(LSB1.first)+ "\t" + to_string(LSB1.second)+ "\n" +
+			   prefix + "old"+ "\t" +to_string(LSB2.first)+ "\t" + to_string(LSB2.second)+ "\n" +
+			   prefix + "\t" +to_string(pieceName) + "\n";
 	}
 };
 template <>

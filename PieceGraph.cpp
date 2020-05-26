@@ -111,7 +111,6 @@ Bitboard PieceGraph::getPinnedPieces(Bitboard root) {
 	unordered_set<PieceNode*> visited;
 	getArticulationNodes(firstPieceNode, counter, visited);
 	checkArticulationRoot(firstPieceNode);
-	
 
 	Bitboard pinned;
 	Bitboard nextPiece;

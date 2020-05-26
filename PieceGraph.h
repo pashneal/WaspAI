@@ -84,7 +84,10 @@ class IntermediateGraph {
 		}
 		vector<int> find(Bitboard& test){
 			vector<int>v;
-			if (test.count() <= 1) {
+			if (test.count() == 0) {
+				return v;
+			}
+			if (test.count() == 1) {
 				if (nodes.find(test.hash()) == nodes.end()) 
 					return v;
 				for (auto i: nodes[test.hash()]) v.push_back(i);
@@ -118,5 +121,12 @@ class IntermediateGraph {
 			Bitboard ret(numHashTable[1]);
 			ret.unionWith(numHashTable[0]);
 			return ret;
+		}
+		void print() {
+			for (auto iter : nodes) {
+				cout << iter.first << " ";
+				for (auto i : iter.second) cout << i << " ";
+				cout << endl;
+			}
 		}
 };

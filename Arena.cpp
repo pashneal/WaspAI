@@ -70,8 +70,6 @@ void Arena::setPlayer(int playerNum, MonteCarloTree& searchAlgo) {
 
 //assumes that Arena::currentGameState has not yet made the specified move
 string Arena::convertToNotation(MoveInfo move){
-	//first create the notation of the current piece
-
 
 	if (move == MoveInfo()) return "pass";
 	//if not spawning
@@ -253,6 +251,7 @@ void Arena::makeMove(MoveInfo move){
 	if (move == MoveInfo()) {
 		moveHistory.push_back(move);
 		currentGameState.replayMove(move);
+		cout << "HERREE" << endl;
 		return;
 	}
 
@@ -294,6 +293,20 @@ void Arena::makeMove(MoveInfo move){
 	currentGameState.replayMove(move);
 };
 
+void Arena::undo(string move){
+	MoveInfo moveInfo = convertFromNotation(move);
+	undo(moveInfo);
+}
+
+void Arena::undo(MoveInfo move){
+	moveHistory.pop_back();
+	moveHistoryNotation.pop_back();
+	auto pieceOrder = pieceOrders.at(move.newPieceLocation.hash()).back();
+	if (!(move.oldPieceLocation == Bitboard()))
+		pieceOrders[move.oldPieceLocation.hash()].push_back(pieceOrder);
+	pieceOrders.at(move.newPieceLocation.hash()).pop_back();
+	currentGameState.undoMove(move);
+}
 //Assumes that the piece is already in the hive
 string Arena::findTopPieceOrder(Bitboard piece){
 	return std::get<2>(pieceOrders.at(piece.hash()).back());

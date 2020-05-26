@@ -1,6 +1,22 @@
 #include "Weight.h"
 
-int Weight::recalculateMoves(Bitboard piece){
+double calculateScore(unordered_map <int, pair<PieceColor, int>>& finalMoveCounts,
+					  GameState * parentGameState,
+					  double multiplier) {
+	double results = 0;
+	for (auto iter: finalMoveCounts){
+		auto& pieceColorCount = iter.second;
+		if (parentGameState->turnColor == pieceColorCount.first )
+			results -= pieceColorCount.second;
+		else
+			results += pieceColorCount.second;
+	}
+	results *= multiplier;
+	return results;
+}
+int recalculateMoves(Bitboard& piece, 
+					 GameState * parentGameState,
+					 MoveGenerator& moveGen){
 	int result = 0;
 	bool pinned = parentGameState->pinned.containsAny(piece);
 	bool stacked = parentGameState->upperLevelPieces.containsAny(piece);
@@ -181,24 +197,22 @@ double PieceCountWeight::evaluate(MoveInfo move) {
 }
 
 void AntMoveCountWeight::initialize(GameState * gameState){
-	Weight::initialize(gameState);
+	parentGameState = gameState;
+	moveGen.setPieceStacks(&parentGameState->pieceStacks);
+	moveGen.setUpperLevelPieces(&parentGameState->upperLevelPieces);
+	moveGen.allPieces = &parentGameState->allPieces;
 
 	freeAnts.clear();
 	pinnedAnts.clear();
 	coveredAnts.clear();
-	allAnts.clear();
-	for (auto& graph: antMoves) {
-		graph.second.destroy();
-	}
 	antMoves.clear();
 	initialMoveCounts.clear();
 
 	//insert properties of the ant for later use
-	for (auto& ant : gameState->ants.splitIntoBitboards()){
-		allAnts.unionWith(ant);
+	for (auto ant : gameState->ants.splitIntoBitboards()){
 		bool free = true;
 		PieceColor color = gameState->findBottomPieceColor(ant);
-		antMoves[ant.hash()] = MoveGraph();
+		antMoves[ant.hash()] = Bitboard();
 		initialMoveCounts[ant.hash()] = make_pair(color, 0);
 		
 
@@ -214,13 +228,9 @@ void AntMoveCountWeight::initialize(GameState * gameState){
 			freeAnts.unionWith(ant);
 			moveGen.setGeneratingPieceBoard(&ant);
 			Bitboard moves = moveGen.getMoves();
-
-			//insert all moves (and initial ant location) for later use
-			antMoves[ant.hash()].insert(ant);
-			for (auto& move : moves.splitIntoBitboards()){
-				antMoves[ant.hash()].insert(move);	
-			}
-			initialMoveCounts[ant.hash()] =  make_pair(color, 0);
+			moves.unionWith(ant);
+			antMoves[ant.hash()] = moves;
+			initialMoveCounts[ant.hash()] =  make_pair(color, moves.count() - 1);
 		}
 	}
 }
@@ -234,20 +244,28 @@ double AntMoveCountWeight::evaluate(MoveInfo move){
 	Bitboard incorrectAnts(freeAnts);
 	Bitboard expectedMoves;
 
-	if (move.pieceName == ANT)
-		if (!(move.oldPieceLocation == Bitboard())) 
-			expectedMoves = antMoves[move.oldPieceLocation.hash()].getMoves();
-
-	//ant may have been moved to a square it could
-	//not previously travel to itself, (ie. spawned or swapped by pillbug)
-	//check to see if that is the case
-	if (expectedMoves.containsAny(newPiece)) {
-		incorrectAnts.notIntersectionWith(oldPiece);
-		int newMoves = recalculateMoves(newPiece);
+	if (move.pieceName==ANT){
 		PieceColor color = parentGameState->findBottomPieceColor(newPiece);
-		finalMoveCounts.erase(oldPiece.hash());
-		finalMoveCounts[newPiece.hash()] = make_pair(color, newMoves);
-	} 
+		int oldMoves = 0;
+		if (oldPiece.count()) {
+			expectedMoves = antMoves[move.oldPieceLocation.hash()];
+			oldMoves = finalMoveCounts[oldPiece.hash()].second;
+			finalMoveCounts.erase(oldPiece.hash());
+		}
+		
+		incorrectAnts.notIntersectionWith(oldPiece);
+		//ant may have been moved to a square it could
+		//not previously travel to itself, (ie. spawned or swapped by pillbug)
+		//check to see if that is the case
+		if (expectedMoves.containsAny(newPiece)){
+			//don't include the new location
+			finalMoveCounts[newPiece.hash()] = make_pair(color, oldMoves);
+		}  else {
+			int newMoves = recalculateMoves(newPiece, parentGameState, moveGen);
+			finalMoveCounts[newPiece.hash()] = make_pair(color, newMoves);
+		}
+	}
+
 
 	//see if moving this piece unpinned some ants
 	Bitboard newlyUnpinnedAnts(pinnedAnts);
@@ -255,69 +273,80 @@ double AntMoveCountWeight::evaluate(MoveInfo move){
 	newlyUnpinnedAnts.notIntersectionWith(parentGameState->upperLevelPieces);
 	newlyUnpinnedAnts.notIntersectionWith(parentGameState->pinned);
 	
-	//recalculate unpinned ants (if any)
+	//recalculate freed ants (if any)
 	for (auto& unpinned: newlyUnpinnedAnts.splitIntoBitboards()) {
-		int newMoves = recalculateMoves(unpinned);
+		int newMoves = recalculateMoves(unpinned, parentGameState, moveGen);
 		PieceColor color = parentGameState->findBottomPieceColor(unpinned);
 		finalMoveCounts[unpinned.hash()] = make_pair(color, newMoves);
 	}
 
 	//see if free ant was made immobile by covering it
-	if (freeAnts.containsAny(newPiece)){
-		Bitboard& ant = newPiece;
-		PieceColor color = parentGameState->findBottomPieceColor(ant);
-		finalMoveCounts[ant.hash()] = make_pair(color, 0);
+	if (incorrectAnts.containsAny(newPiece)){
+		finalMoveCounts.erase(newPiece.hash());
+		incorrectAnts.notIntersectionWith(newPiece);
 	}
 
+	//see if free ants became pinned
+	Bitboard newlyPinnedAnts(incorrectAnts);
+	newlyPinnedAnts.intersectionWith(parentGameState->pinned);
+	incorrectAnts.notIntersectionWith(newlyPinnedAnts);
+	for (auto& pinnedAnt : newlyPinnedAnts.splitIntoBitboards()){
+		finalMoveCounts.erase(pinnedAnt.hash());
+	}
+	
+	//fix the moveCount of the remaining ants
 	correctAssumptions(move, incorrectAnts);
-	return calculateScore();
+
+	return calculateScore(finalMoveCounts, parentGameState, multiplier);
 }
 
 void AntMoveCountWeight::correctAssumptions(MoveInfo move, Bitboard incorrectAnts){
+	moveGen.piecesExceptCurrent = parentGameState->allPieces;
+	Bitboard legalNodes = moveGen.getLegalWalkPerimeter(move.newPieceLocation);
+	legalNodes.notIntersectionWith(parentGameState->allPieces);
+	int connectedComponents = legalNodes.splitIntoConnectedComponents().size();
+	Bitboard test = moveGen.getLegalConnectedComponents(legalNodes);
+
 	for (auto& ant : incorrectAnts.splitIntoBitboards() ){
-		
 		PieceColor color = parentGameState->findTopPieceColor(ant);
-		Bitboard newMoves = antMoves[ant.hash()].getMoves();
-		newMoves.notIntersectionWith(move.newPieceLocation);
-		moveGen.piecesExceptCurrent = newMoves;
-
-		//find ant paths around the new piece location
-		Bitboard legalNodes = moveGen.getLegalWalkPerimeter(move.newPieceLocation);
-		Bitboard expectedNodes = move.newPieceLocation.getPerimeter();
-		expectedNodes.intersectionWith(newMoves);
-
-		//TODO: case analysis to get faster average case recalculation using articulation
-		//nodes and low-link in MoveGraph
-		//if the piece does not have an easy recalculation
-		if (legalNodes.splitIntoConnectedComponents().size() > 1 ||
-			!legalNodes.containsAll(expectedNodes)){
-
-			//brute force recalculate	
-			int newMoveCount = recalculateMoves(ant);
+		if (!(test == legalNodes)){
+			int newMoveCount = recalculateMoves(ant, parentGameState, moveGen);
 			finalMoveCounts[ant.hash()] = make_pair(color, newMoveCount);
 			continue;
-
-		} else if (expectedNodes.containsAny(legalNodes)) {
-			newMoves.unionWith(legalNodes);
 		}
 
+		Bitboard antPerimeter = ant.getPerimeter();
+		if (antPerimeter.containsAny(move.newPieceLocation)) {
+			int newMoveCount = recalculateMoves(ant, parentGameState, moveGen);
+			finalMoveCounts[ant.hash()] = make_pair(color, newMoveCount);
+			continue;
+		}
+		//if the piece does not have an easy recalculation
+		if (connectedComponents > 1){
+			//brute force recalculate	
+			int newMoveCount = recalculateMoves(ant, parentGameState, moveGen);
+			finalMoveCounts[ant.hash()] = make_pair(color, newMoveCount);
+			continue;
+		}
+		
+		Bitboard searchNodes(ant);
+		Bitboard newMoves = antMoves[ant.hash()];
 
-		//recalulate ant paths around the old piece location
-		legalNodes = moveGen.getLegalWalkPerimeter(move.oldPieceLocation);
-		if (newMoves.containsAny(legalNodes))
-			newMoves.unionWith(move.oldPieceLocation);
+		//remove potentially incorrect information
+		if (newMoves.containsAny(move.newPieceLocation)){
+			newMoves.notIntersectionWith(move.newPieceLocation);
+			searchNodes.unionWith(move.newPieceLocation);
+		}
 
-		//find nodes that are now connected to previous ant moves
-		expectedNodes = move.oldPieceLocation.getPerimeter();
-		expectedNodes.intersectionWith(newMoves);
-		expectedNodes.notIntersectionWith(legalNodes);
+		//queue the locations around move.oldPieceLocation for searching
+		Bitboard oldLegalNodes = move.oldPieceLocation.getPerimeter();
+		oldLegalNodes.intersectionWith(newMoves);
+		newMoves.notIntersectionWith(oldLegalNodes);
+		searchNodes.unionWith(oldLegalNodes);
 
-		//if there are nodes that were not previously connected
-		//O(1) average case recalculation to find new ant moves
-		for (auto& startNode: expectedNodes.splitIntoBitboards()) {
-			newMoves.notIntersectionWith(startNode);
-			moveGen.setGeneratingPieceBoard(&startNode);
-			moveGen.findAntMoves(startNode, newMoves);
+		//recalculate potentially incorrect information
+		if (searchNodes.count()) {
+			moveGen.findAntMoves(searchNodes, newMoves, ant);
 		}
 
 		finalMoveCounts[ant.hash()] = make_pair(color, newMoves.count());
@@ -325,121 +354,24 @@ void AntMoveCountWeight::correctAssumptions(MoveInfo move, Bitboard incorrectAnt
 }
 
 void LadybugMoveCountWeight::initialize(GameState * gameState) {
-	Weight::initialize(gameState);
-	freeLadybugs.clear();
-	upperLevelGates.clear();
-	immobileLadybugs.clear();
-
-	ladybugMoves = {Bitboard(), Bitboard()};
-	moveGraphs = {IntermediateGraph(), IntermediateGraph()};
-
-	for (auto& ladybug : gameState->ladybugs.splitIntoBitboards()) {
-		immobileLadybugs.unionWith(ladybug);
-		//if pinned or covered, ignore
-		if (gameState->pinned.containsAny(ladybug)) continue;
-		if (gameState->upperLevelPieces.containsAny(ladybug)) continue;
-		freeLadybugs.unionWith(ladybug);
-		immobileLadybugs.xorWith(ladybug);
-
-		//cache moves and extra information for faster recalulation
-		moveGen.setGeneratingPieceBoard(&ladybug);
-		PieceColor color = gameState->findTopPieceColor(ladybug);
-		ladybugMoves[color] = moveGen.getMoves();
-		moveGraphs[color] = moveGen.graph;
-		upperLevelGates.unionWith(moveGen.extraInfo);
-	}
+	parentGameState = gameState;
+	moveGen.setPieceStacks(&parentGameState->pieceStacks);
+	moveGen.setUpperLevelPieces(&parentGameState->upperLevelPieces);
+	moveGen.allPieces = &parentGameState->allPieces;
 }
 
 double LadybugMoveCountWeight::evaluate(MoveInfo move) {
+	int result = 0;
 	finalMoveCounts.clear();
-	finalMoveCounts[moveGraphs[WHITE].root.hash()] = {WHITE, ladybugMoves[WHITE].count()};
-	finalMoveCounts[moveGraphs[BLACK].root.hash()] = {BLACK, ladybugMoves[BLACK].count()};
-
-	Bitboard& newPiece = move.newPieceLocation;
-	Bitboard& oldPiece = move.oldPieceLocation;
-	//check if ladybug might be affected by upper level gates
-	for (int color = PieceColor::WHITE; color < PieceColor::NONE ; color++){
-		Bitboard watched = parentGameState->upperLevelPieces;
-		Bitboard intermediate = moveGraphs[color].getIntermediateNodes();
-		intermediate.intersectionWith(parentGameState->allPieces);
-		
-		watched.unionWith(intermediate);
-		watched.notIntersectionWith(ladybugMoves[color]);
-		watched.intersectionWith(parentGameState->upperLevelPieces);
-		if(watched.count() >= 2){
-			Bitboard& ladybug = moveGraphs[color].root;
-			int moves = recalculateMoves(ladybug);
-			finalMoveCounts[ladybug.hash()] = {WHITE, moves};
+	for (auto& ladybug : parentGameState->ladybugs.splitIntoBitboards()){
+		PieceColor color  = parentGameState->findBottomPieceColor(ladybug);
+		if (color == parentGameState->turnColor) {
+			result -= recalculateMoves(ladybug, parentGameState, moveGen);
+		} else {
+			result += recalculateMoves(ladybug, parentGameState, moveGen);
 		}
-	}
-	//check if a ladybug moves to a different position
-	//or was spawned into the board
-	if (move.pieceName == LADYBUG && freeLadybugs.containsAny(move.oldPieceLocation)){
-		int moves = recalculateMoves(newPiece);
-		PieceColor color = parentGameState->findBottomPieceColor(newPiece);
-		finalMoveCounts.erase(oldPiece.hash());
-		finalMoveCounts[newPiece.hash()] = {color, moves};
-	} 
-
-	//check if a previously free ladybug becomes pinned
- 	for (auto& ladybug: freeLadybugs.splitIntoBitboards()){
-		if (parentGameState->pinned.containsAny(ladybug)){
-			PieceColor color = parentGameState->findBottomPieceColor(ladybug);
-			finalMoveCounts[ladybug.hash()] = {color, 0};
-		}
-	}
-	
-	//check if previously pinned/covered piece is now unpinned and covered
-	for (auto& ladybug: immobileLadybugs.splitIntoBitboards()){
-		recalculateMoves(ladybug);
-		int moves = recalculateMoves(ladybug);
-		PieceColor color = parentGameState->findBottomPieceColor(ladybug);
-		finalMoveCounts[ladybug.hash()] = {color, moves};
-	}
-
-	//if other piece moves in a way that makes previous calculations incorrect
-	for (int color = PieceColor::WHITE; color < PieceColor::NONE ; color++){
-		auto& graph = moveGraphs[color];
-		auto newPiece = move.newPieceLocation;
-		auto oldPiece = move.oldPieceLocation;
-		newPiece.notIntersectionWith(parentGameState->upperLevelPieces);
-		oldPiece.notIntersectionWith(parentGameState->upperLevelPieces);
-
-
-		Bitboard& ladybug = moveGraphs[color].root;
-		int newMoveCount = finalMoveCounts[ladybug.hash()].second;
-		vector<int> depths = graph.find(newPiece);
-		//if moving to a location where ladybug movement occured
-		if (std::find(depths.begin(), depths.end(), 2) != depths.end())
-			newMoveCount -= 1;
-
-		//if moving to a location where ladybug movement is probable
-		Bitboard newLadybugMoves;
-		for (int depth = 0 ; depth < 2 ; depth++ ) { 
-			if (std::find(depths.begin(), depths.end(), depth) != depths.end()){
-				//find new ladybug moves using limited depth search
-				moveGen.generateLadybugMoves(depth);
-				newLadybugMoves = moveGen.getMoves();
-				//only get unique new moves
-				newLadybugMoves.notIntersectionWith(ladybugMoves[color]);
-			}
-		}
-		newMoveCount += newLadybugMoves.count();
-
-		depths = graph.find(oldPiece);
-		//if moving away from location that exposes a new move
-		if (std::find(depths.begin(), depths.end(), 2) != depths.end()){
-			newMoveCount += 1;
-		}
-
-		//if moving away from location where some ladybug paths travel through
-		if (depths.size() > 0){
-			Bitboard dependencies = getDependencies(oldPiece, (PieceColor)color);
-			newMoveCount -= dependencies.count();
-		}
-		finalMoveCounts[ladybug.hash()] = {(PieceColor)color, newMoveCount};
-	}
-	return calculateScore();
+	};	
+	return result;
 }
 //see if any of the given nodes is needed to access a move in ladybugMoves
 //if so return said moves
@@ -450,6 +382,7 @@ Bitboard checkDependency(Bitboard& nodes,
 	Bitboard dependent;
 	for (auto& node : nodes.splitIntoBitboards()) {
 		Bitboard neighbors = moveGen.getLegalClimbs(node);
+		neighbors.intersectionWith(moveGen.piecesExceptCurrent);
 		vector<int>depths = graph.find(neighbors);
 		if ( std::find(depths.begin(), depths.end(), targetNum) == depths.end()) {
 			dependent.unionWith(node);
@@ -464,7 +397,7 @@ Bitboard checkDependency(Bitboard& nodes,
 Bitboard LadybugMoveCountWeight::getDependencies(Bitboard startNode, PieceColor color) {
 	Bitboard dependentPaths;
 
-	int maxDepth = 2;
+	int maxDepth = 3;
 	//iterate through the depths potentially dependent on the startNode
 	auto graph = moveGraphs[color];
 	vector<int> depths = graph.find(startNode);
@@ -542,15 +475,16 @@ double GrasshopperMoveCountWeight::evaluate(MoveInfo move) {
 		perimeter.intersectionWith(parentGameState->allPieces);
 		finalMoveCounts[grasshopper.hash()] = {color,  perimeter.count()};
 	}
-	return calculateScore();
+	return calculateScore(finalMoveCounts, parentGameState, multiplier);
 }
 
 double SimpleMoveCountWeight::evaluate(MoveInfo move) {
 	for (auto& piece: parentGameState->getPieces(name)-> splitIntoBitboards()){
 		PieceColor color = parentGameState->findTopPieceColor(piece);
-		finalMoveCounts[piece.hash()] = {color, recalculateMoves(piece)};
+		finalMoveCounts[piece.hash()] = {color, 
+										recalculateMoves(piece, parentGameState, moveGen)};
 	}
-	return calculateScore();
+	return calculateScore(finalMoveCounts, parentGameState, multiplier);
 }
 
 double MosquitoMoveCountWeight::evaluate(MoveInfo move){

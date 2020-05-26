@@ -854,7 +854,7 @@ bool Bitboard::containsAll(Bitboard& other) {
 		if (internalBoardCache.find(i) != internalBoardCache.end()){
 			if ((internalBoards[i] & other.internalBoards[i]) != internalBoards[i])
 				return false;
-		}else {
+		}else if (other.internalBoards[i]){
 			return false;
 		}
 	}

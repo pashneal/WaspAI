@@ -5,13 +5,13 @@
 class Arena {
 		bool playerOneCPU = false;
 		bool playerTwoCPU = false;
-		vector<MoveInfo> moveHistory;
-		vector<string> moveHistoryNotation;
 		MonteCarloTree CPU[2];
 
 		//stores the identity for stacked pieces 
 		unordered_map< int, vector<tuple<PieceName, PieceColor, string>>> pieceOrders;
 	public:
+		vector<MoveInfo> moveHistory;
+		vector<string> moveHistoryNotation;
 		GameState currentGameState;
 
 		Arena(GameState g):currentGameState(g){};

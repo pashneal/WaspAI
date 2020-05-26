@@ -1,10 +1,10 @@
+#pragma once
 #include "GameState.h"
 #include <algorithm>
 class Weight {
-	protected:	
+	public: 
 		GameState * parentGameState;
 		MoveGenerator moveGen;
-	public: 
 		Bitboard watchPoints;
 		unordered_map <int , pair<PieceColor, int>> finalMoveCounts;
 		
@@ -23,19 +23,6 @@ class Weight {
 		//after intializing to a parent node, 
 		//see what things to tweak in order to update heuristics
 		virtual double evaluate(MoveInfo){return 0;};
-		virtual int  recalculateMoves(Bitboard);
-		double calculateScore() {
-			double results = 0;
-			for (auto iter: finalMoveCounts){
-				auto& pieceColorCount = iter.second;
-				if (parentGameState->turnColor == pieceColorCount.first )
-					results -= pieceColorCount.second;
-				else
-					results += pieceColorCount.second;
-			}
-			results *= multiplier;
-			return results;
-		}
 };
 class RandomWeight: public Weight {
 	public:
@@ -72,9 +59,8 @@ class AntMoveCountWeight : public Weight {
 		Bitboard freeAnts;
 		Bitboard pinnedAnts;
 		Bitboard coveredAnts;
-		Bitboard allAnts;
-		unordered_map <int ,pair<PieceColor, int> > initialMoveCounts;
-		unordered_map <int , MoveGraph> antMoves;
+		unordered_map <int , pair<PieceColor, int>> initialMoveCounts;
+		unordered_map <int , Bitboard> antMoves;
 		MoveGenerator moveGen;
 		PieceName name = ANT;
 	public:
