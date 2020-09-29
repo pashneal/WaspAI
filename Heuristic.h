@@ -10,6 +10,7 @@ class Heuristic {
 		int NUMWEIGHTS;
 		Complexity complexity;
 		set<char> expansionPieces;
+		double score;
 
 		Heuristic(){};
 		Heuristic (Complexity, set<char>);

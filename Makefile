@@ -15,6 +15,7 @@ DEPENDENCIES=Bitboard.o\
 	ProblemNode.o\
 	Test.o\
 	Weight.o\
+	AlphaBeta.o\
 	Arena.o
 
 debug: 
@@ -50,6 +51,7 @@ Arena.o: Arena.h Arena.cpp constants.h Heuristic.h
 
 Weight.o: Weight.h Weight.cpp GameState.h
 
+AlphaBeta.o: GameState.h Heuristic.h constants.h AlphaBeta.cpp
 Test.o: Test.h Test.cpp
 	$(CXX) $(CXXFLAGSDEBUG) -c Test.cpp
 

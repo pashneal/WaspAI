@@ -74,6 +74,7 @@ unsigned modulo(int, unsigned);
 //a structure defining the number of pieces in a hive 
 //game with P (pillbug), L (ladybug), and M (mosquito)
 extern vector <unordered_map <PieceName, int>> HivePLM; 
+extern vector <unordered_map <PieceName, int>> HiveOriginal; 
 
 const int ROW_SHIFT = 8;
 const int COLUMN_SHIFT = 1;

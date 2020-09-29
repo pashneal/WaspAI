@@ -75,13 +75,6 @@ class Test {
 
 		class WeightTest{
 			public:
-				static void testAntMoveWeights();
-				static void testGrasshopperMoveWeights();
-				static void testLadybugMoveWeights();
-				static void testPillbugMoveWeights();
-				static void testSpiderMoveWeights();
-				static void testSimpleMoveWeights();
-				static void testGetDependencies();
 		};
 		static void pass(bool, string);
 };

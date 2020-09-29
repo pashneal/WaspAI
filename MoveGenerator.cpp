@@ -139,16 +139,11 @@ void MoveGenerator::generateQueenMoves(){
 
 
 //TODO:optimize currently most expensive function
-void MoveGenerator::generateLadybugMoves(int depth){
+void MoveGenerator::generateLadybugMoves(){
 	Bitboard frontier, path, visited, result;
 	frontier.initializeTo(*generatingPieceBoard);
 	//store extra info for move
-	if (extraInfoOn) {
-		extraInfo.clear();
-		graph.clear();
-		graph.root.initializeTo(frontier);
-	}
-	ladybugStep(frontier, result, path, depth);
+	ladybugStep(frontier, result, path, 0);
 	result.intersectionWith(perimeter);
 	moves = result;
 }
@@ -239,38 +234,13 @@ void MoveGenerator::generateBeetleMoves(){
 	moves.unionWith(frontier);
 }  
 
-void MoveGenerator::findAntMoves(Bitboard& frontier, Bitboard& visited, Bitboard& ant){
-	moves.clear();
-	piecesExceptCurrent.initializeTo(*allPieces);
-
-	perimeter.initializeTo(*allPieces);
-	perimeter.notIntersectionWith(ant);
-	perimeter = perimeter.getPerimeter();
-
-	generateLegalAntMoves(frontier, visited);
-	moves.notIntersectionWith(ant);
-	moves.intersectionWith(perimeter);
-	visited = moves;
-}
-
 //TODO: this is so slowwww
-void MoveGenerator::generateLegalAntMoves(Bitboard startNodes,  Bitboard visitedNodes) {
+void MoveGenerator::generateLegalAntMoves() {
 	Bitboard frontiers;
 	Bitboard visited;
 	Bitboard newFrontiers;
 
-	if (startNodes.count()){
-		visited = visitedNodes;
-		newFrontiers = startNodes;
-		for (Bitboard& node: startNodes.splitIntoBitboards()){
-			Bitboard test = getLegalWalkPerimeter(node);
-			node.notIntersectionWith(*allPieces);
-			if( visitedNodes.containsAny(test)) 
-				visited.unionWith(node);
-		}
-	} else {
-		newFrontiers = *generatingPieceBoard;
-	}
+	newFrontiers = *generatingPieceBoard;
 	//perform a flood fill step until it cannot anymore
 	//TODO: avoid resplitting the board by using a getWalkPerimeter function that can
 	//handle multiple bits at once

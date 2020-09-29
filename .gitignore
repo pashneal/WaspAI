@@ -40,4 +40,4 @@ tags
 
 # Profiling Tools
 *.out.*
-
+*.gcda

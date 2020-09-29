@@ -39,10 +39,10 @@ class MoveGenerator {
 
 	public:
 
-		void generateLadybugMoves(int = 0); 
+		void generateLadybugMoves(); 
 		void generateApproxAntMoves();
-		void findAntMoves(Bitboard&, Bitboard&, Bitboard&);
-		void generateLegalAntMoves(Bitboard = Bitboard(), Bitboard = Bitboard());     
+		void findAntMoves();
+		void generateLegalAntMoves();     
 
 		Bitboard getLegalConnectedComponents(Bitboard);
 

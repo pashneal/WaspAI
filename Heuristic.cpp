@@ -54,7 +54,7 @@ void Heuristic::train(vector<double> corrections){
 	//apply corrections over weights
 	//TODO: is this the correct way to do it?
 	for (unsigned i = 0 ; i < corrections.size() ; i++){
-		weights[i]->multiplier += corrections[i];
+		weights[i]->correct( corrections[i]);
 	}
 	save();
 }

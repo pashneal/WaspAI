@@ -67,6 +67,31 @@ unsigned modulo( int value, unsigned m) {
 	return mod;
 }
 
+vector < unordered_map <PieceName, int>> HiveOriginal = 
+{
+	{	
+		{PieceName::GRASSHOPPER, 3},
+		{PieceName::QUEEN, 1},
+		{PieceName::LADYBUG, 0},
+		{PieceName::PILLBUG, 0},
+		{PieceName::MOSQUITO, 0},
+		{PieceName::BEETLE, 2},
+		{PieceName::ANT, 3},
+		{PieceName::SPIDER, 2}
+	},
+
+	{	
+		{PieceName::GRASSHOPPER, 3},
+		{PieceName::QUEEN, 1},
+		{PieceName::LADYBUG, 0},
+		{PieceName::PILLBUG, 0},
+		{PieceName::MOSQUITO, 0},
+		{PieceName::BEETLE, 2},
+		{PieceName::ANT, 3},
+		{PieceName::SPIDER, 2}
+	}
+};
+
 vector < unordered_map <PieceName, int>> HivePLM = 
 {
 	{	

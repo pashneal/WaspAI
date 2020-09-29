@@ -24,6 +24,9 @@ class Arena {
 		string findTopPieceOrder(Bitboard);
 		int countPieces(PieceColor, PieceName);
 
+		bool isGameOver(){
+			return currentGameState.checkVictory() != PieceColor::NONE;
+		};
 		void makeMove(string);
 		void makeMove(MoveInfo);
 		void undo(string);

@@ -12,6 +12,7 @@
 #include "constants.h"
 #include "Arena.h"
 #include "Bitboard.h"
+#include "AlphaBeta.h"
 #include "MoveGenerator.h"
 #include "PieceNode.h"
 #include "ProblemNode.h"
@@ -56,7 +57,6 @@ unordered_map <unsigned long long , unsigned long long > GATES[64];
 													{{"\\",{Direction::NW,Direction::SE}}, 
 													 {"/",{Direction::SW,Direction::NE}},
 													 {"-",{Direction::W,Direction::E}}};
-
 
 
 // directions are set out like this
@@ -852,17 +852,78 @@ void Test::MoveGeneratorTest::testGrasshopperMoves() {
 
 	vector <unordered_map <int, unsigned long long>> test = {
 		{{4, 10155194288446468u}},
+//    1 2 3 4 5 6 7 8
+// 8  ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ 
+// 7 ⬡ ⬡ ⬢ ⬡ ⬡ ⬢ ⬡ ⬡ 
+// 6  ⬡ ⬡ ⬢ ⬡ ⬢ ⬡ ⬡ ⬡ 
+// 5 ⬡ ⬡ ⬡ ⬢ ⬢ ⬡ ⬡ ⬡ 
+// 4  ⬡ ⬡ ⬢ ⬢ ⬡ ⬢ ⬢ ⬡ 
+// 3 ⬡ ⬡ ⬡ ⬡ ⬢ ⬢ ⬡ ⬡ 
+// 2  ⬡ ⬡ ⬢ ⬢ ⬢ ⬡ ⬡ ⬡ 
+// 1 ⬡ ⬡ ⬢ ⬡ ⬡ ⬡ ⬡ ⬡ 
+
 		{{5, 203164672u}}
+//    1 2 3 4 5 6 7 8
+// 8  ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ 
+// 7 ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ 
+// 6  ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ 
+// 5 ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ 
+// 4  ⬡ ⬡ ⬢ ⬢ ⬡ ⬡ ⬡ ⬡ 
+// 3 ⬡ ⬡ ⬢ ⬢ ⬢ ⬡ ⬡ ⬡ 
+// 2  ⬡ ⬡ ⬢ ⬢ ⬡ ⬡ ⬡ ⬡ 
+// 1 ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ 
+
 	};
 
 	vector <unordered_map<int, unsigned long long>> piece = {
 		{{4 , 134217728u }},
+//    1 2 3 4 5 6 7 8
+// 8  ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ 
+// 7 ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ 
+// 6  ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ 
+// 5 ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ 
+// 4  ⬡ ⬡ ⬡ ⬢ ⬡ ⬡ ⬡ ⬡ 
+// 3 ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ 
+// 2  ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ 
+// 1 ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ 
+
+
 		{{5,  524288u}}
+//    1 2 3 4 5 6 7 8
+// 8  ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ 
+// 7 ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ 
+// 6  ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ 
+// 5 ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ 
+// 4  ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ 
+// 3 ⬡ ⬡ ⬡ ⬢ ⬡ ⬡ ⬡ ⬡ 
+// 2  ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ 
+// 1 ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ 
+
 	};
 
 	vector <unordered_map <int, unsigned long long >> expected = {
 		{{4, 2449958197323104288u}},
+//    1 2 3 4 5 6 7 8
+// 8  ⬡ ⬢ ⬡ ⬡ ⬡ ⬢ ⬡ ⬡ 
+// 7 ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ 
+// 6  ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ 
+// 5 ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ 
+// 4  ⬡ ⬢ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ 
+// 3 ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ 
+// 2  ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ 
+// 1 ⬡ ⬡ ⬡ ⬡ ⬡ ⬢ ⬡ ⬡ 
+
 		{{5, 85901574164u}}
+//    1 2 3 4 5 6 7 8
+// 8  ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ 
+// 7 ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ 
+// 6  ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ 
+// 5 ⬡ ⬡ ⬢ ⬡ ⬢ ⬡ ⬡ ⬡ 
+// 4  ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ 
+// 3 ⬡ ⬢ ⬡ ⬡ ⬡ ⬢ ⬡ ⬡ 
+// 2  ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ 
+// 1 ⬡ ⬡ ⬢ ⬡ ⬢ ⬡ ⬡ ⬡ 
+
 	};
 
 
@@ -1664,6 +1725,26 @@ void perfTest() {
 	(end - begin).count() << "[ms]" << std::endl;
 }
 
+void generateMovesPerfTest() {
+	auto begin = chrono::steady_clock::now();
+	int totalMovesGenerated = 0;
+	for (auto i = 0 ; i < 10 ; i++) {
+		Arena arena(GameState(HiveOriginal, WHITE));
+		int j = 200;
+		while (j-- && !arena.isGameOver()){
+			auto moves = arena.currentGameState.generateAllMoves();
+			totalMovesGenerated += moves.size();
+			if (moves.size() == 0) 
+				arena.currentGameState.replayMove(MoveInfo());
+			else 
+				arena.currentGameState.replayMove(moves[rand() % moves.size()]);
+		}
+		cout << (200 - j) << endl;
+ 	}
+	auto end = chrono::steady_clock::now();
+	auto duration  = chrono::duration_cast<chrono::milliseconds>(end - begin);
+	cout << totalMovesGenerated << " moves generated in " << duration.count() << "[ms]" << endl;
+}
 void Test::BitboardTest::testFastPerimeter(){
 	cout << "====================TestFastPerimeter()====================" << endl;
 	unsigned long long position = 1;
@@ -1912,264 +1993,6 @@ void Test::MonteCarloTest::testRandomSearch(){
 				"Computer player did not find the winning move");
 }
 
-void Test::WeightTest::testAntMoveWeights() {
-	cout << "==========testAntMoveWeights=========" << endl;
-	srand(6);
-	bool silenced = true;
-	for (int  j =0; j < 10 ; j ++) {
-		Arena arena(GameState(HivePLM, WHITE));
-		Weight * w = new AntMoveCountWeight(1);
-		PieceName name = ANT;
-
-		arena.makeMove("wP");
-		arena.makeMove("bP wP-");
-		arena.makeMove("wA1 -wP");
-		arena.makeMove("bA1 bP-");
-		for (int i = 0 ; i < 200 ; i++ ) {
-			w->initialize(&arena.currentGameState);
-			for (auto move: arena.currentGameState.generateAllMoves()){
-				PieceColor old = arena.currentGameState.turnColor;
-				arena.makeMove(move);
-				if (!silenced){
-					cout << move.toString(">>>") << endl;
-					cout << ">>>new" << move.newPieceLocation.hash() << endl;
-					if (move.oldPieceLocation.count())
-						cout << ">>>old" << move.oldPieceLocation.hash() << endl;
-					else 
-						cout << ">>>old empty" << endl;
-				}
-				if (old == arena.currentGameState.turnColor){
-					cout << "There was no change in turnColor after last move" << endl;
-					throw 5;
-				}
-				//double result = w->evaluate(move);
-
-				double result;
-				try { 
-					result = w->evaluate(move);
-				} catch (std::out_of_range) {
-					cout << "out_of_range" << endl;
-					auto mh = arena.moveHistoryNotation;
-					for (auto i: mh) { cout << i << endl;};
-					arena.currentGameState.print();
-					throw 4;
-				}
-
-				double expected = 0;
-				if (!silenced)
-					cout << "===========expected================" << endl;
-				for (auto ant: arena.currentGameState.ants.splitIntoBitboards()){
-					bool pinned = arena.currentGameState.pinned.containsAny(ant);
-					bool stacked = arena.currentGameState.upperLevelPieces.containsAny(ant);
-					PieceColor color = arena.currentGameState.findTopPieceColor(ant);
-					if (pinned || stacked) {
-						if (!silenced)
-							cout << ant.hash() << " " << color << " " << 0 << 
-								" pinned? " << pinned << " stacked? " << stacked << endl;
-						continue;
-					}
-					arena.currentGameState.moveGenerator.setGeneratingName(&name);
-					arena.currentGameState.moveGenerator.setGeneratingPieceBoard(&ant);
-					int count = arena.currentGameState.moveGenerator.getMoves().count();
-					if (!silenced){
-						cout << ant.hash() << " " << color << " " << count << endl;
-						arena.currentGameState.moveGenerator.getMoves().print();
-					}
-					if (color == arena.currentGameState.turnColor)
-						expected -= count;
-					else
-						expected += count;
-				}
-				if (expected != result) {
-					Test::pass(expected == result, "Did not produce expected results");
-					auto mh = arena.moveHistoryNotation;
-					for (auto i : mh) cout << i << endl;
-					arena.currentGameState.print();
-					throw 3;
-				}
-				arena.undo(move);
-				if (old != arena.currentGameState.turnColor) {
-					cout << "There was no change in turnColor after last move undo" << endl;
-					throw 5;
-				}
-			}
-			auto moves = arena.currentGameState.generateAllMoves();
-			if (moves.size() == 0) {
-				arena.makeMove(MoveInfo());
-				continue;
-			}
-			auto randomMove = moves[rand() % moves.size()];
-			arena.makeMove(randomMove);
-		}
-	}
-	Test::pass(true, "");
-}
-
-void Test::WeightTest::testLadybugMoveWeights() {
-	cout << "==========testLadybugMoveWeights=========" << endl;
-	srand(6);
-	for (int  j =0; j < 10 ; j ++) {
-		Arena arena(GameState(HivePLM, WHITE));
-		Weight * w = new LadybugMoveCountWeight(1);
-		PieceName name = LADYBUG;
-
-		arena.makeMove("wP");
-		arena.makeMove("bP wP-");
-		arena.makeMove("wA1 -wP");
-		arena.makeMove("bA1 bP-");
-		arena.makeMove("wL \\wP");
-		for (int i = 0 ; i < 200 ; i++ ) {
-			w->initialize(&arena.currentGameState);
-			for (auto move: arena.currentGameState.generateAllMoves()){
-				PieceColor old = arena.currentGameState.turnColor;
-				arena.makeMove(move);
-				cout << move.toString(">>>") << endl;
-				cout << ">>>new" << move.newPieceLocation.hash() << endl;
-				if (move.oldPieceLocation.count())
-					cout << ">>>old" << move.oldPieceLocation.hash() << endl;
-				else 
-					cout << ">>>old empty" << endl;
-				if (old == arena.currentGameState.turnColor){
-					cout << "There was no change in turnColor after last move" << endl;
-					throw 5;
-				}
-				//double result = w->evaluate(move);
-
-				double result;
-				try { 
-					 result = w->evaluate(move);
-				} catch (std::out_of_range) {
-					cout << "out_of_range" << endl;
-					auto mh = arena.moveHistoryNotation;
-					for (auto i: mh) { cout << i << endl;};
-					arena.currentGameState.print();
-					throw 4;
-				}
-
-				double expected = 0;
-				cout << "===========expected================" << endl;
-				for (auto piece: arena.currentGameState.getPieces(name)->splitIntoBitboards())
-				{
-					bool pinned = arena.currentGameState.pinned.containsAny(piece);
-					bool stacked = arena.currentGameState.upperLevelPieces.containsAny(piece);
-					PieceColor color = arena.currentGameState.findTopPieceColor(piece);
-					if (pinned || stacked) {
-						cout << piece.hash() << " " << color << " " << 0 << 
-							" pinned? " << pinned << " stacked? " << stacked << endl;
-						continue;
-					}
-					arena.currentGameState.moveGenerator.setGeneratingName(&name);
-					arena.currentGameState.moveGenerator.setGeneratingPieceBoard(&piece);
-					int count = arena.currentGameState.moveGenerator.getMoves().count();
-					cout << piece.hash() << " " << color << " " << count << endl;
-					arena.currentGameState.moveGenerator.getMoves().print();
-					if (color == arena.currentGameState.turnColor)
-						expected -= count;
-					else
-						expected += count;
-				}
-				if (expected != result) {
-					Test::pass(expected == result, "Did not produce expected results");
-					auto mh = arena.moveHistoryNotation;
-					for (auto i : mh) cout << i << endl;
-					arena.currentGameState.print();
-					throw 3;
-				}
-				arena.undo(move);
-				if (old != arena.currentGameState.turnColor) {
-					cout << "There was no change in turnColor after last move undo" << endl;
-					throw 5;
-				}
-			}
-			auto moves = arena.currentGameState.generateAllMoves();
-			if (moves.size() == 0) {
-				arena.makeMove(MoveInfo());
-				continue;
-			}
-			auto randomMove = moves[rand() % moves.size()];
-			arena.makeMove(randomMove);
-		}
-	}
-}
-
-void Test::WeightTest::testGetDependencies(){
-	cout << "==========testLadybugMoveWeights=========" << endl;
-	srand(6);
-	for (int  j =0; j < 10 ; j ++) {
-		Arena arena(GameState(HivePLM, WHITE));
-		PieceName name = LADYBUG;
-		arena.currentGameState.moveGenerator.extraInfoOn = true;
-
-		arena.makeMove("wP");
-		arena.makeMove("bP wP-");
-		arena.makeMove("wA1 -wP");
-		arena.makeMove("bA1 bP-");
-		arena.makeMove("wL \\wP");
-		for (int i = 0 ; i < 200 ; i++ ) {
-			auto moves  = arena.currentGameState.generateAllMoves();
-		arena.currentGameState.moveGenerator.setGeneratingName(&name);
-			Bitboard freeLadybugs;
-			for (auto& ladybug : arena.currentGameState.ladybugs.splitIntoBitboards()){
-				bool pinned = arena.currentGameState.pinned.containsAny(ladybug);
-				bool stacked = arena.currentGameState.upperLevelPieces.containsAny(ladybug);
-				if (!pinned && !stacked)
-					freeLadybugs.unionWith(ladybug);
-			}
-			for (auto& ladybug : freeLadybugs.splitIntoBitboards()){
-				arena.currentGameState.moveGenerator.allPieces = 
-					&arena.currentGameState.allPieces;
-				arena.currentGameState.moveGenerator.setGeneratingPieceBoard(&ladybug);
-				Bitboard moves = arena.currentGameState.moveGenerator.getMoves();
-				IntermediateGraph graph = arena.currentGameState.moveGenerator.graph;
-				PieceColor color = arena.currentGameState.findBottomPieceColor(ladybug);
-
-				Bitboard board = arena.currentGameState.allPieces;
-				board.notIntersectionWith(ladybug);
-				for (auto& piece : board.splitIntoBitboards()){
-					if (piece == ladybug) continue; 
-
-					board.xorWith(piece);
-					arena.currentGameState.moveGenerator.allPieces = &board;
-					Bitboard newMoves = arena.currentGameState.moveGenerator.getMoves();
-					newMoves.intersectionWith(moves);
-
-					LadybugMoveCountWeight w(1.0);
-					w.initialize(&arena.currentGameState);
-					Bitboard dependent = w.getDependencies(piece, color);
-				
-					if (newMoves == moves) {
-						if (dependent.count()){
-							cout << "ladybug" << endl; ladybug.print();
-							cout << "board" << endl; board.print();
-							cout << "removed " << endl; piece.print();
-							cout << "dependent"; dependent.print();
-							cout << "newMoves " << endl; newMoves.print();
-							cout << "oldMoves  " << endl; moves.print();
-							Test::pass(false, "Did not identify independent Node correctly");
-							throw 5;
-						}
-					} else {
-						if (dependent.count() == 0){
-							cout << "ladybug" << endl; ladybug.print();
-							cout << "board" << endl; board.print();
-							cout << "removed " << endl; piece.print();
-							cout << "newMoves " << endl; newMoves.print();
-							cout << "oldMoves  " << endl; moves.print();
-							Test::pass(false, "Did not identify dependent Node correctly");
-							throw 4;
-						}
-					}
-					board.xorWith(piece);
-				}
-
-			}
-			arena.currentGameState.moveGenerator.allPieces = 
-				&arena.currentGameState.allPieces;
-			auto randomMove = moves[rand() % moves.size()];
-			arena.makeMove(randomMove);
-		}
-	}
-}
 //creates a hashTable that stores the precomputed perimeter
 //of a given bitboard array
 //int maxNumber : the number of bits per board to precomputed
@@ -2301,6 +2124,18 @@ void createGateHashTable() {
 	}
 }
 
+void minimaxTest(int depth){
+	GameState gameState(HiveOriginal, PieceColor::WHITE);
+	Heuristic heuristic(SIMPLE, {'P','L','M'});
+	AlphaBeta ab(gameState, heuristic);
+	auto begin = chrono::steady_clock::now();
+	MoveInfo bestMove = ab.search(depth);
+	auto end = chrono::steady_clock::now();
+	auto duration  = chrono::duration_cast<chrono::milliseconds>(end - begin);
+	cout << depth << " arrived in " << duration.count() << "[ms]" << endl;
+
+	cout << bestMove.toString("") << endl;
+}
 int main() {
 	srand(2);
 	cout << "Initializing..." << endl;
@@ -2334,11 +2169,13 @@ int main() {
 	Test::GameStateTest::testMovePiece();
 	//Test::GameStateTest::testPsuedoRandom();
 	//perfTest();
-	//Test::WeightTest::testAntMoveWeights();
+	generateMovesPerfTest();
+	//Test::WeightTest::te
+	//tAntMoveWeights();
 	//Test::WeightTest::testLadybugMoveWeights();
-	Test::WeightTest::testGetDependencies();
 	//Test::GameStateTest::testPlayout();
 	//Test::ArenaTest::testArenaNotation();
 	//Test::ArenaTest::testBattle();
 	//Test::MonteCarloTest::testRandomSearch();
+	minimaxTest(100);
 }

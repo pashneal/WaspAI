@@ -307,6 +307,7 @@ void Arena::undo(MoveInfo move){
 	pieceOrders.at(move.newPieceLocation.hash()).pop_back();
 	currentGameState.undoMove(move);
 }
+
 //Assumes that the piece is already in the hive
 string Arena::findTopPieceOrder(Bitboard piece){
 	return std::get<2>(pieceOrders.at(piece.hash()).back());
